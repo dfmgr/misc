@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : datauri
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : Create data URI from a file
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+datauri() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: datauri fileName"
+
+  typeset mimeType=""
+  if [ -f "$1" ]; then
+    mimeType=$(file -b --mime-type "$1")
+    if [[ $mimeType == text/* ]]; then
+      mimeType="$mimeType;charset=utf-8"
+    fi
+    printf "data:%s;base64,%s" \
+      "$mimeType" \
+      "$(openssl base64 -in "$1" | tr -d "\n")"
+  else
+    printf "%s is not a file.\n" "$1"
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+datauri "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

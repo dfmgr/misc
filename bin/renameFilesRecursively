@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : renameFilesRecursively
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : rename Files Recursively function
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+renameFilesRecursively() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"'
+
+  SEARCH_PATH="$1"
+  SEARCH="$2"
+  REPLACE="$3"
+
+  [ -z "$1" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
+  [ -z "$2" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
+  [ -z "$3" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
+
+  find "${SEARCH_PATH}" -type f -name "*${SEARCH}*" | while read FILENAME; do
+    NEW_FILENAME="$(echo ${FILENAME} | sed -e "s/${SEARCH}/${REPLACE}/g")"
+    mv "${FILENAME}" "${NEW_FILENAME}"
+  done
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+renameFilesRecursively "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

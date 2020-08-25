@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : hrfs
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : Human readable file size - (because `du -h` doesn't cut it for me).
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+hrfs() {
+    DIR="${BASH_SOURCE%/*}"
+    if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+    if [[ -f "$DIR/functions.bash" ]]; then
+        source "$DIR/functions.bash"
+    else
+        echo "\t\tCouldn't source the functions file"
+        exit 1
+    fi
+
+    [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+    [ ! "$1" = "--help" ] || printf_help "Human readable file size"
+
+    printf "%s" "$1" |
+        awk '{
+            i = 1;
+            split("B KB MB GB TB PB EB ZB YB WTFB", v);
+            value = $1;
+
+            # confirm that the input is a number
+            if ( value + .0 == value ) {
+
+                while ( value >= 1024 ) {
+                    value/=1024;
+                    i++;
+                }
+
+                if ( value == int(value) ) {
+                    printf "%d %s", value, v[i]
+                } else {
+                    printf "%.1f %s", value, v[i]
+                }
+
+            }
+        }' |
+        sed -e ":l" \
+            -e "s/\([0-9]\)\([0-9]\{3\}\)/\1,\2/; t l"
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+hrfs "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

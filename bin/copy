@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : copy
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : copies a file and shows progress
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+copy() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: copy /source/file /destination/file"
+
+  [[ -z "$1" || -z "$2" ]] && {
+    printf_red "Usage: copy /source/file /destination/file"
+    exit 1
+  }
+  typeset dest="$2"
+  typeset size=$(stat -c%s "$1")
+  [[ -d "$dest" ]] && dest="$2/$(basename "$1")"
+  dd if="$1" 2>/dev/null | pv -petrb -s "$size" | dd of="$dest"
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+copy "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

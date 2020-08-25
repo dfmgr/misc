@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : mkd
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : Create new directories and enter the first one
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+mkd() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: mkd directorytoCreate"
+
+  typeset dir="$1"
+  if [ ! -z "$dir" ]; then
+    printf_green "Creating $dir and entering the directory"
+    mkdir -p "$dir" && cd_into "$dir"
+  else
+    printf_red "Usage: mkd folder"
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+mkd "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

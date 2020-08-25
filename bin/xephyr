@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : xephyr
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : xephyr
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+if [[ -f "$DIR/functions.bash" ]]; then
+  source "$DIR/functions.bash"
+else
+  echo "\t\tCouldn't source the functions file"
+  exit 1
+fi
+
+[ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+[ ! "$1" = "--help" ] || printf_help "Usage xephyr"
+
+declare -a args="$@"
+if cmd_exists Xephyr || cmd_exists xephyr; then
+  if [ ! -z "$DISPLAY_LOW_DENSITY" ]; then
+    DISPLAY="$DISPLAY_LOW_DENSITY" RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
+  else
+    DISPLAY="$DISPLAY RESOLUTION"="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
+  fi
+
+  if ! pidof Xephyr >/dev/null 2>&1; then
+    Xephyr -br -ac -noreset -screen "$RESOLUTION" :9 >/dev/null 2>&1 &
+    sleep 3
+  fi
+  DISPLAY=:9 "$args" >/dev/null 2>&1
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

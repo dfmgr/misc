@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : show_wifi_clients
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : shows connected stations in hotspot mode
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+show_wifi_clients() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "shows connected stations in hotspot mode"
+
+  printf_green "# All connected wifi devices, with IP address,"
+  printf_green "# hostname (if available), and MAC address."
+  printf_red "# %-20s %-30s %-20s" "IP address" "lease name" "MAC address"
+  leasefile=/var/lib/misc/dnsmasq.leases
+  for interface in $(iw dev | grep Interface | cut -f 2 -s -d" "); do
+    maclist=$(iw dev $interface station dump | grep Station | cut -f 2 -s -d" ")
+    for mac in $maclist; do
+      ip="UNKN"
+      host=""
+      ip=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 2 -s -d" ")
+      host=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 3 -s -d" ")
+      printf "%-20s %-30s %-20s" $ip $host $mac
+    done
+  done
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+show_wifi_clients "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : qrcode
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : converts text into a qr code
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+qrcode() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help 'Usage: qrcode "Item to turn into a qrcode"'
+
+  typeset text="$1"
+  [[ -e "$text" ]] && text=$(cat "$text")
+  [[ -z "$text" ]] && [[ ! -t 0 ]] && text=$(cat -)
+  [[ -z "$text" ]] && text=$(printclip)
+  echo "$text" | curl -F-=\<- qrenco.de
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+qrcode "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,0 +1,53 @@
+global debug_package  %{nil}
+
+%osver                el7
+
+%_topdir              %{getenv:HOME}/rpmbuild
+%_sourcedir           %{getenv:HOME}/rpmbuild/%{name}
+%_specdir             %{getenv:HOME}/rpmbuild/%{name}
+
+%_rpmdir              %{getenv:HOME}/Documents/rpmbuild/x86_64/%osver/rpms
+%_srcrpmdir           %{getenv:HOME}/Documents/rpmbuild/x86_64/%osver/srpm
+%_debugrpmdir         %{getenv:HOME}/Documents/rpmbuild/x86_64/%osver/debug
+%_builddir            /var/tmp/BUILD
+%_buildrootdir        /var/tmp/BUILDROOT
+%_buildroot           /var/tmp/BUILDROOT/%{name}-%{version}-%{release}.%{_arch}
+
+%_gpg_path            %(echo $HOME)/.gnupg
+%_signature           gpg
+%_gpg_name            Jason Hempstead
+%_gpgbin              /usr/bin/gpg
+%packager             CasjaysDev
+%vendor               CasjaysDev http://rpms.casjaysdev.com
+%distribution         2.casjay.%osver
+%dist                 2.casjay.%osver
+%BuildArch            x86_64
+%_var                 /var
+%_tmppath             /tmp
+%_usr                 /usr
+%_usrdir              /usr
+%_usrsrc              /usr/src
+%_lib                 lib64
+%_docdir              /usr/share/doc
+%_sysconfdir          /etc
+%_prefix              /usr
+%_bindir              /usr/bin
+%_libdir              /usr/lib64
+%_libexecdir          /usr/libexec
+%_sbindir             /usr/sbin
+%_sharedstatedir      /var/lib
+%_datarootdir         /usr/share
+%_datadir             /usr/share
+%_includedir          /usr/include
+%_infodir             /usr/share/info
+%_mandir              /usr/share/man
+%_localstatedir       /var
+%_initddir            /etc/rc.d/init.d
+%ext_info             .gz
+%ext_man              .gz
+%_smp_mflags          -j2
+
+%__arch_install_post \
+    [ "%{buildarch}" = "noarch" ] || QA_CHECK_RPATHS=1 ; \
+    case "${QA_CHECK_RPATHS:-}" in [1yY]*) /usr/lib/rpm/check-rpaths ;; esac \
+    /usr/lib/rpm/check-buildroot

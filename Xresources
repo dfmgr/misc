@@ -1,0 +1,111 @@
+! Include the colors
+
+#include                        ".config/xresources/colors"
+
+! Default Settings
+
+*.theme:                        Obsidian-Purple
+*.alpha:                        250
+*.cursorBlink:                  true
+*.cursorColor:                  #bbc5ff
+*.pointerColor:                 #bbc5ff
+*.pointerColorBackground:       #aCea5c
+*.pointerColorForeground:       #59cd36
+*.faceName:                     Hack Nerd Font
+*.faceSize:                     10
+*.termName:                     xterm-256color
+*.eightBitInput:                false
+*.geometry:                     100x48+200+200
+*.visualBell:                   true
+*.bellIsUrgent:                 true
+*.dynamiccolors:                true
+*.utf8:                         2
+*.highlightSelection:           true
+*.transparent:                  true
+*.loginshell:                   true
+
+! X Font Configuration
+
+*.dpi:                          96
+*.antialias:                    true
+*.hinting:                      false
+*.rgba:                         rgb
+*.autohint:                     false
+*.hintstyle:                    hintslight
+*.lcdfilter:                    lcddefault
+
+*.font:                     xft:Hack Nerd Font Mono:style=Regular:size=11:hinting=full, xft:Symbola:size=11:antialias=true:hinting=full, xft:PowerlineSymbols:size=11:antialias=true:hinting=full
+*.font:                     xft:GohuFont:size=8:antialias=true, \
+*.font:                     xft:gohufont:size=11:antialias=false
+*.font:                     -*-creep-regular-*-*--16-*-*-*-*-*-*-1
+*.font:                     -*-lime-*-*-*--11-*-*-*-*-*-*-1
+*.font:                     xft:creep:size=16:antialias=true
+*.font:                     xft:envy code r:size=9:antialias=false
+*.font:                     xft:lemon:size=16:antialias=false
+*.font:                     xft:lime:size=16:antialias=false
+*.font:                     xft:neep:size=11:antialias=false
+*.font:                     xft:perfect dos vga 437:size=11:antialias=false
+*.font:                     xft:tewi:size=11:antialias=false
+
+*.boldFont: 
+*.italicFont: 
+*.bolditalicFont: 
+
+! emacs configuration
+
+Emacs.alpha:                    95
+
+! Rofi Configuration
+
+rofi.color-window:              argb:c82d303b, #7c8389, #1d1f21
+rofi.color-normal:              argb:31d1f21, #c4cbd4, argb:96404552, #4084d6, #f9f9f9
+rofi.color-urgent:              argb:2c1d1f21, #cc6666, argb:e54b5160, #a54242, #f9f9f9
+rofi.color-active:              argb:2c1d1f21, #65acff, argb:e44b5160, #4491ed, #f9f9f9
+rofi.width:                     100
+rofi.height:                    24
+rofi.lines:                     5
+rofi.columns:                   2
+rofi.font:                      Hack Nerd Font 10
+rofi.bw:                        0
+rofi.padding:                   400
+rofi.eh:                        1
+rofi.separator-style:           solid
+rofi.hide-scrollbar:            true
+
+! URxvt Configuration
+
+URxvt*imLocale:                 en_US.UTF-8
+URxvt*termName:                 rxvt-unicode-256color
+URxvt.scrollBar:                false
+URxvt.transparent:              true
+URxvt.shading:                  15
+URxvt.depth:                    32
+URxvt*letterSpace:              -1
+URxvt.perl-ext-common:          eval
+URxvt.keysym.Shift-Control-C:   eval:selection_to_clipboard
+URxvt.keysym.Shift-Control-V:   eval:paste_clipboard
+URxvt.iso14755:                 false
+urxvt*background:               rgba:0000/0000/0200/c800
+URxvt.resize-font.smaller:      C-j
+URxvt.resize-font.bigger:       C-k
+
+!! Xterm
+
+xterm*background:               black
+xterm*foreground:               lightgray
+XTerm*savelines:                16384
+XTerm*charClass:                33:48,36-47:48,58-59:48,61:48,63-64:48,95:48,126:48
+XTerm*rightScrollBar:           true
+XTerm*ScrollBar:                true
+XTerm*allowSendEvents:          true
+XTerm*faceName:                 Hack Nerd Font
+XTerm*faceSize:                 8
+
+XTerm.vt100.translations:      #override \n\
+    Ctrl <Key>M: maximize() \n\
+    Ctrl <Key>R: restore() \n\
+    Ctrl <Key>j: smaller-vt-font() \n\
+    Ctrl <Key>k: larger-vt-font()
+    Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
+    Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
+

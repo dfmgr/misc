@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : gitforcepull
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : pull a git repo and hard reset
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+gitforcepull() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: gitforcepull | This will reset the repo"
+
+  printf_question "Are you sure as this WILL reset your local changes" [y/N]
+  read -r -n 1 -s fpull && echo
+  if [[ $fpull == "y" || $fpull == "Y" ]]; then
+    git reset -q --hard HEAD
+    git pull -fq
+  else
+    printf_info "You have cancelled the current operation"
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+gitforcepull "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

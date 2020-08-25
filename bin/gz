@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : gz
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : Get gzip information (gzipped file size + reduction size).
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+gz() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: gz fileName"
+
+  declare -i gzippedSize=0
+  declare -i originalSize=0
+  if [ -f "$1" ]; then
+    if [ -s "$1" ]; then
+      originalSize=$(wc -c <"$1")
+      printf "\n original size:   %12s\n" "$(hrfs "$originalSize")"
+      gzippedSize=$(gzip -c "$1" | wc -c)
+      printf " gzipped size:    %12s\n" "$(hrfs "$gzippedSize")"
+      printf " ─────────────────────────────\n"
+      printf " reduction:       %12s [%s%%]\n\n" \
+        "$(hrfs $((originalSize - gzippedSize)))" \
+        "$(printf "%s" "$originalSize $gzippedSize" |
+          awk '{ printf "%.1f", 100 - $2 * 100 / $1 }' |
+          sed -e "s/0*$//;s/\.$//")"
+    else
+      printf "\"%s\" is empty.\n" "$1"
+    fi
+  else
+    printf "\"%s\" is not a file.\n" "$1"
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+gz "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

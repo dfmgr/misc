@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : delhistory
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : remove last n records from history
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+delhistory() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage delhistory Number"
+
+  typeset opt id n=1
+  OPTIND=1 #reset index
+  while getopts "n:" opt; do
+    case $opt in
+    n) n=$OPTARG ;;
+    \?) exit 1 ;;
+    :)
+      printf_red "Option -$OPTARG requires number of history last entries to remove as an argument" >&2
+      exit 1
+      ;;
+    esac
+  done
+
+  ((++n))
+  id=$(history | tail -n $n | head -n1 | awk '{print $1}')
+  while ((n-- > 0)); do history -d "$id"; done
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+delhistory "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

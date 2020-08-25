@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : git_clone
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : clone a git repo and delete the directory if it exits
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+git_clone() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: git_clone remote local | This will delete the local directory if it exists"
+
+  printf_question "Are you sure as this WILL delete your local repo" [y/N]
+  read -r -n 1 -s clone && echo
+  if [[ $clone == "y" || $clone == "Y" ]]; then
+    rm_rf "$2"
+    devnull git clone -q "$@"
+  else
+    printf_info "You have cancelled the current operation"
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+git_clone "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

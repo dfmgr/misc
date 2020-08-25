@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : timer
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : shows up/down seconds counter. Exits and produces a sound if reaches zero
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+timer() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: timer howLong"
+
+  typeset ts="$(($(date +%s) + ${1:-0} - 1))"
+  export ts
+  typeset p1="d=$(($(date +%s) - $ts));[ $d -lt 0 ] && d=$((-d));"
+  typeset p2="[ $d -eq 0 ] && exit 1;"
+  typeset p3="date -u -d @"$d" +"%H.%M.%S""
+  showbanner -t.5 "$p1$p2$p3"
+  typeset status="$?"
+  eval "$p1$p3"
+  [[ "$status" -eq 8 ]] && speaker-test -t sine -f 1500 -S 70 -p 10000 -l 1 &>/dev/null
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+timer "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

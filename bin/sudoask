@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : sudoask
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : Keep sudo running
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+sudoask() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Keep sudo running"
+
+  if [ ! -f "$HOME/.sudo" ]; then
+    sudo true &>/dev/null
+    while true; do
+      echo -e "$!" >"$HOME/.sudo"
+      sudo -n true && echo -e "$$" >>"$HOME/.sudo"
+      sleep 10
+      rm -Rf "$HOME/.sudo"
+      kill -0 "$$" || exit
+    done &>/dev/null &
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+sudoask "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

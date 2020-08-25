@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : checkup
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : check for updates on Arch
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+checkup() {
+  ping -q -c 1 1.1.1.1 >/dev/null || exit
+
+  if cmd_exists pacman; then
+    notify-send "📦 Repository Sync" "Checking for package updates..."
+    sudo pacman -Syyuw --noconfirm || notify-send "Error downloading updates."
+
+    #Check your internet connection, if pacman is already running, or run update manually to see errors."
+    if [ ! -z "${STATUSBAR}" ]; then pkill -RTMIN+8 "${STATUSBAR:?}"; fi
+
+    if pacman -Qu | grep -v "\[ignored\]"; then
+      notify-send "🎁 Repository Sync" "Updates available."
+    else
+      notify-send "📦 Repository Sync" "Sync complete. No new packages for update."
+    fi
+
+  fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+checkup "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : ppi
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : Process phone images
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+
+ppi() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: ppi pathtoFile"
+
+  cmd_exists convert || exit 1
+  typeset query="${1:-*.jpg}"
+  typeset geometry="${2:-50%}"
+  for i in "$query"; do
+    if [[ "$(echo ${i##*.} | tr '[:upper:]' '[:lower:]')" != "png" ]]; then
+      imgName="${i%.*}.png"
+    else
+      imgName="_${i%.*}.png"
+    fi
+    convert "$i" \
+      -colorspace RGB \
+      +sigmoidal-contrast 11.6933 \
+      -define filter:filter=Sinc \
+      -define filter:window=Jinc \
+      -define filter:lobes=3 \
+      -sigmoidal-contrast 11.6933 \
+      -colorspace sRGB \
+      -background transparent \
+      -gravity center \
+      -resize "$geometry" \
+      +append \
+      "$imgName" &&
+      printf "* %s (%s)\n" \
+        "$imgName" \
+        "$geometry"
+  done
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+ppi "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
