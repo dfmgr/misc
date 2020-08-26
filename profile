@@ -303,7 +303,7 @@ if [ -s "$NVM_DIR/bash_completion" ]; then source "$NVM_DIR"/bash_completion; fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup setV
 
-export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv"
+export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
