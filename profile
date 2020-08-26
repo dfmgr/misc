@@ -52,6 +52,7 @@ elif [ -n "$ZSH_VERSION" ]; then
   export SAVEHIST=5000
   export HISTSIZE=2000
   cmd_exists direnv && eval "$(direnv hook zsh)"  || true
+  autoload compinit && compinit
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
