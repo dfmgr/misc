@@ -70,7 +70,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure display
-
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
@@ -84,7 +83,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
-
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
@@ -97,7 +95,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enviroment variables when using a desktop
-
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
@@ -108,7 +105,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enable control alt backspace
-
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
@@ -120,7 +116,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup modifiers
-
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
@@ -139,7 +134,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
-
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
@@ -154,7 +148,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
-
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
@@ -170,14 +163,12 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
-
 if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
   cp -f ~/.config/local/gitconfig.local ~/.gitconfig
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
-
 case "$(uname -s)" in
 Linux | Darwin)
   export SUDO_PROMPT="$(printf "\t\t\033[1;36m")[sudo]$(printf "\033[0m") password for %p: "
@@ -191,31 +182,32 @@ esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-
-export GPG_TTY="$(tty)"
-export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
-cmd_exists gpg-agent && eval "$(gpg-agent --daemon 2>/dev/null)"  || true
+if [ -f "$(command -v gpg-agent 2>/dev/null)" ]; then
+  export GPG_TTY="$(tty)"
+  export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
+  eval "$(gpg-agent --daemon 2>/dev/null)"  || true
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
+if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
+  if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
+    ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)"  || true
+    ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
+  fi
 
-if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-  cmd_exists ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)"  || true
-  ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
-fi
-
-sshdir=$(ls "$HOME"/.ssh/id_* 2>/dev/null | wc -l)
-if [ "$sshdir" != "0" ]; then
-  for f in $(ls "$HOME"/.ssh/id_* | grep -v .pub); do
-    ssh-add "$f" >/dev/null 2>&1
-  done
-fi
+  sshdir=$(ls "$HOME"/.ssh/id_* 2>/dev/null | wc -l)
+  if [ "$sshdir" != "0" ]; then
+    for f in $(ls "$HOME"/.ssh/id_* | grep -v .pub); do
+      ssh-add "$f" >/dev/null 2>&1
+    done
+  fi
 
 export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
-
 export LESS_TERMCAP_mb=$'\e[1;32m'
 export LESS_TERMCAP_md=$'\e[1;32m'
 export LESS_TERMCAP_me=$'\e[0m'
@@ -226,39 +218,32 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Don't clear the screen after quitting a `man` page.
-
 export MANPAGER="less -X"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # add emacs to bin
-
 if [ -d $HOME/.emacs.d/bin ]; then
   export PATH="$HOME/.emacs.d/bin:$PATH"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # rpm devel
-
 export QA_RPATHS="$((0x0001 | 0x0010))"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mpd name
-
 export MPDSERVER="$(hostname)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set hostname
-
 export HOSTNAME=$(hostname -f 2>/dev/null || hostname -s 2>/dev/null || hostname 2>/dev/null)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # tizonia cloud player config
-
 export TIZONIA_RC_FILE="$HOME/.config/tizonia/tizonia.conf"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create a banner
-
 if [ -n "$(command -v figlet 2>/dev/null)" ]; then
   export BANNER="figlet -f banner"
 elif [ -n "$(command -v toilet 2>/dev/null)" ]; then
@@ -271,48 +256,48 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-
-export rvmsudo_secure_path=0
-export rvm_ignore_gemrc_issues=1
-export rvm_silence_path_mismatch_check_flag=1
-export GEM_HOME="$HOME/.local/share/gem"
-export GEM_PATH="$HOME/.local/share/gem"
-export PATH="$GEM_HOME/bin:$PATH"
-if [ -s "$HOME/.rvm/scripts/rvm" ]; then source "$HOME/.rvm/scripts/rvm"; fi
-if [ -d $HOME/.local/share/rvm/bin ]; then PATH="$HOME/.local/share/rvm/bin:$PATH"; fi
+if [ -f "$HOME/.rvm/scripts/rvm" ]; then
+  export rvmsudo_secure_path=0
+  export rvm_ignore_gemrc_issues=1
+  export rvm_silence_path_mismatch_check_flag=1
+  export GEM_HOME="$HOME/.local/share/gem"
+  export GEM_PATH="$HOME/.local/share/gem"
+  export PATH="$GEM_HOME/bin:$PATH"
+  if [ -s "$HOME/.rvm/scripts/rvm" ]; then source "$HOME/.rvm/scripts/rvm"; fi
+  if [ -d $HOME/.local/share/rvm/bin ]; then PATH="$HOME/.local/share/rvm/bin:$PATH"; fi
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager 
-
-export FNM_DIR="$HOME/.local/share/fnm"
-export FNM_MULTISHELL_PATH="$HOME/.local/bin"
-cmd_exists fnm && eval "$(fnm env --multi --use-on-cd --fnm-dir=$HOME/.local/share/fnm/ )"
+if [ -f "$(command -v fnm 2>/dev/null)" ]; then
+  export FNM_DIR="$HOME/.local/share/fnm"
+  export FNM_MULTISHELL_PATH="$HOME/.local/bin"
+  eval "$(fnm env --multi --use-on-cd --fnm-dir=$HOME/.local/share/fnm/ )"
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-
-export NVM_DIR="$HOME/.local/share/nvm"
-export NVM_BIN="$HOME/.local/bin"
-export NO_UPDATE_NOTIFIER="true"
-export NODE_REPL_HISTORY_SIZE=10000
-if [ -s "$NVM_DIR/nvm.sh" ]; then source "$NVM_DIR/nvm.sh"; fi
-if [ -s "$NVM_DIR/bash_completion" ]; then source "$NVM_DIR"/bash_completion; fi
+if [ -f "$HOME/.local/share/nvm/nvm.sh" ]; then
+  export NVM_DIR="$HOME/.local/share/nvm"
+  export NVM_BIN="$HOME/.local/bin"
+  export NO_UPDATE_NOTIFIER="true"
+  export NODE_REPL_HISTORY_SIZE=10000
+  if [ -s "$NVM_DIR/nvm.sh" ]; then source "$NVM_DIR/nvm.sh"; fi
+  if [ -s "$NVM_DIR/bash_completion" ]; then source "$NVM_DIR"/bash_completion; fi
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup setV
-
 export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
-
 export GOPATH="$HOME/.local/share/go"
 export GOBIN="$GOPATH/bin"
 export GODIR="$GOPATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
-
 if [ -d $HOME/.cargo ] || [ -s $HOME/.cargo/env ]; then
   export PATH="$HOME/.cargo/bin:$PATH"
   source $HOME/.cargo/env
@@ -320,7 +305,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
-
 if [ -n "$(command -v garcon-url-handler 2>/dev/null)" ]; then
   export BROWSER="garcon-url-handler --url"
 elif [ -n "$(command -v firefox 2>/dev/null)" ]; then
@@ -355,7 +339,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
-
 if [ -n "$(command -v termite 2>/dev/null)" ]; then
   export TERMINAL="termite"
 elif [ -n "$(command -v terminology 2>/dev/null)" ]; then
@@ -378,7 +361,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
-
 if [ -n "$(command -v VirtualBox 2>/dev/null)" ]; then
   VMMANAGER="VirtualBox"
 elif [ -n "$(command -v VMWare 2>/dev/null)" ]; then
@@ -393,7 +375,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
-
 if [ -n "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
   export TORRENT="transmission-remote-gtk"
 elif [ -n "$(command -v transmission-remote-cli 2>/dev/null)" ]; then
@@ -424,7 +405,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
-
 if [ -n "$(command -v thunderbird 2>/dev/null)" ]; then
   EMAIL="thunderbird"
 elif [ -n "$(command -v evolution 2>/dev/null)" ]; then
@@ -449,7 +429,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
-
 if [ -n "$(command -v code 2>/dev/null)" ]; then
   export EDITOR="code"
 elif [ -n "$(command -v vscode 2>/dev/null)" ]; then
@@ -476,7 +455,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export todo.sh config
-
 export TODO_DIR="$HOME/.local/share/todo"
 export TODOTXT_CFG_FILE="$HOME/.config/todo/config"
 export TODO_FILE="$HOME/.local/share/todo/todo.txt"
@@ -489,12 +467,10 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export notes dir
-
 export NOTES_DIRECTORY="$HOME/.local/share/notes"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
-
 export CLICOLOR=1
 export GREP_COLORS="mt=37;45"
 
@@ -516,33 +492,26 @@ esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
-
 export WALLPAPERS="$HOME/.local/share/wallpapers"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-
-case "$(uname -s)" in
-Linux)
+if [ -f "$(command -v lf 2>/dev/null)" ]; then
   export LF_ICONS="di=:fi=:ln=:or=:ex=:*.c=:*.cc=:*.clj=:*.coffee=:*.cpp=:*.css=:*.d=:*.dart=:*.erl=:*.exs=:*.fs=:*.go=:*.h=:*.hh=:*.hpp=:*.hs=:*.html=:*.java=:*.jl=:*.js=:*.json=:*.lua=:*.md=:*.php=:*.pl=:*.pro=:*.py=:*.rb=:*.rs=:*.scala=:*.ts=:*.vim=:*.cmd=:*.ps1=:*.sh=:*.bash=:*.zsh=:*.fish=:*.tar=:*.tgz=:*.arc=:*.arj=:*.taz=:*.lha=:*.lz4=:*.lzh=:*.lzma=:*.tlz=:*.txz=:*.tzo=:*.t7z=:*.zip=:*.z=:*.dz=:*.gz=:*.lrz=:*.lz=:*.lzo=:*.xz=:*.zst=:*.tzst=:*.bz2=:*.bz=:*.tbz=:*.tbz2=:*.tz=:*.deb=:*.rpm=:*.jar=:*.war=:*.ear=:*.sar=:*.rar=:*.alz=:*.ace=:*.zoo=:*.cpio=:*.7z=:*.rz=:*.cab=:*.wim=:*.swm=:*.dwm=:*.esd=:*.jpg=:*.jpeg=:*.mjpg=:*.mjpeg=:*.gif=:*.bmp=:*.pbm=:*.pgm=:*.ppm=:*.tga=:*.xbm=:*.xpm=:*.tif=:*.tiff=:*.png=:*.svg=:*.svgz=:*.mng=:*.pcx=:*.mov=:*.mpg=:*.mpeg=:*.m2v=:*.mkv=:*.webm=:*.ogm=:*.mp4=:*.m4v=:*.mp4v=:*.vob=:*.qt=:*.nuv=:*.wmv=:*.asf=:*.rm=:*.rmvb=:*.flc=:*.avi=:*.fli=:*.flv=:*.gl=:*.dl=:*.xcf=:*.xwd=:*.yuv=:*.cgm=:*.emf=:*.ogv=:*.ogx=:*.aac=:*.au=:*.flac=:*.m4a=:*.mid=:*.midi=:*.mka=:*.mp3=:*.mpc=:*.ogg=:*.ra=:*.wav=:*.oga=:*.opus=:*.spx=:*.xspf=:*.pdf="
-  ;;
-esac
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set term type
-
 export TERM="screen-256color"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # logging
-
 export DEFAULT_LOG="scripts"
 export DEFAULT_LOG_DIR="${LOGDIR:-$HOME/.local/log}"
 export LOGDIR="${DEFAULT_LOG_DIR:-$HOME/.local/log}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set PATH so it includes user's private bin if it exists
-
 if [ -d "$HOME"/.local/bin ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
@@ -553,7 +522,6 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cheat.sh settings
-
 export CHTSH_HOME="$HOME/.config/cheatsh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -564,7 +532,6 @@ export TASKDATA="$HOME/.local/share/taskwarrior"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export vdpau driver
-
 case "$(uname -s)" in
 Linux)
   if [ -n "$VDPAU_DRIVER" ]; then
@@ -575,56 +542,48 @@ esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import local profile
-
 if [ -f "$HOME/.config/local/profile.local" ]; then
   . "$HOME/.config/local/profile.local"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # passmgr default settings - copy to your bash.local and change for your setup
-
 if [ -f "$HOME/.config/secure/passmgr.txt" ]; then
   . "$HOME/.config/secure/passmgr.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # github default settings - copy to your bash.local and change for your setup
-
 if [ -f "$HOME/.config/secure/github.txt" ]; then
   . "$HOME/.config/secure/github.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # gitlab default settings - copy to your bash.local and change for your setup
-
 if [ -f "$HOME/.config/secure/gitlab.txt" ]; then
   . "$HOME/.config/secure/gitlab.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # your private git - copy to your bash.local and change for your setup
-
 if [ -f "$HOME/.config/secure/gitpriv.txt" ]; then
   . "$HOME/.config/secure/gitpriv.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Dotfiles base repo  - copy to your bash.local and change for your setup
-
 if [ -f "$HOME/.config/secure/personal.txt" ]; then
   . "$HOME/.config/secure/personal.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # APIKEYS  - copy to your bash.local and change for your setup
-
 if [ -f "$HOME/.config/secure/apikeys.txt" ]; then
   . "$HOME/.config/secure/apikeys.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cursor
-
 if [ -n "$BASH_VERSION" ]; then
   echo -e -n "\x1b[\x35 q"
   echo -e -n "\e]12;white\a"
@@ -632,22 +591,18 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
-
 unset sshdir
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Make sure SBIN gets added to the path
-
 export PATH="$PATH:/usr/local/sbin:/usr/bin:/sbin"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-
 export PATH="$(echo $PATH | tr ':' '\n' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:#g')"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
-
 export SRCPROFILERC="$HOME/.profile"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
