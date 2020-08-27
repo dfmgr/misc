@@ -258,7 +258,13 @@ export PATH="$GEM_HOME/bin:$PATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-if [ -s "$HOME/.rvm/scripts/rvm" ]; then source "$HOME/.local/share/rvm/scripts/rvm"; fi
+if [ -f "/etc/profile.d/rvm.sh" ]; then 
+  rvm_path="/usr/local/share/rvm"
+  source /etc/profile.d/rvm.sh; 
+elif [ -s "$HOME/.rvm/scripts/rvm" ]; then 
+  rvm_path="$HOME/.local/share/rvm"
+  source "$HOME/.local/share/rvm/scripts/rvm"
+fi
 if [ -d $HOME/.local/share/rvm/bin ]; then PATH="$HOME/.local/share/rvm/bin:$PATH"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
