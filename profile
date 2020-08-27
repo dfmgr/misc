@@ -278,9 +278,8 @@ export rvm_silence_path_mismatch_check_flag=1
 export GEM_HOME="$HOME/.local/share/gem"
 export GEM_PATH="$HOME/.local/share/gem"
 export PATH="$GEM_HOME/bin:$PATH"
-if [ -d /usr/local/rvm/bin ]; then PATH="$PATH:/usr/local/rvm/bin"; fi
-if [ -s "/etc/profile.d/rvm.sh" ]; then source "/etc/profile.d/rvm.sh"; fi
 if [ -s "$HOME/.rvm/scripts/rvm" ]; then source "$HOME/.rvm/scripts/rvm"; fi
+if [ -d $HOME/.local/share/rvm/bin ]; then PATH="$HOME/.local/share/rvm/bin:$PATH"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager 
