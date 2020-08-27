@@ -9,8 +9,21 @@ PATH="/usr/local/bin:$HOME/.local/bin:$PATH"
 #umask 022
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Setting the temp directory
+# create directories
+mkdir -p "$HOME/.ssh"
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/.local/log"
+mkdir -p "$HOME/.local/tmp"
+mkdir -p "$HOME/.config/todo"
+mkdir -p "$HOME/.config/cheatsh"
+mkdir -p "$HOME/.local/share/fnm"
+mkdir -p "$HOME/.local/share/nvm"
+mkdir -p "$HOME/.local/share/rvm"
+mkdir -p "$HOME/.local/share/gem/bin"
+mkdir -p "$HOME/.local/share/wallpapers"
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setting the temp directory
 export TMP="${TEMP:-$HOME/.local/tmp}"
 export TEMP="${TEMP:-$HOME/.local/tmp}"
 
@@ -154,20 +167,6 @@ if [ -n "$DISPLAY" ]; then
     ;;
   esac
 fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# create dirs
-
-mkdir -p "$HOME/.ssh"
-mkdir -p "$HOME/.local/bin"
-mkdir -p "$HOME/.local/log"
-mkdir -p "$HOME/.local/tmp"
-mkdir -p "$HOME/.config/todo"
-mkdir -p "$HOME/.config/cheatsh"
-mkdir -p "$HOME/.local/share/fnm"
-mkdir -p "$HOME/.local/share/nvm"
-mkdir -p "$HOME/.local/share/gem/bin"
-mkdir -p "$HOME/.local/share/wallpapers"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
