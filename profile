@@ -258,14 +258,19 @@ export PATH="$GEM_HOME/bin:$PATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-if [ -f "/etc/profile.d/rvm.sh" ]; then 
+if [ -f "/usr/local/share/rvm/scripts/rvm" ]; then 
   export rvm_path="/usr/local/share/rvm"
-  source /etc/profile.d/rvm.sh; 
+  source /usr/local/share/rvm/scripts/rvm; 
+  if [ -d /usr/local/share/rvm/bin ]; then 
+    PATH="/usr/local/share/rvm/bin:$PATH"
+  fi
 elif [ -s "$HOME/.rvm/scripts/rvm" ]; then 
   export rvm_path="$HOME/.local/share/rvm"
   source "$HOME/.local/share/rvm/scripts/rvm"
+  if [ -d $HOME/.local/share/rvm/bin ]; then 
+    PATH="$HOME/.local/share/rvm/bin:$PATH"
+  fi
 fi
-if [ -d $HOME/.local/share/rvm/bin ]; then PATH="$HOME/.local/share/rvm/bin:$PATH"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager 
