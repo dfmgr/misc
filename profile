@@ -192,7 +192,7 @@ fi
 # export ssh
 if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
   if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-    ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)"  || true
+    eval "$(ssh-agent >/dev/null 2>&1)"  || true
     ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
   fi
 
@@ -262,6 +262,7 @@ export PATH="$GEM_HOME/bin:$PATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
+export rvm_stored_umask=022
 export rvmsudo_secure_path=0
 export rvm_cd_complete_flag=1
 export rvm_ignore_gemrc_issues=1
@@ -271,22 +272,20 @@ if [ -d $HOME/.local/share/rvm/bin ]; then PATH="$HOME/.local/share/rvm/bin:$PAT
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager 
-if [ -f "$(command -v fnm 2>/dev/null)" ]; then
   export FNM_DIR="$HOME/.local/share/fnm"
   export FNM_MULTISHELL_PATH="$HOME/.local/bin"
+if [ -f "$(command -v fnm 2>/dev/null)" ]; then
   eval "$(fnm env --multi --use-on-cd --fnm-dir=$HOME/.local/share/fnm/ )"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-if [ -f "$HOME/.local/share/nvm/nvm.sh" ]; then
-  export NVM_DIR="$HOME/.local/share/nvm"
-  export NVM_BIN="$HOME/.local/bin"
-  export NO_UPDATE_NOTIFIER="true"
-  export NODE_REPL_HISTORY_SIZE=10000
-  if [ -s "$NVM_DIR/nvm.sh" ]; then source "$NVM_DIR/nvm.sh"; fi
-  if [ -s "$NVM_DIR/bash_completion" ]; then source "$NVM_DIR"/bash_completion; fi
-fi
+export NVM_DIR="$HOME/.local/share/nvm"
+export NVM_BIN="$HOME/.local/bin"
+export NO_UPDATE_NOTIFIER="true"
+export NODE_REPL_HISTORY_SIZE=10000
+if [ -s "$NVM_DIR/nvm.sh" ]; then source "$NVM_DIR/nvm.sh"; fi
+if [ -s "$NVM_DIR/bash_completion" ]; then source "$NVM_DIR"/bash_completion; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup setV
@@ -300,10 +299,8 @@ export GODIR="$GOPATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
-if [ -d $HOME/.cargo ] || [ -s $HOME/.cargo/env ]; then
-  export PATH="$HOME/.cargo/bin:$PATH"
-  source $HOME/.cargo/env
-fi
+export PATH="$HOME/.cargo/bin:$PATH"
+if [ -f "$HOME/.cargo/env" ]; then source "$HOME/.cargo/env"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
