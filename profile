@@ -255,15 +255,18 @@ else
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup ruby
+export GEM_HOME="$HOME/.local/share/gem"
+export GEM_PATH="$HOME/.local/share/gem"
+export PATH="$GEM_HOME/bin:$PATH"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-if [ -f "$HOME/.rvm/scripts/rvm" ]; then
+if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
   export rvmsudo_secure_path=0
   export rvm_ignore_gemrc_issues=1
   export rvm_silence_path_mismatch_check_flag=1
-  export GEM_HOME="$HOME/.local/share/gem"
-  export GEM_PATH="$HOME/.local/share/gem"
-  export PATH="$GEM_HOME/bin:$PATH"
-  if [ -s "$HOME/.rvm/scripts/rvm" ]; then source "$HOME/.rvm/scripts/rvm"; fi
+  if [ -s "$HOME/.rvm/scripts/rvm" ]; then source "$HOME/.local/share/rvm/scripts/rvm"; fi
   if [ -d $HOME/.local/share/rvm/bin ]; then PATH="$HOME/.local/share/rvm/bin:$PATH"; fi
 fi
 
