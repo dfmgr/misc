@@ -580,9 +580,9 @@ if [ -f "$HOME/.config/local/profile.local" ]; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# import local profile
-if [ -f "$HOME/.config/local/$(hostname -s).local" ]; then
-  . "$HOME/.config/local/$(hostname -s).local"
+# import specific profiles for systems
+if [ -f "$HOME/.config/local/servers/$(hostname -s).local" ]; then
+  . "$HOME/.config/local/servers/$(hostname -s).local"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
