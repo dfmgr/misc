@@ -538,12 +538,6 @@ Linux)
 esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# import local profile
-if [ -f "$HOME/.config/local/profile.local" ]; then
-  . "$HOME/.config/local/profile.local"
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # passmgr default settings - copy to your bash.local and change for your setup
 if [ -f "$HOME/.config/secure/passmgr.txt" ]; then
   . "$HOME/.config/secure/passmgr.txt"
@@ -577,6 +571,18 @@ fi
 # APIKEYS  - copy to your bash.local and change for your setup
 if [ -f "$HOME/.config/secure/apikeys.txt" ]; then
   . "$HOME/.config/secure/apikeys.txt"
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# import local profile
+if [ -f "$HOME/.config/local/profile.local" ]; then
+  . "$HOME/.config/local/profile.local"
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# import local profile
+if [ -f "$HOME/.config/local/$(hostname -s).local" ]; then
+  . "$HOME/.config/local/$(hostname -s).local"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
