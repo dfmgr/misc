@@ -15,25 +15,6 @@ USER="${SUDO_USER:-${USER}}"
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-# Set functions
-
-SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/master/functions}"
-SCRIPTSFUNCTDIR="${SCRIPTSAPPFUNCTDIR:-/usr/local/share/CasjaysDev/scripts}"
-SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-applications.bash}"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-if [ -f "../functions/$SCRIPTSFUNCTFILE" ]; then
-    . "../functions/$SCRIPTSFUNCTFILE"
-elif [ -f "$SCRIPTSFUNCTDIR/functions/$SCRIPTSFUNCTFILE" ]; then
-    . "$SCRIPTSFUNCTDIR/functions/$SCRIPTSFUNCTFILE"
-else
-    curl -LSs "$SCRIPTSFUNCTURL/$SCRIPTSFUNCTFILE" -o "/tmp/$SCRIPTSFUNCTFILE" || exit 1
-    . "/tmp/$SCRIPTSFUNCTFILE"
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 if [ -e "/usr/local/bin/dmenupass" ]; then
     SUDO_ASKPASS="/usr/local/bin/dmenupass}"
 fi
@@ -53,14 +34,15 @@ xmessageopts="-nearmouse -timeout 10 -geometry 500x200 -center"
 if [ -f /usr/bin/pacman ]; then
     if ! updates_arch=$(pacman -Qu 2>/dev/null | wc -l); then
         updates_arch=0
+        updates="$updates_arch"
     fi
-    #yay doesn't do sudo
-    if [ -f /usr/bin/yay ]; then
-        if ! updates_aur=$(yay -Qum 2>/dev/null | wc -l); then
-            updates_aur=0
-        fi
-    fi
-    updates=$(("$updates_arch" + "$updates_aur"))
+#    #yay doesn't do sudo
+#    if [ -f /usr/bin/yay ]; then
+#        if ! updates_aur=$(yay -Qum 2>/dev/null | wc -l); then
+#            updates_aur=0
+#        fi
+#    fi
+#    updates=$(("$updates_arch" + "$updates_aur"))
 
 #Debian update check
 elif [ -f /usr/bin/apt ]; then
