@@ -16,10 +16,10 @@ mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
 mkdir -p "$HOME/.config/todo"
 mkdir -p "$HOME/.config/cheatsh"
-mkdir -p "$HOME/.local/share/fnm"
-mkdir -p "$HOME/.local/share/nvm"
 mkdir -p "$HOME/.local/share/rvm"
 mkdir -p "$HOME/.local/share/gem/bin"
+mkdir -p "$HOME/.local/share/nodejs/fnm"
+mkdir -p "$HOME/.local/share/nodejs/nvm"
 mkdir -p "$HOME/.local/share/wallpapers"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -274,13 +274,13 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager 
-  export FNM_DIR="$HOME/.local/share/fnm"
+  export FNM_DIR="$HOME/.local/share/nodejs/fnm"
   export FNM_MULTISHELL_PATH="$HOME/.local/bin"
-  cmd_exists fmv && eval "$(fnm env --multi --use-on-cd --fnm-dir=$HOME/.local/share/fnm/ )" || true
+  cmd_exists fmv && eval "$(fnm env --multi --use-on-cd --fnm-dir=$FNM_DIR/ )" || true
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-export NVM_DIR="$HOME/.local/share/nvm"
+export NVM_DIR="$HOME/.local/share/nodejs/nvm"
 export NVM_BIN="$HOME/.local/bin"
 export NO_UPDATE_NOTIFIER="true"
 export NODE_REPL_HISTORY_SIZE=10000
