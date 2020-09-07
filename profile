@@ -517,6 +517,7 @@ if [ -d "$HOME"/.local/bin ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Set scripts path if installed manually 
 if [ -d "$HOME"/.local/share/scripts/bin ]; then
   export PATH="$HOME/.local/share/scripts/bin:$PATH"
 fi
@@ -542,37 +543,37 @@ Linux)
 esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# passmgr default settings - copy to your bash.local and change for your setup
+# passmgr settings - add your passmgr setup here
 if [ -f "$HOME/.config/secure/passmgr.txt" ]; then
   . "$HOME/.config/secure/passmgr.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# github default settings - copy to your bash.local and change for your setup
+# github settings - add github settings here
 if [ -f "$HOME/.config/secure/github.txt" ]; then
   . "$HOME/.config/secure/github.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# gitlab default settings - copy to your bash.local and change for your setup
+# gitlab settings - add gitlab settings here
 if [ -f "$HOME/.config/secure/gitlab.txt" ]; then
   . "$HOME/.config/secure/gitlab.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# your private git - copy to your bash.local and change for your setup
+# your private git - add your private git here
 if [ -f "$HOME/.config/secure/gitpriv.txt" ]; then
   . "$HOME/.config/secure/gitpriv.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Dotfiles base repo  - copy to your bash.local and change for your setup
+# add your personal dotfiles repo here
 if [ -f "$HOME/.config/secure/personal.txt" ]; then
   . "$HOME/.config/secure/personal.txt"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# APIKEYS  - copy to your bash.local and change for your setup
+# store API keys here
 if [ -f "$HOME/.config/secure/apikeys.txt" ]; then
   . "$HOME/.config/secure/apikeys.txt"
 fi
