@@ -177,7 +177,7 @@ failexitcode
 run_postinst() {
   dfmgr_run_post
   mkdir -p $HOME/.config/lynx
-  for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver config/lynx/lynx.cfg config/lynx/lynx.lss config/xresources config/dunst; do
+  for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc config/lynx/lynx.cfg config/lynx/lynx.lss config/xresources config/dunst; do
     ln_sf "$APPDIR/$f" "$HOME/.$f"
   done
 
