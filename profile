@@ -194,8 +194,8 @@ esac
   fi
 
   sshdir=$(ls "$HOME"/.ssh/id_* 2>/dev/null | wc -l)
-  if [ "$sshdir" != "0" ]; then
-    for f in $(ls "$HOME"/.ssh/id_* | grep -v .pub); do
+  if [ "$sshdir" -ne "0" ]; then
+    for f in $(ls "$HOME"/.ssh/id_* 2>/dev/null| grep -v .pub); do
       ssh-add "$f" >/dev/null 2>&1
     done
   fi
