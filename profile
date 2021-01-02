@@ -606,6 +606,12 @@ unset sshdir
 export PATH="$PATH:/usr/local/sbin:/usr/bin:/sbin"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# MacOS fix
+if [[ "$OSTYPE" =~ ^darwin ]]; then
+  export PATH="/usr/local/bin:$PATH:/usr/local/sbin:/usr/bin:/sbin"
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
 export PATH="$(echo $PATH | tr ':' '\n' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:#g')"
 
