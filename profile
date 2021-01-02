@@ -608,6 +608,8 @@ export PATH="$PATH:/usr/local/sbin:/usr/bin:/sbin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # MacOS fix
 if [[ "$OSTYPE" =~ ^darwin ]]; then
+  export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
+  export HOMEBREW_CASK_OPTS="--appdir=/Applications"
   export PATH="/usr/local/bin:$PATH:/usr/local/sbin:/usr/bin:/sbin"
 fi
 
