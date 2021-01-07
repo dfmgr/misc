@@ -171,10 +171,10 @@ fi
 # Sudo prompt
 case "$(uname -s)" in
 Linux | Darwin)
-  export SUDO_PROMPT="$(printf "\t\t\033[1;36m")[sudo]$(printf "\033[0m") password for %p: "
+  export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
   ;;
 Linux)
-  if [ ! -z "$DESKTOP_SESSION" ] && [ -e "/usr/local/bin/dmenupass" ]; then
+  if [ -n "$DESKTOP_SESSION" ] && [ -e "/usr/local/bin/dmenupass" ]; then
     export SUDO_ASKPASS="${SUDO_ASKPASS:-/usr/local/bin/dmenupass}"
   fi
   ;;
