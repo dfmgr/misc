@@ -53,7 +53,7 @@ if [ -n "$BASH_VERSION" ]; then
   export HISTFILESIZE=10000
   export HISTIGNORE="&:[bf]g:c:clear:history:exit:q"
   export HISTSIZE=10000
-  cmd_exists direnv && eval "$(direnv hook bash)"
+  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook bash &>/dev/null; fi
 
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
@@ -65,7 +65,7 @@ elif [ -n "$ZSH_VERSION" ]; then
   export HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
   export SAVEHIST=5000
   export HISTSIZE=2000
-  cmd_exists direnv && eval "$(direnv hook zsh)"
+  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook zsh &>/dev/null; fi
   #autoload compinit && compinit
 fi
 
@@ -77,7 +77,7 @@ if [ -n "$DISPLAY" ]; then
     if cat /proc/version | grep -iq chromium && [ ! -z $DISPLAY ] && [ ! -z $DISPLAY_LOW_DENSITY ]; then
       export DISPLAY="$DISPLAY_LOW_DENSITY"
     fi
-    cmd_exists xrandr && export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
+    if [ -f "$(command -v xrandr 2>/dev/null)" ]; then export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"; fi
     ;;
   esac
 fi
@@ -87,9 +87,11 @@ fi
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
-    cmd_exists xset && xset s off >/dev/null 2>&1
-    cmd_exists xset && xset -dpms >/dev/null 2>&1
-    cmd_exists xset && xset s off -dpms >/dev/null 2>&1
+    if [ -f "$(command -v xset 2>/dev/null)" ]; then
+      xset s off >/dev/null 2>&1
+      xset -dpms >/dev/null 2>&1
+      xset s off -dpms >/dev/null 2>&1
+    fi
     ;;
   esac
 fi
@@ -99,7 +101,9 @@ fi
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
-    cmd_exists dbus-update-activation-environment && dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
+    if [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
+      dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
+    fi
     ;;
   esac
 fi
@@ -110,7 +114,7 @@ if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
     export XKBOPTIONS="terminate:ctrl_alt_bksp"
-    cmd_exists setxkbmap && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"
+    if [ -f "$(command -v cmd 2>/dev/null)" ]; then setxkbmap setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"; fi
     ;;
   esac
 fi
@@ -120,11 +124,11 @@ fi
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
-    if [ -n "$(command -v ibus)" ]; then
+    if [ -f "$(command -v ibus 2>/dev/null)" ]; then
       export XMODIFIERS=@im=ibus
       export GTK_IM_MODULE=ibus
       export QT_IM_MODULE=ibus
-    elif [ -n "$(command -v fcitx)" ]; then
+    elif [ -f "$(command -v fcitx 2>/dev/null)" ]; then
       export XMODIFIERS=@im=fcitx
       export GTK_IM_MODULE=fcitx
       export QT_IM_MODULE=fcitx
@@ -141,7 +145,7 @@ if [ -n "$DISPLAY" ]; then
     if [ ! -f ~/.Xdefaults ]; then
       touch ~/.Xdefaults
     else
-      cmd_exists xrdb && xrdb ~/.Xdefaults 2>/dev/null
+      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then xrdb ~/.Xdefaults 2>/dev/null; fi
     fi
     ;;
   esac
@@ -155,8 +159,10 @@ if [ -n "$DISPLAY" ]; then
     if [ ! -f ~/.Xresources ]; then
       touch ~/.Xresources
     else
-      cmd_exists xrdb && xrdb ~/.Xresources 2>/dev/null
-      cmd_exists xrdb && xrdb -merge ~/.Xresources 2>/dev/null
+      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then
+        xrdb ~/.Xresources 2>/dev/null
+        xrdb -merge ~/.Xresources 2>/dev/null
+      fi
     fi
     ;;
   esac
@@ -175,9 +181,10 @@ Darwin)
   export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
   ;;
 Linux)
-  if [ -n "$DESKTOP_SESSION" ] && [ -e "/usr/local/bin/dmenupass" ]; then
-    export SUDO_ASKPASS="${SUDO_ASKPASS:-/usr/local/bin/dmenupass}"
+  if [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
+    export SUDO_ASKPASS="dmenupass"
   else
+    export SUDO_ASKPASS="${SUDO_ASKPASS}"
     export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
   fi
   ;;
@@ -185,21 +192,25 @@ esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-cmd_exists gpg-agent && eval "$(gpg-agent --daemon 2>/dev/null)"
+if [ -f "$(command -v gpg-agent 2>/dev/null)" ]; then
+  gpg-agent --daemon &>/dev/null
+fi
 export GPG_TTY="$(tty)"
 export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-  cmd_exists ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)"
+  if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
+    ssh-agent &>/dev/null
+  fi
   ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
 fi
 
 sshdir=$(ls ~/.ssh/id_* 2>/dev/null | wc -l)
 if [ "$sshdir" -ne "0" ]; then
   for f in $(ls ~/.ssh/id_* 2>/dev/null | grep .pub); do
-    ssh-add "$f" >/dev/null 2>&1
+    ssh-add "$f" &>/dev/null &
   done
 fi
 
@@ -235,15 +246,15 @@ export MPDSERVER="$(hostname -s)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set hostname
-export HOSTNAME=$(hostname -f 2>/dev/null || hostname -s 2>/dev/null || hostname 2>/dev/null)
+export HOSTNAME=$(hostname -f 2>/dev/null)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create a banner
-if [ -n "$(command -v figlet 2>/dev/null)" ]; then
+if [ -f "$(command -v figlet 2>/dev/null)" ]; then
   export BANNER="figlet -f banner"
-elif [ -n "$(command -v toilet 2>/dev/null)" ]; then
+elif [ -f "$(command -v toilet 2>/dev/null)" ]; then
   export BANNER="toilet -f mono9.tlf"
-elif [ -n "$(command -v banner 2>/dev/null)" ]; then
+elif [ -f "$(command -v banner 2>/dev/null)" ]; then
   export BANNER="banner"
 else
   export BANNER="echo -e"
@@ -259,7 +270,7 @@ export PATH="$GEM_HOME/bin:$PATH"
 # Ruby Version Manager
 if [ -f "$HOME/.local/share/scripts/rvm" ]; then
   export rvm_path="$HOME/.local/share/rvm"
-  [[ -f "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm"
+  if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then source "$HOME/.local/share/rvm/scripts/rvm"; fi
   if [ -d $HOME/.local/share/rvm/bin ]; then
     PATH="$HOME/.local/share/rvm/bin:$PATH"
   fi
@@ -269,7 +280,7 @@ fi
 # Fast Node Manager
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
 export FNM_MULTISHELL_PATH="$HOME/.local/bin"
-cmd_exists fmv && eval "$(fnm env --multi --use-on-cd --fnm-dir=$FNM_DIR/)"
+if [ -f "$(command -v fnm 2>/dev/null)" ]; then fnm env --use-on-cd --fnm-dir=$FNM_DIR/ &>/dev/null; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
@@ -295,59 +306,59 @@ export GODIR="$GOPATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 if [ -f "$HOME/.cargo/env" ]; then source "$HOME/.cargo/env"; fi
 
-if [ -n "$(command -v hub 2>/dev/null)" ]; then
-  eval "$(hub alias -s)"
+if [ -f "$(command -v hub 2>/dev/null)" ]; then
+  hub alias -s
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
-if [ -n "$(command -v garcon-url-handler 2>/dev/null)" ]; then
+if [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
   export BROWSER="garcon-url-handler --url"
-elif [ -n "$(command -v firefox 2>/dev/null)" ]; then
+elif [ -f "$(command -v firefox 2>/dev/null)" ]; then
   export BROWSER="firefox"
-elif [ -n "$(command -v chromium 2>/dev/null)" ]; then
+elif [ -f "$(command -v chromium 2>/dev/null)" ]; then
   export BROWSER="chromium"
-elif [ -n "$(command -v google-chrome 2>/dev/null)" ]; then
+elif [ -f "$(command -v google-chrome 2>/dev/null)" ]; then
   export BROWSER="google-chrome"
-elif [ -n "$(command -v opera 2>/dev/null)" ]; then
+elif [ -f "$(command -v opera 2>/dev/null)" ]; then
   export BROWSER="opera"
-elif [ -n "$(command -v epiphany-browser 2>/dev/null)" ]; then
+elif [ -f "$(command -v epiphany-browser 2>/dev/null)" ]; then
   export BROWSER="epiphany-browser"
-elif [ -n "$(command -v falkon 2>/dev/null)" ]; then
+elif [ -f "$(command -v falkon 2>/dev/null)" ]; then
   export BROWSER="falkon"
-elif [ -n "$(command -v midori 2>/dev/null)" ]; then
+elif [ -f "$(command -v midori 2>/dev/null)" ]; then
   export BROWSER="midori"
-elif [ -n "$(command -v netsurf 2>/dev/null)" ]; then
+elif [ -f "$(command -v netsurf 2>/dev/null)" ]; then
   export BROWSER="netsurf"
-elif [ -n "$(command -v surf 2>/dev/null)" ]; then
+elif [ -f "$(command -v surf 2>/dev/null)" ]; then
   export BROWSER="surf"
-elif [ -n "$(command -v arora 2>/dev/null)" ]; then
+elif [ -f "$(command -v arora 2>/dev/null)" ]; then
   export BROWSER="arora"
 elif [ -f "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then
   export BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 elif [ -f "/Applications/Firefox.app/Contents/MacOS/firefox-bin" ]; then
   export BROWSER="/Applications/Firefox.app/Contents/MacOS/firefox-bin"
-elif [ -n "$(command -v lynx 2>/dev/null)" ]; then
+elif [ -f "$(command -v lynx 2>/dev/null)" ]; then
   export BROWSER="lynx"
-elif [ -n "$(command -v links 2>/dev/null)" ]; then
+elif [ -f "$(command -v links 2>/dev/null)" ]; then
   export BROWSER="links"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
-if [ -n "$(command -v termite 2>/dev/null)" ]; then
+if [ -f "$(command -v termite 2>/dev/null)" ]; then
   export TERMINAL="termite"
-elif [ -n "$(command -v terminology 2>/dev/null)" ]; then
+elif [ -f "$(command -v terminology 2>/dev/null)" ]; then
   export TERMINAL="terminology"
-elif [ -n "$(command -v xfce4-terminal 2>/dev/null)" ]; then
+elif [ -f "$(command -v xfce4-terminal 2>/dev/null)" ]; then
   export TERMINAL="xfce4-terminal"
-elif [ -n "$(command -v qterminal-terminal 2>/dev/null)" ]; then
+elif [ -f "$(command -v qterminal-terminal 2>/dev/null)" ]; then
   export TERMINAL="qterminal-terminal"
-elif [ -n "$(command -v qterminal-terminal 2>/dev/null)" ]; then
+elif [ -f "$(command -v qterminal-terminal 2>/dev/null)" ]; then
   export TERMINAL="qterminal-terminal"
-elif [ -n "$(command -v xterm 2>/dev/null)" ]; then
+elif [ -f "$(command -v xterm 2>/dev/null)" ]; then
   export TERMINAL="xterm"
-elif [ -n "$(command -v uxterm 2>/dev/null)" ]; then
+elif [ -f "$(command -v uxterm 2>/dev/null)" ]; then
   export TERMINAL="uxterm"
 elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm" ]; then
   export TERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm"
@@ -357,43 +368,43 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
-if [ -n "$(command -v VirtualBox 2>/dev/null)" ]; then
-  VMMANAGER="VirtualBox"
-elif [ -n "$(command -v VMWare 2>/dev/null)" ]; then
-  VMMANAGER="VMWare"
-elif [ -n "$(command -v virt-manager 2>/dev/null)" ]; then
-  VMMANAGER="virt-manager"
-elif [ -n "$(command -v kubectl 2>/dev/null)" ]; then
-  VMMANAGER="kubectl"
-elif [ -n "$(command -v docker 2>/dev/null)" ]; then
-  VMMANAGER="docker"
+if [ -f "$(command -v VirtualBox 2>/dev/null)" ]; then
+  export VMMANAGER="VirtualBox"
+elif [ -f "$(command -v VMWare 2>/dev/null)" ]; then
+  export VMMANAGER="VMWare"
+elif [ -f "$(command -v virt-manager 2>/dev/null)" ]; then
+  export VMMANAGER="virt-manager"
+elif [ -f "$(command -v kubectl 2>/dev/null)" ]; then
+  export VMMANAGER="kubectl"
+elif [ -f "$(command -v docker 2>/dev/null)" ]; then
+  export VMMANAGER="docker"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
-if [ -n "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
+if [ -f "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
   export TORRENT="transmission-remote-gtk"
-elif [ -n "$(command -v transmission-remote-cli 2>/dev/null)" ]; then
+elif [ -f "$(command -v transmission-remote-cli 2>/dev/null)" ]; then
   export TORRENT="transmission-remote-cli"
-elif [ -n "$(command -v transmission-gtk 2>/dev/null)" ]; then
+elif [ -f "$(command -v transmission-gtk 2>/dev/null)" ]; then
   export TORRENT="transmission-gtk"
-elif [ -n "$(command -v transmission-qt 2>/dev/null)" ]; then
+elif [ -f "$(command -v transmission-qt 2>/dev/null)" ]; then
   export TORRENT="transmission-qt"
-elif [ -n "$(command -v deluge 2>/dev/null)" ]; then
+elif [ -f "$(command -v deluge 2>/dev/null)" ]; then
   export TORRENT="deluge"
-elif [ -n "$(command -v vuze 2>/dev/null)" ]; then
+elif [ -f "$(command -v vuze 2>/dev/null)" ]; then
   export TORRENT="vuze"
-elif [ -n "$(command -v qbittorrent)" ]; then
+elif [ -f "$(command -v qbittorrent)" ]; then
   export TORRENT="qbittorrent"
-elif [ -n "$(command -v ktorrent 2>/dev/null)" ]; then
+elif [ -f "$(command -v ktorrent 2>/dev/null)" ]; then
   export TORRENT="ktorrent"
-elif [ -n "$(command -v ctorrent 2>/dev/null)" ]; then
+elif [ -f "$(command -v ctorrent 2>/dev/null)" ]; then
   export TORRENT="ctorrent"
-elif [ -n "$(command -v unworkable 2>/dev/null)" ]; then
+elif [ -f "$(command -v unworkable 2>/dev/null)" ]; then
   export TORRENT="unworkable"
-elif [ -n "$(command -v rtorrent 2>/dev/null)" ]; then
+elif [ -f "$(command -v rtorrent 2>/dev/null)" ]; then
   export TORRENT="rtorrent"
-elif [ -n "$(command -v bitstormlite 2>/dev/null)" ]; then
+elif [ -f "$(command -v bitstormlite 2>/dev/null)" ]; then
   export TORRENT="bitstormlite"
 elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
   export TORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
@@ -401,51 +412,51 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
-if [ -n "$(command -v thunderbird 2>/dev/null)" ]; then
-  EMAIL="thunderbird"
-elif [ -n "$(command -v evolution 2>/dev/null)" ]; then
-  EMAIL="evolution"
-elif [ -n "$(command -v clawsmail 2>/dev/null)" ]; then
-  EMAIL="clawsmail"
-elif [ -n "$(command -v geary 2>/dev/null)" ]; then
-  EMAIL="geary"
-elif [ -n "$(command -v neomutt 2>/dev/null)" ]; then
-  EMAIL="myterminal -e neomutt"
-elif [ -n "$(command -v mutt 2>/dev/null)" ]; then
-  EMAIL="myterminal -e mutt"
-elif [ -n "$(command -v kmail 2>/dev/null)" ]; then
-  EMAIL="kmail"
-elif [ -n "$(command -v emacs 2>/dev/null)" ]; then
-  EMAIL="emacs"
-elif [ -n "$(command -v gmail 2>/dev/null)" ]; then
+if [ -f "$(command -v thunderbird 2>/dev/null)" ]; then
+  export EMAIL="thunderbird"
+elif [ -f "$(command -v evolution 2>/dev/null)" ]; then
+  export EMAIL="evolution"
+elif [ -f "$(command -v clawsmail 2>/dev/null)" ]; then
+  export EMAIL="clawsmail"
+elif [ -f "$(command -v geary 2>/dev/null)" ]; then
+  export EMAIL="geary"
+elif [ -f "$(command -v neomutt 2>/dev/null)" ]; then
+  export EMAIL="myterminal -e neomutt"
+elif [ -f "$(command -v mutt 2>/dev/null)" ]; then
+  export EMAIL="myterminal -e mutt"
+elif [ -f "$(command -v kmail 2>/dev/null)" ]; then
+  export EMAIL="kmail"
+elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
+  export EMAIL="emacs"
+elif [ -f "$(command -v gmail 2>/dev/null)" ]; then
   EMAIL="mybrowser https://gmail.com"
-elif [ -n "$(command -v sylpheed 2>/dev/null)" ]; then
-  EMAIL="sylpheed"
+elif [ -f "$(command -v sylpheed 2>/dev/null)" ]; then
+  export EMAIL="sylpheed"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
-if [ -n "$(command -v code 2>/dev/null)" ]; then
+if [ -f "$(command -v code 2>/dev/null)" ]; then
   export EDITOR="code"
-elif [ -n "$(command -v vscode 2>/dev/null)" ]; then
+elif [ -f "$(command -v vscode 2>/dev/null)" ]; then
   export EDITOR="vscode"
-elif [ -n "$(command -v vim 2>/dev/null)" ]; then
+elif [ -f "$(command -v vim 2>/dev/null)" ]; then
   export EDITOR="vim"
-elif [ -n "$(command -v nvim 2>/dev/null)" ]; then
+elif [ -f "$(command -v nvim 2>/dev/null)" ]; then
   export EDITOR="nvim"
-elif [ -n "$(command -v geany 2>/dev/null)" ]; then
+elif [ -f "$(command -v geany 2>/dev/null)" ]; then
   export EDITOR="geany"
-elif [ -n "$(command -v gedit 2>/dev/null)" ]; then
+elif [ -f "$(command -v gedit 2>/dev/null)" ]; then
   export EDITOR="gedit"
-elif [ -n "$(command -v atom 2>/dev/null)" ]; then
+elif [ -f "$(command -v atom 2>/dev/null)" ]; then
   export EDITOR="atom"
-elif [ -n "$(command -v brackets 2>/dev/null)" ]; then
+elif [ -f "$(command -v brackets 2>/dev/null)" ]; then
   export EDITOR="brackets"
-elif [ -n "$(command -v emacs 2>/dev/null)" ]; then
+elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
   export EDITOR="emacs"
-elif [ -n "$(command -v mousepad 2>/dev/null)" ]; then
+elif [ -f "$(command -v mousepad 2>/dev/null)" ]; then
   export EDITOR="mousepad"
-elif [ -n "$(command -v nano 2>/dev/null)" ]; then
+elif [ -f "$(command -v nano 2>/dev/null)" ]; then
   export EDITOR="nano"
 fi
 
@@ -478,11 +489,11 @@ fi
 
 case "$(uname -s)" in
 Linux)
-  cmd_exists dircolors && eval "$(dircolors $DIRCOLOR)"
+  if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors $DIRCOLOR; fi
   ;;
 Darwin)
   export LSCOLORS=exfxcxdxbxegedabagacad
-  cmd_exists gdircolors && eval "$(gdircolors $DIRCOLOR)"
+  if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors $DIRCOLOR; fi
   ;;
 esac
 
@@ -492,7 +503,9 @@ export WALLPAPERS="$HOME/.local/share/wallpapers"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-cmd_exists lf && export LF_ICONS="di=:fi=:ln=:or=:ex=:*.c=:*.cc=:*.clj=:*.coffee=:*.cpp=:*.css=:*.d=:*.dart=:*.erl=:*.exs=:*.fs=:*.go=:*.h=:*.hh=:*.hpp=:*.hs=:*.html=:*.java=:*.jl=:*.js=:*.json=:*.lua=:*.md=:*.php=:*.pl=:*.pro=:*.py=:*.rb=:*.rs=:*.scala=:*.ts=:*.vim=:*.cmd=:*.ps1=:*.sh=:*.bash=:*.zsh=:*.fish=:*.tar=:*.tgz=:*.arc=:*.arj=:*.taz=:*.lha=:*.lz4=:*.lzh=:*.lzma=:*.tlz=:*.txz=:*.tzo=:*.t7z=:*.zip=:*.z=:*.dz=:*.gz=:*.lrz=:*.lz=:*.lzo=:*.xz=:*.zst=:*.tzst=:*.bz2=:*.bz=:*.tbz=:*.tbz2=:*.tz=:*.deb=:*.rpm=:*.jar=:*.war=:*.ear=:*.sar=:*.rar=:*.alz=:*.ace=:*.zoo=:*.cpio=:*.7z=:*.rz=:*.cab=:*.wim=:*.swm=:*.dwm=:*.esd=:*.jpg=:*.jpeg=:*.mjpg=:*.mjpeg=:*.gif=:*.bmp=:*.pbm=:*.pgm=:*.ppm=:*.tga=:*.xbm=:*.xpm=:*.tif=:*.tiff=:*.png=:*.svg=:*.svgz=:*.mng=:*.pcx=:*.mov=:*.mpg=:*.mpeg=:*.m2v=:*.mkv=:*.webm=:*.ogm=:*.mp4=:*.m4v=:*.mp4v=:*.vob=:*.qt=:*.nuv=:*.wmv=:*.asf=:*.rm=:*.rmvb=:*.flc=:*.avi=:*.fli=:*.flv=:*.gl=:*.dl=:*.xcf=:*.xwd=:*.yuv=:*.cgm=:*.emf=:*.ogv=:*.ogx=:*.aac=:*.au=:*.flac=:*.m4a=:*.mid=:*.midi=:*.mka=:*.mp3=:*.mpc=:*.ogg=:*.ra=:*.wav=:*.oga=:*.opus=:*.spx=:*.xspf=:*.pdf="
+if [ -f "$(command -v lf 2>/dev/null)" ]; then
+  export LF_ICONS="di=:fi=:ln=:or=:ex=:*.c=:*.cc=:*.clj=:*.coffee=:*.cpp=:*.css=:*.d=:*.dart=:*.erl=:*.exs=:*.fs=:*.go=:*.h=:*.hh=:*.hpp=:*.hs=:*.html=:*.java=:*.jl=:*.js=:*.json=:*.lua=:*.md=:*.php=:*.pl=:*.pro=:*.py=:*.rb=:*.rs=:*.scala=:*.ts=:*.vim=:*.cmd=:*.ps1=:*.sh=:*.bash=:*.zsh=:*.fish=:*.tar=:*.tgz=:*.arc=:*.arj=:*.taz=:*.lha=:*.lz4=:*.lzh=:*.lzma=:*.tlz=:*.txz=:*.tzo=:*.t7z=:*.zip=:*.z=:*.dz=:*.gz=:*.lrz=:*.lz=:*.lzo=:*.xz=:*.zst=:*.tzst=:*.bz2=:*.bz=:*.tbz=:*.tbz2=:*.tz=:*.deb=:*.rpm=:*.jar=:*.war=:*.ear=:*.sar=:*.rar=:*.alz=:*.ace=:*.zoo=:*.cpio=:*.7z=:*.rz=:*.cab=:*.wim=:*.swm=:*.dwm=:*.esd=:*.jpg=:*.jpeg=:*.mjpg=:*.mjpeg=:*.gif=:*.bmp=:*.pbm=:*.pgm=:*.ppm=:*.tga=:*.xbm=:*.xpm=:*.tif=:*.tiff=:*.png=:*.svg=:*.svgz=:*.mng=:*.pcx=:*.mov=:*.mpg=:*.mpeg=:*.m2v=:*.mkv=:*.webm=:*.ogm=:*.mp4=:*.m4v=:*.mp4v=:*.vob=:*.qt=:*.nuv=:*.wmv=:*.asf=:*.rm=:*.rmvb=:*.flc=:*.avi=:*.fli=:*.flv=:*.gl=:*.dl=:*.xcf=:*.xwd=:*.yuv=:*.cgm=:*.emf=:*.ogv=:*.ogx=:*.aac=:*.au=:*.flac=:*.m4a=:*.mid=:*.midi=:*.mka=:*.mp3=:*.mpc=:*.ogg=:*.ra=:*.wav=:*.oga=:*.opus=:*.spx=:*.xspf=:*.pdf="
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set term type
