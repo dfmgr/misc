@@ -483,8 +483,14 @@ export GREP_COLORS="mt=37;45"
 
 if [ -f "$HOME/.dircolors" ]; then
   export DIRCOLOR="$HOME/.dircolors"
-else
+elif [ -f "$HOME/.config/dircolors/dracula" ]; then
   export DIRCOLOR="$HOME/.config/dircolors/dracula"
+elif [ -f "$(command -v dircolors 2>/dev/null)" ]; then
+  dircolors --print-database >"$HOME/.dircolors" 2>/dev/null
+  export DIRCOLOR="$HOME/.dircolors"
+elif [ -f "$(command -v gdircolors 2>/dev/null)" ]; then
+  gdircolors --print-database >"$HOME/.dircolors" 2>/dev/null
+  export DIRCOLOR="$HOME/.dircolors"
 fi
 
 case "$(uname -s)" in
