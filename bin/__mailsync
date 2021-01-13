@@ -21,7 +21,7 @@ __mailsync() {
   if [[ -f "$DIR/functions.bash" ]]; then
     source "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
+    echo -e "\t\tCouldn't source the functions file"
     exit 1
   fi
 

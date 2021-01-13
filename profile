@@ -24,8 +24,8 @@ mkdir -p "$HOME/.local/share/wallpapers"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setting the temp directory
-export TMP="${TEMP:-$HOME/.local/tmp}"
-export TEMP="${TEMP:-$HOME/.local/tmp}"
+export TMP="${TMP:-$HOME/.local/tmp}"
+export TEMP="${TMP:-$HOME/.local/tmp}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set locale
@@ -53,7 +53,7 @@ if [ -n "$BASH_VERSION" ]; then
   export HISTFILESIZE=10000
   export HISTIGNORE="&:[bf]g:c:clear:history:exit:q"
   export HISTSIZE=10000
-  cmd_exists direnv && eval "$(direnv hook bash)" || true
+  cmd_exists direnv && eval "$(direnv hook bash)"
 
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
@@ -61,11 +61,12 @@ elif [ -n "$ZSH_VERSION" ]; then
   export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
   export ZSH="$HOME/.local/share/zsh/oh-my-zsh"
   export ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
+  export ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
   export HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
   export SAVEHIST=5000
   export HISTSIZE=2000
-  cmd_exists direnv && eval "$(direnv hook zsh)" || true
-  autoload compinit && compinit
+  cmd_exists direnv && eval "$(direnv hook zsh)"
+  #autoload compinit && compinit
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -76,7 +77,7 @@ if [ -n "$DISPLAY" ]; then
     if cat /proc/version | grep -iq chromium && [ ! -z $DISPLAY ] && [ ! -z $DISPLAY_LOW_DENSITY ]; then
       export DISPLAY="$DISPLAY_LOW_DENSITY"
     fi
-    if cmd_exists xrandr; then export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"; fi
+    cmd_exists xrandr && export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
     ;;
   esac
 fi
@@ -86,9 +87,9 @@ fi
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
-    cmd_exists xset && xset s off >/dev/null 2>&1 || true
-    cmd_exists xset && xset -dpms >/dev/null 2>&1 || true
-    cmd_exists xset && xset s off -dpms >/dev/null 2>&1 || true
+    cmd_exists xset && xset s off >/dev/null 2>&1
+    cmd_exists xset && xset -dpms >/dev/null 2>&1
+    cmd_exists xset && xset s off -dpms >/dev/null 2>&1
     ;;
   esac
 fi
@@ -98,7 +99,7 @@ fi
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
-    cmd_exists dbus-update-activation-environment && dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY || true
+    cmd_exists dbus-update-activation-environment && dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
     ;;
   esac
 fi
@@ -109,7 +110,7 @@ if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
     export XKBOPTIONS="terminate:ctrl_alt_bksp"
-    cmd_exists setxkbmap && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" || true
+    cmd_exists setxkbmap && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"
     ;;
   esac
 fi
@@ -140,7 +141,7 @@ if [ -n "$DISPLAY" ]; then
     if [ ! -f ~/.Xdefaults ]; then
       touch ~/.Xdefaults
     else
-      cmd_exists xrdb && xrdb ~/.Xdefaults 2>/dev/null || true
+      cmd_exists xrdb && xrdb ~/.Xdefaults 2>/dev/null
     fi
     ;;
   esac
@@ -154,8 +155,8 @@ if [ -n "$DISPLAY" ]; then
     if [ ! -f ~/.Xresources ]; then
       touch ~/.Xresources
     else
-      cmd_exists xrdb && xrdb ~/.Xresources 2>/dev/null || true
-      cmd_exists xrdb && xrdb -merge ~/.Xresources 2>/dev/null || true
+      cmd_exists xrdb && xrdb ~/.Xresources 2>/dev/null
+      cmd_exists xrdb && xrdb -merge ~/.Xresources 2>/dev/null
     fi
     ;;
   esac
@@ -184,14 +185,14 @@ esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-cmd_exists gpg-agent && eval "$(gpg-agent --daemon 2>/dev/null)" || true
+cmd_exists gpg-agent && eval "$(gpg-agent --daemon 2>/dev/null)"
 export GPG_TTY="$(tty)"
 export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-  cmd_exists ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)" || true
+  cmd_exists ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)"
   ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
 fi
 
@@ -268,7 +269,7 @@ fi
 # Fast Node Manager
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
 export FNM_MULTISHELL_PATH="$HOME/.local/bin"
-cmd_exists fmv && eval "$(fnm env --multi --use-on-cd --fnm-dir=$FNM_DIR/)" || true
+cmd_exists fmv && eval "$(fnm env --multi --use-on-cd --fnm-dir=$FNM_DIR/)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
@@ -477,11 +478,11 @@ fi
 
 case "$(uname -s)" in
 Linux)
-  cmd_exists dircolors && eval "$(dircolors $DIRCOLOR)" || true
+  cmd_exists dircolors && eval "$(dircolors $DIRCOLOR)"
   ;;
 Darwin)
   export LSCOLORS=exfxcxdxbxegedabagacad
-  cmd_exists gdircolors && eval "$(gdircolors $DIRCOLOR)" || true
+  cmd_exists gdircolors && eval "$(gdircolors $DIRCOLOR)"
   ;;
 esac
 
