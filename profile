@@ -70,125 +70,11 @@ elif [ -n "$ZSH_VERSION" ]; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# configure display
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if cat /proc/version | grep -iq chromium && [ ! -z $DISPLAY ] && [ ! -z $DISPLAY_LOW_DENSITY ]; then
-      export DISPLAY="$DISPLAY_LOW_DENSITY"
-    fi
-    if [ -f "$(command -v xrandr 2>/dev/null)" ]; then export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"; fi
-    ;;
-  esac
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# disable blank screen
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ -f "$(command -v xset 2>/dev/null)" ]; then
-      xset s off >/dev/null 2>&1
-      xset -dpms >/dev/null 2>&1
-      xset s off -dpms >/dev/null 2>&1
-    fi
-    ;;
-  esac
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# enviroment variables when using a desktop
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
-      dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
-    fi
-    ;;
-  esac
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# enable control alt backspace
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    export XKBOPTIONS="terminate:ctrl_alt_bksp"
-    if [ -f "$(command -v cmd 2>/dev/null)" ]; then setxkbmap setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"; fi
-    ;;
-  esac
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# setup modifiers
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ -f "$(command -v ibus 2>/dev/null)" ]; then
-      export XMODIFIERS=@im=ibus
-      export GTK_IM_MODULE=ibus
-      export QT_IM_MODULE=ibus
-    elif [ -f "$(command -v fcitx 2>/dev/null)" ]; then
-      export XMODIFIERS=@im=fcitx
-      export GTK_IM_MODULE=fcitx
-      export QT_IM_MODULE=fcitx
-    fi
-    ;;
-  esac
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# xserver settings
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ ! -f ~/.Xdefaults ]; then
-      touch ~/.Xdefaults
-    else
-      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then xrdb ~/.Xdefaults 2>/dev/null; fi
-    fi
-    ;;
-  esac
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# xserver settings
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ ! -f ~/.Xresources ]; then
-      touch ~/.Xresources
-    else
-      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then
-        xrdb ~/.Xresources 2>/dev/null
-        xrdb -merge ~/.Xresources 2>/dev/null
-      fi
-    fi
-    ;;
-  esac
-fi
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
 if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
   cp -f ~/.config/local/gitconfig.local ~/.gitconfig
 fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Sudo prompt
-case "$(uname -s)" in
-Darwin)
-  export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
-  ;;
-Linux)
-  if [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
-    export SUDO_ASKPASS="dmenupass"
-  else
-    export SUDO_ASKPASS="${SUDO_ASKPASS}"
-    export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
-  fi
-  ;;
-esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
@@ -495,11 +381,70 @@ fi
 
 case "$(uname -s)" in
 Linux)
-  if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors $DIRCOLOR; fi
+  if [ -n "$DISPLAY" ]; then
+    # configure display
+    if cat /proc/version | grep -iq chromium && [ ! -z $DISPLAY ] && [ ! -z $DISPLAY_LOW_DENSITY ]; then
+      export DISPLAY="$DISPLAY_LOW_DENSITY"
+    fi
+    if [ -f "$(command -v xrandr 2>/dev/null)" ]; then export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"; fi
+    #dbus setup
+    if [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
+      dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
+    fi
+    # setup modifiers
+    if [ -f "$(command -v ibus 2>/dev/null)" ]; then
+      export XMODIFIERS=@im=ibus
+      export GTK_IM_MODULE=ibus
+      export QT_IM_MODULE=ibus
+    elif [ -f "$(command -v fcitx 2>/dev/null)" ]; then
+      export XMODIFIERS=@im=fcitx
+      export GTK_IM_MODULE=fcitx
+      export QT_IM_MODULE=fcitx
+    fi
+    # xserver settings
+    if [ ! -f ~/.Xdefaults ]; then
+      touch ~/.Xdefaults
+    else
+      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then xrdb ~/.Xdefaults 2>/dev/null; fi
+    fi
+    # xserver settings
+    if [ ! -f ~/.Xresources ]; then
+      touch ~/.Xresources
+    else
+      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then
+        xrdb ~/.Xresources 2>/dev/null
+        xrdb -merge ~/.Xresources 2>/dev/null
+      fi
+    fi
+    # enable control alt backspace
+    export XKBOPTIONS="terminate:ctrl_alt_bksp"
+    if [ -f "$(command -v cmd 2>/dev/null)" ]; then setxkbmap setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"; fi
+    # disable blank screen
+    if [ -f "$(command -v xset 2>/dev/null)" ]; then
+      xset s off >/dev/null 2>&1
+      xset -dpms >/dev/null 2>&1
+      xset s off -dpms >/dev/null 2>&1
+    fi
+  fi
+  # Sudo prompt
+  if [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
+    export SUDO_ASKPASS="dmenupass"
+  else
+    export SUDO_ASKPASS="${SUDO_ASKPASS}"
+    export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
+  fi
+  #Load default colors
+  if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors "$DIRCOLOR" &>/dev/null; fi
+  # export vdpau driver
+  if [ -n "$VDPAU_DRIVER" ]; then
+    export VDPAU_DRIVER=va_gl
+  fi
+
   ;;
 Darwin)
+  export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
   export LSCOLORS=exfxcxdxbxegedabagacad
-  if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors $DIRCOLOR; fi
+  if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors "$DIRCOLOR" &>/dev/null; fi
   ;;
 esac
 
@@ -519,7 +464,7 @@ export TERM="screen-256color"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # logging
-export DEFAULT_LOG="scripts"
+export DEFAULT_LOG="apps"
 export DEFAULT_LOG_DIR="${LOGDIR:-$HOME/.local/log}"
 export LOGDIR="${DEFAULT_LOG_DIR:-$HOME/.local/log}"
 
@@ -543,16 +488,6 @@ export CHTSH_HOME="$HOME/.config/cheatsh"
 
 export TASKRC="$HOME/.taskrc"
 export TASKDATA="$HOME/.local/share/taskwarrior"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# export vdpau driver
-case "$(uname -s)" in
-Linux)
-  if [ -n "$VDPAU_DRIVER" ]; then
-    export VDPAU_DRIVER=va_gl
-  fi
-  ;;
-esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # passmgr settings - add your passmgr setup here
