@@ -53,7 +53,7 @@ if [ -n "$BASH_VERSION" ]; then
   export HISTFILESIZE=10000
   export HISTIGNORE="&:[bf]g:c:clear:history:exit:q"
   export HISTSIZE=10000
-  cmd_exists direnv && eval "$(direnv hook bash)"  || true
+  cmd_exists direnv && eval "$(direnv hook bash)" || true
 
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
@@ -64,7 +64,7 @@ elif [ -n "$ZSH_VERSION" ]; then
   export HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
   export SAVEHIST=5000
   export HISTSIZE=2000
-  cmd_exists direnv && eval "$(direnv hook zsh)"  || true
+  cmd_exists direnv && eval "$(direnv hook zsh)" || true
   autoload compinit && compinit
 fi
 
@@ -76,7 +76,7 @@ if [ -n "$DISPLAY" ]; then
     if cat /proc/version | grep -iq chromium && [ ! -z $DISPLAY ] && [ ! -z $DISPLAY_LOW_DENSITY ]; then
       export DISPLAY="$DISPLAY_LOW_DENSITY"
     fi
-    cmd_exists xrandr && export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"  || true
+    if cmd_exists xrandr; then export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"; fi
     ;;
   esac
 fi
@@ -86,9 +86,9 @@ fi
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
-    cmd_exists xset && xset s off >/dev/null 2>&1  || true
-    cmd_exists xset && xset -dpms >/dev/null 2>&1  || true
-    cmd_exists xset && xset s off -dpms >/dev/null 2>&1  || true
+    cmd_exists xset && xset s off >/dev/null 2>&1 || true
+    cmd_exists xset && xset -dpms >/dev/null 2>&1 || true
+    cmd_exists xset && xset s off -dpms >/dev/null 2>&1 || true
     ;;
   esac
 fi
@@ -98,7 +98,7 @@ fi
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
-    cmd_exists dbus-update-activation-environment && dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY  || true
+    cmd_exists dbus-update-activation-environment && dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY || true
     ;;
   esac
 fi
@@ -109,7 +109,7 @@ if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
   Linux)
     export XKBOPTIONS="terminate:ctrl_alt_bksp"
-    cmd_exists setxkbmap && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"  || true
+    cmd_exists setxkbmap && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" || true
     ;;
   esac
 fi
@@ -170,35 +170,37 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
 case "$(uname -s)" in
-Linux | Darwin)
+Darwin)
   export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
   ;;
 Linux)
   if [ -n "$DESKTOP_SESSION" ] && [ -e "/usr/local/bin/dmenupass" ]; then
     export SUDO_ASKPASS="${SUDO_ASKPASS:-/usr/local/bin/dmenupass}"
+  else
+    export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
   fi
   ;;
 esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-  export GPG_TTY="$(tty)"
-  export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
-  cmd_exists gpg-agent && eval "$(gpg-agent --daemon 2>/dev/null)"  || true
+cmd_exists gpg-agent && eval "$(gpg-agent --daemon 2>/dev/null)" || true
+export GPG_TTY="$(tty)"
+export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
-  if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-    cmd_exists ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)"  || true
-    ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
-  fi
+if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
+  cmd_exists ssh-agent && eval "$(ssh-agent >/dev/null 2>&1)" || true
+  ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
+fi
 
-  sshdir=$(ls "$HOME"/.ssh/id_* 2>/dev/null | wc -l)
-  if [ "$sshdir" -ne "0" ]; then
-    for f in $(ls "$HOME"/.ssh/id_* 2>/dev/null| grep -v .pub); do
-      ssh-add "$f" >/dev/null 2>&1
-    done
-  fi
+sshdir=$(ls ~/.ssh/id_* 2>/dev/null | wc -l)
+if [ "$sshdir" -ne "0" ]; then
+  for f in $(ls ~/.ssh/id_* 2>/dev/null | grep .pub); do
+    ssh-add "$f" >/dev/null 2>&1
+  done
+fi
 
 export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
 
@@ -227,16 +229,12 @@ fi
 export QA_RPATHS="$((0x0001 | 0x0010))"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# mpd name
-export MPDSERVER="$(hostname)"
+# mpd server
+export MPDSERVER="$(hostname -s)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set hostname
 export HOSTNAME=$(hostname -f 2>/dev/null || hostname -s 2>/dev/null || hostname 2>/dev/null)
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# tizonia cloud player config
-export TIZONIA_RC_FILE="$HOME/.config/tizonia/tizonia.conf"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create a banner
@@ -258,25 +256,19 @@ export PATH="$GEM_HOME/bin:$PATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-if [ -f "$HOME/.local/share/scripts/rvm" ]; then 
+if [ -f "$HOME/.local/share/scripts/rvm" ]; then
   export rvm_path="$HOME/.local/share/rvm"
   [[ -f "$HOME/.local/share/rvm/scripts/rvm" ]] && source "$HOME/.local/share/rvm/scripts/rvm"
-  if [ -d $HOME/.local/share/rvm/bin ]; then 
+  if [ -d $HOME/.local/share/rvm/bin ]; then
     PATH="$HOME/.local/share/rvm/bin:$PATH"
-  fi
-elif [ -f "/usr/local/share/rvm/scripts/rvm" ]; then 
-  export rvm_path="/usr/local/share/rvm"
-  [[ -f /usr/local/share/rvm/scripts/rvm ]] && source /usr/local/share/rvm/scripts/rvm
-  if [ -d /usr/local/share/rvm/bin ]; then 
-    PATH="/usr/local/share/rvm/bin:$PATH"
   fi
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Fast Node Manager 
-  export FNM_DIR="$HOME/.local/share/nodejs/fnm"
-  export FNM_MULTISHELL_PATH="$HOME/.local/bin"
-  cmd_exists fmv && eval "$(fnm env --multi --use-on-cd --fnm-dir=$FNM_DIR/ )" || true
+# Fast Node Manager
+export FNM_DIR="$HOME/.local/share/nodejs/fnm"
+export FNM_MULTISHELL_PATH="$HOME/.local/bin"
+cmd_exists fmv && eval "$(fnm env --multi --use-on-cd --fnm-dir=$FNM_DIR/)" || true
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
@@ -303,7 +295,7 @@ export PATH="$HOME/.cargo/bin:$PATH"
 if [ -f "$HOME/.cargo/env" ]; then source "$HOME/.cargo/env"; fi
 
 if [ -n "$(command -v hub 2>/dev/null)" ]; then
-eval "$(hub alias -s)"
+  eval "$(hub alias -s)"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -485,11 +477,11 @@ fi
 
 case "$(uname -s)" in
 Linux)
-  cmd_exists dircolors && eval "$(dircolors $DIRCOLOR)"  || true
+  cmd_exists dircolors && eval "$(dircolors $DIRCOLOR)" || true
   ;;
 Darwin)
   export LSCOLORS=exfxcxdxbxegedabagacad
-  cmd_exists gdircolors && eval "$(gdircolors $DIRCOLOR)"  || true
+  cmd_exists gdircolors && eval "$(gdircolors $DIRCOLOR)" || true
   ;;
 esac
 
@@ -513,12 +505,12 @@ export LOGDIR="${DEFAULT_LOG_DIR:-$HOME/.local/log}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set PATH so it includes user's private bin if it exists
-if [ -d "$HOME"/.local/bin ]; then
+if [ -d ~/.local/bin ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
-# Set scripts path if installed manually 
-if [ -d "$HOME"/.local/share/scripts/bin ]; then
+# Set scripts path if installed manually
+if [ -d ~/.local/share/scripts/bin ]; then
   export PATH="$HOME/.local/share/scripts/bin:$PATH"
 fi
 
@@ -619,7 +611,7 @@ export PATH="$(echo $PATH | tr ':' '\n' | awk '!seen[$0]++' | tr '\n' ':' | sed 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
-export SRCPROFILERC="$HOME/.profile"
+export PROFILERCSRC="$HOME/.profile"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 

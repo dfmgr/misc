@@ -136,5 +136,5 @@ get_app_info() {
 }
 
 cd_into() {
-  cd "$1" && printf_green "Type exit to return to your previous directory" && exec bash || exit 1
+  cd "$1" && printf_green "Type exit to return to your previous directory" || exit 1
 }
