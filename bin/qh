@@ -25,8 +25,6 @@ qh() {
     exit 1
   fi
 
-  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
-
   [ ! "$1" = "--help" ] || printf_help "Usage: qh searchPattern"
 
   grep --color=always "$*" "$HISTFILE" | less -RX

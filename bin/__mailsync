@@ -25,9 +25,7 @@ __mailsync() {
     exit 1
   fi
 
-  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
-
-  [ ! "$1" = "--help" ] || printf_help "sync your email"
+  [ ! "$1" = "--help" ] || printf_help "__mailsync    |    sync your email"
 
   if cmd_exists mailsync; then
     printf_green "Syncing Mailboxes with mailsync"

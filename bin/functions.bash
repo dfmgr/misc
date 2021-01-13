@@ -11,6 +11,7 @@ printf_blue() { printf_color "\t\t$1\n" 4; }
 printf_cyan() { printf_color "\t\t$1\n" 6; }
 printf_info() { printf_color "\t\t[ ℹ️ ] $1\n" 3; }
 printf_help() { printf_color "\t\t$1\n" 1 && exit 1; }
+printf_exit() { printf_color "\t\t$1\n" 1 && exit 1; }
 printf_read() { printf_color "\t\t$1" 5; }
 printf_success() { printf_color "\t\t[ ✔ ] $1\n" 2; }
 printf_error() { printf_color "\t\t[ ✖ ] $1 $2\n" 1; }
@@ -22,7 +23,10 @@ printf_execute_error() { printf_color "\t\t[ ✖ ] $1 $2 [ ✖ ] \n" 1; }
 printf_execute_error_stream() { while read -r line; do printf_execute_error "↳ ERROR: $line"; done; }
 
 printf_custom() {
-  [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
+  if [[ $1 == ?(-)+([0-9]) ]]; then
+    local color="$1"
+    shift 1
+  else local color="3"; fi
   local msg="$@"
   shift
   printf_color "\t\t$msg" "$color"
@@ -31,15 +35,25 @@ printf_custom() {
 
 printf_custom_question() {
   local custom_question
-  [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="1"
-  local msg="$@"
+  if [[ $1 == ?(-)+([0-9]) ]]; then
+    local color="$1"
+    shift 1
+  else
+    local color="1"
+  fi
+  local msg="$*"
   shift
   printf_color "\t\t$msg" "$color"
 }
 
 printf_newline() {
   set -o pipefail
-  [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
+  if [[ $1 == ?(-)+([0-9]) ]]; then
+    local color="$1"
+    shift 1
+  else
+    local color="3"
+  fi
   while read line; do
     printf_color "\t\t$line\n" "$color"
   done

@@ -25,8 +25,6 @@ show_wifi_clients() {
     exit 1
   fi
 
-  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
-
   [ ! "$1" = "--help" ] || printf_help "shows connected stations in hotspot mode"
 
   printf_green "# All connected wifi devices, with IP address,"

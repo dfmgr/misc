@@ -25,6 +25,7 @@ else
     exit 1
 fi
 
+[ ! "$1" = "--help" ] || printf_help "Usage: weather.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Specify langauge

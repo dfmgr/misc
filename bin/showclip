@@ -2,8 +2,23 @@
 
 # Display contents of selection.
 
-clip=$(xclip -o -selection clipboard)
-prim=$(xclip -o -selection primary)
+main() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
 
-[ -n "$clip" ] && notify-send "Clipboard:" "$clip"
-[ -n "$prim" ] && notify-send "Primary:" "$prim"
+  [ ! "$1" = "--help" ] || printf_help "Usage: showclip"
+
+  clip=$(xclip -o -selection clipboard)
+  prim=$(xclip -o -selection primary)
+
+  [ -n "$clip" ] && notify-send "Clipboard:" "$clip"
+  [ -n "$prim" ] && notify-send "Primary:" "$prim"
+}
+
+main "$@"

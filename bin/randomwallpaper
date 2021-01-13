@@ -15,6 +15,17 @@ USER="${SUDO_USER:-${USER}}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
 
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+if [[ -f "$DIR/functions.bash" ]]; then
+  source "$DIR/functions.bash"
+else
+  echo "\t\tCouldn't source the functions file"
+  exit 1
+fi
+
+[ ! "$1" = "--help" ] || printf_help "Usage: randomwallpaper"
+
 send_notify_wp() {
   command -v notify-send >/dev/null 2>&1 &&
     notify-send "Wallpaper Changer" "Wallpaper has been changed to $RAND" ||

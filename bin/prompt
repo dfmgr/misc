@@ -5,4 +5,19 @@
 # For example:
 # `./prompt "Do you want to shutdown?" "shutdown -h now"`
 
-[ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && $2
+main() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: prompt message action    |    custom dmenu prompt"
+
+  [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && $2
+}
+
+main "$@"

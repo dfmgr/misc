@@ -15,19 +15,24 @@ USER="${SUDO_USER:-${USER}}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
 
-__help() {
-  Usage: $APPNAME "folder"
+main() {
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: set_new_version"
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  find "$1" -type f -exec sed -i "s/##@Version.*/##@Version     : $(setver)/g" {} \;
 }
 
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-[ "$1" = "--help" ] && __help
-[ -z "$1" ] && _help
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-find "$1" -type f -exec sed -i "s/##@Version.*/##@Version     : $(setver)/g" {} \;
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit #?
 # end

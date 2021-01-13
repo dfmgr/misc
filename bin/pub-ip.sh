@@ -9,6 +9,9 @@ pub_ip() {
     echo "\t\tCouldn't source the functions file"
     exit 1
   fi
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: pub-ip.sh    |    get public ip address"
+
   if am_i_online; then
     IP=$(curl -4 -s http://ifconfig.co/ip)
     if pgrep -x openvpn >/dev/null; then

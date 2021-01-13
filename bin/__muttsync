@@ -25,9 +25,7 @@ __muttsync() {
     exit 1
   fi
 
-  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
-
-  [ ! "$1" = "--help" ] || printf_help "sync your email with mutt"
+  [ ! "$1" = "--help" ] || printf_help "_muttsync    |    sync your email with mutt"
 
   if cmd_exists mbsync; then
     printf_green "Syncing Mailboxes with mbsync"

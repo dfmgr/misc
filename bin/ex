@@ -25,8 +25,6 @@ ex() {
     exit 1
   fi
 
-  [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
-
   [ ! "$1" = "--help" ] || printf_help "Usage: ex fileName"
 
   if [ -f $1 ]; then
