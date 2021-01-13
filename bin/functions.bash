@@ -1,18 +1,6 @@
 #!/usr/bin/env bash
 
-# Set Main Repo for dotfiles
-export DOTFILESREPO="${DOTFILESREPO:-https://github.com/dfmgr}"
-
-# Set other Repos
-export PKMGRREPO="${PKMGRREPO:-https://github.com/pkmgr}"
-export ICONMGRREPO="${ICONMGRREPO:-https://github.com/iconmgr}"
-export FONTMGRREPO="${FONTMGRREPO:-https://github.com/fontmgr}"
-export THEMEMGRREPO="${THEMEMGRREPO:-https://github.com/thememgr}"
-export SYSTEMMGRREPO="${THEMEMGRREPO:-https://github.com/systemmgr}"
-export WALLPAPERMGRREPO="${THEMEMGRREPO:-https://github.com/wallpapermgr}"
-
-__tput() { tput $* 2>/dev/null; }
-
+__tput() { tput "$@" 2>/dev/null; }
 printf_color() { printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"; }
 printf_normal() { printf_color "\t\t$1\n" "$2"; }
 printf_green() { printf_color "\t\t$1\n" 2; }
@@ -67,74 +55,4 @@ ln_rm() { devnull find "$HOME" -xtype l -delete; }
 ln_sf() {
   devnull ln -sf "$@"
   ln_rm
-}
-
-if [[ $EUID -ne 0 ]] || [[ "$WHOAMI" != "root" ]]; then
-  HOME="${HOME:-/home/$WHOAMI}"
-  BIN="$HOME/.local/bin"
-  CONF="$HOME/.config"
-  SHARE="$HOME/.local/share"
-  LOGDIR="$HOME/.local/log"
-  STARTUP="$HOME/.config/autostart"
-  SYSBIN="$HOME/.local/bin"
-  SYSCONF="$HOME/.config"
-  SYSSHARE="$HOME/.local/share"
-  SYSLOGDIR="$HOME/.local/log"
-  APPNAME="${APPNAME:-ERROR}"
-  APPDIR="${APPDIR:-$HOME/.config/$APPNAME}"
-  BACKUPDIR="${BACKUPS:-$HOME/.local/backups/dotfiles}"
-  COMPDIR="${BASH_COMPLETION_USER_DIR:-$HOME/.local/share/bash-completion/completions}"
-  THEMEDIR="$SHARE/themes"
-  ICONDIR="$SHARE/icons"
-  FONTDIR="$SHARE/fonts"
-  FONTCONF="$SYSCONF/fontconfig/conf.d"
-  CASJAYSDEVSHARE="$SHARE/CasjaysDev"
-  CASJAYSDEVSAPPDIR="$CASJAYSDEVSHARE/apps"
-  USRUPDATEDIR="$SHARE/CasjaysDev/apps/dotfiles"
-  SYSUPDATEDIR="$SYSSHARE/CasjaysDev/apps/dotfiles"
-  WALLPAPERS="$HOME/.local/share/wallpapers"
-  #printf_info "Install Type: user - ${WHOAMI}"
-elif [[ $EUID -eq 0 ]] || [[ "$WHOAMI" = "root" ]]; then
-  HOME="${HOME:-/root}"
-  BIN="$HOME/.local/bin"
-  CONF="$HOME/.config"
-  SHARE="$HOME/.local/share"
-  LOGDIR="$HOME/.local/log"
-  STARTUP="$HOME/.config/autostart"
-  SYSBIN="/usr/local/bin"
-  SYSCONF="/usr/local/etc"
-  SYSSHARE="/usr/local/share"
-  SYSLOGDIR="/usr/local/log"
-  APPNAME="${APPNAME:-ERROR}"
-  APPDIR="${APPDIR:-$CONF/$APPNAME}"
-  BACKUPDIR="${BACKUPS:-$HOME/.local/backups/dotfiles}"
-  COMPDIR="${BASH_COMPLETION_USER_DIR:-$HOME/.local/share/bash-completion/completions}"
-  THEMEDIR="$SHARE/themes"
-  ICONDIR="$SHARE/icons"
-  FONTDIR="$SHARE/fonts"
-  FONTCONF="$SYSCONF/fontconfig/conf.d"
-  CASJAYSDEVSHARE="$SHARE/CasjaysDev"
-  CASJAYSDEVSAPPDIR="$CASJAYSDEVSHARE/apps"
-  USRUPDATEDIR="$SHARE/CasjaysDev/apps/dotfiles"
-  SYSUPDATEDIR="$SYSSHARE/CasjaysDev/apps/dotfiles"
-  WALLPAPERS="$SYSSHARE/wallpapers"
-  printf_info "Installing as root - $APPDIR"
-fi
-
-get_app_info() {
-  local FILE="$(command -v $1)"
-  if [ -f "$FILE" ]; then
-    echo ""
-    cat "$FILE" | grep "# @" | grep " : " >/dev/null 2>&1 &&
-      cat "$FILE" | grep "# @" | grep " : " | printf_newline "3" ||
-      printf_red "File was found, however, No information was provided"
-    echo ""
-  else
-    printf_red "File was not found"
-  fi
-  exit 0
-}
-
-cd_into() {
-  cd "$1" && printf_green "Type exit to return to your previous directory" || exit 1
 }

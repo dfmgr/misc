@@ -10,22 +10,27 @@ SCRIPTDIR="$(dirname "${BASH_SOURCE[0]}")"
 # @Created     : Mon, Dec 31, 2019, 00:00 EST
 # @License     : WTFPL
 # @Copyright   : Copyright (c) CasjaysDev
-# @Description : weather tool for conky 
+# @Description : weather tool for conky
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Set functions
 
-printf_color() { printf "%b" "$(tput setaf "$2" 2> /dev/null)" "$1" "$(tput sgr0 2> /dev/null)" ;}
-printf_green() { printf_color "$1" 2 ;}
-printf_red() { printf_color "$1" 1 ;}
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # Specify langauge
 LANG="$(echo $LANG | sed 's#_.*##g')"
 
-# Should be u for f or m for c 
+# Should be u for f or m for c
 METRIC="u"
 
 # Options - curl http://wttr.in/:help?A
@@ -37,9 +42,9 @@ METRIC="u"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 if [ "$1" = "--help" ]; then
-    printf_green "\t\tUSAGE: weather.sh <options> <locationcode>\n"
-    printf_green "\t\tSee curl http://wttr.in/:help?A for all options\n"
-    printf_green "\t\tIE: weather.sh Au0 mia\n"
+    printf_green "USAGE: weather.sh <options> <locationcode>"
+    printf_green "See curl http://wttr.in/:help?A for all options"
+    printf_green "IE: weather.sh Au0 mian"
     exit 0
 fi
 

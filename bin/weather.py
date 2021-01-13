@@ -15,8 +15,8 @@
 
 import requests
 
-CITY = "5136454"
-API_KEY = "756edce7e9d4c385ef9499a53492678c"
+CITY = "${MYLOCATIONZIP:-5136454}"
+API_KEY = "${OPENWEATHERMAP_ACCESS_TOKEN:-756edce7e9d4c385ef9499a53492678c}"
 UNITS = "Imperial"
 UNIT_KEY = "F"
 LANG = "en"
@@ -32,4 +32,3 @@ try:
         print("Error: BAD HTTP STATUS CODE " + str(REQ.status_code))
 except (ValueError, IOError):
     print("Error: Unable print the data")
-    

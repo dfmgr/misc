@@ -32,7 +32,9 @@ mkd() {
   typeset dir="$1"
   if [ ! -z "$dir" ]; then
     printf_green "Creating $dir and entering the directory"
-    mkdir -p "$dir" && cd_into "$dir"
+    mkdir -p "$dir"
+    printf_green "Type exit to return to your previous directory"
+    cd "$1" || return 1
   else
     printf_red "Usage: mkd folder"
   fi
