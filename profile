@@ -306,10 +306,6 @@ export GODIR="$GOPATH"
 export PATH="$HOME/.cargo/bin:$PATH"
 if [ -f "$HOME/.cargo/env" ]; then source "$HOME/.cargo/env"; fi
 
-if [ -f "$(command -v hub 2>/dev/null)" ]; then
-  hub alias -s
-fi
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
