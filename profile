@@ -307,6 +307,13 @@ export PATH="$HOME/.cargo/bin:$PATH"
 if [ -f "$HOME/.cargo/env" ]; then source "$HOME/.cargo/env"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Use hub as git if installed
+if [ -f "$(command -v hub 2>/dev/null)" ]; then
+  eval "$(hub alias -s >/dev/null 2>&1)"
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
   export BROWSER="garcon-url-handler --url"
