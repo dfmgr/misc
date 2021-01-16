@@ -25,16 +25,18 @@ mkd() {
     exit 1
   fi
 
+  CREATE="$1"
+  __help() { printf_help "Usage: mkd directorytoCreate"; }
   [ ! "$1" = "--version" ] || get_app_info "$APPNAME"
+  [ ! "$1" = "--help" ] || __help
+  if [ $# -ne 1 ]; then __help; fi
 
-  [ ! "$1" = "--help" ] || printf_help "Usage: mkd directorytoCreate"
-
-  typeset dir="$1"
-  if [ ! -z "$dir" ]; then
-    printf_green "Creating $dir and entering the directory"
-    mkdir -p "$dir"
+  typeset dir="$CREATE"
+  if [ ! -z "$CREATE" ]; then
+    printf_green "Creating $CREATE and entering the directory"
+    mkdir -p "$CREATE"
     printf_green "Type exit to return to your previous directory"
-    cd "$1" || return 1
+    cd "$CREATE" && bash || return 1
   else
     printf_red "Usage: mkd folder"
   fi
@@ -42,5 +44,5 @@ mkd() {
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-mkd "$@"
+mkd "$@" 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

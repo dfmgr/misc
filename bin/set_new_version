@@ -28,8 +28,9 @@ main() {
   [ ! "$1" = "--help" ] || printf_help "Usage: set_new_version"
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  find "$1" -type f -exec sed -i "s/##@Version.*/##@Version     : $(setver)/g" {} \;
+  setver="$(date +"%m%d%Y%H%M-git")"
+  printf_green "Changing the version to $setver in $1"
+  find "$1" -type f -exec sed -i "s/##@Version.*/##@Version     : $setver/g" {} \;
 }
 
 main "$@"
