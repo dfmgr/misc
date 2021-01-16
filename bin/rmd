@@ -28,8 +28,12 @@ rmd() {
   [ ! "$1" = "--help" ] || printf_help "Usage: rmd File or Directory to delete"
 
   if [ -n "$*" ]; then
-    printf_green "Deleting the directory $@ and all files within"
-    rm -Rf "$@"
+    if [ -d "$1" ]; then
+      printf_green "Deleting the directory $@ and all files within"
+      rm -Rf "$@"
+    else
+      printf_exit "Refusing to delete a non-existant file or directory"
+    fi
   else
     printf_red "Must provide path to file or folder for deletion $@"
   fi
