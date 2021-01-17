@@ -481,7 +481,7 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export notes dir
-export NOTES_DIRECTORY="$HOME/.local/share/notes"
+export NOTES_DIRECTORY="$HOME/.local/share/editors/notes"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
