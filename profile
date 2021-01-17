@@ -464,12 +464,16 @@ elif [ -f "$(command -v nano 2>/dev/null)" ]; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# export todo config
+export TODO_DIR="$HOME/.local/share/editors/todos"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export todo.sh config
-export TODO_DIR="$HOME/.local/share/todo"
+export TODOSH_DIR="$HOME/.local/share/todo"
 export TODOTXT_CFG_FILE="$HOME/.config/todo/config"
-export TODO_FILE="$HOME/.local/share/todo/todo.txt"
-export DONE_FILE="$HOME/.local/share/todo/done.txt"
-export REPORT_FILE="$HOME/.local/share/todo/report.txt"
+export TODOTXT_FILE="$HOME/.local/share/todo/todo.txt"
+export TODOTXT_DONE_FILE="$HOME/.local/share/todo/done.txt"
+export TODOTXT_REPORT_FILE="$HOME/.local/share/todo/report.txt"
 
 if [ ! -f "$TODOTXT_CFG_FILE" ]; then
   touch "$TODOTXT_CFG_FILE"
