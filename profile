@@ -440,9 +440,9 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
 if [ -f "$(command -v code 2>/dev/null)" ]; then
-  export EDITOR="code"
+  export EDITOR="code -w"
 elif [ -f "$(command -v vscode 2>/dev/null)" ]; then
-  export EDITOR="vscode"
+  export EDITOR="vscode -w"
 elif [ -f "$(command -v vim 2>/dev/null)" ]; then
   export EDITOR="vim"
 elif [ -f "$(command -v nvim 2>/dev/null)" ]; then

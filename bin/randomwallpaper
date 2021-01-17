@@ -15,41 +15,47 @@ USER="${SUDO_USER:-${USER}}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
 
-DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
-if [[ -f "$DIR/functions.bash" ]]; then
-  source "$DIR/functions.bash"
-else
-  echo "\t\tCouldn't source the functions file"
-  exit 1
-fi
-
-[ ! "$1" = "--help" ] || printf_help "Usage: randomwallpaper"
-
-send_notify_wp() {
-  command -v notify-send >/dev/null 2>&1 &&
-    notify-send "Wallpaper Changer" "Wallpaper has been changed to $RAND" ||
-    notify-send "Wallpaper Changer" "Failed to change the wallpaper"
-}
-
-xfce_change_wp() {
-  xfconf-query --channel xfce4-desktop --list | grep last-image | while read path; do
-    xfconf-query --channel xfce4-desktop --property $path --set $RAND
-  done
-}
-
 randomwallpaper() {
-  [ ! -z "$WALLPAPERS" ] || exit 1
+
+  DIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    echo "\t\tCouldn't source the functions file"
+    exit 1
+  fi
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: randomwallpaper"
+
+  send_notify_wp() {
+    command -v notify-send >/dev/null 2>&1 &&
+      notify-send "Wallpaper Changer" "Wallpaper has been changed to $RAND" ||
+      notify-send "Wallpaper Changer" "Failed to change the wallpaper"
+  }
+
+  xfce_change_wp() {
+    xfconf-query --channel xfce4-desktop --list | grep last-image | while read path; do
+      xfconf-query --channel xfce4-desktop --property "$path" --set "$1"
+    done
+  }
+
+  [ -n "$WALLPAPERS" ] || exit 1
 
   RAND=$(find "$WALLPAPERS" -type f -iname "*.jpg" -or -iname "*.jpeg" -or -iname "*.png" -or -iname "*.tif" -or -iname "*.bmp" -or -iname "*.gif" -not -path "*/.git/*" 2>/dev/null | sort -R | head -1)
 
-  [ ! -z "$RAND" ] || exit 1
+  [ -n "$RAND" ] || exit 1
+  if cmd_exists variety >/dev/null 2>&1; then
+    variety --set="$RAND" >/dev/null 2>&1 && send_notify_wp
 
-  if cmd_exists xfconf-query >/dev/null 2>&1 && [[ "$DESKTOP_SESSION" =~ "xfce4" ]]; then
-    xfce_change_wp && send_notify_wp || cmd_exists feh >/dev/null 2>&1 && feh --bg-fill "$RAND" && send_notify_wp
+  elif cmd_exists feh >/dev/null 2>&1; then
+    feh --bg-fill "$RAND" >/dev/null 2>&1 && send_notify_wp
 
   elif cmd_exists xwallpaper >/dev/null 2>&1; then
-    xwallpaper --maximize "$RAND" && send_notify_wp
+    xwallpaper --maximize "$RAND" >/dev/null 2>&1 && send_notify_wp
+
+  elif cmd_exists xfconf-query >/dev/null 2>&1 && [[ "$DESKTOP_SESSION" =~ "xfce4" ]]; then
+    xfce_change_wp "$RAND" >/dev/null 2>&1 && send_notify_wp
 
   fi
 }
