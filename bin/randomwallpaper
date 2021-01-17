@@ -26,9 +26,25 @@ randomwallpaper() {
     exit 1
   fi
 
-  [ ! "$1" = "--help" ] || printf_help "Usage: randomwallpaper\n\t\t$APPNAME --cronadd  |  Add to cron\n\t\t$APPNAME --cronremove  |  Remove from cron"
-  [ ! "$1" = "--cronadd" ] || addtocrontab "*/5 * * * *" "$APPNAME"
-  [ ! "$1" = "--cronremove" ] || removecrontab "$APPNAME"
+  addtocrontab() {
+    [ "$1" = "--help" ] && printf_help "addtocrontab "*/5 * * * *" "echo hello"" #Run every 5 minutes
+    local frequency="$1"
+    local command="bash -c 'logr cron $2'"
+    local job="$frequency $command"
+    cat <(grep -F -i -v "$command" <(crontab -l)) <(echo "$job") | crontab - >/dev/null 2>&1 &&
+      printf_green "Successfully added $2 to users crontab" || printf_exit "Failed to add $2 to crontab"
+    exit $?
+  }
+
+  removecrontab() {
+    crontab -l | grep -v -F "$command" | crontab - >/dev/null 2>&1 &&
+      printf_green "Successfully removed $2 from users crontab" || printf_exit "Failed to remove $2 from crontab"
+    exit $?
+  }
+
+  [ ! "$1" = "--help" ] || printf_help "Usage: randomwallpaper\n\t\t$APPNAME --add  |  Add to cron\n\t\t$APPNAME --remove  |  Remove from cron"
+  if [ "$1" = "--add" ]; then addtocrontab "*/5 * * * *" "$APPNAME"; fi
+  if [ "$1" = "--remove" ]; then removecrontab "$APPNAME"; fi
 
   send_notify_wp() {
     command -v notify-send >/dev/null 2>&1 &&
