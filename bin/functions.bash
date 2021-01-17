@@ -75,7 +75,7 @@ ln_sf() {
 addtocrontab() {
   [ "$1" = "--help" ] && printf_help "addtocrontab "0 0 1 * *" "echo hello""
   local frequency="$1"
-  local command="logr $2"
+  local command="bash -c 'logr $2'"
   local job="$frequency $command"
   cat <(grep -F -i -v "$command" <(crontab -l)) <(echo "$job") | crontab - >/dev/null 2>&1 &&
     printf_green "Successfully added $2 to users crontab" || printf_exit "Failed to add $2 to crontab"
