@@ -26,7 +26,9 @@ randomwallpaper() {
     exit 1
   fi
 
-  [ ! "$1" = "--help" ] || printf_help "Usage: randomwallpaper"
+  [ ! "$1" = "--help" ] || printf_help "Usage: randomwallpaper\n\t\t$APPNAME --cronadd  |  Add to cron\n\t\t$APPNAME --cronremove  |  Remove from cron"
+  [ ! "$1" = "--cronadd" ] || addtocrontab "*/5 * * * *" "$APPNAME"
+  [ ! "$1" = "--cronremove" ] || removecrontab "$APPNAME"
 
   send_notify_wp() {
     command -v notify-send >/dev/null 2>&1 &&

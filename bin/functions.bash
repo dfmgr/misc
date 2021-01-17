@@ -39,7 +39,7 @@ printf_custom_question() {
     local color="$1"
     shift 1
   else
-    local color="1"
+    local color="2"
   fi
   local msg="$*"
   shift
@@ -61,6 +61,7 @@ printf_newline() {
 }
 
 devnull() { "$@" >/dev/null 2>&1; }
+devnull2() { "$@" 2>/dev/null; }
 
 rm_rf() { devnull rm -Rf "$@"; }
 cp_rf() { if [ -e "$1" ]; then devnull cp -Rfa "$@"; fi; }
@@ -69,4 +70,20 @@ ln_rm() { devnull find "$HOME" -xtype l -delete; }
 ln_sf() {
   devnull ln -sf "$@"
   ln_rm
+}
+
+addtocrontab() {
+  [ "$1" = "--help" ] && printf_help "addtocrontab "0 0 1 * *" "echo hello""
+  local frequency="$1"
+  local command="logr $2"
+  local job="$frequency $command"
+  cat <(grep -F -i -v "$command" <(crontab -l)) <(echo "$job") | crontab - >/dev/null 2>&1 &&
+    printf_green "Successfully added $2 to users crontab" || printf_exit "Failed to add $2 to crontab"
+  exit $?
+}
+
+removecrontab() {
+  crontab -l | grep -v -F "$command" | crontab - >/dev/null 2>&1 &&
+    printf_green "Successfully removed $2 from users crontab" || printf_exit "Failed to remove $2 from crontab"
+  exit $?
 }
