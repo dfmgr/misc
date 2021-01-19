@@ -57,6 +57,8 @@ trash-restore() {
   done
 }
 
+export -f trash-put trash-restore
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
 

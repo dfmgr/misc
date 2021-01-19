@@ -46,7 +46,7 @@ sudo -H pip3 install --upgrade shodan ytmdl asciinema toot tootstream castero ra
 mv -fv "$HOME/.config/misc" "$HOME/.config/misc.bak"
 git clone https://github.com/dfmgr/misc "$HOME/.config/misc"
   for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver config/lynx/lynx.cfg config/lynx/lynx.lss config/xresources config/dunst; do
-    ln_sf "$APPDIR/$f" "$HOME/.$f"
+    ln_sf "$DOWNLOADED_TO/$f" "$HOME/.$f"
   done
 ```
   
