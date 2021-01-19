@@ -157,17 +157,17 @@ failexitcode
 # Plugins
 
 if __am_i_online; then
-if [ "$PLUGNAMES" != "" ]; then
-  if [ -d "$PLUGDIR"/PLUREP/.git ]; then
-    execute \
-      "git_update $PLUGDIR/PLUGREP" \
-      "Updating plugin PLUGNAME"
-  else
-    execute \
-      "git_clone PLUGINREPO $PLUGDIR/PLUGREP" \
-      "Installing plugin PLUGREP"
+  if [ "$PLUGNAMES" != "" ]; then
+    if [ -d "$PLUGDIR"/PLUREP/.git ]; then
+      execute \
+        "git_update $PLUGDIR/PLUGREP" \
+        "Updating plugin PLUGNAME"
+    else
+      execute \
+        "git_clone PLUGINREPO $PLUGDIR/PLUGREP" \
+        "Installing plugin PLUGREP"
+    fi
   fi
-fi
 fi
 
 # exit on fail
@@ -181,7 +181,7 @@ run_postinst() {
   dfmgr_run_post
   mkdir -p $HOME/.config/lynx
   for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc config/lynx/lynx.cfg config/lynx/lynx.lss config/xresources config/dunst; do
-    ln_sf "$DOWNLOADED_TO/$f" "$HOME/.$f"
+    ln_sf "$APPDIR/$f" "$HOME/.$f"
   done
 
 }
