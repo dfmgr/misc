@@ -542,6 +542,9 @@ if [ -d ~/.local/share/scripts/bin ]; then
   export PATH="$HOME/.local/share/scripts/bin:$PATH"
 fi
 
+#asciinema settings
+export ASCIINEMA_API_URL="https://asciinema.org"
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cheat.sh settings
 export CHTSH_HOME="$HOME/.config/cheatsh"
