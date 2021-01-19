@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+SET_DAY="$(date +'%d')"
+SET_YEAR="$(date +'%Y')"
+SET_MONTH="$(date +'%m')"
+SET_HOUR="$(date +'%H')"
+SET_MINUTE="$(date +'%M')"
+SET_TIME="$(date +'%H:%M')"
+SET_DATE="$(date +'%Y-%m-%d')"
+
 __tput() { tput "$@" 2>/dev/null; }
 printf_color() { printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"; }
 printf_normal() { printf_color "\t\t$1\n" "$2"; }

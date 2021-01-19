@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+
+APPNAME="$(basename $0)"
+USER="${SUDO_USER:-${USER}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# @Author      : Jason
+# @Contact     : casjaysdev@casjay.net
+# @File        : trash-put
+# @Created     : Mon, Dec 31, 2019, 00:00 EST
+# @License     : WTFPL
+# @Copyright   : Copyright (c) CasjaysDev
+# @Description : delete files and folders
+#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+DIR="${BASH_SOURCE%/*}"
+if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+if [[ -f "$DIR/functions.bash" ]]; then
+  source "$DIR/functions.bash"
+else
+  echo -e "\t\tCouldn't source the functions file"
+  exit 1
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__help() {
+  echo
+  printf_help "Usage: trash file | trash restore file\n"
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+get_name() {
+  files=$(printf "%s" "$1" | tr '\n' ';')
+  while [ "$files" ]; do
+    file=${files%%;*}
+    trash-put "$(basename "$file")"
+    if [ "$files" = "$file" ]; then
+      files=''
+    else
+      files="${files#*;}"
+    fi
+  done
+}
+
+trash-put() {
+  for f in $*; do
+    rsync "$f" "$HOME/.local/share/Trash/files/$f" &>/dev/null
+    rm -Rf "$f"
+  done
+}
+
+trash-restore() {
+  for f in $*; do
+    rsync "$HOME/.local/share/Trash/files/$f" "$HOME/Desktop/restored/$f" &>/dev/null
+    rm -Rf "$HOME/.local/share/Trash/files/$f"
+  done
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+
+case $1 in
+--help)
+  __help
+  ;;
+restore)
+  shift 1
+  trash-restore "$@"
+  ;;
+
+delete)
+  shift 1
+  trash-put "$@"
+  ;;
+
+*)
+  [ $# -eq 0 ] && __help
+
+  ;;
+esac
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
