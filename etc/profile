@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# set path
-PATH="/usr/local/bin:$HOME/.local/bin:$PATH"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
 #umask 022
 
@@ -43,6 +39,10 @@ export LC_TELEPHONE="en_US.UTF-8"
 export LC_MEASUREMENT="en_US.UTF-8"
 export LC_IDENTIFICATION="en_US.UTF-8"
 export LC_ALL="$LC_ALL"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# set path
+export PATH="/usr/local/bin:$HOME/.local/bin:$PATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bash specific
@@ -628,7 +628,7 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-export PATH="$(echo $PATH | tr ':' '\n' | grep -v '\..' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:.#g')"
+export PATH="$(echo "$PATH" | tr ':' '\n' | grep -v '\..' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:.#g')"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
