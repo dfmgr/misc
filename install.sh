@@ -187,7 +187,7 @@ run_postinst() {
     cp_rf "$APPDIR/$f" "$HOME/.$f"
   done
   for c in lynx/lynx.cfg lynx/lynx.lss xresources dunst; do
-    cp_rf "$APPDIR/config/$c" "$HOME/.config/$c"
+    cp_rf "$APPDIR/config/$c/." "$HOME/.config/$c"
   done
 }
 
