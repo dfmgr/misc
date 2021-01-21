@@ -54,7 +54,7 @@ printf_custom_question() {
   printf_color "\t\t$msg" "$color"
 }
 
-printf_newline() {
+printf_readline() {
   set -o pipefail
   if [[ $1 == ?(-)+([0-9]) ]]; then
     local color="$1"
@@ -62,7 +62,7 @@ printf_newline() {
   else
     local color="3"
   fi
-  while read line; do
+  while read -r line; do
     printf_color "\t\t$line\n" "$color"
   done
   set +o pipefail
@@ -71,6 +71,7 @@ printf_newline() {
 devnull() { "$@" >/dev/null 2>&1; }
 devnull2() { "$@" 2>/dev/null; }
 
+mkd() { mkdir -p "$@"; }
 rm_rf() { devnull rm -Rf "$@"; }
 cp_rf() { if [ -e "$1" ]; then devnull cp -Rfa "$@"; fi; }
 mv_f() { if [ -e "$1" ]; then devnull mv -f "$@"; fi; }

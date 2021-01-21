@@ -30,34 +30,82 @@ __help() {
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#fileext="$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 10 | head -n 1)"
+
+TrashDir="${TRASH_DIR:-$HOME/.local/share/Trash}"
+RestoreDir="${RESTORE_DIR:-$HOME/Desktop/restored}"
+
 get_name() {
+  dirname="$(dirname $1 | grep './' || echo $PWD)"
   files=$(printf "%s" "$1" | tr '\n' ';')
   while [ "$files" ]; do
     file=${files%%;*}
-    trash-put "$(basename "$file")"
     if [ "$files" = "$file" ]; then
       files=''
     else
       files="${files#*;}"
     fi
+    if [ "$(echo $file | grep '/')" ]; then
+      echo "$file"
+    else
+      echo "$dirname/$file"
+    fi
   done
 }
 
+filename_trash() { get_name "$1" | sed 's#/#_-_#g'; }
+filename_restore() { cat "$TrashDir/info/$1.trashinfo" | grep Path | sed 's#Path=##g' | sed 's#"##g'; }
+
+create_trash_file() {
+  cat <<EOF >"$TrashDir/info/$(filename_trash $1)-$(basename "$1").trashinfo"
+[Trash Info]
+Path="$(get_name $1)"
+DeletionDate="$(date +'%Y-%m-%d-T%H:%M:%S')"
+EOF
+}
+
 trash-put() {
-  for f in $*; do
-    rsync "$f" "$HOME/.local/share/Trash/files/$f" &>/dev/null
-    rm -Rf "$f"
+  for t in "$@"; do
+    create_trash_file "$t"
+    rsync -a "$t" "$TrashDir/files/$(filename_trash $t)-$t"
+    rm -Rf "$t"
   done
 }
 
 trash-restore() {
-  for f in $*; do
-    rsync "$HOME/.local/share/Trash/files/$f" "$HOME/Desktop/restored/$f" &>/dev/null
-    rm -Rf "$HOME/.local/share/Trash/files/$f"
+  for r in "$@"; do
+    file="$(basename $r)"
+    restorefile="$(filename_restore "$file")"
+    if [ -e "$TrashDir/files/$file" ]; then
+      restorename="$(echo $restorefile | sed 's#^/##g')"
+      mkd "$RestoreDir/$(dirname $restorename)"
+      rsync -a "$TrashDir/files/$file" "$RestoreDir/$restorename" &&
+        rm -Rf "$TrashDir/files/$file" "$TrashDir/info/$file.trashinfo" &&
+        printf_green "Restored: $file to $RestoreDir/$restorename" ||
+        printf_exit "Failed to restore $file to $RestoreDir/$restorename"
+    else
+      printf_red "$file doesn't exist"
+    fi
   done
 }
 
-export -f trash-put trash-restore
+trash-list() {
+  if [ $# = 0 ]; then
+    ls -A "$TrashDir/files"
+  else
+    for ls in "$@"; do
+      ls -a "$TrashDir/files/$ls"*
+    done
+  fi
+}
+
+trash-empty() {
+  count="$(ls "$TrashDir/files/" | wc -l)"
+  rm -Rf "$TrashDir/files/"
+  rm -Rf "$TrashDir/info"
+  mkd "$TrashDir/files/" "$TrashDir/info"
+  printf_yellow "Deleted $count file from your system"
+}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
@@ -66,19 +114,30 @@ case $1 in
 --help)
   __help
   ;;
+
+list)
+  shift 1
+  trash-list "$@" 2>/dev/null | printf_readline "3"
+  ;;
+
 restore)
   shift 1
-  trash-restore "$@"
+  trash-restore "$@" 2>/dev/null
   ;;
 
 delete)
   shift 1
-  trash-put "$@"
+  trash-put "$@" 2>/dev/null
+  ;;
+
+empty)
+  shift 1
+  trash-empty 2>/dev/null
   ;;
 
 *)
   [ $# -eq 0 ] && __help
-
+  trash-put "$@"
   ;;
 esac
 

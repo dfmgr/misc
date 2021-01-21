@@ -183,11 +183,13 @@ fi
 run_postinst() {
   dfmgr_run_post
   for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc; do
-    cp_rf "$APPDIR/$f" "$HOME/.$f"
+    [ -L "$HOME/.$f" ] || rm_link "$HOME/.$f"
+    cp_rf "$DOWNLOADED_TO/profile/$f" "$HOME/.$f"
   done
-  for c in lynx xresources dunst; do
-    mkd "$APPDIR/config/$c"
-    cp_rf "$APPDIR/config/$c/." "$HOME/.config/$c"
+  for c in CasjaysDev dunst lynx xresources; do
+    [ -L "$HOME/.config/$c" ] || rm_link "$HOME/.config/$c"
+    [ -d $APPDIR/.config/$c ] || mkd "$APPDIR/.config/$c"
+    cp_rf "$DOWNLOADED_TO/config/$c/." "$HOME/.config/$c"
   done
 }
 
