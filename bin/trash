@@ -36,8 +36,12 @@ TrashDir="${TRASH_DIR:-$HOME/.local/share/Trash}"
 RestoreDir="${RESTORE_DIR:-$HOME/Desktop/restored}"
 
 get_name() {
-  dirname="$(dirname $1 | grep './' || echo $PWD)"
-  files=$(printf "%s" "$1" | tr '\n' ';')
+  if [ -d "$1" ]; then
+    dirname="$(dirname $(echo $PWD/$1) 2>/dev/null || return 1)"
+  else
+    dirname="$(dirname $(ls -A $1) 2>/dev/null || return 1)"
+  fi
+  files=$(basename "$1")
   while [ "$files" ]; do
     file=${files%%;*}
     if [ "$files" = "$file" ]; then
@@ -45,40 +49,37 @@ get_name() {
     else
       files="${files#*;}"
     fi
-    if [ "$(echo $file | grep '/')" ]; then
-      echo "$file"
-    else
-      echo "$dirname/$file"
-    fi
+    echo "$dirname/$file"
   done
 }
 
 filename_trash() { get_name "$1" | sed 's#/#_-_#g'; }
-filename_restore() { cat "$TrashDir/info/$1.trashinfo" | grep Path | sed 's#Path=##g' | sed 's#"##g'; }
+filename_restore() { grep Path "$TrashDir/info/$1.trashinfo" | sed 's#Path=##g' | sed 's#"##g'; }
 
 create_trash_file() {
-  cat <<EOF >"$TrashDir/info/$(filename_trash $1)-$(basename "$1").trashinfo"
+  cat <<EOF >"$TrashDir/info/$(filename_trash "$1")-$(basename "$1").trashinfo"
 [Trash Info]
-Path="$(get_name $1)"
+Path="$(get_name "$1")"
 DeletionDate="$(date +'%Y-%m-%d-T%H:%M:%S')"
 EOF
 }
 
 trash-put() {
   for t in "$@"; do
-    create_trash_file "$t"
-    rsync -a "$t" "$TrashDir/files/$(filename_trash $t)-$t"
-    rm -Rf "$t"
+    file="$t"
+    create_trash_file "$file"
+    rsync -a "$file" "$TrashDir/files/$(filename_trash "$file")-$(basename "$file")"
+    rm -Rf "$file"
   done
 }
 
 trash-restore() {
   for r in "$@"; do
-    file="$(basename $r)"
+    file="$(basename "$r")"
     restorefile="$(filename_restore "$file")"
     if [ -e "$TrashDir/files/$file" ]; then
-      restorename="$(echo $restorefile | sed 's#^/##g')"
-      mkd "$RestoreDir/$(dirname $restorename)"
+      restorename="$(echo "$restorefile" | sed 's#^/##g')"
+      mkd "$RestoreDir/$(dirname "$restorename")"
       rsync -a "$TrashDir/files/$file" "$RestoreDir/$restorename" &&
         rm -Rf "$TrashDir/files/$file" "$TrashDir/info/$file.trashinfo" &&
         printf_green "Restored: $file to $RestoreDir/$restorename" ||
@@ -90,12 +91,16 @@ trash-restore() {
 }
 
 trash-list() {
-  if [ $# = 0 ]; then
-    ls -A "$TrashDir/files"
+  if [ "$(ls "$TrashDir/files/" | wc -l)" = 0 ]; then
+    printf_green "There are no files in your Trash"
   else
-    for ls in "$@"; do
-      ls -a "$TrashDir/files/$ls"*
-    done
+    if [ $# = 0 ]; then
+      ls -A "$TrashDir/files"
+    else
+      for ls in "$@"; do
+        ls -a "$TrashDir/files/$ls"*
+      done
+    fi
   fi
 }
 
@@ -122,22 +127,22 @@ list)
 
 restore)
   shift 1
-  trash-restore "$@" 2>/dev/null
+  trash-restore "$@" #2>/dev/null
   ;;
 
 delete)
   shift 1
-  trash-put "$@" 2>/dev/null
+  trash-put "$@" #2>/dev/null
   ;;
 
 empty)
   shift 1
-  trash-empty 2>/dev/null
+  trash-empty #2>/dev/null
   ;;
 
 *)
   [ $# -eq 0 ] && __help
-  trash-put "$@"
+  trash-put "$@" 2>/dev/null
   ;;
 esac
 
