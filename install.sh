@@ -183,8 +183,11 @@ fi
 run_postinst() {
   dfmgr_run_post
   mkd "$HOME/.config/lynx"
-  for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc config/lynx/lynx.cfg config/lynx/lynx.lss config/xresources config/dunst; do
-    ln_sf "$APPDIR/$f" "$HOME/.$f"
+  for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc; do
+    cp_rf "$APPDIR/$f" "$HOME/.$f"
+  done
+  for c in lynx/lynx.cfg lynx/lynx.lss xresources dunst; do
+    cp_rf "$APPDIR/config/$c" "$HOME/.config/$c"
   done
 }
 
