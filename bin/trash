@@ -79,10 +79,10 @@ trash-restore() {
   for r in "$@"; do
     local file="$(basename $(echo $r))"
     local restorefile="$(filename_restore "$r")"
-    local restorename="$(basename $(echo "$restorefile" | sed 's#^/##g' | sed 's#_-_#/#g'))"
-    local restoredir="$RestoreDir"
     #echo "file:$file restore:$restorefile restorename:$restorename restoredir:$restoredir"
     if [ -e "$TrashDir/files/$file" ]; then
+      local restorename="$(basename $(echo "$restorefile" | sed 's#^/##g' | sed 's#_-_#/#g'))"
+      local restoredir="$RestoreDir"
       mkd "$restoredir/$(dirname "$restorename")"
       if [ -d "$TrashDir/files/$file" ]; then
         rsync -a "$TrashDir/files/$file/." "$restoredir/$restorefile/"
@@ -126,21 +126,21 @@ trash-empty() {
 # execute function
 
 case $1 in
---help)
+--help | -h)
   __help
   ;;
 
-list)
+list | ls)
   shift 1
   trash-list "$@" 2>/dev/null
   ;;
 
-restore)
+restore | rs)
   shift 1
   trash-restore "$@" #2>/dev/null
   ;;
 
-delete)
+delete | rm)
   shift 1
   trash-put "$@" #2>/dev/null
   ;;
