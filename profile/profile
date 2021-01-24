@@ -155,6 +155,20 @@ if [ -n "$DISPLAY" ]; then
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# XDG Settings
+case "$(uname -s)" in
+Linux)
+  export LOGS_DIRECTORY="$HOME/.local/log"
+  export STATE_DIRECTORY="$HOME/.local/lib"
+  export CACHE_DIRECTORY="$HOME/.local/cache"
+  export RUNTIME_DIRECTORY="$HOME/.local/run"
+  export CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
+  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
+  export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
+  ;;
+esac
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
 if [ -n "$DISPLAY" ]; then
   case "$(uname -s)" in
@@ -531,8 +545,8 @@ export TERM="screen-256color"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # logging
 export DEFAULT_LOG="apps"
-export LOGDIR="${HOME/.local/log}"
-export DEFAULT_LOG_DIR="${LOGDIR:-$HOME/.local/log}"
+export LOGDIR="$HOME/.local/log"
+export DEFAULT_LOG_DIR="$LOGDIR"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set PATH so it includes user's private bin if it exists
@@ -557,16 +571,6 @@ export CHTSH_HOME="$HOME/.config/cheatsh"
 
 export TASKRC="$HOME/.taskrc"
 export TASKDATA="$HOME/.local/share/taskwarrior"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# XDG Settings
-export LOGS_DIRECTORY="${LOGS_DIRECTORY:-$DEFAULT_LOG_DIR}"
-export STATE_DIRECTORY="${STATE_DIRECTORY:-$HOME/.local/lib}"
-export CACHE_DIRECTORY="${CACHE_DIRECTORY:-$HOME/.local/cache}"
-export RUNTIME_DIRECTORY="${RUNTIME_DIRECTORY:-$HOME/.local/run}"
-export CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cursor
