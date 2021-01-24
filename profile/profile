@@ -1,6 +1,31 @@
 #!/usr/bin/env bash
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# bash specific
+if [ -n "$BASH_VERSION" ]; then
+  export BASH_SILENCE_DEPRECATION_WARNING=1
+  export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
+  export HISTCONTROL=ignoreboth
+  export HISTFILESIZE=10000
+  export HISTIGNORE="&:[bf]g:c:clear:history:exit:q"
+  export HISTSIZE=10000
+  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook bash &>/dev/null; fi
+
+# zsh specific
+elif [ -n "$ZSH_VERSION" ]; then
+  export ZDOTDIR="$HOME/.config/zsh"
+  export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
+  export ZSH="$HOME/.local/share/zsh/oh-my-zsh"
+  export ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
+  export ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
+  export HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
+  export SAVEHIST=5000
+  export HISTSIZE=2000
+  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook zsh &>/dev/null; fi
+  #autoload compinit && compinit
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
 #umask 022
 
@@ -43,31 +68,6 @@ export LC_ALL="$LC_ALL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set path
 export PATH="/usr/local/bin:$HOME/.local/bin:$PATH"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# bash specific
-if [ -n "$BASH_VERSION" ]; then
-  export BASH_SILENCE_DEPRECATION_WARNING=1
-  export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
-  export HISTCONTROL=ignoreboth
-  export HISTFILESIZE=10000
-  export HISTIGNORE="&:[bf]g:c:clear:history:exit:q"
-  export HISTSIZE=10000
-  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook bash &>/dev/null; fi
-
-# zsh specific
-elif [ -n "$ZSH_VERSION" ]; then
-  export ZDOTDIR="$HOME/.config/zsh"
-  export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
-  export ZSH="$HOME/.local/share/zsh/oh-my-zsh"
-  export ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
-  export ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
-  export HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
-  export SAVEHIST=5000
-  export HISTSIZE=2000
-  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook zsh &>/dev/null; fi
-  #autoload compinit && compinit
-fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure display
@@ -193,17 +193,17 @@ esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-if [ -f "$(command -v gpg-agent 2>/dev/null)" ]; then
-  gpg-agent --daemon &>/dev/null
-fi
 export GPG_TTY="$(tty)"
 export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
+if [ -f "$(command -v gpg-agent 2>/dev/null)" ]; then
+  gpg-agent --daemon >/dev/null 2>&1 &
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
-    ssh-agent &>/dev/null
+    ssh-agent >/dev/null 2>&1
   fi
   ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
 fi
@@ -211,7 +211,7 @@ fi
 sshdir=$(ls ~/.ssh/id_* 2>/dev/null | wc -l)
 if [ "$sshdir" -ne "0" ]; then
   for f in $(ls ~/.ssh/id_* 2>/dev/null | grep .pub); do
-    ssh-add "$f" &>/dev/null &
+    ssh-add "$f" >/dev/null 2>&1 &
   done
 fi
 
@@ -529,8 +529,8 @@ export TERM="screen-256color"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # logging
 export DEFAULT_LOG="apps"
+export LOGDIR="${HOME/.local/log}"
 export DEFAULT_LOG_DIR="${LOGDIR:-$HOME/.local/log}"
-export LOGDIR="${DEFAULT_LOG_DIR:-$HOME/.local/log}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set PATH so it includes user's private bin if it exists
@@ -555,6 +555,37 @@ export CHTSH_HOME="$HOME/.config/cheatsh"
 
 export TASKRC="$HOME/.taskrc"
 export TASKDATA="$HOME/.local/share/taskwarrior"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# XDG Settings
+export LOGS_DIRECTORY="${LOGS_DIRECTORY:-$DEFAULT_LOG_DIR}"
+export STATE_DIRECTORY="${STATE_DIRECTORY:-$HOME/.local/lib}"
+export CACHE_DIRECTORY="${CACHE_DIRECTORY:-$HOME/.local/cache}"
+export RUNTIME_DIRECTORY="${RUNTIME_DIRECTORY:-$HOME/.local/run}"
+export CONFIGURATION_DIRECTORY"${CONFIGURATION_DIRECTORY:-HOME/.config}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# cursor
+if [ -n "$BASH_VERSION" ]; then
+  echo -e -n "\x1b[\x35 q"
+  echo -e -n "\e]12;white\a"
+fi
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# unset unneeded vars
+unset sshdir
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Make sure SBIN gets added to the path
+export PATH="$PATH:/usr/local/sbin:/usr/bin:/sbin"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# MacOS fix
+if [[ "$OSTYPE" =~ ^darwin ]]; then
+  export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
+  export HOMEBREW_CASK_OPTS="--appdir=/Applications"
+  export PATH="/usr/local/bin:$PATH:/usr/local/sbin:/usr/bin:/sbin"
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # passmgr settings - add your passmgr setup here
@@ -602,29 +633,6 @@ fi
 # import specific profiles for systems
 if [ -f "$HOME/.config/local/servers/$(hostname -s).local" ]; then
   . "$HOME/.config/local/servers/$(hostname -s).local"
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# cursor
-if [ -n "$BASH_VERSION" ]; then
-  echo -e -n "\x1b[\x35 q"
-  echo -e -n "\e]12;white\a"
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# unset unneeded vars
-unset sshdir
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Make sure SBIN gets added to the path
-export PATH="$PATH:/usr/local/sbin:/usr/bin:/sbin"
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# MacOS fix
-if [[ "$OSTYPE" =~ ^darwin ]]; then
-  export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
-  export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-  export PATH="/usr/local/bin:$PATH:/usr/local/sbin:/usr/bin:/sbin"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
