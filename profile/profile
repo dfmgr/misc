@@ -46,7 +46,8 @@ mkdir -p "$HOME/.local/share/wallpapers"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setting the temp directory
 export TMP="${TMP:-$HOME/.local/tmp}"
-export TEMP="${TMP:-$HOME/.local/tmp}"
+export TEMP="${TEMP:-$HOME/.local/tmp}"
+export TMPDIR="${TMPDIR:-$HOME/.local/tmp}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set locale
@@ -63,11 +64,12 @@ export LC_ADDRESS="en_US.UTF-8"
 export LC_TELEPHONE="en_US.UTF-8"
 export LC_MEASUREMENT="en_US.UTF-8"
 export LC_IDENTIFICATION="en_US.UTF-8"
-export LC_ALL="$LC_ALL"
+export LC_ALL="${LC_ALL}"
+#date_fmt="%a %b %e, %Y %H:%M:%S"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set path
-export PATH="/usr/local/bin:$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:/usr/local/bin:$PATH"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure display
@@ -273,7 +275,7 @@ if [ -f "$HOME/.local/share/scripts/rvm" ]; then
   export rvm_path="$HOME/.local/share/rvm"
   if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then source "$HOME/.local/share/rvm/scripts/rvm"; fi
   if [ -d $HOME/.local/share/rvm/bin ]; then
-    PATH="$HOME/.local/share/rvm/bin:$PATH"
+    export PATH="$HOME/.local/share/rvm/bin:$PATH"
   fi
 fi
 
@@ -281,7 +283,7 @@ fi
 # Fast Node Manager
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
 export FNM_MULTISHELL_PATH="$HOME/.local/bin"
-if [ -f "$(command -v fnm 2>/dev/null)" ]; then fnm env --use-on-cd --fnm-dir=$FNM_DIR/ &>/dev/null; fi
+if [ -f "$(command -v fnm 2>/dev/null)" ]; then fnm env --use-on-cd --fnm-dir="$FNM_DIR"/ >/dev/null 2>&1; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
@@ -534,12 +536,12 @@ export DEFAULT_LOG_DIR="${LOGDIR:-$HOME/.local/log}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set PATH so it includes user's private bin if it exists
-if [ -d ~/.local/bin ]; then
+if [ -d "$HOME/.local/bin" ]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
 # Set scripts path if installed manually
-if [ -d ~/.local/share/scripts/bin ]; then
+if [ -d "$HOME/.local/share/scripts/bin" ]; then
   export PATH="$HOME/.local/share/scripts/bin:$PATH"
 fi
 
@@ -578,15 +580,15 @@ fi
 unset sshdir
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Make sure SBIN gets added to the path
-export PATH="$PATH:/usr/local/sbin:/usr/bin:/sbin"
+# Make sure sbin gets added to the path
+export PATH="$PATH:/usr/bin:/usr/local/sbin:/sbin"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # MacOS fix
 if [[ "$OSTYPE" =~ ^darwin ]]; then
   export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
   export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-  export PATH="/usr/local/bin:$PATH:/usr/local/sbin:/usr/bin:/sbin"
+  export PATH="/usr/local/bin:$PATH:/usr/bin:/usr/local/sbin:/sbin"
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
