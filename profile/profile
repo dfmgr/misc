@@ -103,6 +103,7 @@ if [ -n "$DISPLAY" ]; then
   Linux)
     if [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
       dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
+      export DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
     fi
     ;;
   esac
