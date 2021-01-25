@@ -587,24 +587,26 @@ if [ -f "$(command -v multi_clipboard)" ]; then
   export CLIPBOARD="$HOME/.clipboard"
   export CLMAXHIST="20"
   export CLSEP='\x07'
-  export CLX="$(command -v pbcopy || command -v xclip || command -v xsel)" #xsel/xclip
   if [[ "$OSTYPE" =~ linux ]]; then
-    if devnull2 command -v xsel; then
+    if command -v xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
-    elif devnull2 command -v xclip; then
+      export CLX="xsel"
+    elif command -v xclip >/dev/null 2>&1; then
       export CLXOS="xclip"
+      export CLX="xclip"
     fi
   elif [[ "$OSTYPE" =~ cygwin ]]; then
-    if devnull2 command -v putclip; then
-      export CLXOS="putclip"
-    elif devnull2 command -v xsel; then
+    if command -v xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
-    elif devnull2 command -v xclip; then
+      export CLX="xsel"
+    elif command -v xclip >/dev/null 2>&1; then
       export CLXOS="xclip"
+      export CLX="xclip"
     fi
   elif [[ "$OSTYPE" =~ darwin ]]; then
-    if devnull2 command -v pbcopy; then
+    if command -v pbcopy >/dev/null 2>&1; then
       export CLXOS="pbcopy"
+      export CLX="pbcopy"
     fi
   fi
 fi
