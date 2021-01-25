@@ -9,7 +9,7 @@ if [ -n "$BASH_VERSION" ]; then
   export HISTFILESIZE=10000
   export HISTIGNORE="&:[bf]g:c:clear:history:exit:q"
   export HISTSIZE=10000
-  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook bash &>/dev/null; fi
+  [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook bash >/dev/null 2>&1
 
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
@@ -21,7 +21,7 @@ elif [ -n "$ZSH_VERSION" ]; then
   export HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
   export SAVEHIST=5000
   export HISTSIZE=2000
-  if [ -f "$(command -v direnv 2>/dev/null)" ]; then direnv hook zsh &>/dev/null; fi
+  [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
   #autoload compinit && compinit
 fi
 
@@ -212,7 +212,7 @@ esac
 export GPG_TTY="$(tty)"
 export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
 if [ -f "$(command -v gpg-agent 2>/dev/null)" ]; then
-  gpg-agent --daemon >/dev/null 2>&1 &
+  gpg-agent --enable-ssh-supprt --daemon -q >/dev/null 2>&1
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -224,10 +224,10 @@ if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
 fi
 
-sshdir=$(ls ~/.ssh/id_* 2>/dev/null | wc -l)
+sshdir="$(find ~/.ssh/id_* 2>/dev/null | wc -l)"
 if [ "$sshdir" -ne "0" ]; then
-  for f in $(ls ~/.ssh/id_* 2>/dev/null | grep .pub); do
-    ssh-add "$f" >/dev/null 2>&1 &
+  for f in $(ls ~/.ssh/id_* 2>/dev/null | grep -v '/*.pub'); do
+    ssh-add -q "$f" >/dev/null 2>&1
   done
 fi
 
