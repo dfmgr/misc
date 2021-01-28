@@ -100,7 +100,7 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enviroment variables when using a desktop
-if [ -n "$DISPLAY" ]; then
+if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ] then
   case "$(uname -s)" in
   Linux)
     if [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
@@ -124,7 +124,7 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup modifiers
-if [ -n "$DISPLAY" ]; then
+if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ] then
   case "$(uname -s)" in
   Linux)
     if [ -f "$(command -v ibus 2>/dev/null)" ]; then
@@ -142,7 +142,7 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
-if [ -n "$DISPLAY" ]; then
+if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ] then
   case "$(uname -s)" in
   Linux)
     if [ ! -f ~/.Xdefaults ]; then
@@ -170,7 +170,7 @@ esac
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
-if [ -n "$DISPLAY" ]; then
+if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ] then
   case "$(uname -s)" in
   Linux)
     if [ ! -f ~/.Xresources ]; then
