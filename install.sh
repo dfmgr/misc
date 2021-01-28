@@ -183,14 +183,16 @@ fi
 
 run_postinst() {
   dfmgr_run_post
+  mkd "$HOME/.config/misc"
+  cp_rf "$INSTDIR/profile/." "$HOME/.config/misc/"
   for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc; do
     [ ! -L "$HOME/.$f" ] || rm_link "$HOME/.$f"
     cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
   done
   for c in CasjaysDev dunst lynx xresources; do
     [ ! -L "$HOME/.config/$c" ] || rm_link "$HOME/.config/$c"
-    [ -d $HOME/.config/$c ] || mkd "$HOME/.config/$c"
-    cp_rf "$INSTDIR/configs/$c/." "$HOME/.config/$c/"
+    [ -d "$HOME/.config/$c" ] || mkd "$HOME/.config/$c"
+    cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"
   done
 }
 
