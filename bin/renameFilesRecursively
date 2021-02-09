@@ -16,28 +16,25 @@ USER="${SUDO_USER:-${USER}}"
 # Main function
 
 renameFilesRecursively() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
-  else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+  local FUNCTDIR="${BASH_SOURCE%/*}"
+  if [[ ! -d "$FUNCTDIR" ]]; then DIR="$PWD"; fi
+  if [[ -f "$FUNCTDIR/functions.bash" ]]; then source "$FUNCTDIR/functions.bash"; else echo "\t\tCouldn't source the functions file"; exit 1;  fi
+  if [[ "$1" = "--help" ]]; then
+  printf_help 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"'
+  printf_help 'Also uses env variables: SEARCH_PATH SEARCH REPLACE TYPE'
   fi
 
-  [ ! "$1" = "--help" ] || printf_help 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"'
+  local SEARCH_PATH="${1:-$SEARCH_PATH}"
+  local SEARCH="${2:$SEARCH}"
+  local REPLACE="${3:-}"
+  local TYPE="${4:-$TYPE}"
 
-  SEARCH_PATH="$1"
-  SEARCH="$2"
-  REPLACE="$3"
+  [ -z "$1" ] && [ -z "$SEARCH_PATH" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
+  [ -z "$2" ] && [ -z "$SEARCH_PATH" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
 
-  [ -z "$1" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
-  [ -z "$2" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
-  [ -z "$3" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
-
-  find "${SEARCH_PATH}" -type f -name "*${SEARCH}*" | while read FILENAME; do
+  find "${SEARCH_PATH}" -type ${TYPE:-l,f,d} -name "*${SEARCH}*" | while read FILENAME; do
     NEW_FILENAME="$(echo ${FILENAME} | sed -e "s/${SEARCH}/${REPLACE}/g")"
-    mv "${FILENAME}" "${NEW_FILENAME}"
+    [ -f "${FILENAME}" ] && mv "${FILENAME}" "${NEW_FILENAME}"
   done
 }
 
