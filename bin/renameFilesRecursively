@@ -1,44 +1,72 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="renameFilesRecursively"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : renameFilesRecursively
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : rename Files Recursively function
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 020920211449-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : README.md
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Tuesday, Feb 09, 2021 15:26 EST
+# @File          : renameFilesRecursively
+# @Description   : Rename Files Recursively function
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
 
 renameFilesRecursively() {
   local FUNCTDIR="${BASH_SOURCE%/*}"
   if [[ ! -d "$FUNCTDIR" ]]; then DIR="$PWD"; fi
-  if [[ -f "$FUNCTDIR/functions.bash" ]]; then source "$FUNCTDIR/functions.bash"; else echo "\t\tCouldn't source the functions file"; exit 1;  fi
+  if [[ -f "$FUNCTDIR/functions.bash" ]]; then source "$FUNCTDIR/functions.bash"; else
+    printf "\n\t\tCouldn't source the functions file\n"
+    exit 1
+  fi
   if [[ "$1" = "--help" ]]; then
-  printf_help 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"'
-  printf_help 'Also uses env variables: SEARCH_PATH SEARCH REPLACE TYPE'
+    printf_help 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"'
+    printf_help 'Also uses env variables: SEARCH_DIR SEARCH REPLACE TYPE=file,dir'
   fi
 
+  local NEW_FILENAME
+  local SEARCH_DIR="${1:-.}"
   local SEARCH_PATH="${1:-$SEARCH_PATH}"
   local SEARCH="${2:$SEARCH}"
   local REPLACE="${3:-}"
   local TYPE="${4:-$TYPE}"
+  local FINDTYPE=${TYPE:-file}
 
   [ -z "$1" ] && [ -z "$SEARCH_PATH" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
-  [ -z "$2" ] && [ -z "$SEARCH_PATH" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
+  [ -z "$2" ] && [ -z "$SEARCH" ] && printf_green 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' && exit 1
 
-  find "${SEARCH_PATH}" -type ${TYPE:-l,f,d} -name "*${SEARCH}*" | while read FILENAME; do
-    NEW_FILENAME="$(echo ${FILENAME} | sed -e "s/${SEARCH}/${REPLACE}/g")"
-    [ -f "${FILENAME}" ] && mv "${FILENAME}" "${NEW_FILENAME}"
-  done
+  if [ "$FINDTYPE" = d ] || [ "$FINDTYPE" = dir ]; then
+    printf_green "Renaming all directories from $SEARCH to $REPLACE"
+    find $SEARCH_PATH -type d -name "*$SEARCH*" -printf "%P\n" | while read -r FILENAME; do
+      local NEW_FILENAME="${FILENAME//$SEARCH/$REPLACE}"
+      mv -f "$FILENAME" "$NEW_FILENAME" || printf_red "Failed to move $FILENAME to $NEW_FILENAME"
+    done
+  else
+    printf_green "Renaming all files from $SEARCH to $REPLACE"
+    find $SEARCH_PATH -type f,l -name "*$SEARCH*" -printf "%P\n" | while read -r FILENAME; do
+      local NEW_FILENAME="${FILENAME//$SEARCH/$REPLACE}"
+      mv -f "$FILENAME" "$NEW_FILENAME" || printf_red "Failed to move $FILENAME to $NEW_FILENAME"
+    done
+  fi
+  #NEW_FILENAME="$(echo ${FILENAME} | sed -e "s/${SEARCH}/${REPLACE}/g")"
+
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
 renameFilesRecursively "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# end
