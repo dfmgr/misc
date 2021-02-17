@@ -155,8 +155,8 @@ run_postinst() {
     [ -d "$HOME/.config/$c" ] || mkd "$HOME/.config/$c"
     cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"
   done
-  if [ -d "$HOME/bin" ]; then __cp_rf "$HOME/bin"/* "$HOME/.local/bin" && __rm_rf "$HOME/bin"; fi
-  if [ -d "$HOME/.bin" ]; then __cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && __rm_rf "$HOME/.bin"; fi
+  if [ -d "$HOME/bin" ]; then cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"; fi
+  if [ -d "$HOME/.bin" ]; then cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"; fi
 }
 #
 execute "run_postinst" "Running post install scripts"
