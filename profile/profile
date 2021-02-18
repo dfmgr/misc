@@ -259,11 +259,11 @@ export QA_RPATHS="$((0x0001 | 0x0010))"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mpd server
-export MPDSERVER="$(hostname -s 2>/dev/null)"
+[ -f "$(command -v hostname)" ] && export MPDSERVER="$(hostname -s 2>/dev/null)"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set hostname
-export HOSTNAME=$(hostname -f 2>/dev/null)
+[ -f "$(command -v hostname)" ] && export HOSTNAME=$(hostname -f 2>/dev/null)
 
 # notes settings
 export NOTES_SERVER_NAME="development"
@@ -677,8 +677,10 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import specific profiles for systems
-if [ -f "$HOME/.config/local/servers/$(hostname -s).local" ]; then
-  . "$HOME/.config/local/servers/$(hostname -s).local"
+if [ -f "$(command -v hostname)" ]; then
+  if [ -f "$HOME/.config/local/servers/$(hostname -s).local" ]; then
+    . "$HOME/.config/local/servers/$(hostname -s).local"
+  fi
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
