@@ -41,7 +41,7 @@ case "$1" in
   __help
   ;;
 
-  -*)
+-*)
   [ -f "$(command -v hostname)" ] && hostname "$*" && exit || exit 1
   ;;
 
@@ -53,7 +53,8 @@ elif [ -f "$(hostnamectl)" ]; then
 fi
   ;;
 esac
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ -n "$HOSTNAME" ] && echo $HOSTNAME || echo localhost
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # end
