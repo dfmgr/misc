@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+APPNAME="$(basename $0)"
+USER="$USER"
+HOME="$HOME"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 021720212127-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : README.md
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Wednesday, Feb 17, 2021 21:43 EST
+# @File          : hostname
+# @Description   : Set system hostname
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Check for needed applications
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set variables
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set functions
+printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
+__help() { printf_color "4" "usage: hostname  |  " && exit; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set additional variables
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main application
+
+case "$1" in
+--help)
+  shift 1
+  __help
+  ;;
+
+  -*)
+  [ -f "$(command -v hostname)" ] && hostname "$*" && exit || exit 1
+  ;;
+
+*)
+if [ -f "$(command -v hostname)" ]; then
+  HOSTNAME="$(hostname -f)"
+elif [ -f "$(hostnamectl)" ]; then
+  HOSTNAME="$(hostnamectl | grep 'hostname:' | awk '{print $3}')"
+fi
+  ;;
+esac
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# end
