@@ -1,2 +1,6 @@
 !*/README*
 !inc/main.bash
+# Disable reminder in prompt
+ignoredirmessage
+
+
