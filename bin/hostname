@@ -28,7 +28,7 @@ PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
 printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
-__help() { printf_color "4" "usage: hostname  |  " && exit; }
+__help() { printf_color "4" "usage: hostname  |  print system hostname" && exit; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set additional variables
 
@@ -41,20 +41,15 @@ case "$1" in
   __help
   ;;
 
--*)
-  [ -f "$(command -v hostname)" ] && hostname "$*" && exit || exit 1
-  ;;
-
 *)
-if [ -f "$(command -v hostname)" ]; then
-  HOSTNAME="$(hostname -f)"
-elif [ -f "$(hostnamectl)" ]; then
-  HOSTNAME="$(hostnamectl | grep 'hostname:' | awk '{print $3}')"
-fi
+  if [ -f "$(command -v hostname)" ]; then
+    HOSTNAME="$(hostname -f)"
+  elif [ -f "$(command -v hostnamectl)" ]; then
+    HOSTNAME="$(hostnamectl | grep 'hostname:' | awk '{print $3}')"
+  fi
+  [ -n "$HOSTNAME" ] && echo "$HOSTNAME" || echo localhost
   ;;
 esac
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -n "$HOSTNAME" ] && echo $HOSTNAME || echo localhost
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # end
