@@ -508,8 +508,8 @@ fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
-export CLICOLOR=1
-export GREP_COLORS="mt=37;45"
+CLICOLOR=1
+GREP_COLORS="mt=37;45"
 
 if [ -f "$HOME/.dircolors" ]; then
   export DIRCOLOR="$HOME/.dircolors"
@@ -526,14 +526,14 @@ fi
 case "$(uname -s)" in
 Linux)
   #Load default colors
-  if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors "$DIRCOLOR" &>/dev/null; fi
+  if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors "$DIRCOLOR" 2>/dev/null; fi
   ;;
 Darwin)
-  export LS_COLORS=exfxcxdxbxegedabagacad
-  if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors "$DIRCOLOR" &>/dev/null; fi
+  LS_COLORS=exfxcxdxbxegedabagacad
+  if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors "$DIRCOLOR" 2>/dev/null; fi
   ;;
 esac
-export LS_COLORS
+export CLICOLOR GREP_COLORS LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
 export WALLPAPERS="$HOME/.local/share/wallpapers"
