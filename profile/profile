@@ -526,11 +526,11 @@ fi
 case "$(uname -s)" in
 Linux)
   #Load default colors
-  if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors "$DIRCOLOR" 2>/dev/null; fi
+  if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors "$DIRCOLOR" >/dev/null 2>&1; fi
   ;;
 Darwin)
   LS_COLORS=exfxcxdxbxegedabagacad
-  if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors "$DIRCOLOR" 2>/dev/null; fi
+  if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors "$DIRCOLOR" >/dev/null 2>&1; fi
   ;;
 esac
 export CLICOLOR GREP_COLORS LS_COLORS
