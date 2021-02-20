@@ -43,11 +43,10 @@ case "$1" in
 
 *)
   if [ -f "$(command -v hostname)" ]; then
-    HOSTNAME="$(hostname -f)"
+    if [ $# -ne 0 ]; then hostname "$@"; else hostname -f; fi
   elif [ -f "$(command -v hostnamectl)" ]; then
-    HOSTNAME="$(hostnamectl | grep 'hostname:' | awk '{print $3}')"
+    hostnamectl | grep 'hostname:' | awk '{print $3}'
   fi
-  [ -n "$HOSTNAME" ] && echo "$HOSTNAME" || echo localhost
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
