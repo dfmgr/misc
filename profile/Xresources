@@ -47,9 +47,9 @@
 *.font:                     xft:perfect dos vga 437:size=11:antialias=false
 *.font:                     xft:tewi:size=11:antialias=false
 
-*.boldFont: 
-*.italicFont: 
-*.bolditalicFont: 
+*.boldFont:
+*.italicFont:
+*.bolditalicFont:
 
 ! emacs configuration
 
@@ -101,7 +101,7 @@ XTerm*allowSendEvents:          true
 XTerm*faceName:                 Hack Nerd Font
 XTerm*faceSize:                 8
 
-XTerm.vt100.translations:      #override \n\
+XTerm.vt100.translations:       \n\
     Ctrl <Key>M: maximize() \n\
     Ctrl <Key>R: restore() \n\
     Ctrl <Key>j: smaller-vt-font() \n\

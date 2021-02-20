@@ -146,7 +146,7 @@ run_postinst() {
   dfmgr_run_post
   mkd "$HOME/.config/misc"
   cp_rf "$INSTDIR/profile/." "$HOME/.config/misc/"
-  for f in Xresources curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc; do
+  for f in Xresources dircolors curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc; do
     [ ! -L "$HOME/.$f" ] || rm_link "$HOME/.$f"
     cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
   done

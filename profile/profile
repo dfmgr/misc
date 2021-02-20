@@ -529,11 +529,11 @@ Linux)
   if [ -f "$(command -v dircolors 2>/dev/null)" ]; then dircolors "$DIRCOLOR" &>/dev/null; fi
   ;;
 Darwin)
-  export LSCOLORS=exfxcxdxbxegedabagacad
+  export LS_COLORS=exfxcxdxbxegedabagacad
   if [ -f "$(command -v gdircolors 2>/dev/null)" ]; then gdircolors "$DIRCOLOR" &>/dev/null; fi
   ;;
 esac
-
+export LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
 export WALLPAPERS="$HOME/.local/share/wallpapers"
