@@ -1,7 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
-export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
+PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bash specific
 if [ -n "$BASH_VERSION" ]; then
@@ -24,7 +24,6 @@ elif [ -n "$ZSH_VERSION" ]; then
   export SAVEHIST=5000
   export HISTSIZE=2000
   [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
-  #autoload compinit && compinit
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
@@ -54,9 +53,9 @@ export LC_ALL="$LC_ALL"
 # configure display
 if [ -n "$DISPLAY" ]; then
   if cat /proc/version | grep -iq chromium && [ -n "$DISPLAY_LOW_DENSITY" ]; then
-    export DISPLAY="$DISPLAY_LOW_DENSITY"
+    DISPLAY="$DISPLAY_LOW_DENSITY"
   fi
-  [ -f "$(command -v xrandr 2>/dev/null)" ] && export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
+[ -f "$(command -v xrandr 2>/dev/null)" ] && RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
@@ -93,11 +92,8 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
 if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
-  if [ ! -f ~/.Xdefaults ]; then
-    touch ~/.Xdefaults
-  else
-    [ -f "$(command -v xrdb 2>/dev/null)" ] && xrdb -merge ~/.Xdefaults 2>/dev/null
-  fi
+  [ -f ~/.Xdefaults ] || touch ~/.Xdefaults
+  [ -f "$(command -v xrdb 2>/dev/null)" ] && xrdb -merge ~/.Xdefaults 2>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XDG Settings
@@ -110,38 +106,28 @@ export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
-if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
-  cp -f ~/.config/local/gitconfig.local ~/.gitconfig
-fi
+[ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ] && cp -f ~/.config/local/gitconfig.local ~/.gitconfig
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
-case "$(uname -s)" in
-Darwin)
-  export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
-  ;;
-Linux)
-  if [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
-    export SUDO_ASKPASS="dmenupass"
-  else
-    export SUDO_ASKPASS="${SUDO_ASKPASS}"
-    export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
-  fi
-  ;;
-esac
+[ "$(uname -s)" = Darwin ] && export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
+if [ "$(uname -s)" = Linux ] && [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
+  SUDO_ASKPASS="dmenupass"
+else
+  SUDO_ASKPASS="$SUDO_ASKPASS"
+fi
+SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
 export GPG_TTY="$(tty)"
 export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
-if [ -f "$(command -v gpg-agent 2>/dev/null)" ]; then
-  gpg-agent --enable-ssh-supprt --daemon -q >/dev/null 2>&1
-fi
+[ -f "$(command -v gpg-agent 2>/dev/null)" ] && gpg-agent --enable-ssh-support --daemon -q &>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
     ssh-agent >/dev/null 2>&1
   fi
-  ln -sf "${SSH_AUTH_SOCK}" ${HOME}/.ssh/ssh_auth_sock
+  ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
 fi
 
 sshdir="$(find ~/.ssh/id_* 2>/dev/null | wc -l)"
@@ -165,7 +151,7 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 export MANPAGER="less -X"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # add emacs to bin
-[ -d $HOME/.emacs.d/bin ] && export PATH="$HOME/.emacs.d/bin:$PATH"
+[ -d $HOME/.emacs.d/bin ] && PATH="$HOME/.emacs.d/bin:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # rpm devel
 export QA_RPATHS="$((0x0001 | 0x0010))"
@@ -194,16 +180,12 @@ fi
 # Setup ruby
 export GEM_HOME="$HOME/.local/share/gem"
 export GEM_PATH="$HOME/.local/share/gem"
-export PATH="$GEM_HOME/bin:$PATH"
+PATH="$GEM_HOME/bin:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-if [ -f "$HOME/.local/share/scripts/rvm" ]; then
-  export rvm_path="$HOME/.local/share/rvm"
-  if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then . "$HOME/.local/share/rvm/scripts/rvm"; fi
-  if [ -d $HOME/.local/share/rvm/bin ]; then
-    export PATH="$HOME/.local/share/rvm/bin:$PATH"
-  fi
-fi
+[ -f "$HOME/.local/share/scripts/rvm" ] && export rvm_path="$HOME/.local/share/rvm"
+[ -f "$HOME/.local/share/rvm/scripts/rvm" ] && . "$HOME/.local/share/rvm/scripts/rvm"
+[ -d $HOME/.local/share/rvm/bin ] && PATH="$HOME/.local/share/rvm/bin:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
@@ -227,7 +209,7 @@ export GOBIN="$GOPATH/bin"
 export GODIR="$GOPATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
-export PATH="$HOME/.cargo/bin:$PATH"
+[ -d "$HOME/.cargo" ] && PATH="$HOME/.cargo/bin:$PATH"
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
@@ -353,7 +335,7 @@ elif [ -f "$(command -v kmail 2>/dev/null)" ]; then
 elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
   export EMAIL="emacs"
 elif [ -f "$(command -v gmail 2>/dev/null)" ]; then
-  EMAIL="mybrowser https://gmail.com"
+  export EMAIL="mybrowser https://gmail.com"
 elif [ -f "$(command -v sylpheed 2>/dev/null)" ]; then
   export EMAIL="sylpheed"
 fi
@@ -416,9 +398,7 @@ export LOGDIR="$HOME/.local/log"
 export DEFAULT_LOG_DIR="$LOGDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set scripts path if installed manually
-if [ -d "$HOME/.local/share/scripts/bin" ]; then
-  export PATH="$HOME/.local/share/scripts/bin:$PATH"
-fi
+[ -d "$HOME/.local/share/scripts/bin" ] && PATH="$HOME/.local/share/scripts/bin:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #asciinema settings
 export ASCIINEMA_API_URL="https://asciinema.org"
@@ -440,7 +420,7 @@ if [ -f "$(command -v multi_clipboard)" ]; then
   export CLIPBOARD="$HOME/.clipboard"
   export CLMAXHIST="20"
   export CLSEP='\x07'
-  if [[ "$OSTYPE" =~ linux ]]; then
+  if [ "$(uname -s)" = Linux ]; then
     if command -v xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
       export CLX="xsel"
@@ -448,7 +428,7 @@ if [ -f "$(command -v multi_clipboard)" ]; then
       export CLXOS="xclip"
       export CLX="xclip"
     fi
-  elif [[ "$OSTYPE" =~ cygwin ]]; then
+  elif [ "$(uname -s)" = cygwin ]; then
     if command -v xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
       export CLX="xsel"
@@ -456,7 +436,7 @@ if [ -f "$(command -v multi_clipboard)" ]; then
       export CLXOS="xclip"
       export CLX="xclip"
     fi
-  elif [[ "$OSTYPE" =~ darwin ]]; then
+  elif [ "$(uname -s)" = Darwin ]; then
     if command -v pbcopy >/dev/null 2>&1; then
       export CLXOS="pbcopy"
       export CLX="pbcopy"
@@ -465,10 +445,9 @@ if [ -f "$(command -v multi_clipboard)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # MacOS fix
-if [[ "$OSTYPE" =~ ^darwin ]]; then
+if [ "$(uname -s)" = Darwin ]; then
   export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
   export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-  export PATH="/usr/local/bin:$PATH:/usr/bin:/usr/local/sbin:/sbin"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create directories
@@ -477,6 +456,8 @@ mkdir -p "$HOME/.local/bin"
 mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
 mkdir -p "$HOME/.config/todo"
+mkdir -p "$HOME/.config/local"
+mkdir -p "$HOME/.config/secure"
 mkdir -p "$HOME/.config/cheatsh"
 mkdir -p "$HOME/.local/share/rvm"
 mkdir -p "$HOME/.local/share/gem/bin"
@@ -509,10 +490,13 @@ mkdir -p "$HOME/.local/share/wallpapers"
 [ -f "$HOME/.config/local/servers/$(hostname -s).local" ]  && . "$HOME/.config/local/servers/$(hostname -s).local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-export PATH="$(echo "$PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:.#g')"
+PATH="$(echo "$PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:.#g')"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
-export PROFILERCSRC="$HOME/.profile"
+PROFILERCSRC="$HOME/.profile"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# export
+export PATH PROFILERCSRC SUDO_PROMPT SUDO_ASKPASS DISPLAY RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
 unset sshdir
