@@ -25,10 +25,6 @@ elif [ -n "$ZSH_VERSION" ]; then
   export HISTSIZE=2000
   [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
   #autoload compinit && compinit
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fish specific
-elif [ -n "$FISH_VERSION" ]
-  exit
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
