@@ -10,8 +10,8 @@ HOME="$HOME"
 ##@Version       : 021720212127-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
-# @License       : LICENSE.md
-# @ReadME        : README.md
+# @License       : WTFPL
+# @ReadME        : hostname --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Wednesday, Feb 17, 2021 21:43 EST
 # @File          : hostname
@@ -24,13 +24,13 @@ HOME="$HOME"
 mkdir -p ~/.cache/hostname
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set variables
-PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
 printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
 __help() { printf_color "4" "usage: hostname  |  print system hostname" && exit; }
 __hostname() {
-  local PATH="$PATH"
+  local PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
   if [ -f "$(command -v hostname 2>/dev/null)" ]; then
     [ -f ~/.cache/hostname/name ] || command -p hostname "-f" > ~/.cache/hostname/name
     [ -f ~/.cache/hostname/full ] || command -p hostname "-f" > ~/.cache/hostname/full
