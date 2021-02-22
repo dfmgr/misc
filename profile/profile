@@ -431,10 +431,7 @@ export TASKRC="$HOME/.taskrc"
 export TASKDATA="$HOME/.local/share/taskwarrior"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cursor
-if [ -n "$BASH_VERSION" ]; then
-  echo -e -n "\x1b[\x35 q"
-  echo -e -n "\e]12;white\a"
-fi
+echo -e -n "\x1b[\x35 q" "\e]12;cyan\a" 2>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # multi_clipboard
 if [ -f "$(command -v multi_clipboard)" ]; then
