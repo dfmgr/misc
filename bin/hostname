@@ -5,7 +5,7 @@ USER="$USER"
 HOME="$HOME"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
-PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version       : 021720212127-git
 # @Author        : Jason Hempstead
@@ -24,17 +24,18 @@ PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set variables
-
+PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
 printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
 __help() { printf_color "4" "usage: hostname  |  print system hostname" && exit; }
 __hostname() {
+  local PATH="$PATH"
   if [ -f "$(command -v hostname 2>/dev/null)" ]; then
-    hostname "$@"
+    command -p hostname "$@"
   elif [ -f "$(command -v hostnamectl 2>/dev/null)" ]; then
-    shift
-    hostnamectl | grep 'hostname:' | awk '{print $3}'
+    shift $#
+    command -p hostnamectl | grep 'hostname:' | awk '{print $3}'
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
