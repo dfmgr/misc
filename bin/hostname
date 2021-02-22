@@ -29,24 +29,37 @@ PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
 # Set functions
 printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
 __help() { printf_color "4" "usage: hostname  |  print system hostname" && exit; }
+__hostname() {
+  if [ -f "$(command -v hostname 2>/dev/null)" ]; then
+    hostname "$@"
+  elif [ -f "$(command -v hostnamectl 2>/dev/null)" ]; then
+    shift
+    hostnamectl | grep 'hostname:' | awk '{print $3}'
+  fi
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set additional variables
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
-
 case "$1" in
 --help)
   shift 1
   __help
   ;;
 
+-f)
+  shift 1
+  __hostname "-f"
+  ;;
+
+-s)
+  shift 1
+  __hostname "-s"
+  ;;
+
 *)
-  if [ -f "$(command -v hostname)" ]; then
-    if [ $# -ne 0 ]; then hostname "$@"; else hostname -f; fi
-  elif [ -f "$(command -v hostnamectl)" ]; then
-    hostnamectl | grep 'hostname:' | awk '{print $3}'
-  fi
+  __hostname "$@"
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
