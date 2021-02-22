@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
 export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
@@ -25,23 +25,14 @@ elif [ -n "$ZSH_VERSION" ]; then
   export HISTSIZE=2000
   [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
   #autoload compinit && compinit
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# fish specific
+elif [ -n "$FISH_VERSION" ]
+  exit
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
 #umask 022
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# create directories
-mkdir -p "$HOME/.ssh"
-mkdir -p "$HOME/.local/bin"
-mkdir -p "$HOME/.local/log"
-mkdir -p "$HOME/.local/tmp"
-mkdir -p "$HOME/.config/todo"
-mkdir -p "$HOME/.config/cheatsh"
-mkdir -p "$HOME/.local/share/rvm"
-mkdir -p "$HOME/.local/share/gem/bin"
-mkdir -p "$HOME/.local/share/nodejs/fnm"
-mkdir -p "$HOME/.local/share/nodejs/nvm"
-mkdir -p "$HOME/.local/share/wallpapers"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setting the temp directory
 export TMP="${TMP:-$HOME/.local/tmp}"
@@ -62,114 +53,65 @@ export LC_ADDRESS="en_US.UTF-8"
 export LC_TELEPHONE="en_US.UTF-8"
 export LC_MEASUREMENT="en_US.UTF-8"
 export LC_IDENTIFICATION="en_US.UTF-8"
-export LC_ALL="${LC_ALL}"
-#date_fmt="%a %b %e, %Y %H:%M:%S"
+export LC_ALL="$LC_ALL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure display
 if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if cat /proc/version | grep -iq chromium && [ ! -z $DISPLAY ] && [ ! -z $DISPLAY_LOW_DENSITY ]; then
-      export DISPLAY="$DISPLAY_LOW_DENSITY"
-    fi
-    if [ -f "$(command -v xrandr 2>/dev/null)" ]; then export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"; fi
-    ;;
-  esac
+  if cat /proc/version | grep -iq chromium && [ -n "$DISPLAY_LOW_DENSITY" ]; then
+    export DISPLAY="$DISPLAY_LOW_DENSITY"
+  fi
+  [ -f "$(command -v xrandr 2>/dev/null)" ] && export RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ -f "$(command -v xset 2>/dev/null)" ]; then
-      xset s off >/dev/null 2>&1
-      xset -dpms >/dev/null 2>&1
-      xset s off -dpms >/dev/null 2>&1
-    fi
-    ;;
-  esac
+if [ -n "$DISPLAY" ] && [ -f "$(command -v xset 2>/dev/null)" ]; then
+    xset s off &>/dev/null
+    xset -dpms &>/dev/null
+    xset s off -dpms &>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enviroment variables when using a desktop
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
-      dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
-      export DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
-    fi
-    ;;
-  esac
+if [ -n "$DISPLAY" ] && [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
+  dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
+  export DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enable control alt backspace
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    export XKBOPTIONS="terminate:ctrl_alt_bksp"
-    if [ -f "$(command -v setxkbmap 2>/dev/null)" ]; then setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"; fi
-    ;;
-  esac
+if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
+  export XKBOPTIONS="terminate:ctrl_alt_bksp"
+  [ -f "$(command -v setxkbmap 2>/dev/null)" ] && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup modifiers
 if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ -f "$(command -v ibus 2>/dev/null)" ]; then
-      export XMODIFIERS=@im=ibus
-      export GTK_IM_MODULE=ibus
-      export QT_IM_MODULE=ibus
-    elif [ -f "$(command -v fcitx 2>/dev/null)" ]; then
-      export XMODIFIERS=@im=fcitx
-      export GTK_IM_MODULE=fcitx
-      export QT_IM_MODULE=fcitx
-    fi
-    ;;
-  esac
+  if [ -f "$(command -v ibus 2>/dev/null)" ]; then
+    export XMODIFIERS=@im=ibus
+    export GTK_IM_MODULE=ibus
+    export QT_IM_MODULE=ibus
+  elif [ -f "$(command -v fcitx 2>/dev/null)" ]; then
+    export XMODIFIERS=@im=fcitx
+    export GTK_IM_MODULE=fcitx
+    export QT_IM_MODULE=fcitx
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ ! -f ~/.Xdefaults ]; then
-      touch ~/.Xdefaults
-    else
-      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then xrdb ~/.Xdefaults 2>/dev/null; fi
-    fi
-    ;;
-  esac
+if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
+  if [ ! -f ~/.Xdefaults ]; then
+    touch ~/.Xdefaults
+  else
+    [ -f "$(command -v xrdb 2>/dev/null)" ] && xrdb -merge ~/.Xdefaults 2>/dev/null
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XDG Settings
-case "$(uname -s)" in
-Linux)
-  export LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
-  export STATE_DIRECTORY="$HOME/.local/lib"
-  export CACHE_DIRECTORY="$HOME/.local/cache"
-  export RUNTIME_DIRECTORY="$HOME/.local/run"
-  export CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
-  export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
-  export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
-  ;;
-esac
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# xserver settings
-if [ -n "$DISPLAY" ]; then
-  case "$(uname -s)" in
-  Linux)
-    if [ ! -f ~/.Xresources ]; then
-      touch ~/.Xresources
-    else
-      if [ -f "$(command -v xrdb 2>/dev/null)" ]; then
-        xrdb ~/.Xresources 2>/dev/null
-        xrdb -merge ~/.Xresources 2>/dev/null
-      fi
-    fi
-    ;;
-  esac
-fi
+export LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
+export STATE_DIRECTORY="$HOME/.local/lib"
+export CACHE_DIRECTORY="$HOME/.local/cache"
+export RUNTIME_DIRECTORY="$HOME/.local/run"
+export CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
+export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
 if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
@@ -227,9 +169,7 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 export MANPAGER="less -X"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # add emacs to bin
-if [ -d $HOME/.emacs.d/bin ]; then
-  export PATH="$HOME/.emacs.d/bin:$PATH"
-fi
+[ -d $HOME/.emacs.d/bin ] && export PATH="$HOME/.emacs.d/bin:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # rpm devel
 export QA_RPATHS="$((0x0001 | 0x0010))"
@@ -263,7 +203,7 @@ export PATH="$GEM_HOME/bin:$PATH"
 # Ruby Version Manager
 if [ -f "$HOME/.local/share/scripts/rvm" ]; then
   export rvm_path="$HOME/.local/share/rvm"
-  if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then source "$HOME/.local/share/rvm/scripts/rvm"; fi
+  if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then . "$HOME/.local/share/rvm/scripts/rvm"; fi
   if [ -d $HOME/.local/share/rvm/bin ]; then
     export PATH="$HOME/.local/share/rvm/bin:$PATH"
   fi
@@ -272,15 +212,15 @@ fi
 # Fast Node Manager
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
 export FNM_MULTISHELL_PATH="$HOME/.local/bin"
-if [ -f "$(command -v fnm 2>/dev/null)" ]; then fnm env --use-on-cd --fnm-dir="$FNM_DIR"/ >/dev/null 2>&1; fi
+[ -f "$(command -v fnm 2>/dev/null)" ] && fnm env --use-on-cd --fnm-dir="$FNM_DIR"/ &>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
 export NVM_DIR="$HOME/.local/share/nodejs/nvm"
 export NVM_BIN="$HOME/.local/bin"
 export NO_UPDATE_NOTIFIER="true"
 export NODE_REPL_HISTORY_SIZE=10000
-if [ -s "$NVM_DIR/nvm.sh" ]; then source "$NVM_DIR/nvm.sh"; fi
-if [ -s "$NVM_DIR/bash_completion" ]; then source "$NVM_DIR"/bash_completion; fi
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR"/bash_completion
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup setV
 export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
@@ -292,12 +232,10 @@ export GODIR="$GOPATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
 export PATH="$HOME/.cargo/bin:$PATH"
-if [ -f "$HOME/.cargo/env" ]; then source "$HOME/.cargo/env"; fi
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
-if [ -f "$(command -v hub 2>/dev/null)" ]; then
-  eval "$(hub alias -s >/dev/null 2>&1)"
-fi
+[ -f "$(command -v hub 2>/dev/null)" ] && eval "$(hub alias -s >/dev/null 2>&1)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
@@ -458,24 +396,20 @@ export TODOTXT_CFG_FILE="$HOME/.config/todo/config"
 export TODOTXT_FILE="$HOME/.local/share/todo/todo.txt"
 export TODOTXT_DONE_FILE="$HOME/.local/share/todo/done.txt"
 export TODOTXT_REPORT_FILE="$HOME/.local/share/todo/report.txt"
-if [ ! -f "$TODOTXT_CFG_FILE" ]; then
-  touch "$TODOTXT_CFG_FILE"
-fi
+[ -f "$TODOTXT_CFG_FILE" ] || touch "$TODOTXT_CFG_FILE"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
 CLICOLOR="1"
 GREP_COLORS="mt=37;45"
-[ -f "$HOME/.config/shell/other/ls" ] && . "$HOME/.config/shell/other/ls"
+[ -f "$HOME/.config/misc/config/shell/other/ls" ] && . "$HOME/.config/misc/config/shell/other/ls"
 export CLICOLOR GREP_COLORS LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
 export WALLPAPERS="$HOME/.local/share/wallpapers"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-if [ -f "$(command -v lf 2>/dev/null)" ]; then
-  [ -f "$HOME/.config/shell/other/lf" ] && . "$HOME/.config/shell/other/lf"
-  export LF_ICONS
-fi
+[ -f "$(command -v lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/config/shell/other/lf" ] &&
+  . "$HOME/.config/misc/config/shell/other/lf" && export LF_ICONS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set term type
 export TERM="screen-256color"
@@ -537,9 +471,6 @@ if [ -f "$(command -v multi_clipboard)" ]; then
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# unset unneeded vars
-unset sshdir
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # MacOS fix
 if [[ "$OSTYPE" =~ ^darwin ]]; then
   export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
@@ -547,45 +478,42 @@ if [[ "$OSTYPE" =~ ^darwin ]]; then
   export PATH="/usr/local/bin:$PATH:/usr/bin:/usr/local/sbin:/sbin"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# create directories
+mkdir -p "$HOME/.ssh"
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/.local/log"
+mkdir -p "$HOME/.local/tmp"
+mkdir -p "$HOME/.config/todo"
+mkdir -p "$HOME/.config/cheatsh"
+mkdir -p "$HOME/.local/share/rvm"
+mkdir -p "$HOME/.local/share/gem/bin"
+mkdir -p "$HOME/.local/share/nodejs/fnm"
+mkdir -p "$HOME/.local/share/nodejs/nvm"
+mkdir -p "$HOME/.local/share/wallpapers"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # passmgr settings - add your passmgr setup here
-if [ -f "$HOME/.config/secure/passmgr.txt" ]; then
-  . "$HOME/.config/secure/passmgr.txt"
-fi
+[ -f "$HOME/.config/secure/passmgr.txt" ] && . "$HOME/.config/secure/passmgr.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # github settings - add github settings here
-if [ -f "$HOME/.config/secure/github.txt" ]; then
-  . "$HOME/.config/secure/github.txt"
-fi
+[ -f "$HOME/.config/secure/github.txt" ] && . "$HOME/.config/secure/github.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # gitlab settings - add gitlab settings here
-if [ -f "$HOME/.config/secure/gitlab.txt" ]; then
-  . "$HOME/.config/secure/gitlab.txt"
-fi
+[ -f "$HOME/.config/secure/gitlab.txt" ] && . "$HOME/.config/secure/gitlab.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # your private git - add your private git here
-if [ -f "$HOME/.config/secure/gitpriv.txt" ]; then
-  . "$HOME/.config/secure/gitpriv.txt"
-fi
+[ -f "$HOME/.config/secure/gitpriv.txt" ] && . "$HOME/.config/secure/gitpriv.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # add your personal dotfiles repo here
-if [ -f "$HOME/.config/secure/personal.txt" ]; then
-  . "$HOME/.config/secure/personal.txt"
-fi
+[ -f "$HOME/.config/secure/personal.txt" ] && . "$HOME/.config/secure/personal.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # store API keys here
-if [ -f "$HOME/.config/secure/apikeys.txt" ]; then
-  . "$HOME/.config/secure/apikeys.txt"
-fi
+[ -f "$HOME/.config/secure/apikeys.txt" ] && . "$HOME/.config/secure/apikeys.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import local profile
-if [ -f "$HOME/.config/local/profile.local" ]; then
-  . "$HOME/.config/local/profile.local"
-fi
+[ -f "$HOME/.config/local/profile.local" ] && . "$HOME/.config/local/profile.local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import specific profiles for systems
-if [ -f "$HOME/.config/local/servers/$(hostname -s).local" ]; then
-  . "$HOME/.config/local/servers/$(hostname -s).local"
-fi
+[ -f "$HOME/.config/local/servers/$(hostname -s).local" ]  && . "$HOME/.config/local/servers/$(hostname -s).local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
 export PATH="$(echo "$PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:.#g')"
@@ -593,5 +521,7 @@ export PATH="$(echo "$PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | 
 # set profile as sourced
 export PROFILERCSRC="$HOME/.profile"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#return $?
+# unset unneeded vars
+unset sshdir
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
