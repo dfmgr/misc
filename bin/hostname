@@ -21,7 +21,7 @@ HOME="$HOME"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Check for needed applications
-
+mkdir -p ~/.cache/hostname
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set variables
 PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
@@ -32,15 +32,23 @@ __help() { printf_color "4" "usage: hostname  |  print system hostname" && exit;
 __hostname() {
   local PATH="$PATH"
   if [ -f "$(command -v hostname 2>/dev/null)" ]; then
+    [ -f ~/.cache/hostname/name ] || command -p hostname "-f" > ~/.cache/hostname/name
+    [ -f ~/.cache/hostname/full ] || command -p hostname "-f" > ~/.cache/hostname/full
+    [ -f ~/.cache/hostname/short ] || command -p hostname "-s" > ~/.cache/hostname/short
     command -p hostname "$@"
   elif [ -f "$(command -v hostnamectl 2>/dev/null)" ]; then
     shift $#
+    [ -f ~/.cache/hostname/name ] || command -p hostnamectl | grep 'hostname:' | awk '{print $3}' > ~/.cache/hostname/name
     command -p hostnamectl | grep 'hostname:' | awk '{print $3}'
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set additional variables
-
+if [ -f /etc/hostname ]; then hostname="$(</etc/hostname)"
+elif [ -f ~/.cache/hostname/name ]; then hostname="$(<~/.cache/hostname/name)";
+else hostname=""; fi
+[ -f ~/.cache/hostname/full ] && hostnamef="$(<~/.cache/hostname/full)" || hostnamef=""
+[ -f ~/.cache/hostname/short ] && hostnames="$(<~/.cache/hostname/short)" || hostnames=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main application
 case "$1" in
@@ -51,16 +59,16 @@ case "$1" in
 
 -f)
   shift 1
-  __hostname "-f"
+  [ -n "$hostnamef" ] && echo $hostnamef || __hostname "-f"
   ;;
 
 -s)
   shift 1
-  __hostname "-s"
+  [ -n "$hostnames" ] && echo $hostnames || __hostname "-s"
   ;;
 
 *)
-  __hostname "$@"
+  [ -n "$hostname" ] && echo $hostname || __hostname "$@"
   ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
