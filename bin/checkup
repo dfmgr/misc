@@ -30,16 +30,16 @@ checkup() {
   ping -q -c 1 1.1.1.1 >/dev/null || exit 1
 
   if cmd_exists pacman; then
-    notify-send "📦 Repository Sync" "Checking for package updates..."
-    sudo pacman -Syyuw --noconfirm || notify-send "Error downloading updates."
+    notifications "📦 Repository Sync" "Checking for package updates..."
+    sudo pacman -Syyuw --noconfirm || notifications "Error downloading updates."
 
     #Check your internet connection, if pacman is already running, or run update manually to see errors."
-    if [ ! -z "${STATUSBAR}" ]; then pkill -RTMIN+8 "${STATUSBAR:?}"; fi
+    if [ -n "${STATUSBAR}" ]; then pkill -RTMIN+8 "${STATUSBAR:?}"; fi
 
     if pacman -Qu | grep -v "\[ignored\]"; then
-      notify-send "🎁 Repository Sync" "Updates available."
+      notifications "🎁 Repository Sync" "Updates available."
     else
-      notify-send "📦 Repository Sync" "Sync complete. No new packages for update."
+      notifications "📦 Repository Sync" "Sync complete. No new packages for update."
     fi
 
   fi

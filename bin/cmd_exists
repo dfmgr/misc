@@ -14,23 +14,24 @@ USER="${SUDO_USER:-${USER}}"
 #
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
+if [ ! -f "$(command -v cmd_exists 2>/dev/null)" ]; then
+  cmd_exists() {
+    DIR="${BASH_SOURCE%/*}"
+    if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+    if [[ -f "$DIR/functions.bash" ]]; then
+      source "$DIR/functions.bash"
+    else
+      echo -e "\t\tCouldn't source the functions file"
+      exit 1
+    fi
 
-cmd_exists() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
-  else
-    echo -e "\t\tCouldn't source the functions file"
-    exit 1
-  fi
+    [ ! "$1" = "--help" ] || printf_help "Usage: cmd_exists cmd"
 
-  [ ! "$1" = "--help" ] || printf_help "Usage: cmd_exists cmd"
+    command -v "$1" &>/dev/null
+  }
 
-  command -v "$1" &>/dev/null
-}
-
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # execute function
+  cmd_exists "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-cmd_exists "$@"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+fi
