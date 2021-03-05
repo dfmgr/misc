@@ -219,7 +219,9 @@ export GODIR="$GOPATH"
 [ -f "$(command -v hub 2>/dev/null)" ] && eval "$(hub alias -s >/dev/null 2>&1)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
-if [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
+if [ -f "$(command -v mybrowser 2>/dev/null)" ]; then
+  export BROWSER="mybrowser"
+elif [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
   export BROWSER="garcon-url-handler --url"
 elif [ -f "$(command -v firefox 2>/dev/null)" ]; then
   export BROWSER="firefox"
@@ -252,7 +254,9 @@ elif [ -f "$(command -v links 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
-if [ -f "$(command -v termite 2>/dev/null)" ]; then
+if [ -f "$(command -v myterminal 2>/dev/null)" ]; then
+  export TERMINAL="myterminal"
+elif [ -f "$(command -v termite 2>/dev/null)" ]; then
   export TERMINAL="termite"
 elif [ -f "$(command -v xfce4-terminal 2>/dev/null)" ]; then
   export TERMINAL="xfce4-terminal"
@@ -279,7 +283,9 @@ elif [ -f "/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal" 
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
-if [ -f "$(command -v VirtualBox 2>/dev/null)" ]; then
+if [ -f "$(command -v myvmmanager 2>/dev/null)" ]; then
+  export VMMANAGER="myvmmanager"
+elif [ -f "$(command -v VirtualBox 2>/dev/null)" ]; then
   export VMMANAGER="VirtualBox"
 elif [ -f "$(command -v VMWare 2>/dev/null)" ]; then
   export VMMANAGER="VMWare"
@@ -292,7 +298,9 @@ elif [ -f "$(command -v docker 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
-if [ -f "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
+if [ -f "$(command -v mytorrent 2>/dev/null)" ]; then
+  export TORRENT="mytorrent"
+elif [ -f "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
   export TORRENT="transmission-remote-gtk"
 elif [ -f "$(command -v transmission-remote-cli 2>/dev/null)" ]; then
   export TORRENT="transmission-remote-cli"
@@ -321,7 +329,9 @@ elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
-if [ -f "$(command -v thunderbird 2>/dev/null)" ]; then
+if [ -f "$(command -v myemail 2>/dev/null)" ]; then
+  export EMAIL="myemail"
+elif [ -f "$(command -v thunderbird 2>/dev/null)" ]; then
   export EMAIL="thunderbird"
 elif [ -f "$(command -v evolution 2>/dev/null)" ]; then
   export EMAIL="evolution"
@@ -344,7 +354,9 @@ elif [ -f "$(command -v sylpheed 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
-if [ -f "$(command -v code 2>/dev/null)" ]; then
+if [ -f "$(command -v myeditor 2>/dev/null)" ]; then
+  export EDITOR="myeditor"
+elif [ -f "$(command -v code 2>/dev/null)" ]; then
   export EDITOR="code -w"
 elif [ -f "$(command -v vscode 2>/dev/null)" ]; then
   export EDITOR="vscode -w"
@@ -382,15 +394,15 @@ export TODOTXT_REPORT_FILE="$HOME/.local/share/todo/report.txt"
 # export color
 CLICOLOR="1"
 GREP_COLORS="mt=37;45"
-[ -f "$HOME/.config/misc/config/shell/other/ls" ] && . "$HOME/.config/misc/config/shell/other/ls"
+[ -f "$HOME/.config/misc/shell/other/ls" ] && . "$HOME/.config/misc/shell/other/ls"
 export CLICOLOR GREP_COLORS LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
 export WALLPAPERS="$HOME/.local/share/wallpapers"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-[ -f "$(command -v lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/config/shell/other/lf" ] &&
-  . "$HOME/.config/misc/config/shell/other/lf" && export LF_ICONS
+[ -f "$(command -v lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ] &&
+  . "$HOME/.config/misc/shell/other/lf" && export LF_ICONS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set term type
 export TERM="screen-256color"
