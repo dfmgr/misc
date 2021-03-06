@@ -1,9 +1,7 @@
 ! Include the colors
-
-#include                        ".config/xresources/colors"
+#include                        "~/.config/xresources/colors"
 
 ! Default Settings
-
 *.theme:                        Obsidian-Purple
 *.alpha:                        250
 *.cursorBlink:                  true
@@ -25,7 +23,6 @@
 *.loginshell:                   true
 
 ! X Font Configuration
-
 *.dpi:                          96
 *.antialias:                    true
 *.hinting:                      false
@@ -35,28 +32,25 @@
 *.lcdfilter:                    lcddefault
 
 *.font:                     xft:Hack Nerd Font Mono:style=Regular:size=11:hinting=full, xft:Symbola:size=11:antialias=true:hinting=full, xft:PowerlineSymbols:size=11:antialias=true:hinting=full
-*.font:                     xft:GohuFont:size=8:antialias=true, \
-*.font:                     xft:gohufont:size=11:antialias=false
-*.font:                     -*-creep-regular-*-*--16-*-*-*-*-*-*-1
-*.font:                     -*-lime-*-*-*--11-*-*-*-*-*-*-1
-*.font:                     xft:creep:size=16:antialias=true
-*.font:                     xft:envy code r:size=9:antialias=false
-*.font:                     xft:lemon:size=16:antialias=false
-*.font:                     xft:lime:size=16:antialias=false
-*.font:                     xft:neep:size=11:antialias=false
-*.font:                     xft:perfect dos vga 437:size=11:antialias=false
-*.font:                     xft:tewi:size=11:antialias=false
-
-*.boldFont:
-*.italicFont:
-*.bolditalicFont:
+!*.font:                     xft:GohuFont:size=8:antialias=true, \
+!*.font:                     xft:gohufont:size=11:antialias=false
+!*.font:                     -*-creep-regular-*-*--16-*-*-*-*-*-*-1
+!*.font:                     -*-lime-*-*-*--11-*-*-*-*-*-*-1
+!*.font:                     xft:creep:size=16:antialias=true
+!*.font:                     xft:envy code r:size=9:antialias=false
+!*.font:                     xft:lemon:size=16:antialias=false
+!*.font:                     xft:lime:size=16:antialias=false
+!*.font:                     xft:neep:size=11:antialias=false
+!*.font:                     xft:perfect dos vga 437:size=11:antialias=false
+!*.font:                     xft:tewi:size=11:antialias=false
+!*.boldFont:
+!*.italicFont:
+!*.bolditalicFont:
 
 ! emacs configuration
-
 Emacs.alpha:                    95
 
 ! Rofi Configuration
-
 rofi.color-window:              argb:c82d303b, #7c8389, #1d1f21
 rofi.color-normal:              argb:31d1f21, #c4cbd4, argb:96404552, #4084d6, #f9f9f9
 rofi.color-urgent:              argb:2c1d1f21, #cc6666, argb:e54b5160, #a54242, #f9f9f9
@@ -73,7 +67,6 @@ rofi.separator-style:           solid
 rofi.hide-scrollbar:            true
 
 ! URxvt Configuration
-
 URxvt*imLocale:                 en_US.UTF-8
 URxvt*termName:                 rxvt-unicode-256color
 URxvt.scrollBar:                false
@@ -90,7 +83,6 @@ URxvt.resize-font.smaller:      C-j
 URxvt.resize-font.bigger:       C-k
 
 !! Xterm
-
 xterm*background:               black
 xterm*foreground:               lightgray
 XTerm*savelines:                16384
