@@ -4,10 +4,15 @@
 PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set prompt
-PS1="\u@\H #"
+PS1="\u@\H $"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# sh specific
+if [ -n "$SH_VERSION" ]; then
+  export SHELL="$(command -v sh)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bash specific
-if [ -n "$BASH_VERSION" ]; then
+elif [ -n "$BASH_VERSION" ]; then
+  export SHELL="$(command -v bash)"
   export BASH_SILENCE_DEPRECATION_WARNING=1
   export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
   export HISTCONTROL=ignoreboth
@@ -18,6 +23,7 @@ if [ -n "$BASH_VERSION" ]; then
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
+  export SHELL="$(command -v zsh)"
   export ZDOTDIR="$HOME/.config/zsh"
   export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
   export ZSH="$HOME/.local/share/zsh/oh-my-zsh"
