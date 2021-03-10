@@ -25,8 +25,7 @@ HOME="${USER_HOME:-${HOME}}"
 # Main function
 
 rmd() {
-  local DIR="${BASH_SOURCE%/*}"
-  if [ ! -d "$DIR" ]; then DIR="$PWD"; fi
+  local DIR=${BASH_SOURCE%/*}
   if [ -f "$DIR/functions.bash" ]; then
     . "$DIR/functions.bash"
   else
