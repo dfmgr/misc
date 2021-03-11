@@ -4,7 +4,7 @@
 PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set prompt
-PS1="\u@\H $"
+PS1="\u@\H $ "
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
@@ -438,7 +438,7 @@ PATH="$(echo "$PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | tr '\n'
 PROFILERCSRC="$HOME/.profile"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export
-export PATH PROFILERCSRC SUDO_PROMPT SUDO_ASKPASS DISPLAY RESOLUTION
+export PATH PROFILERCSRC SUDO_PROMPT SUDO_ASKPASS DISPLAY RESOLUTION PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
 
