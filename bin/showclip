@@ -1,24 +1,54 @@
 #!/bin/sh
+#!/usr/bin/env bash
 
-# Display contents of selection.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="showclip"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210349-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : showclip --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 03:49 EST
+# @File          : showclip
+# @Description   : Show clipboard
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__help() {
+  printf_help "Usage: showclip | show clipboard contents"
+}
 main() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  local SRC_DIR="${BASH_SOURCE%/*}"
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
     echo "\t\tCouldn't source the functions file"
     exit 1
   fi
 
-  [ ! "$1" = "--help" ] || printf_help "Usage: showclip"
+  [ ! "$1" = "--help" ] || __help
 
   clip=$(xclip -o -selection clipboard)
   prim=$(xclip -o -selection primary)
-
-  [ -n "$clip" ] && notify-send "Clipboard:" "$clip"
-  [ -n "$prim" ] && notify-send "Primary:" "$prim"
+  if [ -n "$clip" ] && [ "$clip" = "$prim" ]; then
+    notifications "Clipboard:" "$clip"
+  else
+    [ -n "$clip" ] && notifications "Clipboard:" "$clip"
+    [ -n "$prim" ] && notifications "Primary:" "$prim"
+  fi
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# end
