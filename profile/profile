@@ -115,7 +115,7 @@ export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
-[ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ] && cp -f ~/.config/local/gitconfig.local ~/.gitconfig
+[ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ] && cp -f "$HOME/.config/local/gitconfig.local" "$HOME/.gitconfig"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
 [ "$(uname -s)" = Darwin ] && export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
@@ -134,15 +134,14 @@ export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
 # export ssh
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
-    ssh-agent >/dev/null 2>&1
+    ssh-agent &>/dev/null
   fi
-  ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
+  [ -n "$SSH_AUTH_SOCK" ] && ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
 fi
 
-sshdir="$(find ~/.ssh/id_* 2>/dev/null | wc -l)"
-if [ "$sshdir" -ne "0" ]; then
+if [ "$(find ~/.ssh/id_* 2>/dev/null | wc -l)" -ne "0" ]; then
   for f in $(ls ~/.ssh/id_* 2>/dev/null | grep -v '/*.pub'); do
-    ssh-add -q "$f" >/dev/null 2>&1
+    ssh-add -q "$f" &>/dev/null
   done
 fi
 export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
@@ -226,165 +225,86 @@ export GODIR="$GOPATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -f "$(command -v mybrowser 2>/dev/null)" ]; then
-  export BROWSER="mybrowser"
+  BROWSER="mybrowser"
 elif [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
-  export BROWSER="garcon-url-handler --url"
+  BROWSER="garcon-url-handler --url"
 elif [ -f "$(command -v firefox 2>/dev/null)" ]; then
-  export BROWSER="firefox"
+  BROWSER="firefox"
 elif [ -f "$(command -v chromium 2>/dev/null)" ]; then
-  export BROWSER="chromium"
+  BROWSER="chromium"
 elif [ -f "$(command -v google-chrome 2>/dev/null)" ]; then
-  export BROWSER="google-chrome"
+  BROWSER="google-chrome"
 elif [ -f "$(command -v opera 2>/dev/null)" ]; then
-  export BROWSER="opera"
+  BROWSER="opera"
 elif [ -f "$(command -v epiphany-browser 2>/dev/null)" ]; then
-  export BROWSER="epiphany-browser"
+  BROWSER="epiphany-browser"
 elif [ -f "$(command -v falkon 2>/dev/null)" ]; then
-  export BROWSER="falkon"
+  BROWSER="falkon"
 elif [ -f "$(command -v midori 2>/dev/null)" ]; then
-  export BROWSER="midori"
+  BROWSER="midori"
 elif [ -f "$(command -v netsurf 2>/dev/null)" ]; then
-  export BROWSER="netsurf"
+  BROWSER="netsurf"
 elif [ -f "$(command -v surf 2>/dev/null)" ]; then
-  export BROWSER="surf"
+  BROWSER="surf"
 elif [ -f "$(command -v arora 2>/dev/null)" ]; then
-  export BROWSER="arora"
+  BROWSER="arora"
 elif [ -f "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then
-  export BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
 elif [ -f "/Applications/Firefox.app/Contents/MacOS/firefox-bin" ]; then
-  export BROWSER="/Applications/Firefox.app/Contents/MacOS/firefox-bin"
+  BROWSER="/Applications/Firefox.app/Contents/MacOS/firefox-bin"
 elif [ -f "$(command -v lynx 2>/dev/null)" ]; then
-  export BROWSER="lynx"
+  BROWSER="lynx"
 elif [ -f "$(command -v links 2>/dev/null)" ]; then
-  export BROWSER="links"
+  BROWSER="links"
 fi
+export BROWSER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
 if [ -f "$(command -v myterminal 2>/dev/null)" ]; then
-  export TERMINAL="myterminal"
+  TERMINAL="myterminal"
 elif [ -f "$(command -v termite 2>/dev/null)" ]; then
-  export TERMINAL="termite"
+  TERMINAL="termite"
 elif [ -f "$(command -v xfce4-terminal 2>/dev/null)" ]; then
-  export TERMINAL="xfce4-terminal"
+  TERMINAL="xfce4-terminal"
 elif [ -f "$(command -v qterminal-terminal 2>/dev/null)" ]; then
-  export TERMINAL="qterminal-terminal"
+  TERMINAL="qterminal-terminal"
 elif [ -f "$(command -v qterminal-terminal 2>/dev/null)" ]; then
-  export TERMINAL="qterminal-terminal"
+  TERMINAL="qterminal-terminal"
 elif [ -f "$(command -v mate-terminal 2>/dev/null)" ]; then
-  export TERMINAL="mate-terminal"
+  TERMINAL="mate-terminal"
 elif [ -f "$(command -v i3-sensible-terminal 2>/dev/null)" ]; then
-  export TERMINAL="i3-sensible-terminal"
+  TERMINAL="i3-sensible-terminal"
 elif [ -f "$(command -v rofi-sensible-terminal 2>/dev/null)" ]; then
-  export TERMINAL="rofi-sensible-terminal"
+  TERMINAL="rofi-sensible-terminal"
 elif [ -f "$(command -v terminology 2>/dev/null)" ]; then
-  export TERMINAL="terminology"
+  TERMINAL="terminology"
 elif [ -f "$(command -v xterm 2>/dev/null)" ]; then
-  export TERMINAL="xterm"
+  TERMINAL="xterm"
 elif [ -f "$(command -v uxterm 2>/dev/null)" ]; then
-  export TERMINAL="uxterm"
+  TERMINAL="uxterm"
 elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm" ]; then
-  export TERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm"
+  TERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm"
 elif [ -f "/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal" ]; then
-  export TERMINAL="/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal"
+  TERMINAL="/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal"
 fi
+export TERMINAL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
-if [ -f "$(command -v myvmmanager 2>/dev/null)" ]; then
-  export VMMANAGER="myvmmanager"
-elif [ -f "$(command -v VirtualBox 2>/dev/null)" ]; then
-  export VMMANAGER="VirtualBox"
-elif [ -f "$(command -v VMWare 2>/dev/null)" ]; then
-  export VMMANAGER="VMWare"
-elif [ -f "$(command -v virt-manager 2>/dev/null)" ]; then
-  export VMMANAGER="virt-manager"
-elif [ -f "$(command -v kubectl 2>/dev/null)" ]; then
-  export VMMANAGER="kubectl"
-elif [ -f "$(command -v docker 2>/dev/null)" ]; then
-  export VMMANAGER="docker"
-fi
+[ -f "$(command -v myvmmanager 2>/dev/null)" ] && VMMANAGER="myvmmanager" || VMMANAGER="virt-manager"
+export VMMANAGER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
-if [ -f "$(command -v mytorrent 2>/dev/null)" ]; then
-  export TORRENT="mytorrent"
-elif [ -f "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
-  export TORRENT="transmission-remote-gtk"
-elif [ -f "$(command -v transmission-remote-cli 2>/dev/null)" ]; then
-  export TORRENT="transmission-remote-cli"
-elif [ -f "$(command -v transmission-gtk 2>/dev/null)" ]; then
-  export TORRENT="transmission-gtk"
-elif [ -f "$(command -v transmission-qt 2>/dev/null)" ]; then
-  export TORRENT="transmission-qt"
-elif [ -f "$(command -v deluge 2>/dev/null)" ]; then
-  export TORRENT="deluge"
-elif [ -f "$(command -v vuze 2>/dev/null)" ]; then
-  export TORRENT="vuze"
-elif [ -f "$(command -v qbittorrent)" ]; then
-  export TORRENT="qbittorrent"
-elif [ -f "$(command -v ktorrent 2>/dev/null)" ]; then
-  export TORRENT="ktorrent"
-elif [ -f "$(command -v ctorrent 2>/dev/null)" ]; then
-  export TORRENT="ctorrent"
-elif [ -f "$(command -v unworkable 2>/dev/null)" ]; then
-  export TORRENT="unworkable"
-elif [ -f "$(command -v rtorrent 2>/dev/null)" ]; then
-  export TORRENT="rtorrent"
-elif [ -f "$(command -v bitstormlite 2>/dev/null)" ]; then
-  export TORRENT="bitstormlite"
-elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
-  export TORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
-fi
+[ -f "$(command -v mytorrent 2>/dev/null)" ] && TORRENT="mytorrent" || TORRENT="transmission-remote-gtk"
+[ "$(uname -s)" = Darwin ] && TORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
+export TORRENT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
-if [ -f "$(command -v myemail 2>/dev/null)" ]; then
-  export EMAIL="myemail"
-elif [ -f "$(command -v thunderbird 2>/dev/null)" ]; then
-  export EMAIL="thunderbird"
-elif [ -f "$(command -v evolution 2>/dev/null)" ]; then
-  export EMAIL="evolution"
-elif [ -f "$(command -v clawsmail 2>/dev/null)" ]; then
-  export EMAIL="clawsmail"
-elif [ -f "$(command -v geary 2>/dev/null)" ]; then
-  export EMAIL="geary"
-elif [ -f "$(command -v neomutt 2>/dev/null)" ]; then
-  export EMAIL="myterminal -e neomutt"
-elif [ -f "$(command -v mutt 2>/dev/null)" ]; then
-  export EMAIL="myterminal -e mutt"
-elif [ -f "$(command -v kmail 2>/dev/null)" ]; then
-  export EMAIL="kmail"
-elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
-  export EMAIL="emacs"
-elif [ -f "$(command -v gmail 2>/dev/null)" ]; then
-  export EMAIL="mybrowser https://gmail.com"
-elif [ -f "$(command -v sylpheed 2>/dev/null)" ]; then
-  export EMAIL="sylpheed"
-fi
+[ -f "$(command -v myemail 2>/dev/null)" ] && EMAIL="myemail" || EMAIL="thunderbird"
+export EMAIL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
-if [ -f "$(command -v myeditor 2>/dev/null)" ]; then
-  export EDITOR="myeditor"
-elif [ -f "$(command -v code 2>/dev/null)" ]; then
-  export EDITOR="code -w"
-elif [ -f "$(command -v vscode 2>/dev/null)" ]; then
-  export EDITOR="vscode -w"
-elif [ -f "$(command -v vim 2>/dev/null)" ]; then
-  export EDITOR="vim"
-elif [ -f "$(command -v nvim 2>/dev/null)" ]; then
-  export EDITOR="nvim"
-elif [ -f "$(command -v geany 2>/dev/null)" ]; then
-  export EDITOR="geany"
-elif [ -f "$(command -v gedit 2>/dev/null)" ]; then
-  export EDITOR="gedit"
-elif [ -f "$(command -v atom 2>/dev/null)" ]; then
-  export EDITOR="atom"
-elif [ -f "$(command -v brackets 2>/dev/null)" ]; then
-  export EDITOR="brackets"
-elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
-  export EDITOR="emacs"
-elif [ -f "$(command -v mousepad 2>/dev/null)" ]; then
-  export EDITOR="mousepad"
-elif [ -f "$(command -v nano 2>/dev/null)" ]; then
-  export EDITOR="nano"
-fi
+[ -f "$(command -v myeditor 2>/dev/null)" ] && EDITOR="myeditor" || EDITOR="vim"
+export EDITOR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export todo config
 export TODO_DIR="$HOME/.local/share/editors/todos"
@@ -407,8 +327,8 @@ export CLICOLOR GREP_COLORS LS_COLORS
 export WALLPAPERS="$HOME/.local/share/wallpapers"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-[ -f "$(command -v lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ] &&
-  . "$HOME/.config/misc/shell/other/lf" && export LF_ICONS
+[ -f "$(command -v lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ] && . "$HOME/.config/misc/shell/other/lf"
+export LF_ICONS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set term type
 export TERM="screen-256color"
@@ -432,7 +352,8 @@ export TASKRC="$HOME/.taskrc"
 export TASKDATA="$HOME/.local/share/taskwarrior"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cursor
-echo -e -n "\x1b[\x35 q" "\e]12;cyan\a" 2>/dev/null
+echo -e -n "\x1b[\x35 q" 2>/dev/null
+echo -e -n "\e]12;cyan\a" 2>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # multi_clipboard
 if [ -f "$(command -v multi_clipboard)" ]; then
@@ -472,7 +393,7 @@ if [ "$(uname -s)" = Darwin ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create directories
-mkdir -p "$HOME/.ssh"
+mkdir -p "$HOME/.ssh/known_hosts.d"
 mkdir -p "$HOME/.local/bin"
 mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
@@ -520,6 +441,6 @@ PROFILERCSRC="$HOME/.profile"
 export PATH PROFILERCSRC SUDO_PROMPT SUDO_ASKPASS DISPLAY RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
-unset sshdir
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

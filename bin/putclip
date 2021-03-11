@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="putclip"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210233-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : putclip --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 02:33 EST
+# @File          : putclip
+# @Description   : copy input to clipboard
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [[ "$(uname -s)" =~ ^darwin ]]; then
+  if [[ -f "$(command -v pbcopy)" ]]; then
+    putclip() { LC_CTYPE=UTF-8 tr -d "\n" | pbcopy || return 1; }
+  fi
+elif [[ "$(uname -s)" =~ ^linux ]]; then
+  if [[ -f "$(command -v xclip)" ]]; then
+    putclip() { xclip -i -sel c; }
+  fi
+else
+  putclip() { true; }
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# end
