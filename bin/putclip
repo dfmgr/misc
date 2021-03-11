@@ -22,16 +22,23 @@ HOME="${USER_HOME:-${HOME}}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [ ${#} -eq 0 ]; then
+  if [ -p "/dev/stdin" ]; then
+    message="$(</dev/stdin)"
+  fi
+else
+    message="$*"
+fi
 if [[ "$(uname -s)" =~ ^darwin ]]; then
   if [[ -f "$(command -v pbcopy)" ]]; then
-    putclip() { LC_CTYPE=UTF-8 tr -d "\n" | pbcopy || return 1; }
+     echo "$message" | LC_CTYPE=UTF-8 tr -d "\n" | pbcopy
   fi
 elif [[ "$(uname -s)" =~ ^linux ]]; then
   if [[ -f "$(command -v xclip)" ]]; then
-    putclip() { xclip -i -sel c; }
+    echo "$message" | xclip -i -sel c
   fi
 else
-  putclip() { true; }
+  echo "$message" >>"${TMPDIR:-/tmp}/clipboard"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?

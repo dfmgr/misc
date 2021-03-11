@@ -24,14 +24,14 @@ HOME="${USER_HOME:-${HOME}}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [[ "$(uname -s)" =~ ^darwin ]]; then
   if [[ -f "$(command -v pbpaste)" ]]; then
-    printclip() { LC_CTYPE=UTF-8 tr -d "\n" | pbpaste; }
+    LC_CTYPE=UTF-8 tr -d "\n" | pbpaste
   fi
 elif [[ "$(uname -s)" =~ ^linux ]]; then
   if [[ -f "$(command -v xclip)" ]]; then
-    printclip() { xclip -o -s; }
+    xclip -o -s
   fi
 else
-  printclip() { true; }
+  [ -f "${TMPDIR:-/tmp}/clipboard" ] && tail -n 1 "${TMPDIR:-/tmp}/clipboard"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
