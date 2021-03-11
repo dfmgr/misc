@@ -22,10 +22,8 @@ HOME="${USER_HOME:-${HOME}}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [ ${#} -eq 0 ]; then
-  if [ -p "/dev/stdin" ]; then
+if [ $# -eq 0 ]; then
     message="$(</dev/stdin)"
-  fi
 else
     message="$*"
 fi
