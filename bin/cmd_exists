@@ -40,6 +40,9 @@ main() {
   [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  type() { builtin "$(echo ${0##*/} | tr \[:upper:] \[:lower:])" ${1+"$@"}; }
+  command() { builtin "$(echo ${0##*/} | tr \[:upper:] \[:lower:])" ${1+"$@"}; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case "$1" in
   *err*) local error=show && shift 1 ;;
   esac
@@ -47,7 +50,7 @@ main() {
   local exitCode=0
   local missing=""
   for f in "$@"; do
-    if [ -f "$(command -v "$f")" ]; then
+    if [ -f "$(command -v "$f" 2>/dev/null)" ] || [ -f "$(type -P "$f" 2>/dev/null)" ]; then
       exitCode+=0
     else
       missing="$f "
