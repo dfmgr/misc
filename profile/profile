@@ -64,7 +64,7 @@ if [ -n "$DISPLAY" ]; then
   if cat /proc/version | grep -iq chromium && [ -n "$DISPLAY_LOW_DENSITY" ]; then
     DISPLAY="$DISPLAY_LOW_DENSITY"
   fi
-[ -f "$(command -v xrandr 2>/dev/null)" ] && RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"
+[ -f "$(command -v xrandr 2>/dev/null)" ] && RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
@@ -76,14 +76,14 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enviroment variables when using a desktop
 if [ -n "$DISPLAY" ] && [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
-  dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY
+  dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY 2>/dev/null
   export DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enable control alt backspace
 if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
   export XKBOPTIONS="terminate:ctrl_alt_bksp"
-  [ -f "$(command -v setxkbmap 2>/dev/null)" ] && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp"
+  [ -f "$(command -v setxkbmap 2>/dev/null)" ] && setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" 2>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup modifiers
