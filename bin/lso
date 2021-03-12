@@ -38,8 +38,10 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ ! -e "$1" ]; then printf_red "cannot access $1: No such file or directory" && return 1; fi
-  if [ -t 0 ]; then ls --color -alG "${@:-.}"; else cat -; fi |
+  if [[ "$1" = -* ]]; then local ls_opts="$1" && shift 1; else local ls_opts=; fi
+  local LSO_DIR="${1:-$PWD}"
+  if [ ! -e "$LSO_DIR" ]; then printf_red "cannot access $LSO_DIR: No such file or directory" && return 1; fi
+  if [ -t 0 ]; then ls --color $ls_opts -alG "$LSO_DIR"; else cat -; fi |
     awk '{t=$0;gsub(/\x1B\[[0-9;]*[mK]/,"");k=0;for(i=0;i<=8;i++)k+=((substr($1,i+2,1)~/[rwx]/)*2^(8-i));if(k)printf(" %0o ",k);print t}'
   return $?
 }
