@@ -29,7 +29,7 @@ __help() {
   printf_help "Usage: maim     |    screenshot utility"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     source "$DIR/functions.bash"
   else
@@ -50,8 +50,8 @@ main() {
   "a selected area (copy)") maim -s | xclip -selection clipboard -t image/png ;;
   "current window (copy)") maim -i "$(xdotool getactivewindow)" | xclip -selection clipboard -t image/png ;;
   "full screen (copy)") maim | xclip -selection clipboard -t image/png ;;
-esac
-return $?
+  esac
+  return $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"

@@ -25,9 +25,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
 __help() {
-  printf_help "Usage: cmd_exists cmd  |  cmd_exists bash fish zsh"
+  printf_help "Usage: putclip text  |  putclip 'my text'"
 }
-DIR="${SRC_DIR:-$PWD}"
+if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
 if [[ -f "$DIR/functions.bash" ]]; then
   . "$DIR/functions.bash"
 else
@@ -38,13 +38,13 @@ fi
 [ "$1" = "--help" ] && __help
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ $# -eq 0 ] && [ -t 0 ]; then
-    message="$(</dev/stdin)"
+  message="$(</dev/stdin)"
 else
-    message="$*"
+  message="$*"
 fi
 if [[ "$(uname -s)" =~ ^darwin ]]; then
   if [[ -f "$(command -v pbcopy)" ]]; then
-     echo "$message" | LC_CTYPE=UTF-8 tr -d "\n" | pbcopy && exitCode=0 || exitCode=1
+    echo "$message" | LC_CTYPE=UTF-8 tr -d "\n" | pbcopy && exitCode=0 || exitCode=1
   fi
 elif [[ "$(uname -s)" =~ ^linux ]]; then
   if [[ -f "$(command -v xclip)" ]]; then

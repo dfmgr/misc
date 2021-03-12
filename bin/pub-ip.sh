@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: pub-ip.sh    |    get public ip address"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -39,7 +39,7 @@ main() {
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if am_i_online; then
-    local IP=$(curl -q -4 -LSs http://ifconfig.co/ip)
+    local IP=$(curl -q -4 -LSs http://ifconfig.co/ip 2>/dev/null)
     if [ -n "$IP" ]; then
       if pgrep -x openvpn >/dev/null; then
         echo VPN: "$IP"

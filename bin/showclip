@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: showclip | show clipboard contents"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -43,7 +43,7 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -n "$clip" ] && [ "$clip" = "$prim" ]; then
     notifications "Clipboard:" "$clip"
-  elif [ -n "$clip" ] &&  [ -n "$prim" ]; then
+  elif [ -n "$clip" ] && [ -n "$prim" ]; then
     notifications "Clipboard:" "$clip"
     notifications "Primary:" "$prim"
   elif [ -n "$clip" ]; then

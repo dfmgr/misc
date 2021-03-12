@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: qt itemtoFind"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -39,7 +39,7 @@ main() {
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -d "$1" ] && local SEARCH_DIR="$1" && shift 1 || local SEARCH_DIR="$PWD"
-  local GREP_OPTS="-ir --color=always "$*""
+  local GREP_OPTS="-ir --color=always $*"
   local GREP_EXCLUDE="--exclude-dir="$SEARCH_DIR/.git" --exclude-dir="$SEARCH_DIR/node_modules""
   local SEARCH="$(grep $GREP_OPTS $GREP_EXCLUDE "${SEARCH_DIR:-.}" 2>/dev/null || return 1)"
   if [ -d "$SEARCH_DIR" ] && [ -n "$SEARCH" ]; then

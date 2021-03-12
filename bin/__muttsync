@@ -26,11 +26,11 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # check for required
 cmd_exists --error mbsync || exit 1
 # Main function
-__help(){
+__help() {
   printf_help "_muttsync    |    sync your email with mutt"
 }
 main() {
-  local DIR="${BASH_SOURCE%/*}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else

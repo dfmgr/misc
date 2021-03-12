@@ -27,9 +27,9 @@ cmd_exists --error toot || exit 1
 # Main function
 __help() {}
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
-     "$DIR/functions.bash"
+    "$DIR/functions.bash"
   else
     printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
     return 1

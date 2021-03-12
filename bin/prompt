@@ -24,11 +24,11 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # main function
-__help () {
+__help() {
   printf_help "Usage: prompt message action    |    custom dmenu prompt"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else

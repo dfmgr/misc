@@ -18,7 +18,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 19:34 EST
 # @File          : pass
-# @Description   : Pass is a password manager written in bash
+# @Description   : pass is a password manager written in bash
 # @TODO          :
 # @Other         :
 # @Resource      :
@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: pass"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -41,7 +41,7 @@ main() {
   umask "${PASSWORD_STORE_UMASK:-077}"
   set -o pipefail
 
-  GPG_OPTS=($PASSWORD_STORE_GPG_OPTS "--quiet" "--yes" "--compress-algo=none" "--no-encrypt-to")
+  GPG_OPTS=("$PASSWORD_STORE_GPG_OPTS" "--quiet" "--yes" "--compress-algo=none" "--no-encrypt-to")
   GPG="gpg"
   export GPG_TTY="${GPG_TTY:-$(tty 2>/dev/null)}"
   which gpg2 &>/dev/null && GPG="gpg2"
@@ -214,7 +214,7 @@ main() {
     pkill -f "^$sleep_argv0" 2>/dev/null && sleep 0.5
     local before="$("${paste_cmd[@]}" 2>/dev/null | $BASE64)"
     echo -n "$1" | "${copy_cmd[@]}" || die "Error: Could not copy data to the clipboard"
-    (
+    ( 
       (exec -a "$sleep_argv0" bash <<<"trap 'kill %1' TERM; sleep '$CLIP_TIME' & wait")
       local now="$("${paste_cmd[@]}" | $BASE64)"
       [[ $now != $(echo -n "$1" | $BASE64) ]] && before="$now"

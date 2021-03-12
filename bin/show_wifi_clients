@@ -28,7 +28,7 @@ __help() {
   printf_help "shows connected stations in hotspot mode"
 }
 main() {
-  local DIR="${BASH_SOURCE%/*}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -36,7 +36,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--help" ] && printf_help "shows connected stations in hotspot mode"
+  [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -f "/etc/dnsmasq.conf" ]; then
     leasefileconf="$(grep 'dhcp-leasefile=' /etc/dnsmasq.conf | sed 's/#//g;s#dhcp-leasefile=##g' | grep '^' || return 1)"

@@ -29,7 +29,7 @@ __help() {
   printf_help "Usage: pauseallmpv    |    pause mpv"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -39,9 +39,9 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if $(find /tmp/mpvsoc* 2>/dev/null); then
-    for i in $(ls /tmp/mpvsoc* 2>/dev/null); do
-      echo '{ "command": ["set_property", "pause", true] }' | socat - $i && exitCode=0 || exitCode=1
+  if "$(find /tmp/mpvsoc* 2>/dev/null)"; then
+    for i in $(find /tmp/mpvsoc* 2>/dev/null); do
+      echo '{ "command": ["set_property", "pause", true] }' | socat - "$i" && exitCode=0 || exitCode=1
     done
   else
     exitCode=1

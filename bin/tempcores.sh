@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: tempcores.sh"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     source "$DIR/functions.bash"
   else
@@ -39,7 +39,7 @@ main() {
   [ "$1" = "--help" ] && printf_help "Usage: tempcores.sh"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   rawData=$(sensors -f | grep -m 1 Core | awk '{print substr($3, 2, length($3)-5)}')
-  tempCore=($rawData)
+  tempCore="($rawData)"
   degree="°F"
   temperaturesValues=(140 150 160 170 180 190)
   temperaturesColors=("#6bff49" "#f4cb24" "#ff8819" "#ff3205" "#f40202" "#ef02db")

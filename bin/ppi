@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: ppi pathtoFile"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -59,8 +59,8 @@ main() {
       -gravity center \
       -resize "$geometry" \
       +append \
-      "$imgName" && printf "* %s (%s)\n"  "$imgName" "$geometry" || return 1
-      done && exitCode+=0 || exitCode=1
+      "$imgName" && printf "* %s (%s)\n" "$imgName" "$geometry" || return 1
+  done && exitCode+=0 || exitCode=1
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

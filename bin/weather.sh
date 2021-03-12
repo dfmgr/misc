@@ -25,33 +25,33 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
 __help() {
-    printf_custom 4 "USAGE: weather.sh <options> <locationcode>"
-    printf_custom 4 "See curl http://wttr.in/:help?A for all options"
-    printf_help "IE: weather.sh Au0 mian"
+  printf_custom 4 "USAGE: weather.sh <options> <locationcode>"
+  printf_custom 4 "See curl http://wttr.in/:help?A for all options"
+  printf_help "IE: weather.sh Au0 mian"
 }
 main() {
-local DIR="${SRC_DIR:-$PWD}"
-if [[ -f "$DIR/functions.bash" ]]; then
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
-else
+  else
     printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
     return 1
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ "$1" = "--help" ] && __help
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-local LANG="$(echo $LANG | sed 's#_.*##g')"
-local METRIC="u"
-[ -n "$1" ] && OPTS="$1" || OPTS="A$METRIC"
-[ -n "$2" ] && LOC="$2" || LOC="${MYLOCATIONID:-alb}"
-if am_i_online; then
-curl -H "Accept-Language: $LANG" -Ls "http://wttr.in/$LOC?$OPTS" | sed -n '3,7{s/\d27\[[0-9;]*m//g;s/^..//;s/ *$//;p}'
-curl -H "Accept-Language: $LANG" -Ls "http://wttr.in/$LOC?$OPTS" | grep "Weather report"
-else
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local LANG="$(echo $LANG | sed 's#_.*##g')"
+  local METRIC="u"
+  [ -n "$1" ] && OPTS="$1" || OPTS="A$METRIC"
+  [ -n "$2" ] && LOC="$2" || LOC="${MYLOCATIONID:-alb}"
+  if am_i_online; then
+    curl -H "Accept-Language: $LANG" -Ls "http://wttr.in/$LOC?$OPTS" | sed -n '3,7{s/\d27\[[0-9;]*m//g;s/^..//;s/ *$//;p}'
+    curl -H "Accept-Language: $LANG" -Ls "http://wttr.in/$LOC?$OPTS" | grep "Weather report"
+  else
     echo "Weather report unavailable"
     return 1
-fi
-return $?
+  fi
+  return $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"

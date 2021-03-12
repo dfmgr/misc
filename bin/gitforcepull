@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: gitforcepull | This will reset the repo and do a pull"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -42,7 +42,7 @@ main() {
   read -r -n 1 -s fpull && echo
   if [[ $fpull == "y" || $fpull == "Y" ]]; then
     git -C "${1:-.}" reset -q --hard HEAD &&
-    git -C "${1:-.}" pull -fq && return 0 || return 1
+      git -C "${1:-.}" pull -fq && return 0 || return 1
   else
     printf_info "You have cancelled the current operation"
     return 1

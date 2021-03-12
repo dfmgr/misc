@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: xephyr commands  |  xephyr bash"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -41,7 +41,7 @@ main() {
   local -a args="$@" && shift $#
   local PATH="/usr/bin:/usr/sbin"
   local xephyr="$(command -v xephyr || command -v Xephyr || return 1)"
-  if [ -f "$xephyr"] ; then
+  if [ -f "$xephyr"]; then
     if [ -n "$DISPLAY_LOW_DENSITY" ]; then
       local DISPLAY="$DISPLAY_LOW_DENSITY"
       local RESOLUTION="$(xrandr --current | grep '*' | uniq | awk '{print $1}')"

@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: retry command"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -46,7 +46,7 @@ main() {
       if [[ $n -lt $max ]]; then
         ((n++))
         printf_red "${1:-Command} failed. Attempt $n/$max:"
-        sleep $delay
+        sleep "$delay"
       else
         printf_red "${1:-Command} has failed after $n attempts."
         local exitCode+=1

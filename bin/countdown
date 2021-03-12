@@ -29,7 +29,7 @@ __help() {
   printf_help "Usage: countdown howLong  |  countdown 300"
 }
 timer() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -40,7 +40,8 @@ timer() {
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local d="$1"
-  typeset ts="$(($(date +%s) + ${1:-0} - 1))"; export ts
+  typeset ts="$(($(date +%s) + ${1:-0} - 1))"
+  export ts
   typeset p1="d=$(($(date +%s) - $ts));[ $d -lt 0 ] && d=$((-d));"
   typeset p2="[ $d -eq 0 ] && exit 1;"
   typeset p3="date -u -d @"$d" +"%H.%M.%S""

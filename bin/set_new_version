@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: set_new_version dir  |  set_new_version ~/Projects/github"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -41,7 +41,7 @@ main() {
   local search_dir="${1:-$PWD}"
   local setver="$(date +"%m%d%Y%H%M-git")"
   printf_green "Changing the version to $setver in $search_dir"
-    find -L "$search_dir" -type f,l -exec sed -i --follow-symlinks 's/^##@Version.*/##@Version       : '$setver'/g' {} \; 2>/dev/null
+  find -L "$search_dir" -type f,l -exec sed -i --follow-symlinks 's/^##@Version.*/##@Version       : '$setver'/g' {} \; 2>/dev/null
   return $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

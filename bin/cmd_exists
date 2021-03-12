@@ -28,7 +28,7 @@ __help() {
   printf_help "Usage: cmd_exists cmd  |  cmd_exists bash fish zsh"
 }
 main() {
-  local DIR="${SRC_DIR:-$PWD}"
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
   else
@@ -39,7 +39,7 @@ main() {
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case "$1" in
-    *err*) local error=show && shift 1;;
+  *err*) local error=show && shift 1 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local exitCode=0
