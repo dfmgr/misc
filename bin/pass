@@ -24,8 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: pass"
+  app_help "Usage: pass"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -36,6 +37,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && printf_help "Usage: pass"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   umask "${PASSWORD_STORE_UMASK:-077}"
@@ -214,7 +216,7 @@ main() {
     pkill -f "^$sleep_argv0" 2>/dev/null && sleep 0.5
     local before="$("${paste_cmd[@]}" 2>/dev/null | $BASE64)"
     echo -n "$1" | "${copy_cmd[@]}" || die "Error: Could not copy data to the clipboard"
-    ( 
+    (
       (exec -a "$sleep_argv0" bash <<<"trap 'kill %1' TERM; sleep '$CLIP_TIME' & wait")
       local now="$("${paste_cmd[@]}" | $BASE64)"
       [[ $now != $(echo -n "$1" | $BASE64) ]] && before="$now"

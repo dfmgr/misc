@@ -24,8 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
+__version() { app_version; }
 __help() {
-  printf_help "check-for-updates.sh  |  check for package updates"
+  app_help "check-for-updates.sh  |  check for package updates"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -36,6 +37,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -f "$(command -v dmenupass)" ] && SUDO_ASKPASS="/usr/local/bin/dmenupass"

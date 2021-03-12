@@ -23,10 +23,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cmd_exists mpv socat || exit 1
 # main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: pauseallmpv    |    pause mpv"
+  app_help "Usage: pauseallmpv    |    pause mpv"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,8 +37,10 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cmd_exists --error mpv socat || exit 1
   if "$(find /tmp/mpvsoc* 2>/dev/null)"; then
     for i in $(find /tmp/mpvsoc* 2>/dev/null); do
       echo '{ "command": ["set_property", "pause", true] }' | socat - "$i" && exitCode=0 || exitCode=1

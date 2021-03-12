@@ -1,0 +1,29 @@
+# bash completion for mkd                                   -*- shell-script -*-
+
+_mkd()
+{
+    local cur prev words cword split
+    _init_completion -s || return
+
+    case $prev in
+        --help | --version)
+            return
+            ;;
+        *)
+            _filedir
+            ;;
+    esac
+
+    $split && return
+
+    if [[ $cur == -* ]]; then
+        COMPREPLY=($(compgen -W '--help --version' -- "$cur"))
+        [[ ${COMPREPLY-} == *= ]] && compopt -o nospace
+    else
+        _filedir -d
+    fi
+} &&
+    complete -F _mkd mkd
+
+# ex: filetype=sh
+

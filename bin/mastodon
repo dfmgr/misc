@@ -23,9 +23,11 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cmd_exists --error toot || exit 1
 # Main function
-__help() {}
+__version() { app_version; }
+__help() {
+  app_help "Usage: mastodon 'message to post'"
+}
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
@@ -35,8 +37,10 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ ! "$1" = "--help" ] || printf_help "Usage: mastodon 'MyMessage'"
+  [ "$1" = "--version" ] && __version
+  [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cmd_exists --error toot || exit 1
   if am_i_online; then
     toot post "$@" && return 0 || return 1
   else

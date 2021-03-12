@@ -30,7 +30,6 @@ printf_yellow() { printf_color "\t\t$1\n" 3; }
 printf_blue() { printf_color "\t\t$1\n" 4; }
 printf_cyan() { printf_color "\t\t$1\n" 6; }
 printf_info() { printf_color "\t\t[ ℹ️  ] $1\n" 3; }
-printf_help() { printf_color "\t\t$1\n" 4 && exit 1; }
 printf_exit() { printf_color "\t\t$1\n" 1 && exit 1; }
 printf_read() { printf_color "\t\t$1" 5; }
 printf_success() { printf_color "\t\t[ ✔ ] $1\n" 2; }
@@ -41,12 +40,15 @@ printf_error_stream() { while read -r line; do printf_error "↳ ERROR: $line"; 
 printf_execute_success() { printf_color "\t\t[ ✔ ] $1 [ ✔ ] \n" 2; }
 printf_execute_error() { printf_color "\t\t[ ✖ ] $1 $2 [ ✖ ] \n" 1; }
 printf_execute_error_stream() { while read -r line; do printf_execute_error "↳ ERROR: $line"; done; }
+printf_help() { app_help "$*"; }
 
 printf_custom() {
   if [[ $1 == ?(-)+([0-9]) ]]; then
     local color="$1"
     shift 1
-  else local color="3"; fi
+  else
+    local color="3"
+  fi
   local msg="$@"
   shift
   printf_color "\t\t$msg" "$color"
@@ -90,3 +92,44 @@ mv_f() { if [ -e "$1" ]; then devnull mv -f "$@"; fi; }
 ln_rm() { devnull find "${1:-$HOME}" -xtype l -delete; }
 ln_sf() { devnull ln -sf "$@" ; ln_rm ${1:-$HOME}; }
 
+app_help() {
+  printf "\n"
+  test -n "$1" && test -z "${1//[0-9]/}" && local color="$1" && shift 1 || local color="4"
+  local msg1="$1" && shift 1
+  local msg2="$1" && shift 1 || msg2=
+  local msg3="$1" && shift 1 || msg3=
+  local msg4="$1" && shift 1 || msg4=
+  local msg5="$1" && shift 1 || msg5=
+  local msg6="$1" && shift 1 || msg6=
+  local msg7="$1" && shift 1 || msg7=
+  shift $#
+  [ -z "$msg1" ] || printf_color "\t\t$msg1\n" "$color"
+  [ -z "$msg2" ] || printf_color "\t\t$msg2\n" "$color"
+  [ -z "$msg3" ] || printf_color "\t\t$msg3\n" "$color"
+  [ -z "$msg4" ] || printf_color "\t\t$msg4\n" "$color"
+  [ -z "$msg5" ] || printf_color "\t\t$msg5\n" "$color"
+  [ -z "$msg6" ] || printf_color "\t\t$msg6\n" "$color"
+  [ -z "$msg7" ] || printf_color "\t\t$msg7\n" "$color"
+  printf "\n"
+  exit ${exitCode:-1}
+}
+
+app_version() {
+    local prog="${PROG:-$APPNAME}"                  # get from file
+    local name="$(basename ${1:-$prog})"            # get from os
+    local appname="${prog:-$name}"                  # figure out wich one
+    filename="$(type -P $appname)"                  # get filename
+    if [ -f "$(type -P $filename)" ]; then          # check for file
+      printf "\n"
+      printf_green "Getting info for $filename"
+      cat "$filename" | grep '^# @' | grep '  :' >/dev/null 2>&1 &&
+        cat "$filename" | grep '^# @' | grep -v '\$' | grep '  :' | sed 's/# @//g' | printf_readline "3" &&
+        printf_green "$(cat $filename | grep -v '\$' | grep "##@Version" | sed 's/##@//g')" ||
+        printf_red "File was found, however, No information was provided"
+    else
+      printf_red "${1:-$appname} was not found"
+      exitCode=1
+    fi
+    printf "\n"
+    exit $?
+}

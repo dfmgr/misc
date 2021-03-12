@@ -24,9 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-cmd_exists --error maim || exit 1
+__version() { app_version; }
 __help() {
-  printf_help "Usage: maim     |    screenshot utility"
+  app_help "Usage: maim     |    screenshot utility"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,8 +37,10 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cmd_exists --error maim || exit 1
   local IMAGE_DIR="$HOME/Pictures/maim"
   local IMG="$IMAGE_DIR/$(date '+%y%m%d-%H%M-%S').png"
   mkdir -p "$IMAGE_DIR" &>/dev/null

@@ -24,8 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      : https://github.com/jaagr/polybar/wiki/User-contributed-modules#per-core-temperatures
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: tempcores.sh"
+  app_help "Usage: tempcores.sh"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -36,7 +37,8 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--help" ] && printf_help "Usage: tempcores.sh"
+  [ "$1" = "--version" ] && __version
+  [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   rawData=$(sensors -f | grep -m 1 Core | awk '{print substr($3, 2, length($3)-5)}')
   tempCore="($rawData)"

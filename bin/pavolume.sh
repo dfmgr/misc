@@ -24,8 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: pavolume.sh volume  |  pavolume.sh 50"
+  app_help "Usage: pavolume.sh volume  |  pavolume.sh 50"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -36,6 +37,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __qdbus() { [ -f "$(command -v qdbus)" ] && qdbus "$@" || true; }

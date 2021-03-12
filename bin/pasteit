@@ -24,8 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      : https://github.com/glensc/pbin
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
+__version() { app_version; }
 __help() {
-  printf_help "Pastes from STDIN or file from commandline argument to Stikked pastebin"
+  app_help "Pastes from STDIN or file from commandline argument to Stikked pastebin"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -36,6 +37,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help " ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   set -e

@@ -24,8 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: rmd dir/file | delete a file or directory"
+  app_help "Usage: rmd dir/file | delete a file or directory"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -36,7 +37,8 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ ! "$1" = "--help" ] || printf_help "Usage: rmd File or Directory to delete"
+  [ "$1" = "--version" ] && __version
+  [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __rm_file() { rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

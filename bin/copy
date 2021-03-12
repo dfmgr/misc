@@ -23,10 +23,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cmd_exists --err dd || exit 1
 # Main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: copy source destination  |  copy file1 file2"
+  app_help "Usage: copy source destination  |  copy file1 file2"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,9 +37,11 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   [ -z "$1" ] || [ -z "$2" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cmd_exists --err dd || exit 1
   typeset src="$1"
   typeset dest="$2"
   typeset size=$(stat -c%s "$src")

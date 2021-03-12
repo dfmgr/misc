@@ -24,9 +24,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
+__version() { app_version; }
 __help() {
-  printf_custom 4 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"'
-  printf_help 'Also uses env variables: SEARCH_DIR SEARCH REPLACE TYPE=file,dir'
+  app_help 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' \
+    'Also uses env variables: SEARCH_DIR SEARCH REPLACE TYPE=file,dir'
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,6 +38,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [[ "$1" = "--help" ]] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local NEW_FILENAME exitCode

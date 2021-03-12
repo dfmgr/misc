@@ -24,10 +24,11 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
+__version() { app_version; }
 __help() {
-  printf_custom 4 "USAGE: weather.sh <options> <locationcode>"
-  printf_custom 4 "See curl http://wttr.in/:help?A for all options"
-  printf_help "IE: weather.sh Au0 mian"
+  app_help "USAGE: weather.sh <options> <locationcode>" \
+    "See curl http://wttr.in/:help?A for all options" \
+    "IE: weather.sh Au0 mian"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -38,6 +39,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local LANG="$(echo $LANG | sed 's#_.*##g')"

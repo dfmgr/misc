@@ -23,10 +23,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cmd_exists --error showbanner || exit 1
 # Main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: countdown howLong  |  countdown 300"
+  app_help "Usage: countdown howLong  |  countdown 300"
 }
 timer() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,8 +37,10 @@ timer() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cmd_exists --error showbanner || exit 1
   local d="$1"
   typeset ts="$(($(date +%s) + ${1:-0} - 1))"
   export ts

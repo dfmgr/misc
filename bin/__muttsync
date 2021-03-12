@@ -23,11 +23,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# check for required
-cmd_exists --error mbsync || exit 1
 # Main function
+__version() { app_version; }
 __help() {
-  printf_help "_muttsync    |    sync your email with mutt"
+  app_help "_muttsync    |    sync your email with mutt"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -40,8 +39,10 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   notify() { [ -f "$(command -v notifications 2>/dev/null)" ] && notifications "$@" || return 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cmd_exists --error mbsync || exit 1
   if am_i_online; then
     printf_green "Syncing Mailboxes with mbsync"
     notify "Mail" "Syncing Mailboxes with mbsync"

@@ -24,8 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # main function
+__version() { app_version; }
 __help() {
-  printf_help "Usage: compton-toggle.sh"
+  app_help "Usage: compton-toggle.sh"
 }
 
 main() {
@@ -37,6 +38,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--version" ] && __version
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -f "$(command -v picom 2>/dev/null)" ]; then
