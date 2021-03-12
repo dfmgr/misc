@@ -1,41 +1,58 @@
 #!/usr/bin/env bash
 
-# finds the active sink for pulse audio and increments the volume. useful when you have multiple audio outputs and have a key bound to vol-up and down
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="pavolume.sh"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211151-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : pavolume.sh --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 11:51 EST
+# @File          : pavolume.sh
+# @Description   : finds the active sink for pulse audio and increments the volume.
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# main function
+__help() {
+  printf_help "Usage: pavolume.sh volume  |  pavolume.sh 50"
+}
 main() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: pavolume.sh volume"
-
-  osd='no'
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __qdbus() { [ -f "$(command -v qdbus)" ] && qdbus "$@" || true; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  osd='yes'
   inc='2'
   capvol='no'
   maxvol='200'
   autosync='yes'
-
-  # Muted status
-  # yes: muted
-  # no : not muted
   curStatus="no"
   active_sink=""
   limit=$((100 - inc))
   maxlimit=$((maxvol - inc))
 
-  reloadSink() {
-    active_sink=$(pacmd list-sinks | awk '/* index:/{print $3}')
-  }
-
+  reloadSink() { active_sink=$(pacmd list-sinks | awk '/* index:/{print $3}'); }
   function volUp() {
-
     getCurVol
-
     if [ "$capvol" = 'yes' ]; then
       if [ "$curVol" -le 100 ] && [ "$curVol" -ge "$limit" ]; then
         pactl set-sink-volume "$active_sink" -- 100%
@@ -49,29 +66,23 @@ main() {
     fi
 
     getCurVol
-
     if [ ${osd} = 'yes' ]; then
-      qdbus org.kde.kded /modules/kosd showVolume "$curVol" 0
+      __qdbus org.kde.kded /modules/kosd showVolume "$curVol" 0
     fi
-
     if [ ${autosync} = 'yes' ]; then
       volSync
     fi
   }
 
   function volDown() {
-
     pactl set-sink-volume "$active_sink" "-$inc%"
     getCurVol
-
     if [ ${osd} = 'yes' ]; then
-      qdbus org.kde.kded /modules/kosd showVolume "$curVol" 0
+      __qdbus org.kde.kded /modules/kosd showVolume "$curVol" 0
     fi
-
     if [ ${autosync} = 'yes' ]; then
       volSync
     fi
-
   }
 
   function getSinkInputs() {
@@ -81,7 +92,6 @@ main() {
   function volSync() {
     getSinkInputs "$active_sink"
     getCurVol
-
     for each in $input_array; do
       pactl set-sink-input-volume "$each" "$curVol%"
     done
@@ -106,7 +116,7 @@ main() {
     esac
 
     if [ ${osd} = 'yes' ]; then
-      qdbus org.kde.kded /modules/kosd showVolume ${curVol} ${status}
+      __qdbus org.kde.kded /modules/kosd showVolume ${curVol} ${status}
     fi
 
   }
@@ -119,7 +129,6 @@ main() {
   # Listens for events for fast update speed
   function listen() {
     firstrun=0
-
     pactl subscribe 2>/dev/null | {
       while true; do
         {
@@ -189,6 +198,11 @@ main() {
     output
     ;;
   esac
+  return $?
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

@@ -4,40 +4,55 @@
 PROG="putclip"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031120210233-git
+##@Version       : 031120211507-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
 # @ReadME        : putclip --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 11, 2021 02:33 EST
+# @Created       : Thursday, Mar 11, 2021 15:07 EST
 # @File          : putclip
 # @Description   : copy input to clipboard
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [ $# -eq 0 ]; then
+# Main function
+__help() {
+  printf_help "Usage: cmd_exists cmd  |  cmd_exists bash fish zsh"
+}
+DIR="${SRC_DIR:-$PWD}"
+if [[ -f "$DIR/functions.bash" ]]; then
+  . "$DIR/functions.bash"
+else
+  printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+  exit 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ "$1" = "--help" ] && __help
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [ $# -eq 0 ] && [ -t 0 ]; then
     message="$(</dev/stdin)"
 else
     message="$*"
 fi
 if [[ "$(uname -s)" =~ ^darwin ]]; then
   if [[ -f "$(command -v pbcopy)" ]]; then
-     echo "$message" | LC_CTYPE=UTF-8 tr -d "\n" | pbcopy
+     echo "$message" | LC_CTYPE=UTF-8 tr -d "\n" | pbcopy && exitCode=0 || exitCode=1
   fi
 elif [[ "$(uname -s)" =~ ^linux ]]; then
   if [[ -f "$(command -v xclip)" ]]; then
-    echo "$message" | xclip -i -sel c
+    echo "$message" | xclip -i -sel c && exitCode=0 || exitCode=1
   fi
 else
-  echo "$message" >>"${TMPDIR:-/tmp}/clipboard"
+  echo "$message" >>"${TMPDIR:-/tmp}/clipboard" && exitCode=0 || exitCode=1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $?
+exit ${exitCode:-$?}
 # end

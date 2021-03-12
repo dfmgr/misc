@@ -1,32 +1,43 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="delhistory"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : delhistory
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : remove last n records from history
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210628-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : delhistory --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 06:28 EST
+# @File          : delhistory
+# @Description   : remove last n records from history
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-delhistory() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help() {
+  printf_help "Usage delhistory Number  |  delhistory 10"
+}
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
     source "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage delhistory Number"
-
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   typeset opt id n=1
   OPTIND=1 #reset index
   while getopts "n:" opt; do
@@ -35,7 +46,7 @@ delhistory() {
     \?) exit 1 ;;
     :)
       printf_red "Option -$OPTARG requires number of history last entries to remove as an argument" >&2
-      exit 1
+      return 1
       ;;
     esac
   done
@@ -43,9 +54,12 @@ delhistory() {
   ((++n))
   id=$(history | tail -n $n | head -n1 | awk '{print $1}')
   while ((n-- > 0)); do history -d "$id"; done
+  return $?
 }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-delhistory "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

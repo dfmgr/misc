@@ -1,51 +1,66 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="checkup"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : checkup
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : check for updates on Arch
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210423-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : checkup --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 04:23 EST
+# @File          : checkup
+# @Description   : check for system updates
+# @TODO          : make compatible with all package managers
+# @Other         : used primarily by i3
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-checkup() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
-  else
-    echo -e "\t\tCouldn't source the functions file"
-    exit 1
-  fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: checkup    |   Check for pacman updates"
-
-  ping -q -c 1 1.1.1.1 >/dev/null || exit 1
-
-  if cmd_exists pacman; then
-    notifications "📦 Repository Sync" "Checking for package updates..."
-    sudo pacman -Syyuw --noconfirm || notifications "Error downloading updates."
-
-    #Check your internet connection, if pacman is already running, or run update manually to see errors."
-    if [ -n "${STATUSBAR}" ]; then pkill -RTMIN+8 "${STATUSBAR:?}"; fi
-
-    if pacman -Qu | grep -v "\[ignored\]"; then
-      notifications "🎁 Repository Sync" "Updates available."
-    else
-      notifications "📦 Repository Sync" "Sync complete. No new packages for update."
-    fi
-
-  fi
+__help() {
+  printf_help "Usage: checkup  |  Check for package updates"
 }
-
+checkup() {
+  local DIR="${SRC_DIR:-$PWD}"
+  if [[ -f "$DIR/functions.bash" ]]; then
+    . "$DIR/functions.bash"
+  else
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __pacman() { am_i_online && sudo pacman "$@" || return 1; }
+  if [ "$(command -v pacman)" ]; then
+    notifications "📦 Repository Sync" "Checking for package updates..."
+    if __pacman -Syyuw --noconfirm; then
+      if __pacman -Qu | grep -v "\[ignored\]"; then
+        notifications "🎁 Repository Sync" "Updates available."
+      else
+        notifications "📦 Repository Sync" "Sync complete. No new packages for update."
+      fi
+      local exitCode=0
+    else
+      notifications "Error downloading updates."
+      local exitCode=1
+    fi
+    [ -n "${STATUSBAR}" ] && pkill -RTMIN+8 "${STATUSBAR:?}"
+  else
+    local exitCode=1
+  fi
+  return "${exitCode:-$?}"
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
 checkup "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# end

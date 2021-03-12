@@ -1,47 +1,60 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="datauri"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : datauri
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : Create data URI from a file
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210622-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : datauri --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 06:22 EST
+# @File          : datauri
+# @Description   : Create data URI from a file
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-datauri() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help() {
+  printf_help "Usage: datauri fileName"
+}
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: datauri fileName"
-
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   typeset mimeType=""
   if [ -f "$1" ]; then
     mimeType=$(file -b --mime-type "$1")
     if [[ $mimeType == text/* ]]; then
       mimeType="$mimeType;charset=utf-8"
     fi
-    printf "data:%s;base64,%s" \
-      "$mimeType" \
-      "$(openssl base64 -in "$1" | tr -d "\n")"
+    printf "data:%s;base64,%s" "$mimeType" "$(openssl base64 -in "$1" | tr -d "\n")"
+    echo ""
   else
     printf "%s is not a file.\n" "$1"
+    return 1
   fi
 }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-datauri "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

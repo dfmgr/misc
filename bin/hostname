@@ -1,49 +1,59 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-APPNAME="$(basename $0)"
-USER="$USER"
-HOME="$HOME"
+PROG="hostname"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 021720212127-git
+##@Version       : 031120210730-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
 # @ReadME        : hostname --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Wednesday, Feb 17, 2021 21:43 EST
+# @Created       : Thursday, Mar 11, 2021 07:30 EST
 # @File          : hostname
 # @Description   : Set system hostname
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Check for needed applications
-mkdir -p ~/.cache/hostname
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set variables
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set functions
-printf_color() { printf "%b" "$(tput setaf "$1" 2>/dev/null)" "\t\t$2\n" "$(tput sgr0 2>/dev/null)"; }
-__help() { printf_color "4" "usage: hostname  |  print system hostname" && exit; }
-__hostname() {
-  local PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
-  if [ -f "$(command -v hostname 2>/dev/null)" ]; then
-    [ -f ~/.cache/hostname/name ] || command -p hostname "-f" > ~/.cache/hostname/name
-    [ -f ~/.cache/hostname/full ] || command -p hostname "-f" > ~/.cache/hostname/full
-    [ -f ~/.cache/hostname/short ] || command -p hostname "-s" > ~/.cache/hostname/short
-    command -p hostname "$@"
-  elif [ -f "$(command -v hostnamectl 2>/dev/null)" ]; then
-    shift $#
-    [ -f ~/.cache/hostname/name ] || command -p hostnamectl | grep 'hostname:' | awk '{print $3}' > ~/.cache/hostname/name
-    command -p hostnamectl | grep 'hostname:' | awk '{print $3}'
-  fi
+# Main function
+__help() {
+  printf_help "usage: hostname  |  print system hostname"
 }
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
+  if [[ -f "$DIR/functions.bash" ]]; then
+    . "$DIR/functions.bash"
+  else
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __hostname() {
+    local PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
+    if [ -f "$(command -v hostname 2>/dev/null)" ]; then
+      [ -f ~/.cache/hostname/name ] || command -p hostname "-f" > ~/.cache/hostname/name
+      [ -f ~/.cache/hostname/full ] || command -p hostname "-f" > ~/.cache/hostname/full
+      [ -f ~/.cache/hostname/short ] || command -p hostname "-s" > ~/.cache/hostname/short
+      command -p hostname "$@"
+    elif [ -f "$(command -v hostnamectl 2>/dev/null)" ]; then
+      shift $#
+      [ -f ~/.cache/hostname/name ] || command -p hostnamectl | grep 'hostname:' | awk '{print $3}' > ~/.cache/hostname/name
+      command -p hostnamectl | grep 'hostname:' | awk '{print $3}'
+    fi
+  }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set additional variables
+mkdir -p "$HOME/.cache/hostname" &>/dev/null
 if [ -f /etc/hostname ]; then hostname="$(</etc/hostname)"
 elif [ -f ~/.cache/hostname/name ]; then hostname="$(<~/.cache/hostname/name)";
 else hostname=""; fi
@@ -71,6 +81,10 @@ case "$1" in
   [ -n "$hostname" ] && echo $hostname || __hostname "$@"
   ;;
 esac
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

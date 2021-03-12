@@ -1,33 +1,44 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="ppi"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : ppi
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : Process phone images
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211205-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : ppi --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 12:05 EST
+# @File          : ppi
+# @Description   : Process phone images.
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-ppi() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help() {
+  printf_help "Usage: ppi pathtoFile"
+}
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: ppi pathtoFile"
-
-  cmd_exists convert || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  reqpack=imagemagick cmd_exists --error convert || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   typeset query="${1:-*.jpg}"
   typeset geometry="${2:-50%}"
   for i in "$query"; do
@@ -48,14 +59,14 @@ ppi() {
       -gravity center \
       -resize "$geometry" \
       +append \
-      "$imgName" &&
-      printf "* %s (%s)\n" \
-        "$imgName" \
-        "$geometry"
-  done
+      "$imgName" && printf "* %s (%s)\n"  "$imgName" "$geometry" || return 1
+      done && exitCode+=0 || exitCode=1
+  return ${exitCode:-$?}
 }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-ppi "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

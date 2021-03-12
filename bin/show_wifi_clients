@@ -1,49 +1,72 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="show_wifi_clients"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : show_wifi_clients
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : shows connected stations in hotspot mode
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211747-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : show_wifi_clients --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 17:47 EST
+# @File          : show_wifi_clients
+# @Description   : shows connected stations in hotspot mode
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-show_wifi_clients() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help() {
+  printf_help "shows connected stations in hotspot mode"
+}
+main() {
+  local DIR="${BASH_SOURCE%/*}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "shows connected stations in hotspot mode"
-
-  printf_green "# All connected wifi devices, with IP address,"
-  printf_green "# hostname (if available), and MAC address."
-  printf_red "# %-20s %-30s %-20s" "IP address" "lease name" "MAC address"
-  leasefile=/var/lib/misc/dnsmasq.leases
-  for interface in $(iw dev | grep Interface | cut -f 2 -s -d" "); do
-    maclist=$(iw dev $interface station dump | grep Station | cut -f 2 -s -d" ")
-    for mac in $maclist; do
-      ip="UNKN"
-      host=""
-      ip=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 2 -s -d" ")
-      host=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 3 -s -d" ")
-      printf "%-20s %-30s %-20s" $ip $host $mac
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && printf_help "shows connected stations in hotspot mode"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ -f "/etc/dnsmasq.conf" ]; then
+    leasefileconf="$(grep 'dhcp-leasefile=' /etc/dnsmasq.conf | sed 's/#//g;s#dhcp-leasefile=##g' | grep '^' || return 1)"
+  fi
+  leasefile="${leasefileconf:-/var/lib/misc/dnsmasq.leases}"
+  dnsmasqbin="$(command -v dnsmasq 2>/dev/null)"
+  if [ -f "$leasefile" ] && [ -f "$dnsmasqbin" ]; then
+    printf_green "# All connected wifi devices, with IP address,"
+    printf_green "# hostname (if available), and MAC address."
+    for interface in $(iw dev | grep Interface | cut -f 2 -s -d" "); do
+      maclist=$(iw dev $interface station dump | grep Station | cut -f 2 -s -d" ")
+      for mac in $maclist; do
+        ip="UNKN"
+        host=""
+        ip=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 2 -s -d" ")
+        host=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 3 -s -d" ")
+        printf "%-20s %-30s %-20s" $ip $host $mac | printf_readline "5"
+      done
     done
-  done
+  else
+    printf_red "Make sure dnsmasq is installed and running!"
+    return 1
+  fi
+  return $?
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-show_wifi_clients "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

@@ -1,48 +1,85 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# Feed script a url or file location.
-# If an image, it will view in sxiv,
-# if a video or gif, it will view in mpv
-# if a music file or pdf, it will download,
-# otherwise it opens link in browser.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="linkhandler"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
-# If no url given. Opens browser. For using script as $BROWSER.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210756-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : linkhandler --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 07:56 EST
+# @File          : linkhandler
+# @Description   : Feed script a url or file location.
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+cmd_exists --error setsid || exit 1
+# Main function
+__help() {
+  printf_help "Usage: linkhander pathtofile or url"
+}
 main() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: linkhander pathtofile or url"
-
-  [ -z "$1" ] && {
-    "$BROWSER"
-    exit
-  }
-
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ -z "$1" ] && { "$BROWSER" && exit; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case "$1" in
   *mkv | *webm | *mp4 | *youtube.com/watch* | *youtube.com/playlist* | *youtu.be* | *hooktube.com* | *bitchute.com*)
-    setsid mpv --input-ipc-server=/tmp/mpvsoc$(date +%s) -quiet "$1" >/dev/null 2>&1 &
+    if [ -f "$(command -v mpv)" ]; then
+      setsid mpv --input-ipc-server=/tmp/mpvsoc$(date +%s) -quiet "$1" &>/dev/null && return 0 || return 1 &
+    else
+      return 1
+    fi
     ;;
   *png | *jpg | *jpe | *jpeg | *gif)
-    curl -sL "$1" >"/tmp/$(echo "$1" | sed "s/.*\///")" && sxiv -a "/tmp/$(echo "$1" | sed "s/.*\///")" >/dev/null 2>&1 &
+    if [ -f "$(command -v sxiv)" ]; then
+      curl -sL "$1" >"/tmp/$(echo "$1" | sed "s/.*\///")" && sxiv -a "/tmp/$(echo "$1" | sed "s/.*\///")" &>/dev/null && return 0 || return 1 &
+    else
+      return 1
+    fi
     ;;
   *mp3 | *flac | *opus | *mp3?source*)
-    setsid tsp curl -LO "$1" >/dev/null 2>&1 &
+    if [ -f "$(command -v tsp)" ]; then
+      setsid tsp curl -LO "$1" &>/dev/null && return 0 || return 1 &
+    elif [ -f "$(command -v deadbeef)" ]; then
+      setsid deadbeef "$1"  &>/dev/null && return 0 || return 1 &
+    else
+      return 1
+    fi
+    ;;
+  *htm*)
+    setsid "$BROWSER" "$1" &>/dev/null && return 0 || return 1 &
     ;;
   *)
     if [ -f "$1" ]; then
-      "$TERMINAL" -e "$EDITOR $1"
+      "$TERMINAL" -e "$EDITOR $1" &>/dev/null && return 0 || return 1 &
     else
-      setsid "$BROWSER" "$1" >/dev/null 2>&1 &
+      setsid "$BROWSER" "$1" &>/dev/null && return 0 || return 1 &
     fi
     ;;
   esac
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

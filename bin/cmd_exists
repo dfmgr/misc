@@ -1,37 +1,66 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="cmd_exists"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : cmd_exists
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : check if a script exists
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210447-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : cmd_exists --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 04:47 EST
+# @File          : cmd_exists
+# @Description   : check if a script exists
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-if [ ! -f "$(command -v cmd_exists 2>/dev/null)" ]; then
-  cmd_exists() {
-    DIR="${BASH_SOURCE%/*}"
-    if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
-    if [[ -f "$DIR/functions.bash" ]]; then
-      source "$DIR/functions.bash"
-    else
-      echo -e "\t\tCouldn't source the functions file"
-      exit 1
-    fi
-
-    [ ! "$1" = "--help" ] || printf_help "Usage: cmd_exists cmd"
-
-    command -v "$1" &>/dev/null
-  }
-
+__help() {
+  printf_help "Usage: cmd_exists cmd  |  cmd_exists bash fish zsh"
+}
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
+  if [[ -f "$DIR/functions.bash" ]]; then
+    . "$DIR/functions.bash"
+  else
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
+  fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # execute function
-  cmd_exists "$@"
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  case "$1" in
+    *err*) local error=show && shift 1;;
+  esac
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local exitCode=0
+  local missing=""
+  for f in "$@"; do
+    if [ -f "$(command -v "$f")" ]; then
+      exitCode+=0
+    else
+      missing="$f "
+      exitCode+=1
+    fi
+  done
+  if [ "$error" = "show" ] && [ -n "$missing" ]; then
+    printf_red "Missing: $missing"
+    exitCode="1"
+  fi
+  return "${exitCode:-$?}"
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-fi
+# execute function
+main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# end

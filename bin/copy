@@ -1,43 +1,61 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="copy"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : copy
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : copies a file and shows progress
-#
+#set opts
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210522-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : copy --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 05:22 EST
+# @File          : copy
+# @Description   : copies a file and shows progress
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+cmd_exists --err dd || exit 1
 # Main function
-
-copy() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help() {
+  printf_help "Usage: copy source destination  |  copy file1 file2"
+}
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: copy /source/file /destination/file"
-
-  [[ -z "$1" || -z "$2" ]] && {
-    printf_red "Usage: copy /source/file /destination/file"
-    exit 1
-  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  [ -z "$1" ] || [ -z "$2" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  typeset src="$1"
   typeset dest="$2"
-  typeset size=$(stat -c%s "$1")
-  [[ -d "$dest" ]] && dest="$2/$(basename "$1")"
-  dd if="$1" 2>/dev/null | pv -petrb -s "$size" | dd of="$dest"
+  typeset size=$(stat -c%s "$src")
+  [[ -d "$dest" ]] && dest="$dest/$(basename "$src")"
+  if [ -f "$(command -v pv)" ]; then
+    dd if="$src" 2>/dev/null | pv -petrb -s "$size" 2>/dev/null | dd of="$dest" 2>/dev/null
+  else
+    dd if="$src" of="$dest" status=progress 2>/dev/null
+  fi
+  return $?
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-copy "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

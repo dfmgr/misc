@@ -1,47 +1,52 @@
 #!/usr/bin/env bash
 
-SCRIPTNAME="$(basename $0)"
-SCRIPTDIR="$(dirname "${BASH_SOURCE[0]}")"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="check-for-updates.sh"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : check-for-updates
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : check for package updates
-#
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211916-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : check-for-updates.sh --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 19:16 EST
+# @File          : check-for-updates.sh
+# @Description   : check for package updates
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+__help() {
+  printf_help "check-for-updates.sh  |  check for package updates"
+}
 main() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "check-for-updates.sh    |    update checker for arch based systems"
-
-  if [ -e "/usr/local/bin/dmenupass" ]; then
-    SUDO_ASKPASS="/usr/local/bin/dmenupass}"
-  fi
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  updatemess="You have updates available \nWould you like to update now?"
-  xmessageopts="-nearmouse -timeout 10 -geometry 500x200 -center"
-
+  [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+  [ -f "$(command -v dmenupass)" ] && SUDO_ASKPASS="/usr/local/bin/dmenupass"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -d "$HOME/.local/tmp" ] || mkdir -p "$HOME/.local/tmp"
   [ -f "$HOME/.local/tmp/update_check" ] || rm -Rf "$HOME/.local/tmp/update_check"
-
-  # run
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local updatemess="You have updates available \nWould you like to update now?"
+  local xmessageopts="-nearmouse -timeout 10 -geometry 500x200 -center"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if am_i_online; then
   #Arch update check
   if [ -f /usr/bin/pacman ]; then
     if ! updates_arch=$(pacman -Qu 2>/dev/null | wc -l); then
@@ -55,7 +60,6 @@ main() {
   #        fi
   #    fi
   #    updates=$(("$updates_arch" + "$updates_aur"))
-
   #Debian update check
   elif [ -f /usr/bin/apt ]; then
     if ! updates=$(sudo apt-get update >/dev/null && apt-get --just-print upgrade | grep "Inst " | wc -l); then
@@ -72,7 +76,9 @@ main() {
       updates=0
     fi
   fi
-
+else
+  updates=0
+fi
   if [[ $updates -gt 0 ]]; then
     echo " $updates"
   else
@@ -80,36 +86,28 @@ main() {
     rm -Rf "$HOME/.local/tmp/update_check"
     exit 0
   fi
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  #if [ ! -f $HOME/.cache/update_nag ] && [ ! -z $DISPLAY ]; then
-  #DISPLAY=$DISPLAY xmessage -buttons Yes:0,No:1 -default Yes $xmessageopts --title "You have updates" "$updatemess" && \
-  #sleep 20 && #pkmgr silent-update && \
-  #DISPLAY=$DISPLAY xmessage -buttons OK:0 -default Ok $xmessageopts --title "Done updating" "Update completed successfully" && \
-  #sleep 20
-  #DISPLAY=$DISPLAY xmessage -buttons Yes:0,No:1 -default Yes $xmessageopts --title "message" "Show this again?" && \
-  #sleep 20 ; ret=$? ; if [ "$ret" -ne 0 ]; then touch $HOME/.cache/update_nag ; fi
+  #if [ ! -f $HOME/.cache/update_nag ] && [ -n $DISPLAY ]; then
+    #DISPLAY=$DISPLAY xmessage -buttons Yes:0,No:1 -default Yes $xmessageopts --title "You have updates" "$updatemess" && \
+      #sleep 20 && #pkmgr silent-update && \
+      #DISPLAY=$DISPLAY xmessage -buttons OK:0 -default Ok $xmessageopts --title "Done updating" "Update completed successfully" && \
+      #sleep 20
+      #DISPLAY=$DISPLAY xmessage -buttons Yes:0,No:1 -default Yes $xmessageopts --title "message" "Show this again?" && \
+      #sleep 20 ; ret=$? ; if [ "$ret" -ne 0 ]; then touch $HOME/.cache/update_nag ; fi
   #fi
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   if [[ $updates -gt 0 ]]; then
-    if [ -f /usr/local/bin/notifications ]; then
-      #      while : ; do
+    if [ -f "$(command -v notifications)" ]; then
       if [ ! -f "$HOME/.local/tmp/update_check" ]; then
         echo "$updates" >"$HOME/.local/tmp/update_check"
         /usr/local/bin/notifications "System Updates:" "You have $updates update[s] avaliable"
       fi
-      #         [ ! -f $HOME/.cache/updates-disabled ] || break
-      #         sleep 600
-      #     done &> /dev/null &
     fi
   fi
 }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
 main "$@"
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

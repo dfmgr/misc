@@ -1,36 +1,63 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="qh"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : qh
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : Search through history
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211525-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : qh --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 15:25 EST
+# @File          : qh
+# @Description   : Search through history
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-qh() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
-  else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
-  fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: qh searchPattern"
-
-  grep --color=always "$*" "$HISTFILE" | less -RX
+__help() {
+  printf_help "Usage: qh searchPattern  |  qh ls"
 }
-
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
+  if [[ -f "$DIR/functions.bash" ]]; then
+    . "$DIR/functions.bash"
+  else
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local LESS_TERMCAP_mb=$'\e[1;32m'
+  local LESS_TERMCAP_md=$'\e[1;32m'
+  local LESS_TERMCAP_me=$'\e[0m'
+  local LESS_TERMCAP_se=$'\e[0m'
+  local LESS_TERMCAP_so=$'\e[01;33m'
+  local LESS_TERMCAP_ue=$'\e[0m'
+  local LESS_TERMCAP_us=$'\e[1;4;31m'
+  local HISTFILE="${HISTFILE:-$HOME/.bash_history}"
+  local SEARCH="$(grep --color=always "$*" "$HISTFILE" | grep '^' || return 1)"
+  if [ -f "$HISTFILE" ] && [ -n "$SEARCH" ]; then
+    echo "$SEARCH" | less -RX
+  else
+    printf_red "No results for $* found"
+    return 1
+  fi
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-qh "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

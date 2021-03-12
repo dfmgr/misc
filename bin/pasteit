@@ -1,37 +1,43 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="pasteit"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : pasteit
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : Post to a Stikked pastebin
-# @Source      : https://github.com/glensc/pbin
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211139-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : pasteit --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 11:39 EST
+# @File          : pasteit
+# @Description   : Post to a Stikked pastebin
+# @TODO          :
+# @Other         :
+# @Resource      : https://github.com/glensc/pbin
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
-
+__help() {
+  printf_help "Pastes from STDIN or file from commandline argument to Stikked pastebin"
+}
 main() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-  [ "$1" = "--help " ] && printf_exit "Pastes from STDIN or file from commandline argument to Stikked pastebin"
-
+  [ "$1" = "--help " ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   set -e
   PROGRAM=${0##*/}
 

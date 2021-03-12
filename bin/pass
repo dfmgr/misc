@@ -1,20 +1,43 @@
 #!/usr/bin/env bash
 
-# Copyright (C) 2012 - 2018 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
-# This file is licensed under the GPLv2+. Please see COPYING for more information.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="pass"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211934-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : pass --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 19:34 EST
+# @File          : pass
+# @Description   : Pass is a password manager written in bash
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+__help() {
+  printf_help "Usage: pass"
+}
 main() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: pass"
-
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && printf_help "Usage: pass"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   umask "${PASSWORD_STORE_UMASK:-077}"
   set -o pipefail
 
@@ -191,7 +214,7 @@ main() {
     pkill -f "^$sleep_argv0" 2>/dev/null && sleep 0.5
     local before="$("${paste_cmd[@]}" 2>/dev/null | $BASE64)"
     echo -n "$1" | "${copy_cmd[@]}" || die "Error: Could not copy data to the clipboard"
-    ( 
+    (
       (exec -a "$sleep_argv0" bash <<<"trap 'kill %1' TERM; sleep '$CLIP_TIME' & wait")
       local now="$("${paste_cmd[@]}" | $BASE64)"
       [[ $now != $(echo -n "$1" | $BASE64) ]] && before="$now"
@@ -838,5 +861,9 @@ main() {
   esac
   exit 0
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

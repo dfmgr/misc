@@ -1,59 +1,60 @@
 #!/usr/bin/env bash
 
-SCRIPTNAME="$(basename $0)"
-SCRIPTDIR="$(dirname "${BASH_SOURCE[0]}")"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="weather.sh"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : weather.sh
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : weather tool for conky
-#
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211842-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : weather.sh --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 18:42 EST
+# @File          : weather.sh
+# @Description   : weather tool for conky
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set functions
-
-DIR="${BASH_SOURCE%/*}"
-if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help() {
+    printf_custom 4 "USAGE: weather.sh <options> <locationcode>"
+    printf_custom 4 "See curl http://wttr.in/:help?A for all options"
+    printf_help "IE: weather.sh Au0 mian"
+}
+main() {
+local DIR="${SRC_DIR:-$PWD}"
 if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
 else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
 fi
-
-[ ! "$1" = "--help" ] || printf_help "Usage: weather.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-# Specify langauge
-LANG="$(echo $LANG | sed 's#_.*##g')"
-
-# Should be u for f or m for c
-METRIC="u"
-
-# Options - curl http://wttr.in/:help?A
-[ ! -z "$1" ] && OPTS="$1" || OPTS="A$METRIC"
-
-# Location ID
-[ ! -z "$2" ] && LOC="$2" || LOC="${MYLOCATIONID:-alb}"
-
+[ "$1" = "--help" ] && __help
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-if [ "$1" = "--help" ]; then
-    printf_green "USAGE: weather.sh <options> <locationcode>"
-    printf_green "See curl http://wttr.in/:help?A for all options"
-    printf_green "IE: weather.sh Au0 mian"
-    exit 0
-fi
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+local LANG="$(echo $LANG | sed 's#_.*##g')"
+local METRIC="u"
+[ -n "$1" ] && OPTS="$1" || OPTS="A$METRIC"
+[ -n "$2" ] && LOC="$2" || LOC="${MYLOCATIONID:-alb}"
+if am_i_online; then
 curl -H "Accept-Language: $LANG" -Ls "http://wttr.in/$LOC?$OPTS" | sed -n '3,7{s/\d27\[[0-9;]*m//g;s/^..//;s/ *$//;p}'
 curl -H "Accept-Language: $LANG" -Ls "http://wttr.in/$LOC?$OPTS" | grep "Weather report"
-
+else
+    echo "Weather report unavailable"
+    return 1
+fi
+return $?
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
 # end

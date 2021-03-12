@@ -1,47 +1,65 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="mkd"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : mkd
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : Create new directories and enter the first one
-#
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211101-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : mkd --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 11:01 EST
+# @File          : mkd
+# @Description   : create directory and cd into it
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-mkd() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help() {
+  printf_help "Usage: mkd directorytoCreate"
+}
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  CREATE="$1"
-  __help() { printf_help "Usage: mkd directorytoCreate"; }
-  [ ! "$1" = "--help" ] || __help
-  if [ $# -ne 1 ]; then __help; fi
-
-  typeset dir="$CREATE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  [ $# -ne 1 ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local CREATE="$1"
+  __cd() { cd "$1" && bash || return 1; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -n "$CREATE" ]; then
-    printf_green "Creating $CREATE and entering the directory"
-    mkdir -p "$CREATE"
-    printf_green "Type exit to return to your previous directory"
-    cd "$CREATE" && bash || return 1
+    if mkdir -p "$CREATE" &>/dev/null; then
+      printf_green "Creating $CREATE and entering the directory"
+      printf_green "Type exit to return to your previous directory" && __cd "$CREATE" && exitCode=0 || exitCode=1
+    else
+      printf_red "Failed to create $CREATE"
+      exitCode=1
+    fi
   else
     printf_red "Usage: mkd folder"
+    exitCode=1
   fi
+  return ${exitCode:-$?}
 }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-mkd "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

@@ -1,38 +1,61 @@
 #!/usr/bin/env bash
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="putclip"
+PROG="printclip"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031120210233-git
+##@Version       : 031120211213-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
-# @ReadME        : putclip --help
+# @ReadME        : printclip --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 11, 2021 02:33 EST
-# @File          : putclip
-# @Description   : copy input to clipboard
+# @Created       : Thursday, Mar 11, 2021 12:13 EST
+# @File          : printclip
+# @Description   : paste clipboard.
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [[ "$(uname -s)" =~ ^darwin ]]; then
-  if [[ -f "$(command -v pbpaste)" ]]; then
-    LC_CTYPE=UTF-8 tr -d "\n" | pbpaste
+# Main function
+__help() {
+  printf_help "Usage: printclip"
+}
+main() {
+    local DIR="${SRC_DIR:-$PWD}"
+  if [[ -f "$DIR/functions.bash" ]]; then
+    . "$DIR/functions.bash"
+  else
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-elif [[ "$(uname -s)" =~ ^linux ]]; then
-  if [[ -f "$(command -v xclip)" ]]; then
-    xclip -o -s
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [[ "$(uname -s)" = Darwin ]]; then
+    if [[ -f "$(command -v pbpaste)" ]]; then
+      LC_CTYPE=UTF-8 tr -d "\n" | pbpaste
+    else
+      return 1
+    fi
+  elif [[ "$(uname -s)" =~ Linux ]]; then
+    if [[ -f "$(command -v xclip)" ]]; then
+      xclip -o -s
+    else
+      return 1
+    fi
+  else
+    [ -f "${TMPDIR:-/tmp}/clipboard" ] && tail -n 1 "${TMPDIR:-/tmp}/clipboard"
   fi
-else
-  [ -f "${TMPDIR:-/tmp}/clipboard" ] && tail -n 1 "${TMPDIR:-/tmp}/clipboard"
-fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # end

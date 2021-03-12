@@ -4,18 +4,19 @@
 PROG="rmd"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 030920212042-git
+##@Version       : 031120211651-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
 # @ReadME        : rmd --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Tuesday, Mar 09, 2021 20:42 EST
+# @Created       : Thursday, Mar 11, 2021 16:51 EST
 # @File          : rmd
 # @Description   : remove files and directories recursively
 # @TODO          :
@@ -23,19 +24,23 @@ HOME="${USER_HOME:-${HOME}}"
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
-
-rmd() {
-  local DIR=${BASH_SOURCE%/*}
+__help(){
+  printf_help "Usage: rmd dir/file | delete a file or directory"
+}
+main() {
+  local DIR="${SRC_DIR:-$PWD}"
   if [ -f "$DIR/functions.bash" ]; then
     . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ ! "$1" = "--help" ] || printf_help "Usage: rmd File or Directory to delete"
-
-  local files delete_dir delete_file delete_error_file
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __rm_file() { rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local files delete_dir delete_file delete_error_file exitCode
   if [ $# -ne 0 ]; then
     local files="$@"
     for file in $files; do
@@ -47,22 +52,26 @@ rmd() {
       if [ -n "$file" ]; then
         if [ -d "$file" ]; then
           printf_green "Deleting folder and all files within: $file"
-          rm -Rf "$file" &>/dev/null
+          __rm_file "$file"
         elif [ -e "$file" ]; then
           printf_green "Deleting the file: $file"
-          rm -Rf "$file" &>/dev/null
+          __rm_file "$file" &>/dev/null
         else
           printf_red "Failed to delete non-existant file/folder: $file"
+          local exitCode=1
         fi
       fi
     done
   else
     printf_red "Must provide path to file or folder for deletion"
+    return 1
   fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-rmd "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

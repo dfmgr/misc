@@ -1,14 +1,48 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
-# This is bound to Shift+PrintScreen by default, requires maim. It lets you
-# choose the kind of screenshot to take, including copying the image or even
-# highlighting an area to copy. scrotcucks on suicidewatch right now.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="maimpick"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211036-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : maimpick --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 10:36 EST
+# @File          : maimpick
+# @Description   : screenshot utility using maim
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+cmd_exists --error maim || exit 1
+__help() {
+  printf_help "Usage: maim     |    screenshot utility"
+}
 main() {
-  [ ! "$1" = "--help" ] || printf_help "Usage: maim     |    screenshot utility"
-
-  pkmgr ask maim || exit 1
-
+  local DIR="${SRC_DIR:-$PWD}"
+  if [[ -f "$DIR/functions.bash" ]]; then
+    source "$DIR/functions.bash"
+  else
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local IMAGE_DIR="$HOME/Pictures/maim"
+  local IMG="$IMAGE_DIR/$(date '+%y%m%d-%H%M-%S').png"
+  mkdir -p "$IMAGE_DIR" &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case "$(printf "a selected area\\ncurrent window\\nfull screen\\na selected area (copy)\\ncurrent window (copy)\\nfull screen (copy)" | dmenu -l 6 -i -p "Screenshot which area?")" in
   "a selected area") maim -s pic-selected-"$(date '+%y%m%d-%H%M-%S').png" ;;
   "current window") maim -i "$(xdotool getactivewindow)" pic-window-"$(date '+%y%m%d-%H%M-%S').png" ;;
@@ -16,7 +50,12 @@ main() {
   "a selected area (copy)") maim -s | xclip -selection clipboard -t image/png ;;
   "current window (copy)") maim -i "$(xdotool getactivewindow)" | xclip -selection clipboard -t image/png ;;
   "full screen (copy)") maim | xclip -selection clipboard -t image/png ;;
-  esac
+esac
+return $?
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

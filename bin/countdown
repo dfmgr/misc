@@ -1,44 +1,65 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="countdown"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : timer
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : shows up/down seconds counter. Exits and produces a sound if reaches zero
-#
+#set opts
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120210605-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : countdown --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 06:05 EST
+# @File          : countdown
+# @Description   : shows up/down seconds counter. Exits and produces a sound if reaches zero
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+cmd_exists --error showbanner || exit 1
 # Main function
-
+__help() {
+  printf_help "Usage: countdown howLong  |  countdown 300"
+}
 timer() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+  local DIR="${SRC_DIR:-$PWD}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "Usage: timer howLong"
-
-  typeset ts="$(($(date +%s) + ${1:-0} - 1))"
-  export ts
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local d="$1"
+  typeset ts="$(($(date +%s) + ${1:-0} - 1))"; export ts
   typeset p1="d=$(($(date +%s) - $ts));[ $d -lt 0 ] && d=$((-d));"
   typeset p2="[ $d -eq 0 ] && exit 1;"
   typeset p3="date -u -d @"$d" +"%H.%M.%S""
   showbanner -t.5 "$p1$p2$p3"
   typeset status="$?"
   eval "$p1$p3"
-  [[ "$status" -eq 8 ]] && speaker-test -t sine -f 1500 -S 70 -p 10000 -l 1 &>/dev/null
+  if [[ "$status" -eq 8 ]]; then
+    notifications "Timer" "Your timer has gone off"
+    if [[ -f "$(command -v speaker-test)" ]]; then
+      speaker-test -t sine -f 1500 -S 70 -p 10000 -l 1 &>/dev/null
+    elif [[ -f "$(command -v say)" ]]; then
+      say "Your timer is going off"
+    fi
+  fi
 }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
 timer "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

@@ -1,40 +1,70 @@
 #!/usr/bin/env bash
 
-APPNAME="$(basename $0)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="_muttsync"
 USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# @Author      : Jason
-# @Contact     : casjaysdev@casjay.net
-# @File        : _muttsync
-# @Created     : Mon, Dec 31, 2019, 00:00 EST
-# @License     : WTFPL
-# @Copyright   : Copyright (c) CasjaysDev
-# @Description : sync your email with mutt
-#
+#set opts
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031120211137-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : _muttsync --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 11:37 EST
+# @File          : _muttsync
+# @Description   :
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# check for required
+cmd_exists --error mbsync || exit 1
 # Main function
-
-__muttsync() {
-  DIR="${BASH_SOURCE%/*}"
-  if [[ ! -d "$DIR" ]]; then DIR="$PWD"; fi
+__help(){
+  printf_help "_muttsync    |    sync your email with mutt"
+}
+main() {
+  local DIR="${BASH_SOURCE%/*}"
   if [[ -f "$DIR/functions.bash" ]]; then
-    source "$DIR/functions.bash"
+    . "$DIR/functions.bash"
   else
-    echo "\t\tCouldn't source the functions file"
-    exit 1
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
   fi
-
-  [ ! "$1" = "--help" ] || printf_help "_muttsync    |    sync your email with mutt"
-
-  if cmd_exists mbsync; then
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  notify() { [ -f "$(command -v notifications 2>/dev/null)" ] && notifications "$@" || return 1; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ "$1" = "--help" ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if am_i_online; then
     printf_green "Syncing Mailboxes with mbsync"
-    /usr/bin/mbsync -a >/dev/null 2>&1 ||
+    notify "Mail" "Syncing Mailboxes with mbsync"
+    if /usr/bin/mbsync -a >/dev/null 2>&1; then
+      printf_green "mail has been synced"
+      notify "mbsync" "mail has been synced"
+      return 0
+    else
       printf_red "Mail Sync Failed"
+      notify "mbsync" "Mail Sync Failed"
+      return 1
+    fi
+  else
+    printf_red "Mail Sync Failed"
+    notify "mbsync" "Mail Sync Failed"
+    return 1
   fi
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-__muttsync "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end
