@@ -18,7 +18,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 17:44 EST
 # @File          : showclip
-# @Description   : Show clipboard
+# @Description   : Show clipboard contents
 # @TODO          :
 # @Other         :
 # @Resource      :
@@ -26,7 +26,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: showclip | show clipboard contents"
+  app_help "Usage: showclip"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi

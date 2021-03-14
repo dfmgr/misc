@@ -26,7 +26,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "lso filename  |  adds files permissons in binary form to the ls command output"
+  app_help "Usage: lso filename"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi

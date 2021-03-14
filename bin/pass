@@ -26,7 +26,19 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: pass"
+  app_help "Usage: pass" \
+    "usage     - full help" \
+    "init      - initialize pass" \
+    "git       - init the git functionality" \
+    "list      - list passwords" \
+    "search    - search for password" \
+    "add       - add a password" \
+    "edit      - edit a password" \
+    "generate  - generate a new password" \
+    "delete    - delete a password file" \
+    "rename    - rename a password file" \
+    "move      - move a password file" \
+    "copy      - copy a password file"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -38,7 +50,7 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && printf_help "Usage: pass"
+  [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   umask "${PASSWORD_STORE_UMASK:-077}"
   set -o pipefail
@@ -811,7 +823,7 @@ main() {
     shift
     cmd_init "$@"
     ;;
-  help | --help)
+  usage | --usage)
     shift
     cmd_usage "$@"
     ;;

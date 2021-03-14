@@ -26,9 +26,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: putclip text  |  putclip 'my text'"
+  app_help "Usage: putclip text" \
+    "putclip 'my text'"
 }
-if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
+if [ -f "$SRC_DIR/functions.bash" ]; then DIR="$SRC_DIR"; else DIR="$HOME/.local/bin"; fi
 if [[ -f "$DIR/functions.bash" ]]; then
   . "$DIR/functions.bash"
 else
@@ -39,18 +40,18 @@ fi
   [ "$1" = "--version" ] && __version
 [ "$1" = "--help" ] && __help
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [ $# -eq 0 ] && [ -t 0 ]; then
+if [ $# -eq 0 ] && [ ! -t 0 ]; then
   message="$(</dev/stdin)"
 else
   message="$*"
 fi
-if [[ "$(uname -s)" =~ ^darwin ]]; then
-  if [[ -f "$(command -v pbcopy)" ]]; then
+if [ "$(uname -s)" = Darwin ]; then
+  if [ -f "$(command -v pbcopy)" ]; then
     echo "$message" | LC_CTYPE=UTF-8 tr -d "\n" | pbcopy && exitCode=0 || exitCode=1
   fi
-elif [[ "$(uname -s)" =~ ^linux ]]; then
-  if [[ -f "$(command -v xclip)" ]]; then
-    echo "$message" | xclip -i -sel c && exitCode=0 || exitCode=1
+elif [ "$(uname -s)" = Linux ]; then
+  if [ -f "$(command -v xclip)" ]; then
+    echo "$message" | xclip -i && exitCode=0 || exitCode=1
   fi
 else
   echo "$message" >>"${TMPDIR:-/tmp}/clipboard" && exitCode=0 || exitCode=1

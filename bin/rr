@@ -18,7 +18,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 16:59 EST
 # @File          : rr
-# @Description   : terminal rickroll
+# @Description   : Get rickrolled in the terminal
 # @TODO          :
 # @Other         :
 # @Resource      :
@@ -26,7 +26,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: rr | get rickrolled in the terminal"
+  app_help "Usage: rr"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi

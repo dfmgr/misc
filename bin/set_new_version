@@ -26,7 +26,8 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: set_new_version dir  |  set_new_version ~/Projects/github"
+  app_help "Usage: set_new_version dir" \
+    "set_new_version ./bin"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -41,10 +42,15 @@ main() {
   [ "$1" = "--help" ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local search_dir="${1:-$PWD}"
-  local setver="$(date +"%m%d%Y%H%M-git")"
-  printf_green "Changing the version to $setver in $search_dir"
-  find -L "$search_dir" -type f,l -exec sed -i --follow-symlinks 's/^##@Version.*/##@Version       : '$setver'/g' {} \; 2>/dev/null
-  return $?
+  if [ -e "$search_dir" ]; then
+    local setver="$(date +"%m%d%Y%H%M-git")"
+    printf_green "Changing the version to $setver in $search_dir"
+    find -L "$search_dir" -type f,l -exec sed -i --follow-symlinks 's/^##@Version.*/##@Version       : '$setver'/g' {} \; 2>/dev/null
+  else
+    printf_red "$search_dir doesn't exist"
+    exitCode=1
+  fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"

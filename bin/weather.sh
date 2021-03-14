@@ -26,7 +26,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Set functions
 __version() { app_version; }
 __help() {
-  app_help "USAGE: weather.sh <options> <locationcode>" \
+  app_help "Usage: weather.sh <options> <locationcode>" \
     "See curl http://wttr.in/:help?A for all options" \
     "IE: weather.sh Au0 mian"
 }

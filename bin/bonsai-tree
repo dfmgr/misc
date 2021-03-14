@@ -1,31 +1,66 @@
 #!/usr/bin/env bash
 
-# I'm a bonsai-making machine!
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="bonsai-tree"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
 
-#################################################
-##
-# author: John Allbritten
-# my website: theSynAck.com
-#
-# repo: https://gitlab.com/jallbrit
-#  script can be found in the bin/bin/fun folder.
-#
-# license: this script is published under GPLv3.
-#  I don't care what you do with it, but I do ask
-#  that you leave this message please!
-#
-# inspiration: http://andai.tv/bonsai/
-#  andai's version was written in JS and served
-#  as the basis for this script. Originally, this
-#  was just a port.
-##
-# https://gitlab.com/jallbrit/bonsai.sh.git
-# license : GNU GENERAL PUBLIC LICENSE
-# Version 3, 29 June 2007 
-#################################################
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031420210326-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : GPLv3
+# @ReadME        : bonsai-tree --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Sunday, Mar 14, 2021 03:26 EDT
+# @File          : bonsai-tree
+# @Description   : bonsai.sh is a static and live bonsai tree generator, written in bash.
+# @TODO          :
+# @Other         : Author: John Allbritten: theSynAck.com
+# @Resource      : https://gitlab.com/jallbrit/bonsai.sh.git
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [ -f "$SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
+else
+  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+  return 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# helper function
+__version() { app_version; }
+__help() {
+  app_help "Usage: bonsai-tree [-h] [-i] [-l] [-T] [-m message] [-t time] [-g x,y] [ -c char] [-M 0-9]" \
+		"-l, --live             enable live generation" \
+		"-t, --time time        time between each step of growth [default: 0.01]" \
+		"-m, --message text     attach a message to the tree" \
+		"-b, --basetype 0-2     which ascii-art plant base to use (0 for none) [default: 1]" \
+		"-i, --infinite         keep generating trees until quit (2s between each)" \
+	  "-T, --termcolors       use terminal colors" \
+		"-g, --geo geo          set custom geometry [default: fit to terminal]" \
+		" -c, --leaf char       character used for leaves [default: &]" \
+		"-M, --multiplier 0-9   branch multiplier; higher equals more branching [default: 5]" \
+		"-L, --life int         life of tree; higher equals more overall growth [default: 28]" \
+		"-h, --help             this message" \
+	  "--version              show version"
+}
 # ------ vars ------
 # CLI options
+case $1 in
+  -v | --version)
+    __version
+   ;;
+  -h | --help)
+    __help
+    ;;
+esac
 
 flag_h=false
 live=false
@@ -51,15 +86,15 @@ lineWidth=4	# words per line
 
 # ------ parse options ------
 
-OPTS="hlt:ig:c:Tm:b:M:L:"	# the colon means it requires a value
-LONGOPTS="help,live,time:,infinite,geo:,leaf:,termcolors,message:,base:,multiplier:,life:"
+OPTS="ult:ig:c:Tm:b:M:L:"	# the colon means it requires a value
+LONGOPTS="usage,live,time:,infinite,geo:,leaf:,termcolors,message:,base:,multiplier:,life:"
 
 parsed=$(getopt --options=$OPTS --longoptions=$LONGOPTS -- "$@")
 eval set -- "${parsed[@]}"
 
 while true; do
 	case "$1" in
-		-h|--help)
+		-u|--usage)
 			flag_h=true
 			shift
 			;;

@@ -37,26 +37,26 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  type() { builtin "$(echo type | tr \[:upper:] \[:lower:])" ${1+"$@"}; }
-  command() { builtin "$(echo command | tr \[:upper:] \[:lower:])" ${1+"$@"}; }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case "$1" in
-  *err*) local error=show && shift 1 ;;
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+    *show) local show=true && shift 1 ;;
+    *err*) local error=show && shift 1 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local exitCode=0
   local missing=""
   for f in "$@"; do
     if [ -f "$(command -v "$f" 2>/dev/null)" ] || [ -f "$(type -P "$f" 2>/dev/null)" ]; then
+      found+="$f "
       exitCode+=0
     else
       missing="$f "
       exitCode+=1
     fi
   done
+  [ "$show" = "true" ] && [ -n "$found" ] && printf_green "$found"
+  [ "$show" = "true" ] && [ -n "$found" ] && [ -n "$missing" ] && printf_red "$missing"
   if [ "$error" = "show" ] && [ -n "$missing" ]; then
     printf_red "Missing: $missing"
     exitCode="1"

@@ -21,6 +21,9 @@ SET_MINUTE="$(date +'%M')"
 SET_TIME="$(date +'%H:%M')"
 SET_DATE="$(date +'%Y-%m-%d')"
 
+command() { builtin command ${1+"$@"}; }
+type() { builtin type ${1+"$@"}; }
+
 printf_color() { printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"; }
 printf_normal() { printf_color "\t\t$1\n" "$2"; }
 printf_green() { printf_color "\t\t$1\n" 2; }
@@ -41,7 +44,7 @@ printf_error_stream() { while read -r line; do printf_error "↳ ERROR: $line"; 
 printf_execute_success() { printf_color "\t\t[ ✔ ] $1 [ ✔ ] \n" 2; }
 printf_execute_error() { printf_color "\t\t[ ✖ ] $1 $2 [ ✖ ] \n" 1; }
 printf_execute_error_stream() { while read -r line; do printf_execute_error "↳ ERROR: $line"; done; }
-printf_help() { app_help "$*"; }
+printf_help() { printf_blue "$*"; }
 
 printf_custom() {
   [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
@@ -88,7 +91,12 @@ printf_column() {
   set +o pipefail
 }
 
-
+get_desc() {
+  local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/sbin"
+  local appname="$(type -P "${PROG:-$APPNAME}" || command -v "${PROG:-$APPNAME}" || which "${PROG:-$APPNAME}")"
+  local desc="$(grep ^"# @Description" "$appname" 2>/dev/null | grep ' : ' | sed 's#..* : ##g' | grep '^')"
+  [ -n "$desc" ] && printf "%s" "$desc" || printf "%s" "${PROG:-$APPNAME} --help"
+}
 devnull() { "$@" >/dev/null 2>&1; }
 devnull2() { "$@" 2>/dev/null; }
 
@@ -103,6 +111,7 @@ ln_sf() {
 }
 
 app_help() {
+  local set_desc="$(get_desc)"
   printf "\n"
   test -n "$1" && test -z "${1//[0-9]/}" && local color="$1" && shift 1 || local color="4"
   local msg1="$1" && shift 1
@@ -112,9 +121,23 @@ app_help() {
   local msg5="$1" && shift 1 || msg5=
   local msg6="$1" && shift 1 || msg6=
   local msg7="$1" && shift 1 || msg7=
+  local msg7="$1" && shift 1 || msg7=
+  local msg8="$1" && shift 1 || msg8=
+  local msg9="$1" && shift 1 || msg9=
+  local msg10="$1" && shift 1 || msg10=
+  local msg11="$1" && shift 1 || msg11=
+  local msg12="$1" && shift 1 || msg12=
+  local msg13="$1" && shift 1 || msg13=
+  local msg14="$1" && shift 1 || msg14=
+  local msg15="$1" && shift 1 || msg15=
+  local msg16="$1" && shift 1 || msg16=
+  local msg17="$1" && shift 1 || msg17=
+  local msg18="$1" && shift 1 || msg18=
+  local msg19="$1" && shift 1 || msg19=
+  local msg20="$1" && shift 1 || msg20=
   shift $#
-  if [ -n "${PROG:-$APPNAME}" ]; then
-    printf_color "\t\t$(grep ^"# @Description" $(command -v "${PROG:-$APPNAME}") | grep ' : ' | sed 's#..* : ##g' || "${PROG:-$APPNAME}" help)\n" 2
+  if [ -n "${PROG:-$APPNAME}" ] && [ -n "set_desc" ]; then
+    printf_color "\t\t$set_desc\n" 6
   fi
   [ -z "$msg1" ] || printf_color "\t\t$msg1\n" "$color"
   [ -z "$msg2" ] || printf_color "\t\t$msg2\n" "$color"
@@ -123,6 +146,19 @@ app_help() {
   [ -z "$msg5" ] || printf_color "\t\t$msg5\n" "$color"
   [ -z "$msg6" ] || printf_color "\t\t$msg6\n" "$color"
   [ -z "$msg7" ] || printf_color "\t\t$msg7\n" "$color"
+  [ -z "$msg8" ] || printf_color "\t\t$msg8\n" "$color"
+  [ -z "$msg9" ] || printf_color "\t\t$msg9\n" "$color"
+  [ -z "$msg10" ] || printf_color "\t\t$msg10\n" "$color"
+  [ -z "$msg11" ] || printf_color "\t\t$msg11\n" "$color"
+  [ -z "$msg12" ] || printf_color "\t\t$msg12\n" "$color"
+  [ -z "$msg13" ] || printf_color "\t\t$msg13\n" "$color"
+  [ -z "$msg14" ] || printf_color "\t\t$msg14\n" "$color"
+  [ -z "$msg15" ] || printf_color "\t\t$msg15\n" "$color"
+  [ -z "$msg16" ] || printf_color "\t\t$msg16\n" "$color"
+  [ -z "$msg17" ] || printf_color "\t\t$msg17\n" "$color"
+  [ -z "$msg18" ] || printf_color "\t\t$msg18\n" "$color"
+  [ -z "$msg19" ] || printf_color "\t\t$msg19\n" "$color"
+  [ -z "$msg20" ] || printf_color "\t\t$msg20\n" "$color"
   printf "\n"
   exit "${exitCode:-1}"
 }

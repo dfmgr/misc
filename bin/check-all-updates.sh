@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="check-for-updates.sh"
+PROG="check-all-updates.sh"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
@@ -14,10 +14,10 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
-# @ReadME        : check-for-updates.sh --help
+# @ReadME        : check-all-updates.sh --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 19:16 EST
-# @File          : check-for-updates.sh
+# @File          : check-all-updates.sh
 # @Description   : check for package updates
 # @TODO          :
 # @Other         :
@@ -26,7 +26,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "check-for-updates.sh  |  check for package updates"
+  app_help "Usage: check-all-updates.sh"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,8 +37,14 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version)
+      __version
+     ;;
+    -h | --help)
+      __help
+      ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -f "$(command -v dmenupass)" ] && SUDO_ASKPASS="/usr/local/bin/dmenupass"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

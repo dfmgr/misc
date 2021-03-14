@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031420210104-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Sunday, Mar 14, 2021 06:20 EDT
+# @File          : pavolume.sh
+# @Description   :
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+_pavolume.sh() {
+  local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
+  local cur prev words cword
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  local OPTS="--help --version --up --down --togmute --mute --unmute --sync --listen"
+  local ARRAY="$OPTS"
+
+  _init_completion || return
+
+  if [[ ${cur} == -* ]] ; then
+    COMPREPLY=( $(compgen -W '${OPTS}' -- ${cur}) )
+  else
+  case $prev in
+  -up | --down)
+    COMPREPLY=($(compgen -W '$(echo {0..100})' -- "${cur}"))
+    return
+    ;;
+  *)
+    COMPREPLY=($(compgen -W '$ARRAY' -- "${cur}"))
+    return 0
+    ;;
+  esac
+  fi
+} &&
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # enable completions
+  complete -F _pavolume.sh pavolume.sh

@@ -18,7 +18,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 12:19 EST
 # @File          : pub-ip.sh
-# @Description   : get public ip address
+# @Description   : Get your public ip address
 # @TODO          :
 # @Other         :
 # @Resource      :
@@ -26,7 +26,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: pub-ip.sh    |    get public ip address"
+  app_help "Usage: pub-ip.sh"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi

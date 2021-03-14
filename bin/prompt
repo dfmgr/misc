@@ -26,7 +26,8 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: prompt message action    |    custom dmenu prompt"
+  app_help "Usage: prompt message action" \
+    "prompt 'Would you like to reboot' shutdown -r now"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
