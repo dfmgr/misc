@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="pass"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -27,18 +25,20 @@ SRC_DIR="${BASH_SOURCE%/*}"
 __version() { app_version; }
 __help() {
   app_help "Usage: pass" \
-    "usage     - full help" \
-    "init      - initialize pass" \
-    "git       - init the git functionality" \
-    "list      - list passwords" \
-    "search    - search for password" \
-    "add       - add a password" \
-    "edit      - edit a password" \
-    "generate  - generate a new password" \
-    "delete    - delete a password file" \
-    "rename    - rename a password file" \
-    "move      - move a password file" \
-    "copy      - copy a password file"
+    "usage                  -  full help" \
+    "init                   -  initialize pass" \
+    "git                    -  init the git functionality" \
+    "list                   -  list passwords" \
+    "search                 -  search for password" \
+    "add                    -  add a password" \
+    "edit                   -  edit a password" \
+    "generate               -  generate a new password" \
+    "delete                 -  delete a password file" \
+    "rename                 -  rename a password file" \
+    "move                   -  move a password file" \
+    "copy                   -  copy a password file" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -883,3 +883,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

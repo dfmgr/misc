@@ -93,7 +93,7 @@ printf_column() {
 
 get_desc() {
   local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/sbin"
-  local appname="$(type -P "${PROG:-$APPNAME}" || command -v "${PROG:-$APPNAME}" || which "${PROG:-$APPNAME}")"
+  local appname="$(type -P "${PROG:-$APPNAME}" 2>/dev/null || command -v "${PROG:-$APPNAME}" 2>/dev/null || which "${PROG:-$APPNAME}" 2>/dev/null)"
   local desc="$(grep ^"# @Description" "$appname" 2>/dev/null | grep ' : ' | sed 's#..* : ##g' | grep '^')"
   [ -n "$desc" ] && printf "%s" "$desc" || printf "%s" "${PROG:-$APPNAME} --help"
 }

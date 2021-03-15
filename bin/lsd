@@ -4,7 +4,6 @@ APPNAME="lsd"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -38,9 +37,11 @@ fi
 __version() { app_version; }
 __help() {
   app_help "Usage: lsd $PWD"\
-  "-v - show version" \
-  "-d - max depth" \
-  "-t - type f,d,l"
+    "-v                     -  show version" \
+    "-d                     -  max depth" \
+    "-t                     -  type f,d,l" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 __find_cmd() {
   local dir="$(dirname $dir/.)"
@@ -132,3 +133,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

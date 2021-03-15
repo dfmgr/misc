@@ -21,25 +21,14 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Import functions file
-if [ -f "$SRC_DIR/functions.bash" ]; then DIR="$SRC_DIR"; else DIR="$HOME/.local/bin"; fi
-if [[ -f "$DIR/functions.bash" ]]; then
-  . "$DIR/functions.bash"
-  unset DIR
-else
-  printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-  exit 1
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # main function
 __version() { app_version; }
 __help() {
   app_help "Usage: prompt message action | prompt pathToFile" \
-    'prompt "Would you like to reboot" "shutdown -r now"' \
-    '-c    - create a file | prompt -c "name" "command"' \
-    '-f    - specify a file' \
-    '-v    - display version' \
-    '-h    - display help'
+    '-c                     -  create a file | prompt -c "name" "command"' \
+    "-f                     -  specify a file" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __make_conf() {
@@ -73,6 +62,13 @@ __create() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main() {
+  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
+  if [[ -f "$DIR/functions.bash" ]]; then
+    . "$DIR/functions.bash"
+  else
+    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    return 1
+  fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # command check
   cmd_exists --error dmenu || exit 1

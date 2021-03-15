@@ -25,8 +25,8 @@ SRC_DIR="${BASH_SOURCE%/*}"
 __version() { app_version; }
 __help() {
   app_help 'Usage: tweet "messagetoPost"' \
-    "-v,--version      -  display version" \
-    "-h,--help         -  display help"
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -42,12 +42,16 @@ main() {
     -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  twitter set "$@" && exitCode=0 || exitCode=1
+  if am_i_online; then
+    twitter set "$@" && exitCode=0 || exitCode=1
+  else
+    exitCode=1
+  fi
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-tweet "$@"
+main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

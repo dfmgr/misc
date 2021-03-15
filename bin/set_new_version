@@ -26,8 +26,8 @@ __version() { app_version; }
 __help() {
   app_help "Usage: set_new_version dir" \
     "set_new_version ./bin" \
-    "-v,--version      -  display version" \
-    "-h,--help         -  display help"
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -60,3 +60,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

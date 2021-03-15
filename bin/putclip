@@ -24,10 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: putclip text" \
-    "putclip 'my text' - uptime | putclip" \
-    "-v,--version     - display version" \
-    "-h,--help        - display help"
+  app_help "Usage: putclip 'my text' - uptime | putclip" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 if [ -f "$SRC_DIR/functions.bash" ]; then DIR="$SRC_DIR"; else DIR="$HOME/.local/bin"; fi
 if [[ -f "$DIR/functions.bash" ]]; then

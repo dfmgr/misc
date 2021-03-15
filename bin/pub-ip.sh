@@ -24,7 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: pub-ip.sh"
+  app_help "Usage: pub-ip.sh" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi

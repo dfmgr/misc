@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="pasteit"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -26,7 +24,16 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Set functions
 __version() { app_version; }
 __help() {
-  app_help "Usage: pasteit 'message to post'"
+  app_help "Usage: pasteit 'message to post'" \
+    "-a, --apikey           -  API key for the server" \
+    "-t, --title            -  title of this paste" \
+    "-n, --name             -  author of this paste" \
+    "-p, --private          -  should this paste be private" \
+    "-l, --language         -  language this paste is in" \
+    "-e, --expire           -  paste expiration in minutes" \
+    "-r, --reply            -  reply to existing paste" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -214,3 +221,4 @@ Options:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
 # end
+

@@ -26,8 +26,8 @@ __version() { app_version; }
 __help() {
   app_help 'usage: renameFilesRecursively "/home/user/my-files" "apple" "orange"' \
     'Also uses env variables: SEARCH_DIR SEARCH REPLACE TYPE=file,dir' \
-    "-v,--version      -  display version" \
-    "-h,--help         -  display help"
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -87,3 +87,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

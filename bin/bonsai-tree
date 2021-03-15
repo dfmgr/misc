@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="bonsai-tree"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -38,18 +36,18 @@ fi
 __version() { app_version; }
 __help() {
   app_help "Usage: bonsai-tree [-h] [-i] [-l] [-T] [-m message] [-t time] [-g x,y] [ -c char] [-M 0-9]" \
-		"-l, --live             enable live generation" \
-		"-t, --time time        time between each step of growth [default: 0.01]" \
-		"-m, --message text     attach a message to the tree" \
-		"-b, --basetype 0-2     which ascii-art plant base to use (0 for none) [default: 1]" \
-		"-i, --infinite         keep generating trees until quit (2s between each)" \
-	  "-T, --termcolors       use terminal colors" \
-		"-g, --geo geo          set custom geometry [default: fit to terminal]" \
-		" -c, --leaf char       character used for leaves [default: &]" \
-		"-M, --multiplier 0-9   branch multiplier; higher equals more branching [default: 5]" \
-		"-L, --life int         life of tree; higher equals more overall growth [default: 28]" \
-		"-h, --help             this message" \
-	  "--version              show version"
+		"-l, --live             -  enable live generation" \
+		"-t, --time time        -  time between each step of growth [default: 0.01]" \
+		"-m, --message text     -  attach a message to the tree" \
+		"-b, --basetype 0-2     -  which ascii-art plant base to use (0 for none) [default: 1]" \
+		"-i, --infinite         -  keep generating trees until quit (2s between each)" \
+	  "-T, --termcolors       -  use terminal colors" \
+		"-g, --geo geo          -  set custom geometry [default: fit to terminal]" \
+		"-c, --leaf char        -  character used for leaves [default: &]" \
+		"-M, --multiplier 0-9   -  branch multiplier; higher equals more branching [default: 5]" \
+		"-L, --life int         -  life of tree; higher equals more overall growth [default: 28]" \
+		"-h, --help             -  this message" \
+	  "-v, --version          -  show version"
 }
 # ------ vars ------
 # CLI options

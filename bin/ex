@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="ex"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -26,7 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: ex fileName"
+  app_help "Usage: ex fileName" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -55,7 +55,7 @@ main() {
     *.zip) unzip $1 ;;
     *.Z) uncompress $1 ;;
     *.7z) 7z x $1 ;;
-    *) printf_red "$1 cannot be extracted via ex()" && return 1 ;;
+    *) printf_red "$1 cannot be extracted via ex" && return 1 ;;
     esac
     return $?
   else
@@ -63,7 +63,6 @@ main() {
     return 1
   fi
 }
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
 main "$@"
@@ -71,3 +70,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

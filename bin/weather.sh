@@ -27,8 +27,8 @@ __help() {
   app_help "Usage: weather.sh <options> <locationcode>" \
     "See curl http://wttr.in/:help?A for all options" \
     "IE: weather.sh Au0 mian" \
-    "-v,--version      -  display version" \
-    "-h,--help         -  display help"
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
