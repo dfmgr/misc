@@ -44,7 +44,7 @@ main() {
   case $1 in
     -v | --version) __version ;;
     -h | --help) __help ;;
-    -r | --remove) rm -Rf ~/.cache/hostname/* ;;
+    -r | --remove) rm -Rf ~/.cache/hostname/* && printf_exit "Removed the files from ~/.cache/hostname" 0 2;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __hostname() {
