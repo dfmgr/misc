@@ -37,12 +37,38 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ -d "$1" ]; then
+    MYCURRDIR="$1"
+    shift 1
+  elif [ "$1" = "-d" ] || [ "$1" = "-dir" ] || [ "$1" = "--dir" ]; then
+    MYCURRDIR="$2"
+    shift 2
+    [ -d "$MYCURRDIR" ] || printf_exit "$MYCURRDIR doesn't seem to be a directory"
+  else
+    MYCURRDIR="$PWD"
+  fi
+  if [ "$MYCURRDIR" = "." ]; then MYCURRDIR="$(dirname ".")"; fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __git() { am_i_online && git -C "$MYCURRDIR" pull -qf &>/dev/null && return 0 || return 1; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
     -v | --version) __version ;;
     -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  git -C "${1:-.}" pull -qf &>/dev/null && return 0 || return 1
+  if [ "$MYCURRDIR/.git" ]; then
+    printf_green "Updating the repo in $MYCURRDIR"
+    if __git; then
+      printf_green "Updating the repo has succeeded"
+    else
+      printf_red "Updating then repo has failed"
+      exitCode=1
+    fi
+  else
+    printf_red "$MYCURRDIR doesn't seem to be a git repo"
+    exitCode=1
+  fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function

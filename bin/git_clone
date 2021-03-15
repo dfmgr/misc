@@ -37,24 +37,51 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __git() { am_i_online && git clone -q "$1" "$MYCURRDIR" &>/dev/null && return 0 || return 1; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
     -v | --version) __version ;;
     -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  printf_question "Are you sure as this WILL delete your local repo" [y/N]
-  read -r -n 1 -s clone && echo
-  if [[ $clone == "y" || $clone == "Y" ]]; then
-    [ -d "$2" ] && rm_rf "$2"
-    if [ -d "$1" ]; then
-      devnull git clone -q "$@" && return 0 || return 1
+  if [ -d "$1" ]; then
+    MYCURRDIR="$1"
+    shift 1
+  elif [ "$1" = "-d" ] || [ "$1" = "-dir" ] || [ "$1" = "--dir" ]; then
+    MYCURRDIR="$2"
+    shift 2
+    [ -d "$MYCURRDIR" ] || printf_exit "$MYCURRDIR doesn't seem to be a directory"
+  else
+    MYCURRDIR="$PWD"
+  fi
+  if [ "$MYCURRDIR" = "." ]; then MYCURRDIR="$(dirname "$PWD/." 2>/dev/null)"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ "$MYCURRDIR/.git" ]; then
+    printf_question "Are you sure as this WILL delete your local repo" [y/N]
+    read -r -n 1 -s clone && echo
+    if [[ $clone == "y" || $clone == "Y" ]]; then
+      printf_green "Cloning to $MYCURRDIR"
+      [ -d "$2" ] && rm_rf "$2"
+      if __git "$1"; then
+        printf_green "Cloning of $1 has succeeded"
+      else
+        printf_red "Cloning of $1 has failed"
+        exitCode=1
+      fi
     else
-      am_i_online && devnull git clone -q "$@" && return 0 || return 1
+      printf_info "You have cancelled the current operation"
+      return 1
     fi
   else
-    printf_info "You have cancelled the current operation"
-    return 1
+    printf_green "Cloning to $MYCURRDIR"
+    if __git "$1"; then
+      printf_green "Cloning of $1 has succeeded"
+    else
+      printf_red "Cloning of $1 has failed"
+      exitCode=1
+    fi
   fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function

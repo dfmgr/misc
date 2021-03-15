@@ -36,21 +36,45 @@ main() {
     printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
     return 1
   fi
+  __git() { am_i_online && git -C "$MYCURRDIR" reset -q --hard HEAD &>/dev/null && git -C "$MYCURRDIR" pull -fq &>/dev/null && return 0 || return 1;}
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
     -v | --version) __version ;;
     -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  printf_question "Are you sure as this WILL reset your local changes" [y/N]
-  read -r -n 1 -s fpull && echo
-  if [[ $fpull == "y" || $fpull == "Y" ]]; then
-    git -C "${1:-.}" reset -q --hard HEAD &&
-      git -C "${1:-.}" pull -fq && return 0 || return 1
+    if [ -d "$1" ]; then
+    MYCURRDIR="$1"
+    shift 1
+  elif [ "$1" = "-d" ] || [ "$1" = "-dir" ] || [ "$1" = "--dir" ]; then
+    MYCURRDIR="$2"
+    shift 2
+    [ -d "$MYCURRDIR" ] || printf_exit "$MYCURRDIR doesn't seem to be a directory"
   else
-    printf_info "You have cancelled the current operation"
-    return 1
+    MYCURRDIR="$PWD"
   fi
+  if [ "$MYCURRDIR" = "." ]; then MYCURRDIR="$(dirname "$PWD/." 2>/dev/null)"; fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ -d "$MYCURRDIR/.git" ]; then
+    printf_question "Are you sure as this WILL reset your local changes" [y/N]
+    read -r -n 1 -s fpull && echo
+    if [[ $fpull == "y" || $fpull == "Y" ]]; then
+      printf_green "Updating the repo in $MYCURRDIR"
+      if __git; then
+        printf_green "Updating the repo has succeeded"
+      else
+        printf_red "Failed to update the repo"
+        exitCode=1
+      fi
+    else
+      printf_info "You have cancelled the current operation"
+      exitCode=1
+    fi
+  else
+    printf_red "$MYCURRDIR is not a git repo"
+    exitCode=1
+  fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
