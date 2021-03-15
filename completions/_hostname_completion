@@ -19,7 +19,7 @@ _hostname() {
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local SHOW_COMP_OPTS=""
   local SHORTOPTS="-h -v -f -d -r"
-  local LONGOPTS="--help --version --remove"
+  local LONGOPTS="--help --version --remove --domain --short --full"
   local ARGS="${SHORTOPTS} ${LONGOPTS}"
   local ARRAY="$ARGS"
 

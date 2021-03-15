@@ -26,9 +26,9 @@ __version() { app_version; }
 __help() {
   app_help "usage: hostname" \
     "-r, --remove           -  remove cache files" \
-    "-f                     -  display full hostname" \
-    "-s                     -  display short hostname" \
-    "-d                     -  display domain name" \
+    "-f, --full             -  display full hostname" \
+    "-s, --short            -  display short hostname" \
+    "-d, --domain           -  display domain name" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
@@ -90,15 +90,15 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Main application
   case "$1" in
-  -f)
+  -f | --full)
     shift 1
     [ -n "$hostnamef" ] && echo $hostnamef || __hostname "-f"
     ;;
-  -s)
+  -s | --short)
     shift 1
     [ -n "$hostnames" ] && echo $hostnames || __hostname "-s"
     ;;
-  -d)
+  -d | --domain)
     shift 1
     [ -n "$hostnamed" ] && echo $hostnamed || __hostname "-d"
     ;;
