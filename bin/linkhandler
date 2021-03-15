@@ -37,10 +37,15 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ -z "$1" ] && { "$BROWSER" && exit; }
+  if [ -z "$FILEMANAGER" ]; then
+    FILEMANAGER="$(command -v myfilemanager || command -v thunar || command -v vifm || command -v se)"
+  fi
+  [ -z "$1" ] && { "$FILEMANAGER"; exit $?; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cmd_exists --error setsid || exit 1
   case "$1" in

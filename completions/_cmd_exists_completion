@@ -14,22 +14,35 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _cmd_exists() {
   local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
+  local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local cur prev words cword
   local cur="${COMP_WORDS[COMP_CWORD]}"
-  local OPTS="--help --version"
-  local ARRAY=""
+  local SHORTOPTS="-h -v"
+  local LONGOPTS="--help --version"
+  local ARGS="${SHORTOPTS} ${LONGOPTS}"
+  local ARRAY="show-commands"
 
   _init_completion || return
 
-  if [[ ${cur} == -* ]] ; then
-    COMPREPLY=( $(compgen -W '${OPTS}' -- ${cur}) )
+  if [[ ${cur} == -* ]]; then
+    COMPREPLY=($(compgen -W '${ARGS}' -- ${cur}))
   else
-  case $prev in
-  *)
-    COMPREPLY=($(compgen -c -- "${cur}"))
-    return 0
-    ;;
-  esac
+    case $prev in
+    *)
+      if [ "$ARRAY" = "show-commands" ]; then
+        COMPREPLY=($(compgen -c -- "${cur}"))
+      elif [ "$ARRAY" = "show-none" ]; then
+        COMPREPLY=($(compgen -W '' -- "${cur}"))
+      elif [ "$ARRAY" = "show-_filedir" ]; then
+        _filedir
+      elif [ "$ARRAY" != "" ]; then
+        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+      elif [ -n "$OPTS" ]; then
+        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+      fi
+      return 0
+      ;;
+    esac
   fi
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

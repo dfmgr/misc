@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="prompt"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -23,25 +21,95 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Import functions file
+if [ -f "$SRC_DIR/functions.bash" ]; then DIR="$SRC_DIR"; else DIR="$HOME/.local/bin"; fi
+if [[ -f "$DIR/functions.bash" ]]; then
+  . "$DIR/functions.bash"
+  unset DIR
+else
+  printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+  exit 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: prompt message action" \
-    "prompt 'Would you like to reboot' shutdown -r now"
+  app_help "Usage: prompt message action | prompt pathToFile" \
+    'prompt "Would you like to reboot" "shutdown -r now"' \
+    '-c    - create a file | prompt -c "name" "command"' \
+    '-f    - specify a file' \
+    '-v    - display version' \
+    '-h    - display help'
 }
-main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__make_conf() {
+  local filename="$CONFDIR/$NAME.sh"
+echo '# Prompt for '$NAME'
+NAME="'$1'"
+COMMAND="'$2'"
+PROMPT="$(printf "No\\nYes" | dmenu -i -p "$NAME" -nb darkred -sb red -sf white -nf gray)"
+if [ "$PROMPT" = "Yes" ]; then
+  $COMMAND
+else
+  exit 1
+fi
+# End dmenu prompt'
+[ -f "$filename" ] && chmod -f 755 "$filename"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__create() {
+  printf_green "Generating the config for $1"
+  local NAME="${1/ /_}"
+  local PROMPTNAME="$1"
+  local PROMPTCOMMAND="$2"
+  shift $#
+  if [ -f "$CONFDIR/$NAME.sh" ]; then printf_exit "$NAME already exists in $CONFDIR"; fi
+  __make_conf "$PROMPTNAME" "$PROMPTCOMMAND" > "$CONFDIR/$NAME.sh" 2>/dev/null
+  if [ -f "$CONFDIR/$NAME.sh" ]; then
+    printf_return "Successfully create the prompt for $NAME" 0 2
   else
-    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
+    printf_return "Failed to create $CONFDIR/$NAME.sh"
   fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  # command check
+  cmd_exists --error dmenu || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # App variables
+  local CONFDIR="$HOME/.config/dmenu/prompts"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ ! -d "$CONFDIR" ]; then mkdir -p "$CONFDIR" &>/dev/null; fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+    -c | --config)
+      shift 1
+      __create "$1" "$2"
+      exit $?
+      ;;
+    -f | --file)
+      filename="${2/$CONFDIR\//$filename}"
+      file="$CONFDIR/$filename"
+      shift 2
+      ;;
+    *)
+      if [ -f "$1" ]; then
+        filename="${1/$CONFDIR\//$filename}"
+        file="$CONFDIR/$filename"
+      fi
+      if [ -z "$file" ]; then
+        [ -z "$1" ] || [ -z "$2" ] || __help
+      fi
+   ;;
+esac
+if [ -n "$file" ]; then
+  [ -f "$file" ] && . "$file" || printf_exit "Can't load $file because it doesn't exist"
+else
   [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && $2 || return 1
+fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
@@ -49,3 +117,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

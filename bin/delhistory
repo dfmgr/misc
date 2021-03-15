@@ -37,9 +37,11 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   typeset opt id n=1
   OPTIND=1 #reset index
   while getopts "n:" opt; do

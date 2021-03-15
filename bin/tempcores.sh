@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="tempcores.sh"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -26,7 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: tempcores.sh"
+  app_help "Usage: tempcores.sh" \
+    "-v,--version      -  display version" \
+    "-h,--help         -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,8 +37,10 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   rawData=$(sensors -f | grep -m 1 Core | awk '{print substr($3, 2, length($3)-5)}')
   tempCore="($rawData)"
@@ -80,3 +82,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

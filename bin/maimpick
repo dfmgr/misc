@@ -37,10 +37,13 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cmd_exists --error maim || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local IMAGE_DIR="$HOME/Pictures/maim"
   local IMG="$IMAGE_DIR/$(date '+%y%m%d-%H%M-%S').png"
   mkdir -p "$IMAGE_DIR" &>/dev/null

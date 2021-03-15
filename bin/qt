@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="qt"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -18,7 +16,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 16:02 EST
 # @File          : qt
-# @Description   : Search for text within the current directory
+# @Description   : Search for text within a directory
 # @TODO          :
 # @Other         :
 # @Resource      :
@@ -26,7 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: qt itemtoFind"
+  app_help "Usage: qt SearchDir itemtoFind" \
+    "-v,--version      -  display version" \
+    "-h,--help         -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,11 +37,14 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -d "$1" ] && local SEARCH_DIR="$1" && shift 1 || local SEARCH_DIR="$PWD"
-  local GREP_OPTS="-ir --color=always $*"
+  [ -d "$2" ] && local SEARCH_DIR="$2" && shift
+  local GREP_OPTS="-ir --color=always "$*""
   local GREP_EXCLUDE="--exclude-dir="$SEARCH_DIR/.git" --exclude-dir="$SEARCH_DIR/node_modules""
   local SEARCH="$(grep $GREP_OPTS $GREP_EXCLUDE "${SEARCH_DIR:-.}" 2>/dev/null || return 1)"
   if [ -d "$SEARCH_DIR" ] && [ -n "$SEARCH" ]; then

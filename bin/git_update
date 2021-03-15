@@ -37,8 +37,10 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   git -C "${1:-.}" pull -qf &>/dev/null && return 0 || return 1
 }

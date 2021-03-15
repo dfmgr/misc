@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="putclip"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -27,7 +25,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 __version() { app_version; }
 __help() {
   app_help "Usage: putclip text" \
-    "putclip 'my text'"
+    "putclip 'my text' - uptime | putclip" \
+    "-v,--version     - display version" \
+    "-h,--help        - display help"
 }
 if [ -f "$SRC_DIR/functions.bash" ]; then DIR="$SRC_DIR"; else DIR="$HOME/.local/bin"; fi
 if [[ -f "$DIR/functions.bash" ]]; then
@@ -37,8 +37,10 @@ else
   exit 1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-[ "$1" = "--help" ] && __help
+case $1 in
+  -v | --version) __version ;;
+  -h | --help) __help ;;
+esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ $# -eq 0 ] && [ ! -t 0 ]; then
   message="$(</dev/stdin)"

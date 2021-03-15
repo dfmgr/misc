@@ -289,6 +289,11 @@ elif [ -f "/System/Applications/Utilities/Terminal.app/Contents/MacOS/Terminal" 
 fi
 export TERMINAL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# export file manager
+[ -f "$(command -v myfilemanager 2>/dev/null)" ] && FILEMANAGER="myfilemanager" || \
+  FILEMANAGER="$(command -v thunar || command -v vifm || command -v se)"
+export FILEMANAGER
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
 [ -f "$(command -v myvmmanager 2>/dev/null)" ] && VMMANAGER="myvmmanager" || VMMANAGER="virt-manager"
 export VMMANAGER

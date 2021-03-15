@@ -16,22 +16,35 @@ _bonsai-tree() {
   local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
   local cur prev words cword
   local cur="${COMP_WORDS[COMP_CWORD]}"
-  local OPTS="-l -t -m -b -i -g -c -M -L -h --version --help"
-  local ARRAY="$OPTS"
+  local SHORTOPTS="-h -v -l -t -m -b -i -g -c -M -L"
+  local LONGOPTS="--help --version"
+  local ARGS="${SHORTOPTS} ${LONGOPTS}"
+  local ARRAY="$ARGS"
 
   _init_completion || return
 
-  if [[ ${cur} == -* ]] ; then
-    COMPREPLY=( $(compgen -W '${OPTS}' -- ${cur}) )
+  if [[ ${cur} == -* ]]; then
+    COMPREPLY=($(compgen -W '${ARGS}' -- ${cur}))
   else
-  case $prev in
-  *)
-    COMPREPLY=($(compgen -W '$ARRAY' -- "${cur}"))
-    return 0
-    ;;
-  esac
+    case $prev in
+    *)
+      if [ "$ARRAY" = "show-commands" ]; then
+        COMPREPLY=($(compgen -c -- "${cur}"))
+      elif [ "$ARRAY" = "show-none" ]; then
+        COMPREPLY=($(compgen -W '' -- "${cur}"))
+      elif [ "$ARRAY" = "show-_filedir" ]; then
+        _filedir
+      elif [ "$ARRAY" != "" ]; then
+        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+      elif [ -n "$OPTS" ]; then
+        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+      fi
+      return 0
+      ;;
+    esac
   fi
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
   complete -F _bonsai-tree bonsai-tree
+

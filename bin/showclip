@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="showclip"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -26,7 +24,9 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: showclip"
+  app_help "Usage: showclip" \
+    "-v,--version      -  display version" \
+    "-h,--help         -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -37,23 +37,41 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  clip=$(xclip -o -selection clipboard 2>/dev/null || return 1)
-  prim=$(xclip -o -selection primary 2>/dev/null || return 1)
+  if [ "$(uname -s)" = Linux ]; then
+    clip=$(xclip -o -selection clipboard 2>/dev/null || return 1)
+    prim=$(xclip -o -selection primary 2>/dev/null || return 1)
+  elif [ "$(uname -s)" = Darwin ]; then
+    clip=$(xclip -o -selection clipboard 2>/dev/null || pbpaste || return 1)
+    prim=$(xclip -o -selection primary 2>/dev/null || pbpaste 2>/dev/null || return 1)
+  elif [ "$(command -v xclip)" ]; then
+    clip=$(xclip -o -selection clipboard 2>/dev/null || return 1)
+    prim=$(xclip -o -selection primary 2>/dev/null || return 1)
+  else
+    exit 1
+  fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -n "$clip" ] && [ "$clip" = "$prim" ]; then
     notifications "Clipboard:" "$clip"
+    printf_green "Clipboard: $clip"
   elif [ -n "$clip" ] && [ -n "$prim" ]; then
     notifications "Clipboard:" "$clip"
+    printf_green "Clipboard: $clip"
     notifications "Primary:" "$prim"
+    printf_green "Primary: $prim"
   elif [ -n "$clip" ]; then
     notifications "Clipboard:" "$clip"
+    printf_green "Clipboard: $clip"
   elif [ -n "$prim" ]; then
     notifications "Primary:" "$prim"
+    printf_green "Primary: $prim"
   else
     notifications "Clipboard:" "There is nothing in your clipboard"
+    printf_green "Clipboard: There is nothing in your clipboard"
     return 1
   fi
 }
@@ -63,3 +81,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

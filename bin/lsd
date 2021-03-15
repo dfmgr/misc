@@ -57,8 +57,10 @@ __find_cmd() {
 main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
   cmd_exists --error find || exit 1

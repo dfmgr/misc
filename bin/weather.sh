@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="weather.sh"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -28,7 +26,9 @@ __version() { app_version; }
 __help() {
   app_help "Usage: weather.sh <options> <locationcode>" \
     "See curl http://wttr.in/:help?A for all options" \
-    "IE: weather.sh Au0 mian"
+    "IE: weather.sh Au0 mian" \
+    "-v,--version      -  display version" \
+    "-h,--help         -  display help"
 }
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
@@ -39,8 +39,10 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ "$1" = "--version" ] && __version
-  [ "$1" = "--help" ] && __help
+  case $1 in
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local LANG="$(echo $LANG | sed 's#_.*##g')"
   local METRIC="u"
@@ -60,3 +62,4 @@ main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # end
+
