@@ -47,14 +47,24 @@ main() {
   __hostname() {
     local PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
     if [ -f "$(command -v hostname 2>/dev/null)" ]; then
-      [ -f ~/.cache/hostname/name ] || command -p hostname "-f" >~/.cache/hostname/name
-      [ -f ~/.cache/hostname/full ] || command -p hostname "-f" >~/.cache/hostname/full
-      [ -f ~/.cache/hostname/short ] || command -p hostname "-s" >~/.cache/hostname/short
-      command -p hostname "$@"
+      local hostnamecmd="$(command -p hostname "-f" 2>/dev/null)"
+      local hostnamefcmd="(command -p hostname "-f" 2>/dev/null)"
+      local hostnamescmd="(command -p hostname "-s" 2>/dev/null)"
+      local hostnamedcmd="(command -p hostname "-d" 2>/dev/null)"
+      [ -f ~/.cache/hostname/name ] || echo "$hostnamecmd" >~/.cache/hostname/name
+      [ -f ~/.cache/hostname/full ] || echo "$hostnamefcmd" >~/.cache/hostname/full
+      [ -f ~/.cache/hostname/short ] || echo "$hostnamescmd" >~/.cache/hostname/short
+      [ -f ~/.cache/hostname/domain ] || echo "$hostnamescmd" >~/.cache/hostname/domain
+      command -p hostname "$@" 2>/dev/null
     elif [ -f "$(command -v hostnamectl 2>/dev/null)" ]; then
       shift $#
+      local hostnamecmd="$(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' 2>/dev/null)"
+      local hostnamefcmd="(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' 2>/dev/null)"
+      local hostnamescmd="(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' | sed 's#\..*##g'2>/dev/null)"
       [ -f ~/.cache/hostname/name ] || command -p hostnamectl | grep 'hostname:' | awk '{print $3}' >~/.cache/hostname/name
-      command -p hostnamectl | grep 'hostname:' | awk '{print $3}'
+      [ -f ~/.cache/hostname/full ] || command -p  >~/.cache/hostname/full
+      [ -f ~/.cache/hostname/short ] || command -p hostname "-s" >~/.cache/hostname/short
+      command -p hostnamectl 2>/dev/null | grep 'hostname:' | awk '{print $3}'
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -64,9 +74,12 @@ main() {
     hostname="$(</etc/hostname)"
   elif [ -f ~/.cache/hostname/name ]; then
     hostname="$(<~/.cache/hostname/name)"
-  else hostname=""; fi
+  else
+    hostname=""
+  fi
   [ -f ~/.cache/hostname/full ] && hostnamef="$(<~/.cache/hostname/full)" || hostnamef=""
   [ -f ~/.cache/hostname/short ] && hostnames="$(<~/.cache/hostname/short)" || hostnames=""
+  [ -f ~/.cache/hostname/domain ] && hostnamed="$(<~/.cache/hostname/domain)" || hostnamed=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Main application
   case "$1" in
@@ -79,7 +92,10 @@ main() {
     shift 1
     [ -n "$hostnames" ] && echo $hostnames || __hostname "-s"
     ;;
-
+  -d)
+    shift 1
+    [ -n "$hostnamed" ] && echo $hostnamed || __hostname "-d"
+    ;;
   *)
     [ -n "$hostname" ] && echo $hostname || __hostname "$@"
     ;;
