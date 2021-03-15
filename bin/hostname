@@ -25,6 +25,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 __version() { app_version; }
 __help() {
   app_help "usage: hostname" \
+    "-r, --remove           -  remove cache files" \
     "-f                     -  display full hostname" \
     "-s                     -  display short hostname" \
     "-d                     -  display domain name" \
@@ -43,6 +44,7 @@ main() {
   case $1 in
     -v | --version) __version ;;
     -h | --help) __help ;;
+    -r | --remove) rm -Rf ~/.cache/hostname/* ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __hostname() {
