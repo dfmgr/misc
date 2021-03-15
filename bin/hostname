@@ -27,6 +27,7 @@ __help() {
   app_help "usage: hostname" \
     "-f                     -  display full hostname" \
     "-s                     -  display short hostname" \
+    "-d                     -  display domain name" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
@@ -50,7 +51,8 @@ main() {
       local hostnamecmd="$(command -p hostname "-f" 2>/dev/null)"
       local hostnamefcmd="(command -p hostname "-f" 2>/dev/null)"
       local hostnamescmd="(command -p hostname "-s" 2>/dev/null)"
-      local hostnamedcmd="(command -p hostname "-d" 2>/dev/null)"
+      if [[ "$hostnamecmd" =~ .local$ ]]; then local hostnamedcmd="local"; else
+        local hostnamedcmd="(command -p hostname "-d" 2>/dev/null)"; fi
       [ -f ~/.cache/hostname/name ] || echo "$hostnamecmd" >~/.cache/hostname/name
       [ -f ~/.cache/hostname/full ] || echo "$hostnamefcmd" >~/.cache/hostname/full
       [ -f ~/.cache/hostname/short ] || echo "$hostnamescmd" >~/.cache/hostname/short
@@ -61,6 +63,9 @@ main() {
       local hostnamecmd="$(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' 2>/dev/null)"
       local hostnamefcmd="(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' 2>/dev/null)"
       local hostnamescmd="(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' | sed 's#\..*##g'2>/dev/null)"
+      if [[ "$hostnamecmd" =~ .local$ ]]; then local hostnamedcmd="local"; else
+        local hostnamedcmd="$(command -p hostnamectl | grep 'hostname:' | awk -F. '{print $(NF-1) "." $NF}' 2>/dev/null)";
+      fi
       [ -f ~/.cache/hostname/name ] || command -p hostnamectl | grep 'hostname:' | awk '{print $3}' >~/.cache/hostname/name
       [ -f ~/.cache/hostname/full ] || command -p  >~/.cache/hostname/full
       [ -f ~/.cache/hostname/short ] || command -p hostname "-s" >~/.cache/hostname/short
