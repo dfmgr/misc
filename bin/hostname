@@ -26,7 +26,7 @@ __version() { app_version; }
 __help() {
   app_help "usage: hostname" \
     "-f                     -  display full hostname" \
-    "-s                     -  display short hostname"
+    "-s                     -  display short hostname" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
