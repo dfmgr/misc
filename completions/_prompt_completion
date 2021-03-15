@@ -13,7 +13,7 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _prompt() {
-  mkdir -p "$HOME/.config/dmenu/prompts"
+  local CONFDIR="$HOME/.config/dmenu/prompts"
   local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local cur prev words cword
@@ -23,7 +23,8 @@ _prompt() {
   local LONGOPTS="--help --version --file"
   local ARGS="${SHORTOPTS} ${LONGOPTS}"
   local ARRAY="show-commands"
-  local FILEDIR="$(find -L "$HOME/.config/dmenu/prompts" -maxdepth 1 -type f,l)"
+  local FILEDIR="$(find -L "$HOME/.config/dmenu/prompts" -maxdepth 1 -type f,l | sed 's#'$CONFDIR/'##g')"
+  mkdir -p "$HOME/.config/dmenu/prompts"
 
   _init_completion || return
 
