@@ -42,6 +42,7 @@ main() {
     -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cmd_exists twitter || exit 1
   if am_i_online; then
     twitter set "$@" && exitCode=0 || exitCode=1
   else

@@ -16,7 +16,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 18:22 EST
 # @File          : social_post
-# @Description   : Send a post to both mastodon and twitterw
+# @Description   : Send a post to both mastodon and twitter
 # @TODO          :
 # @Other         :
 # @Resource      :
