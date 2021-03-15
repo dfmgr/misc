@@ -54,7 +54,7 @@ main() {
   else
     MYCURRDIR="$PWD"
   fi
-  if [ "$MYCURRDIR" = "." ]; then MYCURRDIR="$(dirname "$PWD/." 2>/dev/null)"
+  if [ "$MYCURRDIR" = "." ]; then MYCURRDIR="$(dirname "$PWD/." 2>/dev/null)"; fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ "$MYCURRDIR/.git" ]; then
     printf_question "Are you sure as this WILL delete your local repo" [y/N]
@@ -70,7 +70,7 @@ main() {
       fi
     else
       printf_info "You have cancelled the current operation"
-      return 1
+      exitcode=1
     fi
   else
     printf_green "Cloning to $MYCURRDIR"
