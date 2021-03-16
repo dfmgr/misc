@@ -232,6 +232,8 @@ check_uri() {
 
 # online check
 am_i_online() {
+  __curl() { timeout 1 curl --disable -LSIs --max-time 1 "$site" | grep -e "HTTP/[0123456789]" | grep "200" -n1 &>/dev/null; }
+  __ping() { timeout 1 ping -c1 "$site" &>/dev/null; }
   case $1 in
   *err* | *show)
     shift 1
@@ -248,33 +250,20 @@ am_i_online() {
     ;;
   esac
   shift
-
-  test_ping() {
-    timeout 1 ping -c1 "$site" &>/dev/null
-    pingExit=$?
-  }
-
-  test_http() {
-    timeout 1 curl --disable -LSIs --max-time 1 "$site" | grep -e "HTTP/[0123456789]" | grep "${200:-301}" -n1 &>/dev/null
-    httpExit=$?
-  }
-
-  test_ping || test_http
-
+  test_ping() { __ping || false; pingExit=$?; return ${pingExit:-$?}; }
+  test_http() { __curl || false; httpExit=$?; return ${httpExit:-$?} ;}
+  if test_ping || test_http; then exitCode=0; else exitCode=1; fi
   if [ "$pingExit" = 0 ] || [ "$httpExit" = 0 ]; then
     if [ "$console" = "yes" ]; then
-      printf_green "$site is up: you seem to be connected to the internet"
       notifications "Am I Online" "$site is up: you seem to be connected to the internet"
       exitCode=0
     fi
   else
     if [ "$console" = "yes" ]; then
-      printf_red "$site is down: you appear to not be connected to the internet" >&2
       notifications "Am I Online" "$site is down: you appear to not be connected to the internet"
       exitCode=1
     fi
-    if [ "$showerror" = "yes" ]; then
-      printf_red "$site is down: you appear to not be connected to the internet" >&2
+    if [ "$showerror" = "yes" ] && [ -z "$console" ]; then
       notifications "Am I Online" "$site is down: you appear to not be connected to the internet"
       exitCode=1
     fi
@@ -356,7 +345,7 @@ cmd_exists() {
     printf_red "$missing"
     notifications "CMD Exists" "Missing: $missing"
   fi
-  if [ "$error" = "show" ] && [ -n "$missing" ]; then
+  if [ "$error" = "show" ] && [ -n "$missing" ] && [ -z "$show" ]; then
     printf_red "Missing: $missing" >&2
     notifications "CMD Exists" "Missing: $missing"
     exitCode="1"
