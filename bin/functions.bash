@@ -229,11 +229,11 @@ check_uri() {
     return 1
   fi
 }
-
+__am_i_online() { am_i_online &>/dev/null; }
 # online check
 am_i_online() {
-  __curl() { timeout 1 curl --disable -LSIs --max-time 1 "$site" | grep -e "HTTP/[0123456789]" | grep "200" -n1 &>/dev/null; }
-  __ping() { timeout 1 ping -c1 "$site" &>/dev/null; }
+  __curl() { devnull2 timeout 1 curl --disable -LSIs --max-time 1 "$site" | grep -e "HTTP/[0123456789]" | grep "200" -n1 &>/dev/null; }
+  __ping() { devnull2 timeout 1 ping -c1 "$site" &>/dev/null; }
   case $1 in
   *err* | *show)
     shift 1
@@ -252,7 +252,7 @@ am_i_online() {
   shift
   test_ping() { __ping || false; pingExit=$?; return ${pingExit:-$?}; }
   test_http() { __curl || false; httpExit=$?; return ${httpExit:-$?} ;}
-  if test_ping || test_http; then exitCode=0; else exitCode=1; fi
+  if test_ping || test_http; then exitCode=0; else exitCode=1; OFFLINE=true; fi
   if [ "$pingExit" = 0 ] || [ "$httpExit" = 0 ]; then
     if [ "$console" = "yes" ]; then
       notifications "Am I Online" "$site is up: you seem to be connected to the internet"
