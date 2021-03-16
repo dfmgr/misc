@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031620211639-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : setverfile --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Tuesday, Mar 16, 2021 17:15 EDT
+# @File          : setverfile
+# @Description   : Set the version for git repo
+# @TODO          : Refactor code
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+_setverfile() {
+  mkdir -p "$HOME/.config/setverfile"
+  local CONFDIR="$HOME/.config/setverfile"
+  local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
+  local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
+  local SEARCHCMD="$(find -L $CONFDIR -maxdepth 3 -type f | sed 's#'$CONFDIR/'##g' | grep '^' || return 1)"
+  local cur prev words cword
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  local SHOW_COMP_OPTS=""
+  local SHORTOPTS="-h -v -f"
+  local LONGOPTS="--help --version --file"
+  local ARGS="${SHORTOPTS} ${LONGOPTS}"
+  local ARRAY="show-_filedir"
+
+  _init_completion || return
+
+  if [ "$SHOW_COMP_OPTS" != "" ]; then
+    local SHOW_COMP_OPTS_SEP="$(echo "$SHOW_COMP_OPTS" | tr ',' ' ')"
+    compopt -o ${SHOW_COMP_OPTS_SEP}
+  fi
+
+  if [[ ${cur} == -* ]]; then
+    COMPREPLY=($(compgen -W '${ARGS}' -- ${cur}))
+  else
+    case $prev in
+      *)
+      if [ "$ARRAY" = "show-commands" ]; then
+        COMPREPLY=($(compgen -c -- "${cur}"))
+      elif [ "$ARRAY" = "show-none" ]; then
+        COMPREPLY=($(compgen -W '' -- "${cur}"))
+      elif [ "$ARRAY" = "show-_filedir" ]; then
+        _filedir
+      elif [ "$ARRAY" != "" ]; then
+        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+      elif [ -n "$OPTS" ]; then
+        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+      fi
+      return 0
+      ;;
+    esac
+  fi
+} &&
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # enable completions
+  complete -F _setverfile setverfile
+

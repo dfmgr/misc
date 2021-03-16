@@ -36,9 +36,18 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: setverfile  -  setverfile --version" \
+  app_help "Usage: setverfile  -  setverfile dir --file" \
+    "-f, --file             -  create version file" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
+}
+__config() {
+  printf_green "Generating the config file"
+  echo "$SETVER_FORMAT" >"$HOME/.config/setverfile/settings"
+  echo "$SETVER_TYPE" >> "$HOME/.config/setverfile/settings"
+  [ -f "$HOME/.config/setverfile/settings" ] && printf_green "Config file has been created" || \
+    printf_red "Failed to create config file"
+  exit $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
@@ -48,10 +57,13 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   datecmd() { date +"${datetimeformat}${setvertype}"; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ -f "$HOME/.config/setverfile/settings" ] && . "$HOME/.config/setverfile/settings"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   case $1 in
   -v | --version) __version ;;
   -h | --help) __help ;;
+  -c | --config) __config ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
@@ -71,7 +83,7 @@ main() {
   if [ "$MYCURRDIR" = "." ]; then MYCURRDIR="$(dirname ".")"; fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-  *file) datecmd >"$MYCURRDIR/version.txt" ;;
+  *file | -f) datecmd >"$MYCURRDIR/${2:-version.txt}" ;;
   *) datecmd ;;
   esac
 

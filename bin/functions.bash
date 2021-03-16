@@ -62,6 +62,15 @@ printf_execute_error() { printf_color "\t\t[ ✖ ] $1 $2 [ ✖ ] \n" 1; }
 printf_execute_error_stream() { while read -r line; do printf_execute_error "↳ ERROR: $line"; done; }
 printf_help() { printf_blue "$*"; }
 
+printf_mkdir() {
+  if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p $1"; then
+    true
+  else
+    printf_red "$1 doesn't seem to be a directory"
+    return 1
+  fi
+}
+
 printf_question_term() {
   printf_question "$* [yN] "
   read -r -n 1 -s REPLY
@@ -309,7 +318,7 @@ ask_confirm() {
   else
     if [ -t 0 ]; then
       export -f __term notify_error
-      $TERMINAL -e "__term "$question" "$command" || notify_error"
+      __term "$question" "$command" || notify_error
     else
       __term "$question" "$command" || notify_error
     fi
