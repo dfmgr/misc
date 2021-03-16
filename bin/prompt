@@ -104,7 +104,7 @@ esac
 if [ -n "$file" ]; then
   [ -f "$file" ] && . "$file" || printf_exit "Can't load $file because it doesn't exist"
 else
-  [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && $2 || return 1
+  [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1
 fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
