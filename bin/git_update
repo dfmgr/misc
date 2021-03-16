@@ -3,7 +3,7 @@
 PROG="git_update"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
-SRC_DIR=="${BASH_SOURCE%/*}"
+SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 
@@ -52,11 +52,11 @@ main() {
   __git() { am_i_online && git -C "$MYCURRDIR" pull -qf &>/dev/null && return 0 || return 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ "$MYCURRDIR/.git" ]; then
+  if [ -d "$MYCURRDIR/.git" ]; then
     printf_green "Updating the repo in $MYCURRDIR"
     if __git; then
       printf_green "Updating the repo has succeeded"
@@ -77,4 +77,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-
