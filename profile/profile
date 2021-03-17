@@ -311,6 +311,8 @@ export EMAIL
 [ -f "$(command -v myeditor 2>/dev/null)" ] && EDITOR="myeditor" || EDITOR="vim"
 export EDITOR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# export git version format
+export VERSION_DATE_FORMAT="%Y%m%d%H%M-git"
 # export todo config
 export TODO_DIR="$HOME/.local/share/editors/todos"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -324,7 +326,7 @@ export TODOTXT_REPORT_FILE="$HOME/.local/share/todo/report.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
 CLICOLOR="1"
-GREP_COLORS="mt=37;45"
+GREP_COLORS='mt=37;45'
 [ -f "$HOME/.config/misc/shell/other/ls" ] && . "$HOME/.config/misc/shell/other/ls"
 export CLICOLOR GREP_COLORS LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
