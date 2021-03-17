@@ -13,6 +13,39 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+MYARGS="$@"
+__search_dir() {
+# I'm sure there is a better way to do this
+while :; do
+  ARGS="$MYARGS"
+  for opt in $ARGS; do
+    if [ -d "$opt" ]; then
+      SEARCH_DIR="$opt"
+      shift 1
+      break 2
+    fi
+    shift 1
+    [ $# -ne 0 ] || break 2
+  done
+done
+SET_DIR="$SEARCH_DIR"
+}
+__search_file() {
+while :; do
+  ARGS="$MYARGS"
+  for opt in $ARGS; do
+    if [ -f "$opt" ]; then
+      SEARCH_FILE="$opt"
+      shift 1
+      break 2
+    fi
+    shift 1
+    [ $# -ne 0 ] || break 2
+  done
+done
+SET_FILE="$SEARCH_FILE"
+}
+SET_ARGS="$MYARGS"
 SET_DAY="$(date +'%d')"
 SET_YEAR="$(date +'%Y')"
 SET_MONTH="$(date +'%m')"
@@ -416,7 +449,12 @@ execute() {
   return $exitCode
 }
 fi
-__dirname() { cd "$1" 2>/dev/null && echo "$PWD" || return 1; }
-__git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
+cd_into() { pushd $1 &>/dev/null || printf_return "Failed to cd into $1" 1; }
+__dirname() { cd "$1" 2>/dev/null && pwd || return 1; }
+__git_porcelain_count() { [ -d "$(__git_top_dir ${1:-.})/.git" ] && \
+  [ "$(git -C "${1:-.}" status --porcelain 2>/dev/null | wc -l 2>/dev/null)" -eq "0" ] && \
+  return 0 || return 1
+}
 __git_porcelain() { __git_porcelain_count "${1:-.}" && return 0 || return 1; }
-
+__git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
+unset SEARCH_DIR SEARCH_FILE ARGS opts

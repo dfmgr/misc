@@ -1,30 +1,30 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031620211639-git
+##@Version       : 031620212329-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : LICENSE.md
-# @ReadME        : setverfile --help
+# @ReadME        : setver --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Tuesday, Mar 16, 2021 17:15 EDT
-# @File          : setverfile
-# @Description   : Set the version for git repo
-# @TODO          : Refactor code
+# @Created       : Tuesday, Mar 16, 2021 23:46 EDT
+# @File          : setver
+# @Description   :
+# @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-_setverfile() {
-  mkdir -p "$HOME/.config/setverfile"
-  local CONFDIR="$HOME/.config/setverfile"
+_setver() {
+  local CONFDIR="$HOME/.config/misc/settings/setver"
   local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local SEARCHCMD="$(find -L $CONFDIR -maxdepth 3 -type f | sed 's#'$CONFDIR/'##g' | grep '^' || return 1)"
   local cur prev words cword
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local SHOW_COMP_OPTS=""
-  local SHORTOPTS="-h -v -f"
-  local LONGOPTS="--help --version --file"
-  local ARGS="${SHORTOPTS} ${LONGOPTS}"
+  local DEFAULTOPTS='-h -v -f -d -c --help --version --file --config --dir'
+  local SHORTOPTS=""
+  local LONGOPTS=" "
+  local ARGS="${DEFAULTOPTS} ${SHORTOPTS} ${LONGOPTS}"
   local ARRAY="show-_filedir"
 
   _init_completion || return
@@ -57,5 +57,5 @@ _setverfile() {
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
-  complete -F _setverfile setverfile
+  complete -F _setver setver
 
