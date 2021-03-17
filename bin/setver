@@ -61,8 +61,8 @@ EOF
 # Main function
 main() {
   local OPTS SHORTOPTS LONGOPTS setopts SETVER_FORMAT SETVER_TYPE CUSTOM_DIR CUSTOM_FILE
-  local SHORTOPTS="c,v,h,f:,s"
-  local LONGOPTS="config,version,help,file:,show"
+  local SHORTOPTS="c,v,h,f,s"
+  local LONGOPTS="config,version,help,file,show"
   local SETVER_FORMAT="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
   local SETVER_FILE="version.txt"
   local ARGS="$@"
@@ -75,21 +75,22 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "setver" -- "$@" 2>/dev/null)
-  eval set "$setopts" 2>/dev/null
+  eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
       -v | --version) __version ;;
       -h | --help) __help ;;
       -c | --config) __config_gen ;;
-      -d | --dir) CUSTOM_DIR="$2" ;;
-      -f | --file) OPTS="create"; CUSTOM_FILE="$2" ;;
-      -s | --show) OPTS="show" ; CUSTOM_FILE="$2" ;;
+      -d | --dir) CUSTOM_DIR="$2"; shift ;;
+      -f | --file) OPTS="create" ; ;;
+      -s | --show) OPTS="show" ;;
+      --) break ;;
       *) break ;;
     esac
     shift
   done
-  FULLDIR="$(__git_top_dir $(dirname "${CUSTOM_FILE:-$FILE}"))"
-  FULLFILE="$FULLDIR/$(basename "${CUSTOM_FILE:-$FILE}")"
+  FULLDIR="$(__git_top_dir $(dirname "${CUSTOM_FILE:-$FILE}" 2>/dev/null))"
+  FULLFILE="$FULLDIR/$(basename "${CUSTOM_FILE:-$FILE}" 2>/dev/null)"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
   cmd_exists --error bash || exit 1
