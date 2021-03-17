@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="setverfile"
+VERSION="031620211858-git"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
@@ -8,13 +9,13 @@ SRC_DIR="${BASH_SOURCE%/*}"
 #set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031620210827-git
+##@Version       : 031620211858-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : LICENSE.md
 # @ReadME        : setverfile --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Tuesday, Mar 16, 2021 15:47 EDT
+# @Created       : Tuesday, Mar 16, 2021 20:52 EDT
 # @File          : setverfile
 # @Description   : Set the version for git repo
 # @TODO          : Refactor code
@@ -36,57 +37,72 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: setverfile  -  setverfile dir --file" \
-    "-f, --file             -  create version file" \
+  app_help "Usage: setverfile  -  setverfile --version"  \
+    "-d --dir               -  set working dir"
+    "-c, --config           -  create config file"
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
-__config() {
-  printf_green "Generating the config file"
-  echo "$SETVER_FORMAT" >"$HOME/.config/setverfile/settings"
-  echo "$SETVER_TYPE" >> "$HOME/.config/setverfile/settings"
-  [ -f "$HOME/.config/setverfile/settings" ] && printf_green "Config file has been created" || \
-    printf_red "Failed to create config file"
+__config_gen() {
+  local CONFDIR="$HOME/.config/setverfile"
+  local CONFFILE="settings.conf"
+  printf_green "Generating the config file in"
+  printf_green "$CONFDIR/$CONFFILE"
+  [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
+  [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$CONFDIR/$CONFFILE.$$"
+  echo 'SETVER_FILE='"$SETVER_FILE"''
+  echo 'SETVER_FORMAT='"$SETVER_FORMAT"'' >"$CONFDIR/$CONFFILE"
+  echo 'SETVER_TYPE='"$SETVER_TYPE"'' >> "$CONFDIR/$CONFFILE"
+  [ -f "$CONFDIR/$CONFFILE" ] && printf_green "Config file has been created" || \
+    printf_red "Failed to create the config file"
   exit $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
 main() {
-  local datetimeformat="${SETVER_FORMAT:-%m%d%Y%H%M}"
-  local setvertype="${SETVER_TYPE:--git}"
+  local OPTS SHORTOPTS LONGOPTS setopts SETVER_FORMAT SETVER_TYPE
+  local SHORTOPTS="c,v,h,d:,f:"
+  local LONGOPTS="config,version,help,dir:,file:"
+  local SETVER_FORMAT="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
+  local SETVER_TYPE="-git"
+  local SETVER_FILE="version.txt"
+  local OPTS="$@"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  datecmd() { date +"${datetimeformat}${setvertype}"; }
+  datecmd() { date +"${SETVER_FORMAT}${SETVER_TYPE}"; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ -f "$HOME/.config/setverfile/settings" ] && . "$HOME/.config/setverfile/settings"
+  [ -f "$CONFDIR/$CONFFILE" ] && . "$CONFDIR/$CONFFILE"
+  [ -f "$1" ] && OPTS=setfile && FILE="$1" && shift 1 || FILE="$SETVER_FILE"
+  [ -d "$1" ] && MYCURRDIR="$1" && shift 1 || MYCURRDIR="$(__git_top_dir "$MYCURRDIR")"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
-  -c | --config) __config ;;
-  esac
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "setverfile" -- "$@" 2>/dev/null)
+  eval set -- "$setopts" 2>/dev/null
+  while :; do
+    case $1 in
+      -v | --version) __version ;;
+      -h | --help) __help ;;
+      -c | --config) __config_gen ;;
+      -d | --dir) shift; MYCURRDIR="$1" ;;
+      -f | --file) shift; OPTS=setfile; FILE="$1";;
+      -s | --show) [ -f "$MYCURRDIR/$FILE" ] && printf_green "$MYCURRDIR/$FILE" || printf_red "$MYCURRDIR/$FILE doesn't exist" ;;
+      --) break ;;
+      *) break ;;
+    esac
+    shift
+  done
+  [ -d "$MYCURRDIR" ] || printf_mkdir "$MYCURRDIR"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
   cmd_exists --error bash || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  if [ -d "$1" ]; then
-    MYCURRDIR="$1"
-    shift 1
-  elif [ "$1" = "-d" ] || [ "$1" = "-dir" ] || [ "$1" = "--dir" ]; then
-    MYCURRDIR="$2"
-    shift 2
-    [ -d "$MYCURRDIR" ] || printf_exit "$MYCURRDIR doesn't seem to be a directory"
-  else
-    MYCURRDIR="$PWD"
-  fi
-  if [ "$MYCURRDIR" = "." ]; then MYCURRDIR="$(dirname ".")"; fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  *file | -f) datecmd >"$MYCURRDIR/${2:-version.txt}" ;;
-  *) datecmd ;;
+  case $OPTS in
+    setfile | create)
+      if_else '[ -f "$MYCURRDIR/" ]'
+      datecmd >"$FILE" ;;
+    *) datecmd ;;
   esac
-
+  # lets exit with code
   return "${exitCode:-0}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -96,3 +112,4 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

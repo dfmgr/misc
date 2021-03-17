@@ -129,6 +129,9 @@ return_error() {
   return 1
 }
 
+if_else() {
+  if $1 ; then $2; else $3; fi
+}
 # get description for help
 get_desc() {
   local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/sbin"
@@ -413,4 +416,7 @@ execute() {
   return $exitCode
 }
 fi
+__dirname() { cd "$1" 2>/dev/null && echo "$PWD" || return 1; }
+__git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
+__git_porcelain() { __git_porcelain_count "${1:-.}" && return 0 || return 1; }
 

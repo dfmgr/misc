@@ -43,9 +43,10 @@ main() {
     -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  GIT_VERSION_FORMAT="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
   local search_dir="${1:-$PWD}"
   if [ -e "$search_dir" ]; then
-    local setver="$(date +"%m%d%Y%H%M-git")"
+    local setver="$(date +"$GIT_VERSION_FORMAT")"
     printf_green "Changing the version to $setver in $search_dir"
     find -L "$search_dir" -type f,l -exec sed -i --follow-symlinks 's/^##@Version.*/##@Version       : '$setver'/g' {} \; 2>/dev/null
   else
