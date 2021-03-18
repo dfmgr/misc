@@ -66,13 +66,14 @@ EOF
   else printf_red "Failed to create the config file"; fi; exit $?
 }
 cd_goto() {
+  export PS1_ADD="$PS1_ADD cdd: $1"
   if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen && main "$@"; fi
   local dir="$(list_aliases "folder" "$1")"
   [ -n "$dir" ] || printf_exit "Please specify a directory - see $APPNAME -l"
   [ -d "$dir" ] || printf_mkdir "$dir"
   printf_green "entering $dir"
   printf_green "Type exit to return to your previous directory"
-  [ -d "$dir" ] && exec bash -c "builtin cd $dir;bash" || return 1
+  [ -d "$dir" ] && builtin cd $dir;bash -l || return 1
 }
 add_alias() {
   printf_green "Adding the alias $1 to config"
