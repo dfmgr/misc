@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202103170636-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : cdd --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Wednesday, Mar 17, 2021 19:58 EDT
+# @File          : cdd
+# @Description   : 
+# @TODO          : 
+# @Other         : 
+# @Resource      : 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+_cdd() {
+  local CONFDIR="$HOME/.config/misc/settings/cdd"
+  local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
+  local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
+  local SEARCHCMD="$(find -L $CONFDIR -maxdepth 3 -type f | sed 's#'$CONFDIR/'##g' | grep '^' || return 1)"
+  local cur prev words cword
+  local cur="${COMP_WORDS[COMP_CWORD]}"
+  local SHOW_COMP_OPTS=""
+  local DEFAULTOPTS='-h -v -f -d -c --help --version --file --config --dir'
+  local SHORTOPTS=""
+  local LONGOPTS=""
+  local ARGS="${DEFAULTOPTS} ${SHORTOPTS} ${LONGOPTS}"
+  local ARRAY=""
+
+  _init_completion || return
+
+  if [ "$SHOW_COMP_OPTS" != "" ]; then
+    local SHOW_COMP_OPTS_SEP="$(echo "$SHOW_COMP_OPTS" | tr ',' ' ')"
+    compopt -o $SHOW_COMP_OPTS_SEP
+  fi
+
+  if [[ ${cur} == -* ]]; then
+    COMPREPLY=($(compgen -W '${ARGS}' -- ${cur}))
+  else
+    case $prev in
+      *)
+      if [ "$ARRAY" = "show-commands" ]; then
+        COMPREPLY=($(compgen -c -- "${cur}"))
+      elif [ "$ARRAY" = "show-none" ]; then
+        COMPREPLY=($(compgen -W '' -- "${cur}"))
+      elif [ "$ARRAY" = "show-_filedir" ]; then
+        _filedir
+      elif [ -n "$ARRAY" ]; then
+        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+      elif [ -n "$OPTS" ]; then
+        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+      fi
+      return 0
+      ;;
+    esac
+  fi
+} &&
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # enable completions
+  complete -F _cdd cdd
+

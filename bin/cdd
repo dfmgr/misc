@@ -1,0 +1,135 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+APPNAME="cd_into"
+VERSION="202103170636-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202103170636-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : cd_into --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Wednesday, Mar 17, 2021 17:50 EDT
+# @File          : cd_into
+# @Description   : cd into directories using shortcuts
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function file
+if [ -f "$SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
+else
+  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+  return 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# helper function
+__version() { app_version; }
+__help() {
+  app_help "Usage: cd_into  -  cd_into --version"  \
+    "-d, --dir              -  set working dir" \
+    "-c, --config           -  create config file" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
+}
+__config_gen() {
+  printf_green "Generating the config file in"
+  printf_green "$CONFDIR/$CONFFILE"
+  local tempfile="$CONFDIR/$CONFFILE.bak"
+  [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
+  [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$tempfile"
+  cat <<EOF > "$CONFDIR/$CONFFILE"
+# Settings for cd_into
+testing = "${TMPDIR:-/tmp}/testing"
+projects = "$HOME/Projects"
+pictures = "$HOME/Pictures"
+music = "$HOME/Music"
+share = "$HOME/local/share"
+EOF
+
+  if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CONFDIR/$CONFFILE")" ]; then
+    cat "$CONFDIR/$CONFFILE" | grep ^'#' >> "$tempfile" && mv "$tempfile" "$CONFDIR/$CONFFILE"
+  fi
+  if [ -f "$CONFDIR/$CONFFILE" ]; then printf_green "Your config file for cd has been created"
+  else printf_red "Failed to create the config file"; fi; exit $?
+}
+goto() {
+  [ -f "$CONFDIR/$CONFFILE" ] || __config_gen
+  local getdir="$(echo "$(grep -E ^''$1' =*..*'$ "$CONFDIR/$CONFFILE" | awk -F'= ' '{print $2}' | sed -e 's#"##g')")"
+  local dir="$getdir"
+  [ -n "$dir" ] || local dir="${1:-$HOME}"
+  #echo "$dir" ; exit
+  if [ ! -d "$dir" ]; then
+    printf_mkdir "$dir" || return 1
+  fi
+  bash -c "builtin cd $dir; bash"
+}
+add_alias() {
+  printf_green "Adding the alias $1 to config"
+  grep -q "$2" "$CONFDIR/$CONFFILE" || printf "%s\n" "$2="$3""
+}
+rm_alias() {
+  printf_green "Removing the alias $1 from config"
+  cat "$CONFDIR/$CONFFILE" | grep -v ^"$2" > "$CONFDIR/$CONFFILE.tmp" && \
+    mv -f "$CONFDIR/$CONFFILE.tmp" "$CONFDIR/$CONFFILE" || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local OPTS="$@"
+  local SHORTOPTS="c,v,h,d:,f:a::"
+  local LONGOPTS="config,version,help,dir:file:add::"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local CONFFILE="settings.conf"
+  local CONFDIR="$HOME/.config/misc/settings/cd_into"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ -d "$1" ] && MYCURRDIR="$1" && shift || MYCURRDIR="$(__git_top_dir "$MYCURRDIR")"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "cd_into" -- "$@" 2>/dev/null)
+  eval set -- "$setopts" 2>/dev/null
+  while :; do
+    case $1 in
+      -v | --version) __version ;;
+      -h | --help) __help ;;
+      -c | --config) __config_gen ;;
+      -d | --dir) MYCURRDIR="$2" ;;
+      -a | --add) grep -q "$2" "$CONFDIR/$CONFFILE" || printf "%s\n" "$2="$3""; shift 2 ;;
+      -r | --remove) rm_alias ; shift 2 ;;
+      --) shift ;;
+      *) break ;;
+    esac
+    shift
+  done
+  [ -d "$MYCURRDIR" ] || printf_mkdir "$MYCURRDIR"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Required app check
+  cmd_exists --error bash || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  case ${OPTS:-$1} in
+    *) printf_green "Version:$VERSION DIR=$OPTS"; goto "${OPTS:-$cd_dir}" ;;
+  esac
+  # lets exit with code
+  return "${exitCode:-0}"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+alias cdd="$(type -P "$SRC_DIR/$APPNAME")"
+main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end
+

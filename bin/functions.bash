@@ -96,7 +96,7 @@ printf_execute_error_stream() { while read -r line; do printf_execute_error "↳
 printf_help() { printf_blue "$*"; }
 
 printf_mkdir() {
-  if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p $1"; then
+  if ask_confirm "$1 doesn't exist should i create it?" 'bash -c "mkdir -p '$1'"'; then
     true
   else
     printf_red "$1 doesn't seem to be a directory"
