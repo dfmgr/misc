@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+delhistory() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="delhistory"
 USER="${SUDO_USER:-${USER}}"
@@ -28,7 +29,6 @@ __help() {
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
-main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     source "$DIR/functions.bash"
@@ -62,7 +62,7 @@ main() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-main "$@"
+delhistory "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

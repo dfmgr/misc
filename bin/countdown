@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+countdown() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="countdown"
 USER="${SUDO_USER:-${USER}}"
@@ -28,7 +29,6 @@ __help() {
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
-timer() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -64,7 +64,7 @@ timer() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-timer "$@"
+countdown "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

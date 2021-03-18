@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+mkd() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="mkd"
 USER="${SUDO_USER:-${USER}}"
@@ -28,7 +29,6 @@ __help() {
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
-main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -47,22 +47,24 @@ main() {
   __cd() { cd "$1" && bash || return 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -n "$CREATE" ]; then
-    if mkdir -p "$CREATE" &>/dev/null; then
-      printf_green "Creating $CREATE and entering the directory"
-      printf_green "Type exit to return to your previous directory" && __cd "$CREATE" && exitCode=0 || exitCode=1
-    else
-      printf_red "Failed to create $CREATE"
-      exitCode=1
+    if [ ! -d "$CREATE" ]; then
+      if printf_mkdir "$CREATE" 2>/dev/null; then
+        printf_green "Creating $CREATE and entering the directory"
+      else
+        printf_return "Failed to create $CREATE"
+        exitCode=1
+      fi
     fi
+    printf_green "Type exit to return to your previous directory" && __cd "$CREATE" && exitCode=0 || exitCode=1
   else
-    printf_red "Usage: mkd folder"
+    __help
     exitCode=1
   fi
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-main "$@"
+mkd "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

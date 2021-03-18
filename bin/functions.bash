@@ -96,7 +96,7 @@ printf_execute_error_stream() { while read -r line; do printf_execute_error "↳
 printf_help() { printf_blue "$*"; }
 
 printf_mkdir() {
-  if ask_confirm "$1 doesn't exist should i create it?" 'bash -c "mkdir -p '$1'"'; then
+  if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p "$1""; then
     true
   else
     printf_red "$1 doesn't seem to be a directory"
@@ -162,9 +162,6 @@ return_error() {
   return 1
 }
 
-if_else() {
-  if $1 ; then $2; else $3; fi
-}
 # get description for help
 get_desc() {
   local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/sbin"
@@ -337,7 +334,7 @@ notify_error() {
 ask_confirm() {
   local question="${1:-Continue}"
   local command="${2:-true}"
-  if [ "$(command -v ask_yes_no_question)" ]; then
+  if [ -f "$(type -P ask_yes_no_question)" ]; then
     ask_yes_no_question "$question" "$command" "${APPNAME:-$PROG}"
   else
   __zenity(){ zenity --question --text="$1" --ellipsize --default-cancel && $2 || return 1; }

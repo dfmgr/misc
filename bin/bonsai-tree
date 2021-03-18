@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+bonsai-tree() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="bonsai-tree"
 USER="${SUDO_USER:-${USER}}"
@@ -588,3 +589,6 @@ while [ $infinite = true ]; do
 	sleep 2
 	bonsai
 done
+}
+
+bonsai-tree "$@"

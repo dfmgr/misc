@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103170636-git
+##@Version       : 202103172001-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : LICENSE.md
 # @ReadME        : cdd --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Wednesday, Mar 17, 2021 19:58 EDT
+# @Created       : Thursday, Mar 18, 2021 01:05 EDT
 # @File          : cdd
-# @Description   : 
-# @TODO          : 
-# @Other         : 
-# @Resource      : 
+# @Description   : cd into directories using shortcuts
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _cdd() {
   local CONFDIR="$HOME/.config/misc/settings/cdd"
@@ -21,11 +21,12 @@ _cdd() {
   local cur prev words cword
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local SHOW_COMP_OPTS=""
-  local DEFAULTOPTS='-h -v -f -d -c --help --version --file --config --dir'
+  local DEFAULTOPTS="$(/home/jason/.local/bin/cdd -a || echo -v -h -a)"
+  local DEFAULTARRAY="$(/home/jason/.local/bin/cdd -l | awk '{print $1}' || echo )"
   local SHORTOPTS=""
   local LONGOPTS=""
   local ARGS="${DEFAULTOPTS} ${SHORTOPTS} ${LONGOPTS}"
-  local ARRAY=""
+  local ARRAY="$DEFAULTARRAY"
 
   _init_completion || return
 

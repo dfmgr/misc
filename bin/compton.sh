@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+compton.sh() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PROG="compton.sh"
 USER="${SUDO_USER:-${USER}}"
@@ -28,7 +29,6 @@ __help() {
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
-main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -51,7 +51,7 @@ main() {
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-main "$@"
+compton.sh "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
