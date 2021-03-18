@@ -37,6 +37,7 @@ fi
 __version() { app_version; }
 __help() {
   app_help "Usage: lsd $PWD"\
+    "-p                     - ls or find"
     "-v                     -  show version" \
     "-d                     -  max depth" \
     "-t                     -  type f,d,l" \
