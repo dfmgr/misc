@@ -66,7 +66,6 @@ EOF
   else printf_red "Failed to create the config file"; fi; exit $?
 }
 cd_goto() {
-  echo "$1"
   if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen && main "$@"; fi
   local dir="$(list_aliases "folder" "$1")"
   [ -n "$dir" ] || printf_exit "Please specify a directory - see $APPNAME -l"
