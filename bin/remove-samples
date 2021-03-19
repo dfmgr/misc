@@ -18,7 +18,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 18, 2021 19:50 EDT
 # @File          : remove-samples
-# @Description   :
+# @Description   : Search for and remove sample files
 # @TODO          :
 # @Other         :
 # @Resource      :
