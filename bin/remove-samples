@@ -73,7 +73,7 @@ __find_samples() {
       -not -path ''${PROJECT_DIR:-$HOME/Projects}'/*' \
       -not -path ''${DOTFILES_DIR:-$HOME/.local/dotfiles}'/*' \
       -not -path ''${CACHEDIR:-$HOME/.cache}'/*' \
-      -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION:-grep '^'} 2>/dev/null
+      -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION:-grep '^'} 2>/dev/null | printf_readline "6"
     [ $? = 0 ] && return 0 || return 1
   else
     printf_red "Please provide a valid directory"
