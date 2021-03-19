@@ -10,13 +10,13 @@ SRC_DIR="${BASH_SOURCE%/*}"
 #set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103181910-git
-# @Author        : Jason Hempstead
+##@Version       : 202103182152-git
+# @Author        : Jason
 # @Contact       : jason@casjaysdev.com
-# @License       : LICENSE.md
+# @License       : WTFPL
 # @ReadME        : remove-samples --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 18, 2021 19:50 EDT
+# @Copyright     : Copyright (c) 2021, Casjays Developments
+# @Created       : Thursday Mar 18, 2021 21:52:59 EDT
 # @File          : remove-samples
 # @Description   : Search for and remove sample files
 # @TODO          :
