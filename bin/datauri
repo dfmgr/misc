@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 datauri() {
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="datauri"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="datauri"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031120210622-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : datauri --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 11, 2021 06:22 EST
-# @File          : datauri
-# @Description   : Create data URI from a file
-# @TODO          :
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: datauri fileName" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 031120210622-git
+  # @Author        : Jason Hempstead
+  # @Contact       : jason@casjaysdev.com
+  # @License       : WTFPL
+  # @ReadME        : datauri --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+  # @Created       : Thursday, Mar 11, 2021 06:22 EST
+  # @File          : datauri
+  # @Description   : Create data URI from a file
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function
+  __version() { app_version; }
+  __help() {
+    app_help "Usage: datauri fileName" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+  }
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -38,10 +38,10 @@ __help() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   typeset mimeType=""
   if [ -f "$1" ]; then
     mimeType=$(file -b --mime-type "$1")
@@ -62,4 +62,3 @@ datauri "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

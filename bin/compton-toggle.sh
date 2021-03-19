@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 compton-toggle.sh() {
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="compton-toggle.sh"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="compton-toggle.sh"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031120210512-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : compton-toggle.sh --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 11, 2021 05:12 EST
-# @File          : compton-toggle.sh
-# @Description   : picom/comptom toggle
-# @TODO          :
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: compton-toggle.sh" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 031120210512-git
+  # @Author        : Jason Hempstead
+  # @Contact       : jason@casjaysdev.com
+  # @License       : WTFPL
+  # @ReadME        : compton-toggle.sh --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+  # @Created       : Thursday, Mar 11, 2021 05:12 EST
+  # @File          : compton-toggle.sh
+  # @Description   : picom/comptom toggle
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # main function
+  __version() { app_version; }
+  __help() {
+    app_help "Usage: compton-toggle.sh" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+  }
 
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
@@ -39,8 +39,8 @@ __help() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -f "$(command -v picom 2>/dev/null)" ]; then
@@ -78,4 +78,3 @@ compton-toggle.sh "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

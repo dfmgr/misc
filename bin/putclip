@@ -37,8 +37,8 @@ else
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+-v | --version) __version ;;
+-h | --help) __help ;;
 esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ $# -eq 0 ] && [ ! -t 0 ]; then

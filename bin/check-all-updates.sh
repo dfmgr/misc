@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 check-all-updates.sh() {
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="check-all-updates.sh"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="check-all-updates.sh"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031120211916-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : check-all-updates.sh --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 11, 2021 19:16 EST
-# @File          : check-all-updates.sh
-# @Description   : check for package updates
-# @TODO          :
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: check-all-updates.sh" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 031120211916-git
+  # @Author        : Jason Hempstead
+  # @Contact       : jason@casjaysdev.com
+  # @License       : WTFPL
+  # @ReadME        : check-all-updates.sh --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+  # @Created       : Thursday, Mar 11, 2021 19:16 EST
+  # @File          : check-all-updates.sh
+  # @Description   : check for package updates
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function
+  __version() { app_version; }
+  __help() {
+    app_help "Usage: check-all-updates.sh" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+  }
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -38,12 +38,12 @@ __help() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version)
-      __version
-     ;;
-    -h | --help)
-      __help
-      ;;
+  -v | --version)
+    __version
+    ;;
+  -h | --help)
+    __help
+    ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -f "$(command -v dmenupass)" ] && SUDO_ASKPASS="/usr/local/bin/dmenupass"
@@ -119,4 +119,3 @@ check-all-updates.sh "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

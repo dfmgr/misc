@@ -38,8 +38,8 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cmd_exists --error maim || exit 1
@@ -64,4 +64,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

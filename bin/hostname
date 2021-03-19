@@ -42,9 +42,9 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
-    -r | --remove) rm -Rf ~/.cache/hostname/* && printf_exit "Removed the files from ~/.cache/hostname" 0 2;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
+  -r | --remove) rm -Rf ~/.cache/hostname/* && printf_exit "Removed the files from ~/.cache/hostname" 0 2 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __hostname() {
@@ -54,7 +54,8 @@ main() {
       local hostnamefcmd="$(command -p hostname "-f" 2>/dev/null)"
       local hostnamescmd="$(command -p hostname "-s" 2>/dev/null)"
       if [[ "$hostnamecmd" =~ .local$ ]]; then local hostnamedcmd="local"; else
-        local hostnamedcmd="$(command -p hostname "-d" 2>/dev/null)"; fi
+        local hostnamedcmd="$(command -p hostname "-d" 2>/dev/null)"
+      fi
       [ -f ~/.cache/hostname/name ] || echo "$hostnamecmd" >~/.cache/hostname/name
       [ -f ~/.cache/hostname/full ] || echo "$hostnamefcmd" >~/.cache/hostname/full
       [ -f ~/.cache/hostname/short ] || echo "$hostnamescmd" >~/.cache/hostname/short
@@ -64,12 +65,12 @@ main() {
       shift $#
       local hostnamecmd="$(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' 2>/dev/null)"
       local hostnamefcmd="$(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' 2>/dev/null)"
-      local hostnamescmd="$(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' | sed 's#\..*##g'2>/dev/null)"
+      local hostnamescmd="$(command -p hostnamectl | grep 'hostname:' | awk '{print $3}' | sed 's#\..*##g' 2>/dev/null)"
       if [[ "$hostnamecmd" =~ .local$ ]]; then local hostnamedcmd="local"; else
-        local hostnamedcmd="$(command -p hostnamectl | grep 'hostname:' | awk -F. '{print $(NF-1) "." $NF}' 2>/dev/null)";
+        local hostnamedcmd="$(command -p hostnamectl | grep 'hostname:' | awk -F. '{print $(NF-1) "." $NF}' 2>/dev/null)"
       fi
       [ -f ~/.cache/hostname/name ] || command -p hostnamectl | grep 'hostname:' | awk '{print $3}' >~/.cache/hostname/name
-      [ -f ~/.cache/hostname/full ] || command -p  >~/.cache/hostname/full
+      [ -f ~/.cache/hostname/full ] || command -p >~/.cache/hostname/full
       [ -f ~/.cache/hostname/short ] || command -p hostname "-s" >~/.cache/hostname/short
       command -p hostnamectl 2>/dev/null | grep 'hostname:' | awk '{print $3}' | grep '^'
     fi
@@ -113,4 +114,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

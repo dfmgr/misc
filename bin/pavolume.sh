@@ -38,8 +38,8 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __qdbus() { [ -f "$(command -v qdbus)" ] && qdbus "$@" || true; }
@@ -210,4 +210,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

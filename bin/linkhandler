@@ -38,14 +38,17 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -z "$FILEMANAGER" ]; then
     FILEMANAGER="$(command -v myfilemanager || command -v thunar || command -v vifm || command -v se)"
   fi
-  [ -z "$1" ] && { "$FILEMANAGER"; exit $?; }
+  [ -z "$1" ] && {
+    "$FILEMANAGER"
+    exit $?
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cmd_exists --error setsid || exit 1
   case "$1" in
@@ -90,4 +93,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

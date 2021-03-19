@@ -38,16 +38,16 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
 
   imagemagick cmd_exists --error convert || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   typeset query="${1:-*.jpg}"
   typeset geometry="${2:-50%}"
-  for i in "$query"; do
-    if [[ "$(echo ${i##*.} | tr '[:upper:]' '[:lower:]')" != "png" ]]; then
+  for i in $query; do
+    if [[ "$(echo "${i##*.} " | tr '[:upper:]' '[:lower:]')" != "png" ]]; then
       imgName="${i%.*}.png"
     else
       imgName="_${i%.*}.png"
@@ -75,4 +75,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

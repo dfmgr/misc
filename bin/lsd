@@ -36,9 +36,9 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: lsd $PWD"\
+  app_help "Usage: lsd $PWD" \
     "-p                     - ls or find"
-    "-v                     -  show version" \
+  "-v                     -  show version" \
     "-d                     -  max depth" \
     "-t                     -  type f,d,l" \
     "-v, --version          -  display version" \
@@ -46,12 +46,12 @@ __help() {
 }
 __find_cmd() {
   local dir="$(dirname $dir/.)"
-  find ${follow:--L} ${1:-$dir} -maxdepth ${depth:-1} -type ${type:-d} 2>/dev/null | \
-    sed 's#'${1:-$dir}/'##g' 2>/dev/null | \
-    sed 's#'${1:-$dir}'##g' 2>/dev/null | \
-    grep '^' | \
-    grep -v '^$' && \
-    return 0 || \
+  find ${follow:--L} ${1:-$dir} -maxdepth ${depth:-1} -type ${type:-d} 2>/dev/null |
+    sed 's#'${1:-$dir}/'##g' 2>/dev/null |
+    sed 's#'${1:-$dir}'##g' 2>/dev/null |
+    grep '^' |
+    grep -v '^$' &&
+    return 0 ||
     return 1
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -60,8 +60,8 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
@@ -72,33 +72,33 @@ main() {
   eval set -- "$t" 2>/dev/null
   while :; do
     case $1 in
-      -h | --help)
-        shift
-        __help
-        ;;
-      -v | --version)
-        shift
-        __version
-        ;;
-      -d | --depth)
-        shift
-        depth="$1"
-        ;;
-      -l | --link)
-        shift
-        follow="-L"
-        ;;
-      -t | --type)
-        shift
-        type="${1// /,}"
-        ;;
-      --)
-        shift
-        break
-        ;;
-      *)
-        break
-        ;;
+    -h | --help)
+      shift
+      __help
+      ;;
+    -v | --version)
+      shift
+      __version
+      ;;
+    -d | --depth)
+      shift
+      depth="$1"
+      ;;
+    -l | --link)
+      shift
+      follow="-L"
+      ;;
+    -t | --type)
+      shift
+      type="${1// /,}"
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      break
+      ;;
     esac
     shift
   done
@@ -134,4 +134,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

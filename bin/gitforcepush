@@ -36,7 +36,7 @@ main() {
     printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
     return 1
   fi
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -d "$1" ]; then
     MYCURRDIR="$1"
     shift 1
@@ -52,8 +52,8 @@ main() {
   __git() { am_i_online && git -C "$MYCURRDIR" push -f -q &>/dev/null && return 0 || return 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -d "$MYCURRDIR/.git" ]; then
@@ -84,4 +84,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

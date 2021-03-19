@@ -1,56 +1,56 @@
 #!/usr/bin/env bash
 cdd() {
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-APPNAME="cdd"
-VERSION="202103170636-git"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  APPNAME="cdd"
+  VERSION="202103170636-git"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103170636-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : LICENSE.md
-# @ReadME        : cdd --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Wednesday, Mar 17, 2021 17:50 EDT
-# @File          : cdd
-# @Description   : cd into directories using shortcuts
-# @TODO          :
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-if [ -f "$SRC_DIR/functions.bash" ]; then
-  FUNCTIONS_DIR="$SRC_DIR"
-  . "$FUNCTIONS_DIR/functions.bash"
-elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-  FUNCTIONS_DIR="$HOME/.local/bin"
-  . "$FUNCTIONS_DIR/functions.bash"
-else
-  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-  return 1
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# helper function
-__version() { app_version; }
-__help() {
-  app_help "Usage: cdd  -  cdd --version"  \
-    "-d, --dir              -  set working dir" \
-    "-c, --config           -  create config file" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
-__config_gen() {
-  printf_green "Generating the config file in"
-  printf_green "$CONFDIR/$CONFFILE"
-  local tempfile="$CONFDIR/$CONFFILE.bak"
-  [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
-  [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$tempfile"
-  cat <<EOF > "$CONFDIR/$CONFFILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 202103170636-git
+  # @Author        : Jason Hempstead
+  # @Contact       : jason@casjaysdev.com
+  # @License       : LICENSE.md
+  # @ReadME        : cdd --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+  # @Created       : Wednesday, Mar 17, 2021 17:50 EDT
+  # @File          : cdd
+  # @Description   : cd into directories using shortcuts
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper function
+  __version() { app_version; }
+  __help() {
+    app_help "Usage: cdd  -  cdd --version" \
+      "-d, --dir              -  set working dir" \
+      "-c, --config           -  create config file" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+  }
+  __config_gen() {
+    printf_green "Generating the config file in"
+    printf_green "$CONFDIR/$CONFFILE"
+    local tempfile="$CONFDIR/$CONFFILE.bak"
+    [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
+    [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$tempfile"
+    cat <<EOF >"$CONFDIR/$CONFFILE"
 # Settings for cdd
 testing = "${TMPDIR:-/tmp}/testing"
 projects = "$HOME/Projects"
@@ -59,49 +59,55 @@ music = "$HOME/Music"
 share = "$HOME/local/share"
 EOF
 
-  if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CONFDIR/$CONFFILE")" ]; then
-    cat "$CONFDIR/$CONFFILE" | grep ^'#' >> "$tempfile" && mv "$tempfile" "$CONFDIR/$CONFFILE"
-  fi
-  if [ -f "$CONFDIR/$CONFFILE" ]; then printf_green "Your config file for cd has been created"
-  else printf_red "Failed to create the config file"; fi; exit $?
-}
-cd_goto() {
-  export PS1_ADD="$PS1_ADD cdd: $1"
-  if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen && main "$@"; fi
-  local dir="$(list_aliases "folder" "$1")"
-  [ -n "$dir" ] || printf_exit "Please specify a directory - see $APPNAME -l"
-  [ -d "$dir" ] || printf_mkdir "$dir"
-  printf_green "entering $dir"
-  printf_green "Type exit to return to your previous directory"
-  [ -d "$dir" ] && builtin cd $dir;bash -l || return 1
-}
-add_alias() {
-  if ! grep -q "$1" "$CONFDIR/$CONFFILE"; then
-    printf_green "Adding the alias $1 to config"
-    printf "%s\n" "$1 = "$2"" >> ""$CONFDIR/$CONFFILE""
-  else
-    printf_red "It appears that $1 has already been added"
-  fi
-return $?
-}
-rm_alias() {
-  printf_green "Removing the alias $1 from config"
-  cat "$CONFDIR/$CONFFILE" | grep -v ^"$1" > "$CONFDIR/$CONFFILE.tmp" && \
-    mv -f "$CONFDIR/$CONFFILE.tmp" "$CONFDIR/$CONFFILE" || return 1
-return $?
-}
-list_aliases() {
-  if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen &>/dev/null; fi
-  if [ "$1" = "folder" ]; then
-    shift 1
-    grep -E ^''$1' =*..*'$ "$CONFDIR/$CONFFILE" | awk -F'= ' '{print $2}' | sed -e 's#"##g' 2>/dev/null | grep '^' | grep -Ev '^$|^#'
-  else
-    grep -E ^''$1' =*..*'$ "$CONFDIR/$CONFFILE" | awk -F' =' '{print $1,$2}' | sed -e 's#"##g' 2>/dev/null | grep '^' | grep -Ev '^$|^#'
-  fi
-}
-list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g'; exit; }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
+    if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CONFDIR/$CONFFILE")" ]; then
+      cat "$CONFDIR/$CONFFILE" | grep ^'#' >>"$tempfile" && mv "$tempfile" "$CONFDIR/$CONFFILE"
+    fi
+    if [ -f "$CONFDIR/$CONFFILE" ]; then
+      printf_green "Your config file for cd has been created"
+    else printf_red "Failed to create the config file"; fi
+    exit $?
+  }
+  cd_goto() {
+    export PS1_ADD="$PS1_ADD cdd: $1"
+    if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen && main "$@"; fi
+    local dir="$(list_aliases "folder" "$1")"
+    [ -n "$dir" ] || printf_exit "Please specify a directory - see $APPNAME -l"
+    [ -d "$dir" ] || printf_mkdir "$dir"
+    printf_green "entering $dir"
+    printf_green "Type exit to return to your previous directory"
+    [ -d "$dir" ] && builtin cd $dir
+    bash -l || return 1
+  }
+  add_alias() {
+    if ! grep -q "$1" "$CONFDIR/$CONFFILE"; then
+      printf_green "Adding the alias $1 to config"
+      printf "%s\n" "$1 = "$2"" >>""$CONFDIR/$CONFFILE""
+    else
+      printf_red "It appears that $1 has already been added"
+    fi
+    return $?
+  }
+  rm_alias() {
+    printf_green "Removing the alias $1 from config"
+    cat "$CONFDIR/$CONFFILE" | grep -v ^"$1" >"$CONFDIR/$CONFFILE.tmp" &&
+      mv -f "$CONFDIR/$CONFFILE.tmp" "$CONFDIR/$CONFFILE" || return 1
+    return $?
+  }
+  list_aliases() {
+    if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen &>/dev/null; fi
+    if [ "$1" = "folder" ]; then
+      shift 1
+      grep -E ^''$1' =*..*'$ "$CONFDIR/$CONFFILE" | awk -F'= ' '{print $2}' | sed -e 's#"##g' 2>/dev/null | grep '^' | grep -Ev '^$|^#'
+    else
+      grep -E ^''$1' =*..*'$ "$CONFDIR/$CONFFILE" | awk -F' =' '{print $1,$2}' | sed -e 's#"##g' 2>/dev/null | grep '^' | grep -Ev '^$|^#'
+    fi
+  }
+  list_options() {
+    echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g'
+    exit
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function
   local ARGS="$@"
   local SHORTOPTS="c,v,h,l,f,d:,f:,m::,r:"
   local LONGOPTS="config,version,help,dir:,file:,modify::,remove:,list,function"
@@ -116,17 +122,34 @@ list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONG
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
-      -v | --version) __version ;;
-      -h | --help) __help ;;
-      -a | --all) list_options ;;
-      -c | --config) __config_gen ;;
-      -d | --dir) MYCURRDIR="$2"; shift 1 ;;
-      -r | --remove) rm_alias "$2"; shift 1; exit $? ;;
-      -m | --modify) shift 2; add_alias "$2" "$3"; exit $?;;
-      -f | --function) prinf_green 'function_name() { $(type -P $APPNAME) "$@"; }' ;;
-      -l | --list) list_aliases "*"; exit;;
-      --) shift 1; break ;;
-      *) break;;
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+    -a | --all) list_options ;;
+    -c | --config) __config_gen ;;
+    -d | --dir)
+      MYCURRDIR="$2"
+      shift 1
+      ;;
+    -r | --remove)
+      rm_alias "$2"
+      shift 1
+      exit $?
+      ;;
+    -m | --modify)
+      shift 2
+      add_alias "$2" "$3"
+      exit $?
+      ;;
+    -f | --function) prinf_green 'function_name() { $(type -P $APPNAME) "$@"; }' ;;
+    -l | --list)
+      list_aliases "*"
+      exit
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+    *) break ;;
     esac
     shift 1
   done
@@ -148,4 +171,3 @@ cdd "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

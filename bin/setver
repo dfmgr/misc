@@ -37,7 +37,7 @@ fi
 # helper function
 __version() { app_version; }
 __help() {
-  app_help "Usage: setver file opts"  \
+  app_help "Usage: setver file opts" \
     "-f, --file             -  set version file" \
     "-c, --config           -  create config file" \
     "-v, --version          -  display version" \
@@ -50,12 +50,14 @@ __config_gen() {
   printf_green "$CONFDIR/$CONFFILE"
   [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
   [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$CONFDIR/$CONFFILE.$$"
-cat <<EOF >"$CONFDIR/$CONFFILE"
+  cat <<EOF >"$CONFDIR/$CONFFILE"
 SETVER_FILE="$SETVER_FILE"
 SETVER_FORMAT="$SETVER_FORMAT"
 EOF
-  if [ -f "$CONFDIR/$CONFFILE" ]; then printf_green "Your config file for $PROG has been created"
-  else printf_red "Failed to create the config file"; fi; exit $?
+  if [ -f "$CONFDIR/$CONFFILE" ]; then
+    printf_green "Your config file for $PROG has been created"
+  else printf_red "Failed to create the config file"; fi
+  exit $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
@@ -78,14 +80,17 @@ main() {
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
-      -v | --version) __version ;;
-      -h | --help) __help ;;
-      -c | --config) __config_gen ;;
-      -d | --dir) CUSTOM_DIR="$2"; shift ;;
-      -f | --file) OPTS="create" ; ;;
-      -s | --show) OPTS="show" ;;
-      --) break ;;
-      *) break ;;
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+    -c | --config) __config_gen ;;
+    -d | --dir)
+      CUSTOM_DIR="$2"
+      shift
+      ;;
+    -f | --file) OPTS="create" ;;
+    -s | --show) OPTS="show" ;;
+    --) break ;;
+    *) break ;;
     esac
     shift
   done
@@ -97,19 +102,21 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   case $OPTS in
-    show)
-      if [ -f "$FULLFILE" ]; then
-        printf_green "$FULLFILE: $(<$FULLFILE)"; else printf_red "$FULLFILE doesn't exist"
-      fi
+  show)
+    if [ -f "$FULLFILE" ]; then
+      printf_green "$FULLFILE: $(<$FULLFILE)"
+    else
+      printf_red "$FULLFILE doesn't exist"
+    fi
     ;;
-    create) # Always want version in the top dir of git repo
-      if __git_porcelain $FULLFILE; then
-        FULLFILE="$(__git_top_dir "$FULLFILE")"
-      fi
+  create) # Always want version in the top dir of git repo
+    if __git_porcelain $FULLFILE; then
+      FULLFILE="$(__git_top_dir "$FULLFILE")"
+    fi
     datecmd >"$FULLFILE"
     printf_blue "Version set to "$(<$FULLFILE)" in $FULLFILE"
     ;;
-    *) datecmd | printf_readline 6 ;;
+  *) datecmd | printf_readline 6 ;;
   esac
   # lets exit with code
   return "${exitCode:-$?}"
@@ -121,4 +128,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

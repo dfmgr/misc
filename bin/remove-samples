@@ -1,57 +1,57 @@
 #!/usr/bin/env bash
 remove-samples() {
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="remove-samples"
-VERSION="202103181910-git"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="remove-samples"
+  VERSION="202103181910-git"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103182152-git
-# @Author        : Jason
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : remove-samples --help
-# @Copyright     : Copyright (c) 2021, Casjays Developments
-# @Created       : Thursday Mar 18, 2021 21:52:59 EDT
-# @File          : remove-samples
-# @Description   : Search for and remove sample files
-# @TODO          :
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-if [ -f "$SRC_DIR/functions.bash" ]; then
-  FUNCTIONS_DIR="$SRC_DIR"
-  . "$FUNCTIONS_DIR/functions.bash"
-elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-  FUNCTIONS_DIR="$HOME/.local/bin"
-  . "$FUNCTIONS_DIR/functions.bash"
-else
-  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-  return 1
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# helper function
-__help() {
-  app_help "Usage: remove-samples  -  remove-samples --version"  \
-    "-d, --dir              -  set working dir" \
-    '-r, --remove           -  remove files -r rm or -r "custom pipe command"' \
-    "-c, --config           -  create config file" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-  exit
-}
-__version() { app_version; }
-__gen_config() {
-  printf_green "Generating the config file in"
-  printf_green "$CONFDIR/$CONFFILE"
-  [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
-  [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$CONFDIR/$CONFFILE.$$"
-  cat <<EOF > "$CONFDIR/$CONFFILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 202103182152-git
+  # @Author        : Jason
+  # @Contact       : jason@casjaysdev.com
+  # @License       : WTFPL
+  # @ReadME        : remove-samples --help
+  # @Copyright     : Copyright (c) 2021, Casjays Developments
+  # @Created       : Thursday Mar 18, 2021 21:52:59 EDT
+  # @File          : remove-samples
+  # @Description   : Search for and remove sample files
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper function
+  __help() {
+    app_help "Usage: remove-samples  -  remove-samples --version" \
+      "-d, --dir              -  set working dir" \
+      '-r, --remove           -  remove files -r rm or -r "custom pipe command"' \
+      "-c, --config           -  create config file" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+    exit
+  }
+  __version() { app_version; }
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$CONFDIR/$CONFFILE"
+    [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
+    [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$CONFDIR/$CONFFILE.$$"
+    cat <<EOF >"$CONFDIR/$CONFFILE"
 # Settings for remove-samples
 SAMPLE_NAME="${SAMPLE_NAME}"
 SAMPLE_TYPE="${SAMPLE_TYPE}"
@@ -59,30 +59,31 @@ PROJECT_DIR="${PROJECT_DIR}"
 DOTFILES_DIR="${DOTFILES_DIR}"
 MAX_DEPTH="${MAX_DEPTH}"
 EOF
-  if [ -f "$CONFDIR/$CONFFILE" ]; then printf_green "Your config file for remove-samples has been created"
-  else printf_red "Failed to create the config file"; fi
-  exit $?
-}
-__list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' && exit; }
-__find_samples() {
-  local FINDDIR="${1:-$PWD}"
-  if [ -d "$FINDDIR" ]; then
-    printf_green "Finding all files matching ${SAMPLE_NAME:-*.sample} in $FINDDIR"
-    [ -n "$ACTION" ] && printf_red "Setting action to $ACTION"
-    find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH:-10} -iname ''${SAMPLE_NAME:-*.sample}'' \
-      -type ${SAMPLE_TYPE:-f,l} -not -path '*/.git/*' \
-      -not -path ''${PROJECT_DIR:-$HOME/Projects}'/*' \
-      -not -path ''${DOTFILES_DIR:-$HOME/.local/dotfiles}'/*' \
-      -not -path ''${CACHEDIR:-$HOME/.cache}'/*' \
-      -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION} 2>/dev/null | printf_readline "6"
-    [ $? = 0 ] && return 0 || return 1
-  else
-    printf_red "Please provide a valid directory"
-    return 1
-  fi
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
+    if [ -f "$CONFDIR/$CONFFILE" ]; then
+      printf_green "Your config file for remove-samples has been created"
+    else printf_red "Failed to create the config file"; fi
+    exit $?
+  }
+  __list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' && exit; }
+  __find_samples() {
+    local FINDDIR="${1:-$PWD}"
+    if [ -d "$FINDDIR" ]; then
+      printf_green "Finding all files matching ${SAMPLE_NAME:-*.sample} in $FINDDIR"
+      [ -n "$ACTION" ] && printf_red "Setting action to $ACTION"
+      find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH:-10} -iname ''${SAMPLE_NAME:-*.sample}'' \
+        -type ${SAMPLE_TYPE:-f,l} -not -path '*/.git/*' \
+        -not -path ''${PROJECT_DIR:-$HOME/Projects}'/*' \
+        -not -path ''${DOTFILES_DIR:-$HOME/.local/dotfiles}'/*' \
+        -not -path ''${CACHEDIR:-$HOME/.cache}'/*' \
+        -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION} 2>/dev/null | printf_readline "6"
+      [ $? = 0 ] && return 0 || return 1
+    else
+      printf_red "Please provide a valid directory"
+      return 1
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function
   local SETARGS="$@"
   local SHORTOPTS="a,c,v,h,d:,r:,f:"
   local LONGOPTS="all,config,version,help,dir:,remove:,file:"
@@ -100,15 +101,27 @@ __find_samples() {
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
-      -a | --all) __list_options ;;
-      -v | --version) __version ;;
-      -h | --help) __help ;;
-      -c | --config) __gen_config ;;
-      -d | --dir) FINDDIR="$2"; shift 1 ;;
-      -r | --remove) [ "$2" = "rm" ] && ACTION='xargs rm -f' || ACTION="$2" ; shift 1 ;;
-      -f | --file) SAMPLE_NAME="$2"; shift 1 ;;
-      --) shift 1; break ;;
-      *) break ;;
+    -a | --all) __list_options ;;
+    -v | --version) __version ;;
+    -h | --help) __help ;;
+    -c | --config) __gen_config ;;
+    -d | --dir)
+      FINDDIR="$2"
+      shift 1
+      ;;
+    -r | --remove)
+      [ "$2" = "rm" ] && ACTION='xargs rm -f' || ACTION="$2"
+      shift 1
+      ;;
+    -f | --file)
+      SAMPLE_NAME="$2"
+      shift 1
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+    *) break ;;
     esac
     shift
   done
@@ -120,7 +133,7 @@ __find_samples() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   case ${OPTS:-$1} in
-    *) __find_samples "${FINDDIR:-$MYCURRDIR}"
+  *) __find_samples "${FINDDIR:-$MYCURRDIR}" ;;
   esac
   # lets exit with code
   return "${exitCode:-0}"
@@ -132,4 +145,3 @@ remove-samples "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

@@ -33,7 +33,7 @@ __help() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __make_conf() {
   local filename="$CONFDIR/$NAME.sh"
-echo '# Prompt for '$NAME'
+  echo '# Prompt for '$NAME'
 NAME="'$1'"
 COMMAND="'$2'"
 PROMPT="$(printf "No\\nYes" | dmenu -i -p "$NAME" -nb darkred -sb red -sf white -nf gray)"
@@ -43,7 +43,7 @@ else
   exit 1
 fi
 # End dmenu prompt'
-[ -f "$filename" ] && chmod -f 755 "$filename"
+  [ -f "$filename" ] && chmod -f 755 "$filename"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __create() {
@@ -53,7 +53,7 @@ __create() {
   local PROMPTCOMMAND="$2"
   shift $#
   if [ -f "$CONFDIR/$NAME.sh" ]; then printf_exit "$NAME already exists in $CONFDIR"; fi
-  __make_conf "$PROMPTNAME" "$PROMPTCOMMAND" > "$CONFDIR/$NAME.sh" 2>/dev/null
+  __make_conf "$PROMPTNAME" "$PROMPTCOMMAND" >"$CONFDIR/$NAME.sh" 2>/dev/null
   if [ -f "$CONFDIR/$NAME.sh" ]; then
     printf_return "Successfully create the prompt for $NAME" 0 2
   else
@@ -79,33 +79,33 @@ main() {
   if [ ! -d "$CONFDIR" ]; then mkdir -p "$CONFDIR" &>/dev/null; fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
-    -c | --config)
-      shift 1
-      __create "$1" "$2"
-      exit $?
-      ;;
-    -f | --file)
-      filename="${2/$CONFDIR\//$filename}"
+  -v | --version) __version ;;
+  -h | --help) __help ;;
+  -c | --config)
+    shift 1
+    __create "$1" "$2"
+    exit $?
+    ;;
+  -f | --file)
+    filename="${2/$CONFDIR\//$filename}"
+    file="$CONFDIR/$filename"
+    shift 2
+    ;;
+  *)
+    if [ -f "$1" ]; then
+      filename="${1/$CONFDIR\//$filename}"
       file="$CONFDIR/$filename"
-      shift 2
-      ;;
-    *)
-      if [ -f "$1" ]; then
-        filename="${1/$CONFDIR\//$filename}"
-        file="$CONFDIR/$filename"
-      fi
-      if [ -z "$file" ]; then
-        [ -z "$1" ] || [ -z "$2" ] || __help
-      fi
-   ;;
-esac
-if [ -n "$file" ]; then
-  [ -f "$file" ] && . "$file" || printf_exit "Can't load $file because it doesn't exist"
-else
-  [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1
-fi
+    fi
+    if [ -z "$file" ]; then
+      [ -z "$1" ] || [ -z "$2" ] || __help
+    fi
+    ;;
+  esac
+  if [ -n "$file" ]; then
+    [ -f "$file" ] && . "$file" || printf_exit "Can't load $file because it doesn't exist"
+  else
+    [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1
+  fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
@@ -113,4 +113,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

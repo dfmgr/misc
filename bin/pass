@@ -50,8 +50,8 @@ main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   umask "${PASSWORD_STORE_UMASK:-077}"
@@ -230,7 +230,7 @@ main() {
     pkill -f "^$sleep_argv0" 2>/dev/null && sleep 0.5
     local before="$("${paste_cmd[@]}" 2>/dev/null | $BASE64)"
     echo -n "$1" | "${copy_cmd[@]}" || die "Error: Could not copy data to the clipboard"
-    (
+    ( 
       (exec -a "$sleep_argv0" bash <<<"trap 'kill %1' TERM; sleep '$CLIP_TIME' & wait")
       local now="$("${paste_cmd[@]}" | $BASE64)"
       [[ $now != $(echo -n "$1" | $BASE64) ]] && before="$now"
@@ -883,4 +883,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

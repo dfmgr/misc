@@ -39,11 +39,11 @@ main() {
   __git() { am_i_online && git -C "$MYCURRDIR" reset -q --hard HEAD &>/dev/null && git -C "$MYCURRDIR" pull -fq &>/dev/null && return 0 || return 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-    if [ -d "$1" ]; then
+  if [ -d "$1" ]; then
     MYCURRDIR="$1"
     shift 1
   elif [ "$1" = "-d" ] || [ "$1" = "-dir" ] || [ "$1" = "--dir" ]; then
@@ -83,4 +83,3 @@ main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

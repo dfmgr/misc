@@ -1,34 +1,34 @@
 #!/usr/bin/env bash
 ex() {
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="ex"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="ex"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031120210633-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : ex --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 11, 2021 06:33 EST
-# @File          : ex
-# @Description   : archive extractor
-# @TODO          :
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: ex fileName" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 031120210633-git
+  # @Author        : Jason Hempstead
+  # @Contact       : jason@casjaysdev.com
+  # @License       : WTFPL
+  # @ReadME        : ex --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+  # @Created       : Thursday, Mar 11, 2021 06:33 EST
+  # @File          : ex
+  # @Description   : archive extractor
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function
+  __version() { app_version; }
+  __help() {
+    app_help "Usage: ex fileName" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+  }
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -38,10 +38,10 @@ __help() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
+  -v | --version) __version ;;
+  -h | --help) __help ;;
   esac
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -f $1 ]; then
     case $1 in
     *.tar.bz2) tar xjf $1 ;;
@@ -70,4 +70,3 @@ ex "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

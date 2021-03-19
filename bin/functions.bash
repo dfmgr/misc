@@ -13,37 +13,37 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-MYARGS="$@"
+MYARGS="$*"
 __search_dir() {
-# I'm sure there is a better way to do this
-while :; do
-  ARGS="$MYARGS"
-  for opt in $ARGS; do
-    if [ -d "$opt" ]; then
-      SEARCH_DIR="$opt"
+  # I'm sure there is a better way to do this
+  while :; do
+    ARGS="$MYARGS"
+    for opt in $ARGS; do
+      if [ -d "$opt" ]; then
+        SEARCH_DIR="$opt"
+        shift 1
+        break 2
+      fi
       shift 1
-      break 2
-    fi
-    shift 1
-    [ $# -ne 0 ] || break 2
+      [ $# -ne 0 ] || break 2
+    done
   done
-done
-SET_DIR="$SEARCH_DIR"
+  SET_DIR="$SEARCH_DIR"
 }
 __search_file() {
-while :; do
-  ARGS="$MYARGS"
-  for opt in $ARGS; do
-    if [ -f "$opt" ]; then
-      SEARCH_FILE="$opt"
+  while :; do
+    ARGS="$MYARGS"
+    for opt in $ARGS; do
+      if [ -f "$opt" ]; then
+        SEARCH_FILE="$opt"
+        shift 1
+        break 2
+      fi
       shift 1
-      break 2
-    fi
-    shift 1
-    [ $# -ne 0 ] || break 2
+      [ $# -ne 0 ] || break 2
+    done
   done
-done
-SET_FILE="$SEARCH_FILE"
+  SET_FILE="$SEARCH_FILE"
 }
 SET_ARGS="$MYARGS"
 SET_DAY="$(date +'%d')"
@@ -61,7 +61,10 @@ devnull2() { "$@" 2>/dev/null; }
 # commands
 command() { builtin command ${1+"$@"}; }
 type() { builtin type ${1+"$@"}; }
-notifications() { local notify="$(type -P notifications 2>/dev/null)" && [ -n "$notify" ] && $notify "$@" || true; }
+notifications() {
+  local notify="$(type -P notifications 2>/dev/null)"
+  [ -n "$notify" ] && $notify "$@" || true
+}
 mkd() { devnull mkdir -p "$@"; }
 rm_rf() { devnull rm -Rf "$@"; }
 cp_rf() { if [ -e "$1" ]; then devnull cp -Rfa "$@"; fi; }
@@ -197,7 +200,7 @@ app_help() {
   local msg19="$1" && shift 1 || msg19=
   local msg20="$1" && shift 1 || msg20=
   shift $#
-  if [ -n "${PROG:-$APPNAME}" ] && [ -n "set_desc" ]; then
+  if [ -n "${PROG:-$APPNAME}" ] && [ -n "$set_desc" ]; then
     printf_color "\t\t$set_desc\n" 6
   fi
   [ -z "$msg1" ] || printf_color "\t\t$msg1\n" "$color"
@@ -247,14 +250,22 @@ app_version() {
 
 check_local() {
   local file="${1:-$PWD}"
-  if [ -d "$file" ]; then type=dir && localfile=true && return 0
-  elif [ -f "$file" ]; then type=file && localfile=true && return 0
-  elif [ -L "$file" ]; then type=symlink && localfile=true && return 0
-  elif [ -S "$file" ]; then type=socket && localfile=true && return 0
-  elif [ -b "$file" ]; then type=block && localfile=true && return 0
-  elif [ -p "$file" ]; then type=pipe && localfile=true && return 0
-  elif [ -c "$file" ]; then type=character && localfile=true && return 0
-  elif [ -e "$file" ]; then type=file && localfile=true && return 0
+  if [ -d "$file" ]; then
+    type=dir && localfile=true && return 0
+  elif [ -f "$file" ]; then
+    type=file && localfile=true && return 0
+  elif [ -L "$file" ]; then
+    type=symlink && localfile=true && return 0
+  elif [ -S "$file" ]; then
+    type=socket && localfile=true && return 0
+  elif [ -b "$file" ]; then
+    type=block && localfile=true && return 0
+  elif [ -p "$file" ]; then
+    type=pipe && localfile=true && return 0
+  elif [ -c "$file" ]; then
+    type=character && localfile=true && return 0
+  elif [ -e "$file" ]; then
+    type=file && localfile=true && return 0
   else
     type= && localfile=
     return 1
@@ -262,10 +273,14 @@ check_local() {
 }
 check_uri() {
   local url="$1"
-  if echo "$url" | grep -q "http.*://\S\+\.[A-Za-z]\+\S*"; then uri=http && return 0
-  elif echo "$url" | grep -q "ftp.*://\S\+\.[A-Za-z]\+\S*"; then uri=ftp && return 0
-  elif echo "$url" | grep -q "git.*://\S\+\.[A-Za-z]\+\S*"; then uri=git && return 0
-  elif echo "$url" | grep -q "ssh.*://\S\+\.[A-Za-z]\+\S*"; then uri=ssh && return 0
+  if echo "$url" | grep -q "http.*://\S\+\.[A-Za-z]\+\S*"; then
+    uri=http && return 0
+  elif echo "$url" | grep -q "ftp.*://\S\+\.[A-Za-z]\+\S*"; then
+    uri=ftp && return 0
+  elif echo "$url" | grep -q "git.*://\S\+\.[A-Za-z]\+\S*"; then
+    uri=git && return 0
+  elif echo "$url" | grep -q "ssh.*://\S\+\.[A-Za-z]\+\S*"; then
+    uri=ssh && return 0
   else
     uri=
     return 1
@@ -292,9 +307,20 @@ am_i_online() {
     ;;
   esac
   shift
-  test_ping() { __ping || false; pingExit=$?; return ${pingExit:-$?}; }
-  test_http() { __curl || false; httpExit=$?; return ${httpExit:-$?} ;}
-  if test_ping || test_http; then exitCode=0; else exitCode=1; OFFLINE=true; fi
+  test_ping() {
+    __ping || false
+    pingExit=$?
+    return ${pingExit:-$?}
+  }
+  test_http() {
+    __curl || false
+    httpExit=$?
+    return ${httpExit:-$?}
+  }
+  if test_ping || test_http; then exitCode=0; else
+    exitCode=1
+    OFFLINE=true
+  fi
   if [ "$pingExit" = 0 ] || [ "$httpExit" = 0 ]; then
     if [ "$console" = "yes" ]; then
       notifications "Am I Online" "$site is up: you seem to be connected to the internet"
@@ -337,35 +363,38 @@ ask_confirm() {
   if [ -f "$(type -P ask_yes_no_question)" ]; then
     ask_yes_no_question "$question" "$command" "${APPNAME:-$PROG}"
   else
-  __zenity(){ zenity --question --text="$1" --ellipsize --default-cancel && $2 || return 1; }
-  __dmenu() { [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1; }
-  __dialog() { gdialog --trim --cr-wrap --colors --title "question" --yesno "$1" 15 40 && "$2" || return 1; }
-  __term() { printf_question_term "$1" && $2 || return 1; }
-  if [ -n "$DESKTOP_SESSION" ] || [ -n "$DISPLAY" ]; then
-    if [ -f "$(command -v zenity 2>/dev/null)" ]; then __zenity "$question" "$command" && notify_good || notify_error
-    elif [ -f "$(command -v dmenu1 2>/dev/null)" ]; then __dmenu "$question" "$command" && notify_good || notify_error
-    elif [ -f "$(command -v gdialog 2>/dev/null)" ]; then __dialog "$question" "$command" && notify_good || notify_error
+    __zenity() { zenity --question --text="$1" --ellipsize --default-cancel && $2 || return 1; }
+    __dmenu() { [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1; }
+    __dialog() { gdialog --trim --cr-wrap --colors --title "question" --yesno "$1" 15 40 && "$2" || return 1; }
+    __term() { printf_question_term "$1" && $2 || return 1; }
+    if [ -n "$DESKTOP_SESSION" ] || [ -n "$DISPLAY" ]; then
+      if [ -f "$(command -v zenity 2>/dev/null)" ]; then
+        __zenity "$question" "$command" && notify_good || notify_error
+      elif [ -f "$(command -v dmenu1 2>/dev/null)" ]; then
+        __dmenu "$question" "$command" && notify_good || notify_error
+      elif [ -f "$(command -v gdialog 2>/dev/null)" ]; then
+        __dialog "$question" "$command" && notify_good || notify_error
+      else
+        __term "$question" "$command" || notify_error
+      fi
     else
-      __term "$question" "$command" || notify_error
+      if [ -t 0 ]; then
+        export -f __term notify_error
+        __term "$question" "$command" || notify_error
+      else
+        __term "$question" "$command" || notify_error
+      fi
     fi
-  else
-    if [ -t 0 ]; then
-      export -f __term notify_error
-      __term "$question" "$command" || notify_error
-    else
-      __term "$question" "$command" || notify_error
-    fi
-  fi
-  return ${exitCode:-$?}
+    return ${exitCode:-$?}
   fi
 }
 
 # command check
 cmd_exists() {
-  install_missing() { ask_confirm "Would you like to install then packages" "pkmgr install $@" || return 1; }
+  install_missing() { ask_confirm "Would you like to install then packages" "pkmgr install $*" || return 1; }
   case "$1" in
-    *show) local show=true && shift 1 ;;
-    *err*) local error=show && shift 1 ;;
+  *show) local show=true && shift 1 ;;
+  *err*) local error=show && shift 1 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local exitCode=0
@@ -401,56 +430,57 @@ if [ -f "$(command -v zenity 2>/dev/null)" ] && [ -n "$DESKTOP_SESSION" ]; then
   execute() {
     local CMD="$1" && shift $#
     $CMD | zenity --progress --no-cancel --pulsate --auto-close --title="Attempting install" --text="Trying to install" --height=200 --width=400 || printf_readline "5"
-}
+  }
 else
-execute() {
-  __set_trap() { trap -p "$1" | grep "$2" &>/dev/null || trap '$2' "$1"; }
-  __kill_all_subprocesses() {
-    local i=""
-    for i in $(jobs -p); do
-      kill "$i"
-      wait "$i" &>/dev/null
-    done
+  execute() {
+    __set_trap() { trap -p "$1" | grep "$2" &>/dev/null || trap '$2' "$1"; }
+    __kill_all_subprocesses() {
+      local i=""
+      for i in $(jobs -p); do
+        kill "$i"
+        wait "$i" &>/dev/null
+      done
+    }
+    __show_spinner() {
+      local -r FRAMES='/-\|'
+      local -r NUMBER_OR_FRAMES=${#FRAMES}
+      local -r CMDS="$2"
+      local -r MSG="$3"
+      local -r PID="$1"
+      local i=0
+      local frameText=""
+      while kill -0 "$PID" &>/dev/null; do
+        frameText="                [${FRAMES:i++%NUMBER_OR_FRAMES:1}] $MSG"
+        printf "%s" "$frameText"
+        sleep 0.2
+        printf "\r"
+      done
+    }
+    local -r CMDS="$1"
+    local -r MSG="${2:-$1}"
+    local -r TMP_FILE="$(mktemp /tmp/XXXXX)"
+    local exitCode=0
+    local cmdsPID=""
+    __set_trap "EXIT" "__kill_all_subprocesses"
+    eval "$CMDS" &>/dev/null 2>"$TMP_FILE" &
+    cmdsPID=$!
+    __show_spinner "$cmdsPID" "$CMDS" "$MSG"
+    wait "$cmdsPID" &>/dev/null
+    exitCode=$?
+    printf_execute_result $exitCode "$MSG"
+    if [ $exitCode -ne 0 ]; then
+      printf_execute_error_stream <"$TMP_FILE"
+    fi
+    rm -rf "$TMP_FILE"
+    return $exitCode
   }
-  __show_spinner() {
-    local -r FRAMES='/-\|'
-    local -r NUMBER_OR_FRAMES=${#FRAMES}
-    local -r CMDS="$2"
-    local -r MSG="$3"
-    local -r PID="$1"
-    local i=0
-    local frameText=""
-    while kill -0 "$PID" &>/dev/null; do
-      frameText="                [${FRAMES:i++%NUMBER_OR_FRAMES:1}] $MSG"
-      printf "%s" "$frameText"
-      sleep 0.2
-      printf "\r"
-    done
-  }
-  local -r CMDS="$1"
-  local -r MSG="${2:-$1}"
-  local -r TMP_FILE="$(mktemp /tmp/XXXXX)"
-  local exitCode=0
-  local cmdsPID=""
-  __set_trap "EXIT" "__kill_all_subprocesses"
-  eval "$CMDS" &>/dev/null 2>"$TMP_FILE" &
-  cmdsPID=$!
-  __show_spinner "$cmdsPID" "$CMDS" "$MSG"
-  wait "$cmdsPID" &>/dev/null
-  exitCode=$?
-  printf_execute_result $exitCode "$MSG"
-  if [ $exitCode -ne 0 ]; then
-    printf_execute_error_stream <"$TMP_FILE"
-  fi
-  rm -rf "$TMP_FILE"
-  return $exitCode
-}
 fi
-cd_into() { pushd $1 &>/dev/null || printf_return "Failed to cd into $1" 1; }
+cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
 __dirname() { cd "$1" 2>/dev/null && pwd || return 1; }
-__git_porcelain_count() { [ -d "$(__git_top_dir ${1:-.})/.git" ] && \
-  [ "$(git -C "${1:-.}" status --porcelain 2>/dev/null | wc -l 2>/dev/null)" -eq "0" ] && \
-  return 0 || return 1
+__git_porcelain_count() {
+  [ -d "$(__git_top_dir "${1:-.}")/.git" ] &&
+    [ "$(git -C "${1:-.}" status --porcelain 2>/dev/null | wc -l 2>/dev/null)" -eq "0" ] &&
+    return 0 || return 1
 }
 __git_porcelain() { __git_porcelain_count "${1:-.}" && return 0 || return 1; }
 __git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
