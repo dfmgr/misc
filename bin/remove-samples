@@ -67,8 +67,8 @@ __list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LO
 __find_samples() {
   local FINDDIR="${1:-$PWD}"
   if [ -d "$FINDDIR" ]; then
-    printf_green "Finding all files matching *${SAMPLE_NAME:-.sample} in $FINDDIR"
-    find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH:-10} -iname '*'${SAMPLE_NAME:-.sample}'' \
+    printf_green "Finding all files matching ${SAMPLE_NAME:-*.sample} in $FINDDIR"
+    find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH:-10} -iname ''${SAMPLE_NAME:-*.sample}'' \
       -type ${SAMPLE_TYPE:-f,l} -not -path '*/.git/*' \
       -not -path ''${PROJECT_DIR:-$HOME/Projects}'/*' \
       -not -path ''${DOTFILES_DIR:-$HOME/.local/dotfiles}'/*' \
@@ -83,8 +83,8 @@ __find_samples() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
   local SETARGS="$@"
-  local SHORTOPTS="a,c,v,h,d:,r:"
-  local LONGOPTS="all,config,version,help,dir:,remove:"
+  local SHORTOPTS="a,c,v,h,d:,r:,f:"
+  local LONGOPTS="all,config,version,help,dir:,remove:,file:"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local CONFFILE="settings.conf"
   local CONFDIR="$HOME/.config/misc/settings/remove-samples"
@@ -105,6 +105,7 @@ __find_samples() {
       -c | --config) __gen_config ;;
       -d | --dir) FINDDIR="$2"; shift 1 ;;
       -r | --remove) ACTION="$2"; shift 1 ;;
+      -f | --file) SAMPLE_NAME="$2"; shift 1 ;;
       --) shift 1; break ;;
       *) break ;;
     esac
