@@ -76,13 +76,17 @@ cd_goto() {
   [ -d "$dir" ] && builtin cd $dir;bash -l || return 1
 }
 add_alias() {
-  printf_green "Adding the alias $1 to config"
-  grep -q "$1" "$CONFDIR/$CONFFILE" || printf "%s\n" "$1 = "$2""
+  if ! grep -q "$1" "$CONFDIR/$CONFFILE"; then
+    printf_green "Adding the alias $1 to config"
+    printf "%s\n" "$1 = "$2"" >> ""$CONFDIR/$CONFFILE""
+  else
+    printf_red "It appears that $1 has already been added"
+  fi
 return $?
 }
 rm_alias() {
   printf_green "Removing the alias $1 from config"
-  cat "$CONFDIR/$CONFFILE" | grep -v ^"$2" > "$CONFDIR/$CONFFILE.tmp" && \
+  cat "$CONFDIR/$CONFFILE" | grep -v ^"$1" > "$CONFDIR/$CONFFILE.tmp" && \
     mv -f "$CONFDIR/$CONFFILE.tmp" "$CONFDIR/$CONFFILE" || return 1
 return $?
 }
@@ -99,8 +103,8 @@ list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONG
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function
   local ARGS="$@"
-  local SHORTOPTS="c,v,h,l,f,d:,f:,a::,r:"
-  local LONGOPTS="config,version,help,dir:,file:,add::,remove:,list,function"
+  local SHORTOPTS="c,v,h,l,f,d:,f:,m::,r:"
+  local LONGOPTS="config,version,help,dir:,file:,modify::,remove:,list,function"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local CONFFILE="settings.conf"
   local CONFDIR="$HOME/.config/misc/settings/cdd"
@@ -117,9 +121,9 @@ list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONG
       -a | --all) list_options ;;
       -c | --config) __config_gen ;;
       -d | --dir) MYCURRDIR="$2"; shift 1 ;;
-      -r | --remove) remove "$2"; shift 1 ;;
-      -a | --add) add_alias "$2" "$3"; shift 2 ;;
-      -f | --function) prinf_green 'cdd() { $(type -P $APPNAME) "$@"; }' ;;
+      -r | --remove) rm_alias "$2"; shift 1; exit $? ;;
+      -m | --modify) shift 2; add_alias "$2" "$3"; exit $?;;
+      -f | --function) prinf_green 'function_name() { $(type -P $APPNAME) "$@"; }' ;;
       -l | --list) list_aliases "*"; exit;;
       --) shift 1; break ;;
       *) break;;

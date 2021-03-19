@@ -39,7 +39,7 @@ fi
 __help() {
   app_help "Usage: remove-samples  -  remove-samples --version"  \
     "-d, --dir              -  set working dir" \
-    '-r, --remove           -  remove files -r "xargs rm -v"' \
+    '-r, --remove           -  remove files -r rm or -r "custom pipe command"' \
     "-c, --config           -  create config file" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
@@ -68,12 +68,13 @@ __find_samples() {
   local FINDDIR="${1:-$PWD}"
   if [ -d "$FINDDIR" ]; then
     printf_green "Finding all files matching ${SAMPLE_NAME:-*.sample} in $FINDDIR"
+    [ -n "$ACTION" ] && printf_red "Setting action to $ACTION"
     find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH:-10} -iname ''${SAMPLE_NAME:-*.sample}'' \
       -type ${SAMPLE_TYPE:-f,l} -not -path '*/.git/*' \
       -not -path ''${PROJECT_DIR:-$HOME/Projects}'/*' \
       -not -path ''${DOTFILES_DIR:-$HOME/.local/dotfiles}'/*' \
       -not -path ''${CACHEDIR:-$HOME/.cache}'/*' \
-      -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION:-grep '^'} 2>/dev/null | printf_readline "6"
+      -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION} 2>/dev/null | printf_readline "6"
     [ $? = 0 ] && return 0 || return 1
   else
     printf_red "Please provide a valid directory"
@@ -104,7 +105,7 @@ __find_samples() {
       -h | --help) __help ;;
       -c | --config) __gen_config ;;
       -d | --dir) FINDDIR="$2"; shift 1 ;;
-      -r | --remove) ACTION="$2"; shift 1 ;;
+      -r | --remove) [ "$2" = "rm" ] && ACTION='xargs rm -f' || ACTION="$2" ; shift 1 ;;
       -f | --file) SAMPLE_NAME="$2"; shift 1 ;;
       --) shift 1; break ;;
       *) break ;;
