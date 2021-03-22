@@ -447,7 +447,8 @@ PROFILERCSRC="$HOME/.profile"
 export PATH PROFILERCSRC SUDO_PROMPT SUDO_ASKPASS DISPLAY RESOLUTION PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
-
+[ -n "$SSH_CONNECTION" ] && [ -f "$HOME/.config/tmux/tmux.ssh.conf" ] &&
+  tmux -f "$HOME/.config/tmux/tmux.ssh.conf" new-session -D -A -s ssh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
 
