@@ -23,6 +23,9 @@ cmd_exists() {
   # @Resource      :
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Main function
+  if [ -f "/usr/local/bin/cmd_exists" ]; then
+    /usr/local/bin/cmd_exists "$@"
+  else
   __version() { app_version; }
   __help() {
     app_help "Usage: cmd_exists cmd  -  cmd_exists bash fish zsh" \
@@ -61,6 +64,7 @@ cmd_exists() {
     printf_red "Missing: $missing"
     exitCode="1"
   fi
+  fi
   return "${exitCode:-$?}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -69,3 +73,4 @@ cmd_exists "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # end
+

@@ -3,7 +3,7 @@
 # default path
 PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# set prompt
+# set default prompt
 PS1="\u@\H $ "
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
@@ -75,7 +75,7 @@ if [ -n "$DISPLAY" ] && [ -f "$(command -v xset 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enviroment variables when using a desktop
-if [ -n "$DISPLAY" ] && [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
+if [ -z "$SSH_CONNECTION" ] && [ -n "$DISPLAY" ] && [ -f "$(command -v dbus-update-activation-environment 2>/dev/null)" ]; then
   dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY 2>/dev/null
   export DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
 fi
@@ -118,7 +118,6 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
 [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ] && cp -f "$HOME/.config/local/gitconfig.local" "$HOME/.gitconfig"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
-[ "$(uname -s)" = Darwin ] && export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
 if [ "$(uname -s)" = Linux ] && [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
   SUDO_ASKPASS="dmenupass"
 else

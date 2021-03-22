@@ -35,12 +35,16 @@ cdd() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # helper function
   __version() { app_version; }
   __help() {
-    app_help "Usage: cdd  -  cdd --version" \
+    app_help "Usage: cdd alias: cdd testing" \
       "-d, --dir              -  set working dir" \
       "-c, --config           -  create config file" \
+      "-m, --modify           -  add an alias | -m p Projects" \
+      "-r, --remove           -  remove an alias | -r Projects" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help"
   }
@@ -75,7 +79,7 @@ EOF
     [ -d "$dir" ] || printf_mkdir "$dir"
     printf_green "entering $dir"
     printf_green "Type exit to return to your previous directory"
-    [ -d "$dir" ] && builtin cd $dir
+    [ -d "$dir" ] && builtin cd $dir && export CDD_STATUS="running"
     bash -l || return 1
   }
   add_alias() {
@@ -128,6 +132,7 @@ EOF
     -c | --config) __config_gen ;;
     -d | --dir)
       MYCURRDIR="$2"
+      echo "$2"
       shift 1
       ;;
     -r | --remove)
@@ -171,3 +176,4 @@ cdd "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

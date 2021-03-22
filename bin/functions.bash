@@ -99,6 +99,7 @@ printf_execute_error_stream() { while read -r line; do printf_execute_error "↳
 printf_help() { printf_blue "$*"; }
 
 printf_mkdir() {
+  [ -n "$1" ] || return 1
   if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p "$1""; then
     true
   else
@@ -168,15 +169,13 @@ return_error() {
 # get description for help
 get_desc() {
   local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/sbin"
-  local appname="$(type -P "${PROG:-$APPNAME}" 2>/dev/null || command -v "${PROG:-$APPNAME}" 2>/dev/null || which "${PROG:-$APPNAME}" 2>/dev/null)"
-  local desc="$(grep ^"# @Description" "$appname" 2>/dev/null | grep ' : ' | sed 's#..* : ##g' | grep '^')"
-  [ -n "$desc" ] && printf "%s" "$desc" || printf "%s" "${PROG:-$APPNAME} --help"
+  local appname="$(type -P "${PROG:-$APPNAME}" 2>/dev/null || command -v "${PROG:-$APPNAME}" 2>/dev/null)"
+  local desc="$(grep_head "Description" "$appname" | head -n1 | sed 's#..* : ##g')"
+  [ -n "$desc" ] && printf '%s' "$desc" || printf '%s' "$appname help"
 }
-
 # display help
 app_help() {
   local set_desc="$(get_desc)"
-  printf "\n"
   test -n "$1" && test -z "${1//[0-9]/}" && local color="$1" && shift 1 || local color="4"
   local msg1="$1" && shift 1
   local msg2="$1" && shift 1 || msg2=
@@ -226,7 +225,16 @@ app_help() {
   printf "\n"
   exit "${exitCode:-1}"
 }
-
+# grep header
+grep_head() {
+  grep -v 'GEN_SCRIPT_REPLACE' "$2" 2>/dev/null | grep '   :' | \
+    grep -v '\$' | \
+    grep -E ^'.*#.@'${1:-*}'' | \
+    sed -E 's/..*#[#, ]@//g' | \
+    sed -E 's/.*#[#, ]@//g' | \
+    head -n14 | \
+    grep '^' || return 1
+}
 # display version
 app_version() {
   local prog="${PROG:-$APPNAME}"           # get from file
@@ -236,9 +244,9 @@ app_version() {
   if [ -f "$(type -P "$filename")" ]; then # check for file
     printf "\n"
     printf_green "Getting info for $filename"
-    cat "$filename" | grep '^# @' | grep '  :' >/dev/null 2>&1 &&
-      cat "$filename" | grep '^# @' | grep -v '\$' | grep '  :' | sed 's/# @//g' | printf_readline "3" &&
-      printf_green "$(cat "$filename" | grep -v '\$' | grep "##@Version" | sed 's/##@//g')" ||
+    grep_head "Version" "$filename" &>/dev/null &&
+      grep_head "*" "$filename" | printf_readline "3" &&
+      printf_green "$(grep_head "Version" "$filename" | head -n1)" ||
       printf_return "File was found, however, No information was provided"
   else
     printf_red "${1:-$appname} was not found"
@@ -391,7 +399,7 @@ ask_confirm() {
 
 # command check
 cmd_exists() {
-  install_missing() { ask_confirm "Would you like to install then packages" "pkmgr install $*" || return 1; }
+  install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; }
   case "$1" in
   *show) local show=true && shift 1 ;;
   *err*) local error=show && shift 1 ;;

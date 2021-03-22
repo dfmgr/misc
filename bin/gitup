@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-remove-samples() {
+gitup() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="remove-samples"
-  VERSION="202103181910-git"
+  PROG="$(basename $0)"
+  VERSION="202103190426-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"
   SRC_DIR="${BASH_SOURCE%/*}"
@@ -10,15 +10,15 @@ remove-samples() {
   #set opts
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202103182152-git
-  # @Author        : Jason
+  ##@Version       : 202103200809-git
+  # @Author        : Jason Hempstead
   # @Contact       : jason@casjaysdev.com
   # @License       : WTFPL
-  # @ReadME        : remove-samples --help
-  # @Copyright     : Copyright (c) 2021, Casjays Developments
-  # @Created       : Thursday Mar 18, 2021 21:52:59 EDT
-  # @File          : remove-samples
-  # @Description   : Search for and remove sample files
+  # @ReadME        : gitup --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+  # @Created       : Saturday, Mar 20, 2021 08:09 EDT
+  # @File          : gitup
+  # @Description   : automagically add commit and push current git repo
   # @TODO          :
   # @Other         :
   # @Resource      :
@@ -37,9 +37,8 @@ remove-samples() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # helper function
   __help() {
-    app_help "Usage: remove-samples  -  remove-samples --version" \
+    app_help "Usage: gitup  -  gitup --version" \
       "-d, --dir              -  set working dir" \
-      '-r, --remove           -  remove files -r rm or -r "custom pipe command"' \
       "-c, --config           -  create config file" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help"
@@ -52,57 +51,37 @@ remove-samples() {
     [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
     [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$CONFDIR/$CONFFILE.$$"
     cat <<EOF >"$CONFDIR/$CONFFILE"
-# Settings for remove-samples
-SAMPLE_NAME="${SAMPLE_NAME}"
-SAMPLE_TYPE="${SAMPLE_TYPE}"
-PROJECT_DIR="${PROJECT_DIR}"
-DOTFILES_DIR="${DOTFILES_DIR}"
-MAX_DEPTH="${MAX_DEPTH}"
+# Settings for gitup
+
 EOF
     if [ -f "$CONFDIR/$CONFFILE" ]; then
-      printf_green "Your config file for remove-samples has been created"
+      printf_green "Your config file for gitup has been created"
     else printf_red "Failed to create the config file"; fi
     exit $?
   }
-  __list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' && exit; }
-  __find_samples() {
-    local FINDDIR="${1:-$PWD}"
-    if [ -d "$FINDDIR" ]; then
-      printf_green "Finding all files matching ${SAMPLE_NAME:-*.sample} in $FINDDIR"
-      [ -n "$ACTION" ] && printf_red "Setting action to $ACTION"
-      find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH:-10} -iname ''${SAMPLE_NAME:-*.sample}'' \
-        -type ${SAMPLE_TYPE:-f,l} -not -path '*/.git/*' \
-        -not -path ''${PROJECT_DIR:-$HOME/Projects}'/*' \
-        -not -path ''${DOTFILES_DIR:-$HOME/.local/dotfiles}'/*' \
-        -not -path ''${CACHEDIR:-$HOME/.cache}'/*' \
-        -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION} 2>/dev/null | printf_readline "6"
-      [ $? = 0 ] && return 0 || return 1
-    else
-      printf_red "Please provide a valid directory"
-      return 1
-    fi
-  # NOTIN="$(echo "-not -path '*/.git/*' -not -path '*/Projects/*' -not -path '*/.local/dotfiles/*' -not -path '*/Documents/*'")"
-  # if (sudo -vn && sudo -ln) 2>&1 | grep -v 'may not' >/dev/null; then
-  #   sudo find /etc -type f -iname "*.rmpnew" -iname "*.sample" -exec rm -i {} \;
-  # fi
-  # find "$HOME/.local" "$HOME/.config" $NOTIN -type f -iname "*.sample" -exec rm -i {} \;
-  }
+  __run_git_pull() { git -C "${1:-$gitdir}" pull -q || printf_exit "Failed to pull from $repo"; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Main function
-  local SETARGS="$@"
-  local SHORTOPTS="a,c,v,h,d:,r:,f:"
-  local LONGOPTS="all,config,version,help,dir:,remove:,file:"
+  local SETARGS="$*"
+  local SHORTOPTS="a,c,v,h,d:,f:"
+  local LONGOPTS="all,config,version,help,dir:,file:"
+  __list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' && exit; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local CONFFILE="settings.conf"
-  local CONFDIR="$HOME/.config/misc/settings/remove-samples"
+  local CONFDIR="$HOME/.config/misc/settings/gitup"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local gitdir="${1:-$PWD}"
+  local repo="$(__git_remote_pull "$gitdir")"
+  local gitdir="$(__git_top_dir "$gitdir")"
+  local oldpwd="$PWD"
+  local gitversion="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -f "$CONFDIR/$CONFFILE" ] && . "$CONFDIR/$CONFFILE"
-  [ $# -ne 0 ] || MYCURRDIR="$PWD"
   [ -d "$1" ] && MYCURRDIR="$1" && shift
   [ -d "$2" ] && MYCURRDIR="$2" && shift || MYCURRDIR="$(__git_top_dir "$MYCURRDIR")"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
-  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "remove-samples" -- "$@" 2>/dev/null)
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "gitup" -- "$@" 2>/dev/null)
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
@@ -111,41 +90,51 @@ EOF
     -h | --help) __help ;;
     -c | --config) __gen_config ;;
     -d | --dir)
-      FINDDIR="$2"
-      shift 1
-      ;;
-    -r | --remove)
-      [ "$2" = "rm" ] && ACTION='xargs rm -f' || ACTION="$2"
+      MYCURRDIR="$2"
       shift 1
       ;;
     -f | --file)
-      SAMPLE_NAME="$2"
+      MYCURRFILE="$2"
       shift 1
       ;;
     --)
       shift 1
       break
       ;;
-    *) break ;;
+      #*) break ;;
     esac
     shift
   done
-  set -- $SETARGS
+  set -- "$SETARGS"
   [ -d "$MYCURRDIR" ] || printf_mkdir "$MYCURRDIR"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
   cmd_exists --error bash || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  case ${OPTS:-$1} in
-  *) __find_samples "${FINDDIR:-$MYCURRDIR}" ;;
-  esac
+  if [ -d "$gitdir/.git" ]; then
+    printf_warning "Commiting Changes and pushing to the repo"
+    date +"$gitversion" >"$gitdir/version.txt" &&
+      [ -f "$gitdir/gitmasterconfig" ] && [ -d "$gitdir/.git" ] &&
+      __cp_rf "$gitdir/gitmasterconfig" "$gitdir/.git/config"
+    __devnull git -C "$gitdir" add . &&
+      [ -n "$1" ] &&
+      git -C "$gitdir" commit -q -S "$1" "$2" ||
+      git -C "$gitdir" commit -q -S -m " 🦈🏠🐜❗ Fixes and Updates ❗🐜🦈🏠 " &&
+      __run_git_pull "$gitdir" &&
+      __devnull git -C "$gitdir" push -q || __devnull git -C "$gitdir" push -q || false
+    __getexitcode $? "Successfully pushed to: $repo" "Failed to push to: $repo"
+  else
+    printf_exit "This does not seem to be a git repo"
+    exit 1
+  fi
+
   # lets exit with code
   return "${exitCode:-0}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-remove-samples "$@"
+gitup "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
