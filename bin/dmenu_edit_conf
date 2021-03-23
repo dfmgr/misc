@@ -1,63 +1,161 @@
 #!/usr/bin/env bash
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="$(basename $0)"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+dmenu_edit_conf_main() {
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="$(basename $0)"
+  VERSION="202103231633-git"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103222059-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : WTFPL
-# @ReadME        : dmenu_edit_conf --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Monday, Mar 22, 2021 20:59 EDT
-# @File          : dmenu_edit_conf
-# @Description   : dmenu for editing configuration files
-# @TODO          : Move to misc user scripts
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-if [ -f "$SRC_DIR/functions.bash" ]; then
-  FUNCTIONS_DIR="$SRC_DIR"
-  . "$FUNCTIONS_DIR/functions.bash"
-elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-  FUNCTIONS_DIR="$HOME/.local/bin"
-  . "$FUNCTIONS_DIR/functions.bash"
-else
-  printf "\t\t\033[0;31m%s \033[0m\n" "Could not source the functions file from $\FUNCTIONS_DIR"
-  return 1
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ "$(uname)" = Linux ] || exit 1
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-DMENU_EDIT_CONFIG_DIR="${DMENU_EDIT_CONFIG_DIR:-$HOME/.config/dmenu_edit_conf}"
-DMENU_USER_CONF="${DMENU_USER_CONF:-$DMENU_EDIT_CONFIG_DIR/menus}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if cmd_exists rofi; then
-  __dmenu() { rofi -show -dmenu -i -p 'Edit config file: '; }
-elif cmd_exists dmenu; then
-  __dmenu() { dmenu -i -p 'Edit config file: '; }
-else
-  notifications "$PROG" "This requires either dmenu or rofi"
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [ -d "$DMENU_USER_CONF" ]; then
-  EDIT_NAME="$(cd "$DMENU_USER_CONF" && find * -maxdepth 3 -type f | __dmenu)"
-  . "$DMENU_USER_CONF/$EDIT_NAME"
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [ -f "$editConfig" ]; then
-  myeditor "$editConfig"
-else
-  notifications "$PROG" "Can not find the file: $editConfig" || printf_exit "Can not find the file: $editConfig"
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $?
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# end
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 202103231633-git
+  # @Author        : Jason Hempstead
+  # @Contact       : jason@casjaysdev.com
+  # @License       : WTFPL
+  # @ReadME        : dmenu_edit_conf --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+  # @Created       : Tuesday, Mar 23, 2021 16:33 EDT
+  # @File          : dmenu_edit_conf
+  # @Description   : dmenu for editing configuration files
+  # @TODO          : Move to misc user scripts
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  __version() { app_version; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __help() {
+    app_help "4" "Usage: dmenu_edit_conf  -  dmenu_edit_conf --version" \
+      "-c, --config           -  create config file" \
+      "-a, --all              -  show all options" \
+      "-l, --list             -  used by completions" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE"
+    [ -d "$DMENU_EDIT_CONF_CONFIG_DIR" ] || mkdir -p "$DMENU_EDIT_CONF_CONFIG_DIR"
+    [ -f "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" ] &&
+      cp -Rf "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE.$$"
+    cat <<EOF >"$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE"
+# Settings for dmenu_edit_conf
+DMENU_EDIT_USER_CONF_DIR="${DMENU_EDIT_USER_CONF_DIR:-$DMENU_EDIT_CONF_CONFIG_DIR/menus}"
 
+EOF
+    if [ -f "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" ]; then
+      printf_green "Your config file for dmenu_edit_conf has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode="" DMENU_EDIT_CONF_CONFIG_FILE="" DMENU_EDIT_CONF_CONFIG_DIR="" DMENU_EDIT_CONF_OPTIONS_DIR=""
+  local DMENU_EDIT_CONF_CONFIG_FILE="settings.conf"
+  local DMENU_EDIT_CONF_CONFIG_DIR="$HOME/.config/misc/configs/dmenu_edit_conf"
+  local DMENU_EDIT_CONF_OPTIONS_DIR="$HOME/.local/share/misc/options/dmenu_edit_conf"
+  local DMENU_EDIT_USER_CONF_DIR="${DMENU_EDIT_USER_CONF_DIR:-$DMENU_EDIT_CONF_CONFIG_DIR/menus}"
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="${*}"
+  local SHORTOPTS="a,l,c,v,h"
+  local LONGOPTS="all,list,config,version,help"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate Files
+  [ -f "$DMENU_EDIT_CONF_OPTIONS_DIR/options" ] || __list_options "$DMENU_EDIT_CONF_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  [ -f "$DMENU_EDIT_CONF_OPTIONS_DIR/array" ] || __list_array "$DMENU_EDIT_CONF_OPTIONS_DIR" &>/dev/null
+  [ -f "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" ] || __gen_config &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  [ -f "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" ] && . "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
+  eval set -- "$setopts" 2>/dev/null
+  while :; do
+    case $1 in
+    -a | --all)
+      __list_options "$DMENU_EDIT_CONF_OPTIONS_DIR" "$ARRAY"
+      exit $?
+      ;;
+    -l | --list)
+      __list_array "$DMENU_EDIT_CONF_OPTIONS_DIR"
+      exit $?
+      ;;
+    -v | --version)
+      __version
+      exit $?
+      ;;
+    -h | --help)
+      __help
+      exit $?
+      ;;
+    -c | --config)
+      __gen_config
+      exit $?
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+      #*) break ;;
+    esac
+    shift
+  done
+  set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications
+  cmd_exists --error bash || exit 1
+  [ "$(uname)" = Linux ] || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  if cmd_exists rofi; then
+    __dmenu() { rofi -show -dmenu -i -p 'Edit config file: '; }
+  elif cmd_exists dmenu; then
+    __dmenu() { dmenu -i -p 'Edit config file: '; }
+  else
+    notifications "$PROG" "This requires either dmenu or rofi"
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ -d "$DMENU_EDIT_USER_CONF_DIR" ]; then
+    EDIT_NAME="$(cd "$DMENU_EDIT_USER_CONF_DIR" && find * -maxdepth 3 -type f | __dmenu)"
+    . "$DMENU_EDIT_USER_CONF_DIR/$EDIT_NAME"
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ -f "$editConfig" ]; then
+    myeditor "$editConfig"
+  else
+    notifications "$PROG" "Can not find the file: $editConfig" || printf_exit "Can not find the file: $editConfig"
+  fi
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # lets exit with code
+  return "${exitCode:-$?}"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+dmenu_edit_conf_main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

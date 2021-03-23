@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-cmd_exists() {
+cmd_exists_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="cmd_exists"
+  PROG="$(basename $0)"
+  VERSION="202103230741-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"
   SRC_DIR="${BASH_SOURCE%/*}"
@@ -9,68 +10,134 @@ cmd_exists() {
   #set opts
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 031120210447-git
+  ##@Version       : 202103230741-git
   # @Author        : Jason Hempstead
   # @Contact       : jason@casjaysdev.com
   # @License       : WTFPL
   # @ReadME        : cmd_exists --help
   # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-  # @Created       : Thursday, Mar 11, 2021 04:47 EST
+  # @Created       : Tuesday, Mar 23, 2021 07:41 EDT
   # @File          : cmd_exists
-  # @Description   : check if a script exists
+  # @Description   : check to see if the command exists
   # @TODO          :
   # @Other         :
   # @Resource      :
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Main function
-  if [ -f "/usr/local/bin/cmd_exists" ]; then
-    /usr/local/bin/cmd_exists "$@"
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
   else
-  __version() { app_version; }
-  __help() {
-    app_help "Usage: cmd_exists cmd  -  cmd_exists bash fish zsh" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help"
-  }
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case "$1" in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
-  *show) local show=true && shift 1 ;;
-  *err*) local error=show && shift 1 ;;
-  esac
+  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local exitCode=0
-  local missing=""
-  for f in "$@"; do
-    if [ -f "$(command -v "$f" 2>/dev/null)" ] || [ -f "$(type -P "$f" 2>/dev/null)" ]; then
-      found+="$f "
-      exitCode+=0
+  __help() {
+    app_help "4" "Usage: cmd_exists  -  cmd_exists --version" \
+      "-c, --config           -  create config file" \
+      "-a, --all              -  show all options" \
+      "-l, --list             -  used by completions" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE"
+    [ -d "$CMD_EXISTS_CONFIG_DIR" ] || mkdir -p "$CMD_EXISTS_CONFIG_DIR"
+    [ -f "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE" ] &&
+      cp -Rf "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE" "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE.$$"
+    cat <<EOF >"$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE"
+# Settings for cmd_exists
+CMD_EXISTS_NOTIFY="\${CMD_EXISTS_NOTIFY:-yes}"
+CMD_EXISTS_INSTALL="\${CMD_EXISTS_INSTALL:-yes}"
+
+EOF
+    if [ -f "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE" ]; then
+      printf_green "Your config file for cmd_exists has been created"
+      true
     else
-      missing="$f "
-      exitCode+=1
+      printf_red "Failed to create the config file"
+      false
     fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode= CMD_EXISTS_CONFIG_FILE= CMD_EXISTS_CONFIG_DIR= CMD_EXISTS_OPTIONS_DIR=
+  local CMD_EXISTS_CONFIG_FILE="settings.conf"
+  local CMD_EXISTS_CONFIG_DIR="$HOME/.config/misc/configs/cmd_exists"
+  local CMD_EXISTS_OPTIONS_DIR="$HOME/.local/share/misc/options/cmd_exists"
+  CMD_EXISTS_NOTIFY="${CMD_EXISTS_NOTIFY:-yes}"
+  CMD_EXISTS_INSTALL="${CMD_EXISTS_INSTALL:-yes}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="${*}"
+  local SHORTOPTS="a,l,c,v,h"
+  local LONGOPTS="all,list,config,version,help"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate Files
+  [ -f "$CMD_EXISTS_OPTIONS_DIR/options" ] || __list_options "$CMD_EXISTS_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  [ -f "$CMD_EXISTS_OPTIONS_DIR/array" ] || __list_array "$CMD_EXISTS_OPTIONS_DIR" &>/dev/null
+  [ -f "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE" ] || __gen_config &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  [ -f "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE" ] && . "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
+  eval set -- "$setopts" 2>/dev/null
+  while :; do
+    case $1 in
+    -a | --all)
+      __list_options "$CMD_EXISTS_OPTIONS_DIR" "$ARRAY"
+      exit $?
+      ;;
+    -l | --list)
+      __list_array "$CMD_EXISTS_OPTIONS_DIR"
+      exit $?
+      ;;
+    -v | --version)
+      __version
+      exit $?
+      ;;
+    -h | --help)
+      __help
+      exit $?
+      ;;
+    -c | --config)
+      __gen_config
+      exit $?
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+      #*) break ;;
+    esac
+    shift
   done
-  [ "$show" = "true" ] && [ -n "$found" ] && printf_green "$found"
-  [ "$show" = "true" ] && [ -n "$found" ] && [ -n "$missing" ] && printf_red "$missing"
-  if [ "$error" = "show" ] && [ -n "$missing" ]; then
-    printf_red "Missing: $missing"
-    exitCode="1"
-  fi
-  fi
+  set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications
+  cmd_exists --error bash || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  __cmd_exists "$@"
+
+  # lets exit with code
   return "${exitCode:-$?}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-cmd_exists "$@"
+cmd_exists_main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $?
-# end
-
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

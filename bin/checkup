@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-checkup() {
+checkup_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="checkup"
+  PROG="$(basename $0)"
+  VERSION="202103230741-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"
   SRC_DIR="${BASH_SOURCE%/*}"
@@ -9,63 +10,170 @@ checkup() {
   #set opts
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 031120210423-git
+  ##@Version       : 202103230741-git
   # @Author        : Jason Hempstead
   # @Contact       : jason@casjaysdev.com
   # @License       : WTFPL
   # @ReadME        : checkup --help
   # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-  # @Created       : Thursday, Mar 11, 2021 04:23 EST
+  # @Created       : Tuesday, Mar 23, 2021 07:41 EDT
   # @File          : checkup
   # @Description   : check for system updates
   # @TODO          : make compatible with all package managers
   # @Other         : used primarily by i3
   # @Resource      :
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Main function
-  __version() { app_version; }
-  __help() {
-    app_help "Usage: checkup" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help"
-  }
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
   else
-    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
-  esac
-
+  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  __notify() { [ "$CHECKUP_NOTIFICATIONS_ENABLE" = "yes" ] && notifications "$1" "$2"; }
+  __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __pacman() { am_i_online && sudo pacman "$@" || return 1; }
-  if [ "$(command -v pacman)" ]; then
-    notifications "📦 Repository Sync" "Checking for package updates..."
-    if __pacman -Syyuw --noconfirm; then
-      if __pacman -Qu | grep -v "\[ignored\]"; then
-        notifications "🎁 Repository Sync" "Updates available."
+  __help() {
+    app_help "4" "Usage: checkup  -  checkup --version" \
+      "-c, --config           -  create config file" \
+      "-a, --all              -  show all options" \
+      "-l, --list             -  used by completions" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE"
+    [ -d "$CHECKUP_CONFIG_DIR" ] || mkdir -p "$CHECKUP_CONFIG_DIR"
+    [ -f "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" ] &&
+      cp -Rf "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE.$$"
+    cat <<EOF >"$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE"
+# Settings for checkup
+CHECKUP_NOTIFICATIONS_NAME="CheckUP"
+CHECKUP_NOTIFICATIONS_ENABLE="${CHECKUP_NOTIFICATIONS_ENABLE=yes}"
+CHECKUP_NOTIFICATIONS_SYNC_NAME="📦 \$CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_NOUPDATES_NAME="📦 \$CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_UPDATES_NAME="🎁 \$CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_ERROR_NAME="📦 \$CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_SYNC_MESG="Checking for package updates..."
+CHECKUP_NOTIFICATIONS_NOUPDATES_MESG="No updates available"
+CHECKUP_NOTIFICATIONS_UPDATES_MESG="Updates available."
+CHECKUP_NOTIFICATIONS_ERROR_MESG="Error downloading updates."
+NOTIFY_CLIENT_ICON="software"
+NOTIFY_CLIENT_NAME="\$CHECKUP_NOTIFICATIONS_NAME"
+EOF
+    if [ -f "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" ]; then
+      printf_green "Your config file for checkup has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode= CHECKUP_CONFIG_FILE= CHECKUP_CONFIG_DIR= CHECKUP_OPTIONS_DIR=
+  local CHECKUP_CONFIG_FILE="settings.conf"
+  local CHECKUP_CONFIG_DIR="$HOME/.config/misc/configs/checkup"
+  local CHECKUP_OPTIONS_DIR="$HOME/.local/share/misc/options/checkup"
+  local CHECKUP_NOTIFICATIONS_NAME="CheckUP"
+  local CHECKUP_NOTIFICATIONS_ENABLE="${CHECKUP_NOTIFICATIONS_ENABLE=yes}"
+  local CHECKUP_NOTIFICATIONS_SYNC_NAME="📦 $CHECKUP_NOTIFICATIONS_NAME"
+  local CHECKUP_NOTIFICATIONS_NOUPDATES_NAME="📦 $CHECKUP_NOTIFICATIONS_NAME"
+  local CHECKUP_NOTIFICATIONS_UPDATES_NAME="🎁 $CHECKUP_NOTIFICATIONS_NAME"
+  local CHECKUP_NOTIFICATIONS_ERROR_NAME="📦 $CHECKUP_NOTIFICATIONS_NAME"
+  local CHECKUP_NOTIFICATIONS_SYNC_MESG="Checking for package updates..."
+  local CHECKUP_NOTIFICATIONS_NOUPDATES_MESG="No updates available"
+  local CHECKUP_NOTIFICATIONS_UPDATES_MESG="Updates available."
+  local CHECKUP_NOTIFICATIONS_ERROR_MESG="Error downloading updates."
+  export NOTIFY_CLIENT_ICON="software"
+  export NOTIFY_CLIENT_NAME="$CHECKUP_NOTIFICATIONS_NAME"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="${*}"
+  local SHORTOPTS="a,l,c,v,h"
+  local LONGOPTS="all,list,config,version,help"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate Files
+  [ -f "$CHECKUP_OPTIONS_DIR/options" ] || __list_options "$CHECKUP_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  [ -f "$CHECKUP_OPTIONS_DIR/array" ] || __list_array "$CHECKUP_OPTIONS_DIR" &>/dev/null
+  [ -f "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" ] || __gen_config &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  [ -f "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" ] && . "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
+  eval set -- "$setopts" 2>/dev/null
+  while :; do
+    case $1 in
+    -a | --all)
+      __list_options "$CHECKUP_OPTIONS_DIR" "$ARRAY"
+      exit $?
+      ;;
+    -l | --list)
+      __list_array "$CHECKUP_OPTIONS_DIR"
+      exit $?
+      ;;
+    -v | --version)
+      __version
+      exit $?
+      ;;
+    -h | --help)
+      __help
+      exit $?
+      ;;
+    -c | --config)
+      __gen_config
+      exit $?
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+      #*) break ;;
+    esac
+    shift
+  done
+  set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications
+  cmd_exists --error bash || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  if [ "$(command -v pkmgr)" ]; then
+    notifications "$CHECKUP_NOTIFICATIONS_SYNC_NAME" "$CHECKUP_NOTIFICATIONS_SYNC_MESG"
+    if pkmgr check; then
+      if [ "$(pkmgr check)" = 0 ]; then
+        __notify "$CHECKUP_NOTIFICATIONS_NOUPDATES_NAME" "$CHECKUP_NOTIFICATIONS_NOUPDATES_MESG"
       else
-        notifications "📦 Repository Sync" "Sync complete. No new packages for update."
+        __notify "$CHECKUP_NOTIFICATIONS_UPDATES_NAME" "$CHECKUP_NOTIFICATIONS_UPDATES_MESG"
       fi
       local exitCode=0
     else
-      notifications "Error downloading updates."
+      __notify "$CHECKUP_NOTIFICATIONS_ERROR_NAME" "$CHECKUP_NOTIFICATIONS_ERROR_MESG"
       local exitCode=1
     fi
     [ -n "${STATUSBAR}" ] && pkill -RTMIN+8 "${STATUSBAR:?}"
   else
     local exitCode=1
   fi
+
+  # lets exit with code
   return "${exitCode:-$?}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-checkup "$@"
+checkup_main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $?
-# end
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

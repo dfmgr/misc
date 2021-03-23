@@ -98,7 +98,7 @@ printf_help() { printf_blue "$*"; }
 
 printf_mkdir() {
   [ -n "$1" ] || return 1
-  if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p "$1""; then
+  if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p $1"; then
     true
   else
     printf_red "$1 doesn't seem to be a directory"
@@ -238,21 +238,21 @@ app_help() {
 }
 # grep header
 grep_head() {
-  grep -E ^'.*#?@'${1:-Version}'.*  :' "${2:-$filename}" | \
-    grep -v '\$' | \
-    grep -E ^'.*#.@'${1:-*}'' | \
-    sed -E 's/..*#[#, ]@//g' | \
-    sed -E 's/.*#[#, ]@//g' | \
-    head -n14 | \
+  grep -E ^'.*#?@'${1:-Version}'.*  :' "${2:-$filename}" |
+    grep -v '\$' |
+    grep -E ^'.*#.@'${1:-*}'' |
+    sed -E 's/..*#[#, ]@//g' |
+    sed -E 's/.*#[#, ]@//g' |
+    head -n14 |
     grep '^' || return 1
 }
 # display version
 app_version() {
-  local prog="${PROG:-$APPNAME}"             # get from file
-  local name="$(basename "${1:-$prog}")"     # get from os
-  local appname="${prog:-$name}"             # figure out wich one
-  local filename="$SRC_DIR/${PROG:-$APPNAME}"   # get filename
-  if [ -f "$filename" ]; then  # check for file
+  local prog="${PROG:-$APPNAME}"              # get from file
+  local name="$(basename "${1:-$prog}")"      # get from os
+  local appname="${prog:-$name}"              # figure out wich one
+  local filename="$SRC_DIR/${PROG:-$APPNAME}" # get filename
+  if [ -f "$filename" ]; then                 # check for file
     printf "\n"
     printf_green "Getting info for $appname"
     grep_head "Version" "$filename" &>/dev/null &&
@@ -270,42 +270,63 @@ app_version() {
 check_local() {
   local file="${1:-$PWD}"
   if [ -d "$file" ]; then
-    type=dir && localfile=true && return 0
+    type="dir"
+    localfile="true"
+    return 0
   elif [ -f "$file" ]; then
-    type=file && localfile=true && return 0
+    type="file"
+    localfile="true"
+    return 0
   elif [ -L "$file" ]; then
-    type=symlink && localfile=true && return 0
+    type="symlink"
+    localfile="true"
+    return 0
   elif [ -S "$file" ]; then
-    type=socket && localfile=true && return 0
+    type="socket"
+    localfile="true"
+    return 0
   elif [ -b "$file" ]; then
-    type=block && localfile=true && return 0
+    type="block"
+    localfile="true"
+    return 0
   elif [ -p "$file" ]; then
-    type=pipe && localfile=true && return 0
-  elif [ -c "$file" ]; then
-    type=character && localfile=true && return 0
+    type="pipe"
+    localfile="true"
+    return 0
+  elif [ -c "$"file"" ]; then
+    type=character
+    localfile=true
+    return 0
   elif [ -e "$file" ]; then
-    type=file && localfile=true && return 0
+    type="file"
+    localfile="true"
+    return 0
   else
-    type= && localfile=
+    type=""
+    localfile=""
     return 1
   fi
 }
 check_uri() {
   local url="$1"
   if echo "$url" | grep -q "http.*://\S\+\.[A-Za-z]\+\S*"; then
-    uri=http && return 0
+    uri="http"
+    return 0
   elif echo "$url" | grep -q "ftp.*://\S\+\.[A-Za-z]\+\S*"; then
-    uri=ftp && return 0
+    uri="ftp"
+    return 0
   elif echo "$url" | grep -q "git.*://\S\+\.[A-Za-z]\+\S*"; then
-    uri=git && return 0
+    uri="git"
+    return 0
   elif echo "$url" | grep -q "ssh.*://\S\+\.[A-Za-z]\+\S*"; then
-    uri=ssh && return 0
+    uri="ssh"
+    return 0
   else
-    uri=
+    uri=""
     return 1
   fi
 }
-__am_i_online() { am_i_online &>/dev/null; }
+__am_i_online() { am_i_online "$@" &>/dev/null; }
 # online check
 am_i_online() {
   __curl() { devnull2 timeout 1 curl --disable -LSIs --max-time 1 "$site" | grep -e "HTTP/[0123456789]" | grep "200" -n1 &>/dev/null; }
@@ -328,31 +349,31 @@ am_i_online() {
   shift
   test_ping() {
     __ping || false
-    pingExit=$?
+    pingExit="$?"
     return ${pingExit:-$?}
   }
   test_http() {
     __curl || false
-    httpExit=$?
+    httpExit="$?"
     return ${httpExit:-$?}
   }
   if test_ping || test_http; then exitCode=0; else
-    exitCode=1
-    OFFLINE=true
+    exitCode="1"
+    OFFLINE="true"
   fi
   if [ "$pingExit" = 0 ] || [ "$httpExit" = 0 ]; then
     if [ "$console" = "yes" ]; then
       notifications "Am I Online" "$site is up: you seem to be connected to the internet"
-      exitCode=0
+      exitCode="0"
     fi
   else
     if [ "$console" = "yes" ]; then
       notifications "Am I Online" "$site is down: you appear to not be connected to the internet"
-      exitCode=1
+      exitCode="1"
     fi
     if [ "$showerror" = "yes" ] && [ -z "$console" ]; then
       notifications "Am I Online" "$site is down: you appear to not be connected to the internet"
-      exitCode=1
+      exitCode="1"
     fi
   fi
   return ${exitCode:-$?}
@@ -411,15 +432,25 @@ __cmd_exists() { cmd_exists "$@"; }
 # command check
 cmd_exists() {
   [ "$CMD_EXISTS_NOTIFY" = "yes" ] || notifications() { true "$@"; }
-  [ "$CMD_EXISTS_INSTALL" = "yes" ] && \
-    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; } || \
-    install_missing() { true "$@"; }
+  [ "$CMD_EXISTS_INSTALL" = "yes" ] &&
+    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; } ||
+      install_missing() { true "$@"; }
   case "$1" in
-  *show) local show=true && shift 1 ;;
-  *err*) local error=show && shift 1 ;;
+  --show)
+    local show=true
+    shift 1
+    ;;
+  --error | --err)
+    local error=show
+    shift 1
+    ;;
+  -message | -msg)
+    local message="$1"
+    shift 2
+    ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local exitCode=0
+  local exitCode="0"
   local missing=""
   for f in "$@"; do
     if [ -f "$(command -v "$f" 2>/dev/null)" ] || [ -f "$(type -P "$f" 2>/dev/null)" ]; then
@@ -435,12 +466,12 @@ cmd_exists() {
     notifications "CMD Exists" "Found: $found"
   fi
   if [ "$show" = "true" ] && [ -n "$found" ] && [ -n "$missing" ]; then
-    printf_red "$missing"
-    notifications "CMD Exists" "Missing: $missing"
+    printf_red "${message:-Missing: $missing}"
+    notifications "CMD Exists" "${message:-Missing: $missing}"
   fi
   if [ "$error" = "show" ] && [ -n "$missing" ] && [ -z "$show" ]; then
-    printf_red "Missing: $missing" >&2
-    notifications "CMD Exists" "Missing: $missing"
+    printf_red "${message:-Missing: $missing}" >&2
+    notifications "CMD Exists" "${message:-Missing: $missing}"
     exitCode="1"
   fi
   [ -z "$missing" ] || install_missing "$missing"

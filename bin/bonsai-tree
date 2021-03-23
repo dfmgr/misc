@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-bonsai-tree() {
+bonsai-tree_main() {
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	PROG="bonsai-tree"
+	PROG="$(basename $0)"
+	VERSION="202103230741-git"
 	USER="${SUDO_USER:-${USER}}"
 	HOME="${USER_HOME:-${HOME}}"
 	SRC_DIR="${BASH_SOURCE%/*}"
@@ -9,19 +10,20 @@ bonsai-tree() {
 	#set opts
 
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	##@Version       : 031420210326-git
+	##@Version       : 202103230741-git
 	# @Author        : Jason Hempstead
 	# @Contact       : jason@casjaysdev.com
-	# @License       : GPLv3
+	# @License       : WTFPL
 	# @ReadME        : bonsai-tree --help
 	# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-	# @Created       : Sunday, Mar 14, 2021 03:26 EDT
+	# @Created       : Tuesday, Mar 23, 2021 07:41 EDT
 	# @File          : bonsai-tree
 	# @Description   : bonsai.sh is a static and live bonsai tree generator, written in bash.
 	# @TODO          :
 	# @Other         : Author: John Allbritten: theSynAck.com
 	# @Resource      : https://gitlab.com/jallbrit/bonsai.sh.git
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Main function file
 	if [ -f "$SRC_DIR/functions.bash" ]; then
 		FUNCTIONS_DIR="$SRC_DIR"
 		. "$FUNCTIONS_DIR/functions.bash"
@@ -33,10 +35,11 @@ bonsai-tree() {
 		return 1
 	fi
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	# helper function
+	# helper functions - See github.com/dfmgr/misc/bin/functions.bash
 	__version() { app_version; }
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	__help() {
-		app_help "Usage: bonsai-tree [-h] [-i] [-l] [-T] [-m message] [-t time] [-g x,y] [ -c char] [-M 0-9]" \
+		app_help "4" "Usage: bonsai-tree [-h] [-i] [-l] [-T] [-m message] [-t time] [-g x,y] [ -c char] [-M 0-9]" \
 			"-l, --live             -  enable live generation" \
 			"-t, --time time        -  time between each step of growth [default: 0.01]" \
 			"-m, --message text     -  attach a message to the tree" \
@@ -49,18 +52,87 @@ bonsai-tree() {
 			"-L, --life int         -  life of tree; higher equals more overall growth [default: 28]" \
 			"-h, --help             -  this message" \
 			"-v, --version          -  show version"
+		exit $?
 	}
-	# ------ vars ------
-	# CLI options
-	case $1 in
-	-v | --version)
-		__version
-		;;
-	-h | --help)
-		__help
-		;;
-	esac
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	__gen_config() {
+		printf_green "Generating the config file in"
+		printf_green "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
+		[ -d "$BONSAI_TREE_CONFIG_DIR" ] || mkdir -p "$BONSAI_TREE_CONFIG_DIR"
+		[ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ] &&
+			cp -Rf "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE.$$"
+		cat <<EOF >"$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
+# Settings for bonsai-tree
 
+EOF
+		if [ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ]; then
+			printf_green "Your config file for bonsai-tree has been created"
+			true
+		else
+			printf_red "Failed to create the config file"
+			false
+		fi
+	}
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Defaults
+	local exitCode="" BONSAI_TREE_CONFIG_FILE="" BONSAI_TREE_CONFIG_DIR="" BONSAI_TREE_OPTIONS_DIR=""
+	local BONSAI_TREE_CONFIG_FILE="settings.conf"
+	local BONSAI_TREE_CONFIG_DIR="$HOME/.config/misc/configs/bonsai-tree"
+	local BONSAI_TREE_OPTIONS_DIR="$HOME/.local/share/misc/options/bonsai-tree"
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Argument/Option settings
+	local SETARGS="${*}"
+	local SHORTOPTS="a,l,c,v,h"
+	local LONGOPTS="all,list,config,version,help"
+	local ARRAY=""
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Generate Files
+	[ -f "$BONSAI_TREE_OPTIONS_DIR/options" ] || __list_options "$BONSAI_TREE_OPTIONS_DIR" "$ARRAY" &>/dev/null
+	[ -f "$BONSAI_TREE_OPTIONS_DIR/array" ] || __list_array "$BONSAI_TREE_OPTIONS_DIR" &>/dev/null
+	[ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ] || __gen_config &>/dev/null
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Import config
+	[ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ] && . "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# options
+	local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
+	eval set -- "$setopts" 2>/dev/null
+	while :; do
+		case $1 in
+		-a | --all)
+			__list_options "$BONSAI_TREE_OPTIONS_DIR" "$ARRAY"
+			exit $?
+			;;
+		-l | --list)
+			__list_array "$BONSAI_TREE_OPTIONS_DIR"
+			exit $?
+			;;
+		-v | --version)
+			__version
+			exit $?
+			;;
+		-h | --help)
+			__help
+			exit $?
+			;;
+		-c | --config)
+			__gen_config
+			exit $?
+			;;
+		--)
+			shift 1
+			break
+			;;
+			#*) break ;;
+		esac
+		shift
+	done
+	set -- "$SETARGS"
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Check for required applications
+	cmd_exists --error bash || exit 1
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# begin main app
 	flag_h=false
 	live=false
 	infinite=false
@@ -85,7 +157,7 @@ bonsai-tree() {
 
 	# ------ parse options ------
 
-	OPTS="ult:ig:c:Tm:b:M:L:" # the colon means it requires a value
+	OPTS="ut:ig:c:Tm:b:M:L:" # the colon means it requires a value
 	LONGOPTS="usage,live,time:,infinite,geo:,leaf:,termcolors,message:,base:,multiplier:,life:"
 
 	parsed=$(getopt --options=$OPTS --longoptions=$LONGOPTS -- "$@")
@@ -98,7 +170,7 @@ bonsai-tree() {
 			shift
 			;;
 
-		-l | --live)
+		--live)
 			live=true
 			shift
 			;;
@@ -589,6 +661,12 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
 		sleep 2
 		bonsai
 	done
+	# lets exit with code
+	return "${exitCode:-$?}"
 }
-
-bonsai-tree "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+bonsai-tree_main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

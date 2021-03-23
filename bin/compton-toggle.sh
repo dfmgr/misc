@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-compton-toggle.sh() {
+compton-toggle.sh_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="compton-toggle.sh"
+  PROG="$(basename $0)"
+  VERSION="202103231633-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"
   SRC_DIR="${BASH_SOURCE%/*}"
@@ -9,72 +10,158 @@ compton-toggle.sh() {
   #set opts
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 031120210512-git
+  ##@Version       : 202103231633-git
   # @Author        : Jason Hempstead
   # @Contact       : jason@casjaysdev.com
   # @License       : WTFPL
   # @ReadME        : compton-toggle.sh --help
   # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-  # @Created       : Thursday, Mar 11, 2021 05:12 EST
+  # @Created       : Tuesday, Mar 23, 2021 16:33 EDT
   # @File          : compton-toggle.sh
-  # @Description   : picom/comptom toggle
+  # @Description   : polybar compton/picom toggle script
   # @TODO          :
   # @Other         :
-  # @Resource      :
+  # @Resource      : https://github.com/jaagr/polybar/wiki/User-contributed-modules
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # main function
-  __version() { app_version; }
-  __help() {
-    app_help "Usage: compton-toggle.sh" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help"
-  }
-
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
   else
-    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
-  esac
+  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ -f "$(command -v picom 2>/dev/null)" ]; then
+  __help() {
+    app_help "4" "Usage: compton-toggle.sh" \
+      "-c, --config           -  create config file" \
+      "-a, --all              -  show all options" \
+      "-l, --list             -  used by completions" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE"
+    [ -d "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR" ] || mkdir -p "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR"
+    [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ] &&
+      cp -Rf "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE.$$"
+    cat <<EOF >"$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE"
+# Settings for compton-toggle.sh
+COMPTON_SH_TOGGLE_SH_PICOM_FILE="\${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-\$DESKTOP_SESSION_CONFDIR/picom.conf}"
+COMPTON_SH_TOGGLE_SH_COMPTON_FILE="\${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-\$DESKTOP_SESSION_CONFDIR/compton.conf}"
+
+EOF
+    if [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ]; then
+      printf_green "Your config file for compton-toggle.sh has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode="" COMPTON_SH_TOGGLE_SH_CONFIG_FILE="" COMPTON_SH_TOGGLE_SH_CONFIG_DIR="" COMPTON_SH_TOGGLE_SH_OPTIONS_DIR=""
+  local COMPTON_SH_TOGGLE_SH_CONFIG_FILE="settings.conf"
+  local COMPTON_SH_TOGGLE_SH_CONFIG_DIR="$HOME/.config/misc/configs/compton-toggle.sh"
+  local COMPTON_SH_TOGGLE_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/compton-toggle.sh"
+  local COMPTON_SH_TOGGLE_SH_PICOM_FILE="${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/picom.conf}"
+  local COMPTON_SH_TOGGLE_SH_COMPTON_FILE="${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/compton.conf}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="${*}"
+  local SHORTOPTS="a,l,c,v,h"
+  local LONGOPTS="all,list,config,version,help"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate Files
+  [ -f "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR/options" ] || __list_options "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  [ -f "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR/array" ] || __list_array "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR" &>/dev/null
+  [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ] || __gen_config &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ] && . "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
+  eval set -- "$setopts" 2>/dev/null
+  while :; do
+    case $1 in
+    -a | --all)
+      __list_options "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR" "$ARRAY"
+      exit $?
+      ;;
+    -l | --list)
+      __list_array "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR"
+      exit $?
+      ;;
+    -v | --version)
+      __version
+      exit $?
+      ;;
+    -h | --help)
+      __help
+      exit $?
+      ;;
+    -c | --config)
+      __gen_config
+      exit $?
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+      #*) break ;;
+    esac
+    shift
+  done
+  set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications
+  cmd_exists --error bash || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  if cmd_exists picom; then
     if pgrep -x "picom" &>/dev/null; then
       killall picom &>/dev/null || return 1
     else
-      if [ -f "$DESKTOP_SESSION_CONFDIR/picom.conf" ]; then
-        picom -b --config $DESKTOP_SESSION_CONFDIR/picom.conf &>/dev/null
-      elif [ -f "$DESKTOP_SESSION_CONFDIR/compton.conf" ]; then
-        picom -b --config $DESKTOP_SESSION_CONFDIR/compton.conf &>/dev/null
+      if [ -f "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" ]; then
+        picom -b --config "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" &>/dev/null
+      elif [ -f "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" ]; then
+        picom -b --config "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" &>/dev/null
       else
         picom -b &>/dev/null
       fi
     fi
-  elif [ -f "$(command -v compton 2>/dev/null)" ]; then
+  elif cmd_exists comptom; then
     if pgrep -x "compton" &>/dev/null; then
       killall compton &>/dev/null || return 1
     else
-      if [ -f "$DESKTOP_SESSION_CONFDIR/picom.conf" ]; then
-        compton -b --config $DESKTOP_SESSION_CONFDIR/picom.conf &>/dev/null
-      elif [ -f "$DESKTOP_SESSION_CONFDIR/compton.conf" ]; then
-        compton -b --config $DESKTOP_SESSION_CONFDIR/compton.conf &>/dev/null
+      if [ -f "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" ]; then
+        compton -b --config "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" &>/dev/null
+      elif [ -f "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" ]; then
+        compton -b --config "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" &>/dev/null
       else
         compton -b &>/dev/null
       fi
     fi
-  else
-    local exitCode=1
   fi
-  return ${exitCode:-$?}
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # lets exit with code
+  return "${exitCode:-$?}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-compton-toggle.sh "$@"
+# execute function
+compton-toggle.sh_main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-exit $?
+# End application
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# end
