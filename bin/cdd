@@ -35,8 +35,6 @@ cdd() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # helper function
   __version() { app_version; }
   __help() {
@@ -72,11 +70,15 @@ EOF
     exit $?
   }
   cd_goto() {
+    [ $# -eq 1 ] || __help
+    if [[ "$1" != "$SHORTOPTS" ]] || [[ "$1" != "$LONGOPTS" ]]; then
+      [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active"
+    fi
     export PS1_ADD="$PS1_ADD cdd: $1"
     if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen && main "$@"; fi
     local dir="$(list_aliases "folder" "$1")"
     [ -n "$dir" ] || printf_exit "Please specify a directory - see $APPNAME -l"
-    [ -d "$dir" ] || printf_mkdir "$dir"
+    [ -d "$dir" ] || printf_mkdir "$dir" || printf_exit "Failed to create $dir"
     printf_green "entering $dir"
     printf_green "Type exit to return to your previous directory"
     [ -d "$dir" ] && builtin cd $dir && export CDD_STATUS="running"
@@ -98,7 +100,7 @@ EOF
     return $?
   }
   list_aliases() {
-    if [ ! -f "$CONFDIR/$CONFFILE" ]; then __config_gen &>/dev/null; fi
+    [ -f "$CONFDIR/$CONFFILE" ] || __config_gen &>/dev/null
     if [ "$1" = "folder" ]; then
       shift 1
       grep -E ^''$1' =*..*'$ "$CONFDIR/$CONFFILE" | awk -F'= ' '{print $2}' | sed -e 's#"##g' 2>/dev/null | grep '^' | grep -Ev '^$|^#'
@@ -136,13 +138,13 @@ EOF
       shift 1
       ;;
     -r | --remove)
-      rm_alias "$2"
+      [ $# -eq 3 ] && rm_alias "$2" || __help
       shift 1
       exit $?
       ;;
     -m | --modify)
       shift 2
-      add_alias "$2" "$3"
+      [ $# -eq 3 ] && add_alias "$2" "$3" || __help
       exit $?
       ;;
     -f | --function) prinf_green 'function_name() { $(type -P $APPNAME) "$@"; }' ;;
@@ -159,7 +161,6 @@ EOF
     shift 1
   done
   local CASEOPT="${OPTS:-$ARGS}"
-  [ -d "$MYCURRDIR" ] || printf_mkdir "$MYCURRDIR"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
   cmd_exists --error bash || exit 1

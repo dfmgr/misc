@@ -85,8 +85,6 @@ printf_yellow() { printf_color "\t\t$1\n" 3; }
 printf_blue() { printf_color "\t\t$1\n" 4; }
 printf_cyan() { printf_color "\t\t$1\n" 6; }
 printf_info() { printf_color "\t\t[ ℹ️  ] $1\n" 3; }
-printf_exit() { printf_color "\t\t$1\n" "${3:-1}" && exit "${2:-1}"; }
-printf_return() { printf_color "\t\t$1\n" "${3:-1}" && return "${2:-1}"; }
 printf_read() { printf_color "\t\t$1" 5; }
 printf_success() { printf_color "\t\t[ ✔ ] $1\n" 2; }
 printf_error() { printf_color "\t\t[ ✖ ] $1 $2\n" 1; }
@@ -121,6 +119,18 @@ printf_custom() {
   shift
   printf_color "\t\t$msg" "$color"
   printf "\n"
+}
+
+printf_exit() {
+  [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
+  [[ $1 == ?(-)+([0-9]) ]] && local exit="$1" && shift 1 || local exit="1"
+  printf_color "\t\t$1\n" "$color" && return $exit
+}
+
+printf_exit() {
+  [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
+  [[ $1 == ?(-)+([0-9]) ]] && local exit="$1" && shift 1 || local exit="1"
+  printf_color "\t\t$1\n" "$color" && exit $exit
 }
 
 printf_custom_question() {
@@ -397,9 +407,13 @@ ask_confirm() {
     return ${exitCode:-$?}
   fi
 }
+__cmd_exists() { cmd_exists "$@"; }
 # command check
 cmd_exists() {
-  install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; }
+  [ "$CMD_EXISTS_NOTIFY" = "yes" ] || notifications() { true "$@"; }
+  [ "$CMD_EXISTS_INSTALL" = "yes" ] && \
+    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; } || \
+    install_missing() { true "$@"; }
   case "$1" in
   *show) local show=true && shift 1 ;;
   *err*) local error=show && shift 1 ;;
