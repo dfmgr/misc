@@ -153,7 +153,7 @@ run_postinst() {
     [ -L "$HOME/.$f" ] && rm_link "$HOME/.$f"
     cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
   done
-  for c in CasjaysDev dunst lynx xresources; do
+  for c in CasjaysDev dunst lynx xresources dmenu_edit_conf; do
     [ -L "$HOME/.config/$c" ] && rm_link "$HOME/.config/$c"
     [ -d "$HOME/.config/$c" ] || mkd "$HOME/.config/$c"
     cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"

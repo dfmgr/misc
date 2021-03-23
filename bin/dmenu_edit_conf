@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-APPNAME="$(basename $0)"
+PROG="$(basename $0)"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
@@ -8,128 +8,56 @@ SRC_DIR="${BASH_SOURCE%/*}"
 #set opts
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103200631-git
+##@Version       : 202103222059-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
 # @ReadME        : dmenu_edit_conf --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Saturday, Mar 20, 2021 06:31 EDT
+# @Created       : Monday, Mar 22, 2021 20:59 EDT
 # @File          : dmenu_edit_conf
 # @Description   : dmenu for editing configuration files
 # @TODO          : Move to misc user scripts
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Import functions
-CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
-SCRIPTSFUNCTDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}/functions"
-SCRIPTSFUNCTFILE="${SCRIPTSAPPFUNCTFILE:-testing.bash}"
-SCRIPTSFUNCTURL="${SCRIPTSAPPFUNCTURL:-https://github.com/dfmgr/installer/raw/master/functions}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [ -f "$PWD/$SCRIPTSFUNCTFILE" ]; then
-  . "$PWD/$SCRIPTSFUNCTFILE"
-elif [ -f "$SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE" ]; then
-  . "$SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE"
+# Main function file
+if [ -f "$SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
 else
-  echo "Can not load the functions file: $SCRIPTSFUNCTDIR/$SCRIPTSFUNCTFILE" 1>&2
-  exit 1
+  printf "\t\t\033[0;31m%s \033[0m\n" "Could not source the functions file from $\FUNCTIONS_DIR"
+  return 1
 fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# user system devenv dfmgr dockermgr fontmgr iconmgr pkmgr systemmgr thememgr wallpapermgr
-user_install
-__options "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ "$(uname)" = Linux ] || exit 1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ARRAY="$(cat $SCRIPTSFUNCTDIR/helpers/dmenu_edit_conf/array)"
+DMENU_EDIT_CONFIG_DIR="${DMENU_EDIT_CONFIG_DIR:-$HOME/.config/dmenu_edit_conf}"
+DMENU_USER_CONF="${DMENU_USER_CONF:-$DMENU_EDIT_CONFIG_DIR/menus}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-editConfig=$(echo -e "${ARRAY[@]}" | dmenu -i -p 'Edit config file: ')
+if cmd_exists rofi; then
+  __dmenu() { rofi -show -dmenu -i -p 'Edit config file: '; }
+elif cmd_exists dmenu; then
+  __dmenu() { dmenu -i -p 'Edit config file: '; }
+else
+  notifications "$PROG" "This requires either dmenu or rofi"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-case "$editConfig" in
-quit)
-  echo "Program terminated." && exit 1
-  ;;
-alacritty)
-  editConfig="$HOME/.config/alacritty/alacritty.yml"
-  ;;
-awesome)
-  editConfig="$HOME/.config/awesome/rc.lua"
-  ;;
-bash)
-  editConfig="$HOME/.bashrc"
-  ;;
-bspwm)
-  editConfig="$HOME/.config/bspwm/bspwmrc"
-  ;;
-doom.d/config.el)
-  editConfig="$HOME/.doom.d/config.el"
-  ;;
-doom.d/init.el)
-  editConfig="$HOME/.doom.d/init.el"
-  ;;
-dunst)
-  editConfig="$HOME/.config/dunst/dunstrc"
-  ;;
-dwm)
-  editConfig="$HOME/dwm/config.h"
-  ;;
-emacs.d/init.el)
-  editConfig="$HOME/.emacs.d/init.el"
-  ;;
-i3)
-  editConfig="$HOME/.i3/config"
-  ;;
-neovim)
-  editConfig="$HOME/.config/nvim/init.vim"
-  ;;
-picom)
-  editConfig="$HOME/.config/picom/picom.conf"
-  ;;
-polybar)
-  editConfig="$HOME/.config/polybar/config"
-  ;;
-qtile)
-  editConfig="$HOME/.config/qtile/config.py"
-  ;;
-sxhkd)
-  editConfig="$HOME/.config/sxhkd/sxhkdrc"
-  ;;
-termite)
-  editConfig="$HOME/.config/termite/config"
-  ;;
-vifm)
-  editConfig="$HOME/.config/vifm/vifmrc"
-  ;;
-vim)
-  editConfig="$HOME/.config/vim/vimrc"
-  ;;
-vimb)
-  editConfig="$HOME/.config/vimb/config"
-  ;;
-xmobar)
-  editConfig="$HOME/.config/xmobar/xmobarrc"
-  ;;
-xmonad)
-  editConfig="$HOME/.config/xmonad/xmonad.hs"
-  ;;
-xresources)
-  editConfig="$HOME/.Xresources"
-  ;;
-zsh)
-  editConfig="$HOME/.zshrc"
-  ;;
-*)
-  exit 1
-  ;;
-esac
+if [ -d "$DMENU_USER_CONF" ]; then
+  EDIT_NAME="$(cd "$DMENU_USER_CONF" && find * -maxdepth 3 -type f | __dmenu)"
+  . "$DMENU_USER_CONF/$EDIT_NAME"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ -f "$editConfig" ]; then
   myeditor "$editConfig"
 else
-  notifications "$APPNAME" "Can not find the file: $editConfig" || printf_exit "Can not find the file: $editConfig"
+  notifications "$PROG" "Can not find the file: $editConfig" || printf_exit "Can not find the file: $editConfig"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+
