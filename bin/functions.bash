@@ -169,7 +169,7 @@ return_error() {
 # get description for help
 get_desc() {
   local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/sbin"
-  local appname="$(type -P "${PROG:-$APPNAME}" 2>/dev/null || command -v "${PROG:-$APPNAME}" 2>/dev/null)"
+  local appname="$SRC_DIR/${PROG:-$APPNAME}"
   local desc="$(grep_head "Description" "$appname" | head -n1 | sed 's#..* : ##g')"
   [ -n "$desc" ] && printf '%s' "$desc" || printf '%s' "$appname help"
 }
@@ -227,7 +227,7 @@ app_help() {
 }
 # grep header
 grep_head() {
-  grep -v 'GEN_SCRIPT_REPLACE' "$2" 2>/dev/null | grep '   :' | \
+  grep -E ^'.*#?@'${1:-Version}'.*  :' "${2:-$filename}" | \
     grep -v '\$' | \
     grep -E ^'.*#.@'${1:-*}'' | \
     sed -E 's/..*#[#, ]@//g' | \
@@ -237,19 +237,19 @@ grep_head() {
 }
 # display version
 app_version() {
-  local prog="${PROG:-$APPNAME}"           # get from file
-  local name="$(basename "${1:-$prog}")"   # get from os
-  local appname="${prog:-$name}"           # figure out wich one
-  filename="$(type -P "$appname")"         # get filename
-  if [ -f "$(type -P "$filename")" ]; then # check for file
+  local prog="${PROG:-$APPNAME}"             # get from file
+  local name="$(basename "${1:-$prog}")"     # get from os
+  local appname="${prog:-$name}"             # figure out wich one
+  local filename="$SRC_DIR/${PROG:-$APPNAME}"   # get filename
+  if [ -f "$filename" ]; then  # check for file
     printf "\n"
-    printf_green "Getting info for $filename"
+    printf_green "Getting info for $appname"
     grep_head "Version" "$filename" &>/dev/null &&
       grep_head "*" "$filename" | printf_readline "3" &&
       printf_green "$(grep_head "Version" "$filename" | head -n1)" ||
-      printf_return "File was found, however, No information was provided"
+      printf_return "${filename:-File} was found, however, No information was provided"
   else
-    printf_red "${1:-$appname} was not found"
+    printf_red "$filename was not found"
     exitCode=1
   fi
   printf "\n"
