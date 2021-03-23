@@ -74,7 +74,7 @@ ln_sf() {
   devnull ln -sf "$@"
   ln_rm "${1:-$HOME}"
 }
-
+cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
 # colorize
 printf_color() { printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"; }
 printf_normal() { printf_color "\t\t$1\n" "$2"; }
@@ -175,6 +175,7 @@ get_desc() {
 }
 # display help
 app_help() {
+  printf "\n"
   local set_desc="$(get_desc)"
   test -n "$1" && test -z "${1//[0-9]/}" && local color="$1" && shift 1 || local color="4"
   local msg1="$1" && shift 1
@@ -200,7 +201,7 @@ app_help() {
   local msg20="$1" && shift 1 || msg20=
   shift $#
   if [ -n "${PROG:-$APPNAME}" ] && [ -n "$set_desc" ]; then
-    printf_color "\t\t$set_desc\n" 6
+    printf_purple "$set_desc"
   fi
   [ -z "$msg1" ] || printf_color "\t\t$msg1\n" "$color"
   [ -z "$msg2" ] || printf_color "\t\t$msg2\n" "$color"
@@ -396,7 +397,6 @@ ask_confirm() {
     return ${exitCode:-$?}
   fi
 }
-
 # command check
 cmd_exists() {
   install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; }
@@ -483,7 +483,20 @@ else
     return $exitCode
   }
 fi
-cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
+
+__list_array() {
+  local OPTSDIR="${1:-$HOME/.local/share/misc/options/$PROG}"
+  mkdir -p "$OPTSDIR"
+  echo "${2:-$ARRAY}" >"$OPTSDIR/array"
+  return
+}
+__list_options() {
+  local OPTSDIR="${1:-$HOME/.local/share/misc/options/$PROG}"
+  mkdir -p "$OPTSDIR"
+  echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' >"$OPTSDIR/options"
+  echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' >>"$OPTSDIR/options"
+  return
+}
 __dirname() { cd "$1" 2>/dev/null && pwd || return 1; }
 __git_porcelain_count() {
   [ -d "$(__git_top_dir "${1:-.}")/.git" ] &&
@@ -492,4 +505,5 @@ __git_porcelain_count() {
 }
 __git_porcelain() { __git_porcelain_count "${1:-.}" && return 0 || return 1; }
 __git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
+
 unset SEARCH_DIR SEARCH_FILE ARGS opts
