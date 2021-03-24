@@ -446,9 +446,9 @@ PROFILERCSRC="$HOME/.profile"
 # export
 export PATH PROFILERCSRC SUDO_PROMPT SUDO_ASKPASS DISPLAY RESOLUTION PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Autolanch tmux on ssh connection
-[ -n "$SSH_CONNECTION" ] && [ -f "$HOME/.config/tmux/tmux.ssh.conf" ] &&
-  tmux -f "$HOME/.config/tmux/tmux.ssh.conf" new-session -D -A -s ssh
+# Autolanch application on ssh connection
+[ -n "$SSH_CONNECTION" ] && [ -f "$HOME/.config/shell/other/ssh" ] &&
+  . "$HOME/.config/shell/other/ssh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
 
