@@ -17,8 +17,8 @@ _cmd_exists() {
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local cur prev words cword
   local cur="${COMP_WORDS[COMP_CWORD]}"
-  local SHORTOPTS="-h -v"
-  local LONGOPTS="--help --version"
+  local SHORTOPTS="$(<"$HOME/.local/share/misc/options/cmd_exists/options")"
+  local LONGOPTS="$(<"$HOME/.local/share/misc/options/cmd_exists/array")"
   local ARGS="${SHORTOPTS} ${LONGOPTS}"
   local ARRAY="show-commands"
 

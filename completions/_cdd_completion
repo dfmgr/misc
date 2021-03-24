@@ -21,8 +21,8 @@ _cdd() {
   local cur prev words cword
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local SHOW_COMP_OPTS=""
-  local DEFAULTOPTS="$(/home/jason/.local/bin/cdd -a || echo -v -h -a)"
-  local DEFAULTARRAY="$(/home/jason/.local/bin/cdd -l | awk '{print $1}' || echo )"
+  local DEFAULTOPTS="$(<"$HOME/.local/share/misc/options/cdd/options")"
+  local DEFAULTARRAY="$(<"$HOME/.local/share/misc/options/cdd/array")"
   local SHORTOPTS=""
   local LONGOPTS=""
   local ARGS="${DEFAULTOPTS} ${SHORTOPTS} ${LONGOPTS}"
