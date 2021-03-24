@@ -432,9 +432,11 @@ __cmd_exists() { cmd_exists "$@"; }
 # command check
 cmd_exists() {
   [ "$CMD_EXISTS_NOTIFY" = "yes" ] || notifications() { true "$@"; }
-  [ "$CMD_EXISTS_INSTALL" = "yes" ] &&
-    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; } ||
-      install_missing() { true "$@"; }
+  if [ "$CMD_EXISTS_INSTALL" = "yes" ]; then
+    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; };
+    else
+    install_missing() { true "$@"; }
+  fi
   case "$1" in
   --show)
     local show=true
@@ -444,20 +446,21 @@ cmd_exists() {
     local error=show
     shift 1
     ;;
-  -message | -msg)
+  --message | --msg)
     local message="$1"
     shift 2
     ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local command="$@"
   local exitCode="0"
   local missing=""
-  for f in "$@"; do
-    if [ -f "$(command -v "$f" 2>/dev/null)" ] || [ -f "$(type -P "$f" 2>/dev/null)" ]; then
-      found+="$f "
+  for cmd in $command; do
+    if command -v "$cmd" &>/dev/null || type -p "$cmd" &>/dev/null || return 1; then
+      found+="$cmd "
       local exitCode+=0
     else
-      missing="$f "
+      missing="$cmd "
       local exitCode+=1
     fi
   done
@@ -475,6 +478,7 @@ cmd_exists() {
     exitCode="1"
   fi
   [ -z "$missing" ] || install_missing "$missing"
+  unset cmd command missing
   return ${exitCode:-$?}
 }
 
