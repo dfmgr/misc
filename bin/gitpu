@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 gitpu() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="$(basename $0)"
+  PROG="$(basename "$0")"
   VERSION="202103190426-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"

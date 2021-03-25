@@ -5,33 +5,38 @@ PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/s
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
 PS1="\u@\H $ "
+export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
-  export SHELL="$(command -v sh)"
+  SHELL="$(command -v sh)"
+  export SHELL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bash specific
 elif [ -n "$BASH_VERSION" ]; then
-  export SHELL="$(command -v bash)"
-  export BASH_SILENCE_DEPRECATION_WARNING=1
-  export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
-  export HISTCONTROL=ignoreboth
-  export HISTFILESIZE=10000
-  export HISTIGNORE="[bf]g:c:clear:history:exit:q"
-  export HISTSIZE=10000
+  SHELL="$(command -v bash)"
+  BASH_SILENCE_DEPRECATION_WARNING="1"
+  BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
+  HISTCONTROL="ignoreboth"
+  HISTFILESIZE="5000"
+  HISTIGNORE="[bf]g:c:clear:history:exit:q"
+  HISTSIZE="50000"
+  export SHELL BASH_SILENCE_DEPRECATION_WARNING BASH_COMPLETION_USER_DIR
+  export HISTCONTROL HISTFILESIZE HISTIGNORE HISTSIZE
   [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook bash >/dev/null 2>&1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
-  export SHELL="$(command -v zsh)"
-  export ZDOTDIR="$HOME/.config/zsh"
-  export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
-  export ZSH="$HOME/.local/share/zsh/oh-my-zsh"
-  export ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
-  export ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
-  export HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
-  export SAVEHIST=5000
-  export HISTSIZE=2000
+  SHELL="$(command -v zsh)"
+  ZDOTDIR="$HOME/.config/zsh"
+  ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
+  ZSH="$HOME/.local/share/zsh/oh-my-zsh"
+  ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
+  ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
+  HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
+  SAVEHIST=5000
+  HISTSIZE=2000
+  export SHELL ZDOTDIR ZSH_CACHEDIR ZSH ZSH_CUSTOM ZSH_DISABLE_COMPFIX HISTFILE SAVEHIST HISTSIZE
   [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -61,17 +66,18 @@ export LC_ALL="$LC_ALL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure display
 if [ -n "$DISPLAY" ]; then
-  if cat /proc/version | grep -iq chromium && [ -n "$DISPLAY_LOW_DENSITY" ]; then
+  if grep -iq chromium /proc/version && [ -n "$DISPLAY_LOW_DENSITY" ]; then
     DISPLAY="$DISPLAY_LOW_DENSITY"
   fi
-[ -f "$(command -v xrandr 2>/dev/null)" ] && RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
+  [ -f "$(command -v xrandr 2>/dev/null)" ] && RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
 fi
+export DISPLAY RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
 if [ -n "$DISPLAY" ] && [ -f "$(command -v xset 2>/dev/null)" ]; then
-    xset s off &>/dev/null
-    xset -dpms &>/dev/null
-    xset s off -dpms &>/dev/null
+  xset s off &>/dev/null
+  xset -dpms &>/dev/null
+  xset s off -dpms &>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enviroment variables when using a desktop
@@ -119,16 +125,19 @@ export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
 if [ "$(uname -s)" = Linux ] && [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
-  SUDO_ASKPASS="dmenupass"
+  SUDO_ASKPASS="$(command -v dmenupass 2>/dev/null)"
 else
   SUDO_ASKPASS="$SUDO_ASKPASS"
 fi
 SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
+export SUDO_PROMPT SUDO_ASKPASS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-export GPG_TTY="$(tty)"
-export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
-[ -f "$(command -v gpg-agent 2>/dev/null)" ] && gpg-agent --enable-ssh-support --daemon -q &>/dev/null
+GPG_TTY="$(tty)"
+SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
+[ -f "$(command -v gpg-agent 2>/dev/null)" ] &&
+  gpg-agent --enable-ssh-support --daemon -q &>/dev/null
+export GPG_TTY SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
@@ -137,9 +146,8 @@ if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   fi
   [ -n "$SSH_AUTH_SOCK" ] && ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
 fi
-
 if [ "$(find ~/.ssh/id_* 2>/dev/null | wc -l)" -ne "0" ]; then
-  for f in $(ls ~/.ssh/id_* 2>/dev/null | grep -v '/*.pub'); do
+  for f in $(find ~/.ssh/id_* 2>/dev/null | grep -v '/*.pub'); do
     ssh-add -q "$f" &>/dev/null
   done
 fi
@@ -158,16 +166,18 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 export MANPAGER="less -X"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # add emacs to bin
-[ -d $HOME/.emacs.d/bin ] && PATH="$HOME/.emacs.d/bin:$PATH"
+[ -d "$HOME/.emacs.d/bin" ] && PATH="$HOME/.emacs.d/bin:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # rpm devel
 export QA_RPATHS="$((0x0001 | 0x0010))"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mpd server
-export MPDSERVER="$(hostname -s 2>/dev/null)"
+MPDSERVER="$(hostname -s 2>/dev/null)"
+export MPDSERVER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set hostname
-export HOSTNAME=$(hostname -f 2>/dev/null)
+HOSTNAME="$(hostname -f 2>/dev/null)"
+export HOSTNAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # notes settings
 export NOTES_SERVER_NAME="development"
@@ -192,7 +202,7 @@ PATH="$GEM_HOME/bin:$PATH"
 # Ruby Version Manager
 [ -f "$HOME/.local/share/scripts/rvm" ] && export rvm_path="$HOME/.local/share/rvm"
 [ -f "$HOME/.local/share/rvm/scripts/rvm" ] && . "$HOME/.local/share/rvm/scripts/rvm"
-[ -d $HOME/.local/share/rvm/bin ] && PATH="$HOME/.local/share/rvm/bin:$PATH"
+[ -d "$HOME/.local/share/rvm/bin" ] && PATH="$HOME/.local/share/rvm/bin:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
@@ -205,7 +215,7 @@ export NVM_BIN="$HOME/.local/bin"
 export NO_UPDATE_NOTIFIER="true"
 export NODE_REPL_HISTORY_SIZE=10000
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR"/bash_completion
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup setV
 export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
@@ -289,7 +299,7 @@ fi
 export TERMINAL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export file manager
-[ -f "$(command -v myfilemanager 2>/dev/null)" ] && FILEMANAGER="myfilemanager" || \
+[ -f "$(command -v myfilemanager 2>/dev/null)" ] && FILEMANAGER="myfilemanager" ||
   FILEMANAGER="$(command -v thunar || command -v vifm || command -v se)"
 export FILEMANAGER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -394,8 +404,9 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # MacOS fix
 if [ "$(uname -s)" = Darwin ]; then
-  export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
-  export HOMEBREW_CASK_OPTS="--appdir=/Applications"
+  HOMEBREW_INSTALL_BADGE="☕️ 🐸"
+  HOMEBREW_CASK_OPTS="--appdir=/Applications"
+  export HOMEBREW_INSTALL_BADGE HOMEBREW_CASK_OPTS
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create directories
@@ -412,6 +423,7 @@ mkdir -p "$HOME/.local/share/gem/bin"
 mkdir -p "$HOME/.local/share/nodejs/fnm"
 mkdir -p "$HOME/.local/share/nodejs/nvm"
 mkdir -p "$HOME/.local/share/wallpapers"
+mkdir -p "$TMPDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # passmgr settings - add your passmgr setup here
 [ -f "$HOME/.config/secure/passmgr.txt" ] && . "$HOME/.config/secure/passmgr.txt"
@@ -435,23 +447,22 @@ mkdir -p "$HOME/.local/share/wallpapers"
 [ -f "$HOME/.config/local/profile.local" ] && . "$HOME/.config/local/profile.local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import specific profiles for systems
-[ -f "$HOME/.config/local/servers/$(hostname -s).local" ]  && . "$HOME/.config/local/servers/$(hostname -s).local"
+[ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
 PATH="$(echo "$PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:.#g')"
+export PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
 PROFILERCSRC="$HOME/.profile"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# export
-export PATH PROFILERCSRC SUDO_PROMPT SUDO_ASKPASS DISPLAY RESOLUTION PS1
+export PROFILERCSRC
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Autolanch application on ssh connection
-[ -n "$SSH_CONNECTION" ] && [ -f "$HOME/.config/shell/other/ssh" ] &&
-  . "$HOME/.config/shell/other/ssh"
+if [ -n "$SSH_CONNECTION" ] && [ -f "$HOME/.config/misc/shell/other/ssh" ]; then
+  . "$HOME/.config/misc/shell/other/ssh"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-

@@ -3,26 +3,26 @@
 ##@Version       : 202103241748-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
-# @License       : LICENSE.md
-# @ReadME        : ex --help
+# @License       : WTFPL
+# @ReadME        : dmenu_edit_conf --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 25, 2021 00:24 EDT
-# @File          : ex
-# @Description   : ex completion script
-# @TODO          :
+# @File          : dmenu_edit_conf
+# @Description   : dmenu for editing configuration files
+# @TODO          : Move to misc user scripts
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-_ex() {
+_dmenu_edit_conf() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"
   local prev="${COMP_WORDS[COMP_CWORD - 1]}"
   local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev}"
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local CONFFILE="settings.conf"
-  local CONFDIR="$HOME/.config/misc/settings/ex"
-  local OPTSDIR="$HOME/.local/share/misc/options/ex"
-  local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/ex}"
+  local CONFDIR="$HOME/.config/misc/settings/dmenu_edit_conf"
+  local OPTSDIR="$HOME/.local/share/misc/options/dmenu_edit_conf"
+  local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/dmenu_edit_conf}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
   local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo -v -h)"
@@ -31,7 +31,7 @@ _ex() {
   local OPTS="$DEFAULTOPTS"
   local ARRAY="$DEFAULTARRAY"
   local SHOW_COMP_OPTS=""
-  local FILEDIR="yes"
+  local FILEDIR=""
 
   _init_completion || return
 
@@ -68,4 +68,4 @@ _ex() {
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
-  complete -F _ex ex
+  complete -F _dmenu_edit_conf dmenu_edit_conf

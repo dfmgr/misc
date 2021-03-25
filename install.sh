@@ -146,21 +146,17 @@ fi
 # run post install scripts
 run_postinst() {
   dfmgr_run_post
-  mkd "$HOME/.config/misc"
-  cp_rf "$INSTDIR/profile/." "$HOME/.config/misc/"
-  cp_rf "$INSTDIR/profile/config/." "$HOME/.config/misc/"
-  for f in Xresources dircolors curlrc wgetrc gntrc inputrc libao profile rpmmacros xscreensaver myclirc; do
+  for f in curlrc dircolors gntrc inputrc libao myclirc profile rpmmacros wgetrc Xresources xscreensaver; do
     [ -L "$HOME/.$f" ] && rm_link "$HOME/.$f"
     cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
   done
-  for c in CasjaysDev dunst lynx xresources dmenu_edit_conf; do
+  for c in CasjaysDev dunst lynx xresources; do
     [ -L "$HOME/.config/$c" ] && rm_link "$HOME/.config/$c"
     [ -d "$HOME/.config/$c" ] || mkd "$HOME/.config/$c"
     cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"
   done
   if [ -d "$HOME/bin" ]; then cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"; fi
   if [ -d "$HOME/.bin" ]; then cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"; fi
-  rm_rf "$HOME/.config/misc/config"
 }
 #
 execute "run_postinst" "Running post install scripts"

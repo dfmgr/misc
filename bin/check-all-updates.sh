@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 check-all-updates.sh_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="$(basename $0)"
+  PROG="$(basename "$0")"
   VERSION="202103230834-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"
@@ -42,10 +42,9 @@ check-all-updates.sh_main() {
   __help() {
     app_help "4" "Usage: check-all-updates.sh" \
       "-c, --config           -  create config file" \
-      "-a, --all              -  show all options" \
-      "-l, --list             -  used by completions" \
       "-v, --version          -  display version" \
-      "-h, --help             -  display help"
+      "-h, --help             -  display help" \
+      "--options              -  used by completions"
     exit $?
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -85,14 +84,14 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
-  local SHORTOPTS="a,l,c,v,h"
-  local LONGOPTS="all,list,config,version,help"
+  local SHORTOPTS="c,v,h"
+  local LONGOPTS="options,config,version,help"
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
-  [ -f "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR/options" ] || __list_options "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR" "$ARRAY" &>/dev/null
-  [ -f "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR/array" ] || __list_array "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR" &>/dev/null
   [ -f "$CHECK_ALL_UPDATES_SH_CONFIG_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR/options" ] || __list_options "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR" &>/dev/null
+  [ -f "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR/array" ] || __list_array "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR" "$ARRAY" &>/dev/null
   [ -d "$CHECK_ALL_UPDATES_SH_CACHEDIR" ] || mkdir -p "$CHECK_ALL_UPDATES_SH_CACHEDIR"
   [ -f "$CHECK_ALL_UPDATES_SH_CACHEDIR/update_check" ] || rm -Rf "$CHECK_ALL_UPDATES_SH_CACHEDIR/update_check"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -107,12 +106,9 @@ EOF
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
-    -a | --all)
-      __list_options "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR" "$ARRAY"
-      exit $?
-      ;;
-    -l | --list)
-      __list_array "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR"
+    --options)
+      __list_options "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR"
+      __list_array "$CHECK_ALL_UPDATES_SH_OPTIONS_DIR" "$ARRAY"
       exit $?
       ;;
     -v | --version)

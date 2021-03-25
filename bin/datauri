@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 datauri_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="$(basename $0)"
+  PROG="$(basename "$0")"
   VERSION="202103231633-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"
@@ -42,10 +42,9 @@ datauri_main() {
     app_help "4" "Usage: datauri file" \
       "-f, --file             -  specify the file" \
       "-c, --config           -  create config file" \
-      "-a, --all              -  show all options" \
-      "-l, --list             -  used by completions" \
       "-v, --version          -  display version" \
-      "-h, --help             -  display help"
+      "-h, --help             -  display help" \
+      "--options              -  used by completions"
     exit $?
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -76,14 +75,14 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
-  local SHORTOPTS="a,l,c,v,h,f:"
-  local LONGOPTS="all,list,config,version,help,file:"
+  local SHORTOPTS="c,v,h,f:"
+  local LONGOPTS="options,config,version,help,file:"
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
-  [ -f "$DATAURI_OPTIONS_DIR/options" ] || __list_options "$DATAURI_OPTIONS_DIR" "$ARRAY" &>/dev/null
-  [ -f "$DATAURI_OPTIONS_DIR/array" ] || __list_array "$DATAURI_OPTIONS_DIR" &>/dev/null
   [ -f "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$DATAURI_OPTIONS_DIR/options" ] || __list_options "$DATAURI_OPTIONS_DIR" &>/dev/null
+  [ -f "$DATAURI_OPTIONS_DIR/array" ] || __list_array "$DATAURI_OPTIONS_DIR" "$ARRAY" &>/dev/null
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Import config
   [ -f "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" ] && . "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE"
@@ -93,12 +92,9 @@ EOF
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
-    -a | --all)
-      __list_options "$DATAURI_OPTIONS_DIR" "$ARRAY"
-      exit $?
-      ;;
-    -l | --list)
-      __list_array "$DATAURI_OPTIONS_DIR"
+    --options)
+      __list_options "$DATAURI_OPTIONS_DIR"
+      __list_array "$DATAURI_OPTIONS_DIR" "$ARRAY"
       exit $?
       ;;
     -v | --version)

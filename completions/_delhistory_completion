@@ -1,48 +1,65 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031420210104-git
+##@Version       : 202103241748-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
-# @License       : LICENSE.md
+# @License       : WTFPL
+# @ReadME        : delhistory --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Sunday, Mar 14, 2021 06:20 EDT
+# @Created       : Thursday, Mar 25, 2021 00:24 EDT
 # @File          : delhistory
-# @Description   :
+# @Description   : remove last n records from history
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _delhistory() {
-  local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
-  local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
-  local cur prev words cword
+  local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"
+  local prev="${COMP_WORDS[COMP_CWORD - 1]}"
+  local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev}"
+  local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
+  local CONFFILE="settings.conf"
+  local CONFDIR="$HOME/.config/misc/settings/delhistory"
+  local OPTSDIR="$HOME/.local/share/misc/options/delhistory"
+  local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/delhistory}"
+  #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
+  local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
+  local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo -v -h)"
+  local LONGOPTS="$(grep -sEv '#|^$' "$OPTSDIR/long_opts" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep '\--')"
+  local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/short_opts" || echo $DEFAULTOPTS | tr ' ' '\n' | grep -v '\--')"
+  local OPTS="$DEFAULTOPTS"
+  local ARRAY="$(history | awk '{print $1}' | head -n 100)"
   local SHOW_COMP_OPTS=""
-  local SHORTOPTS="-h -v"
-  local LONGOPTS="--help --version --all"
-  local ARGS="${SHORTOPTS} ${LONGOPTS}"
-  local ARRAY="$(history | awk '{print $1}')"
+  local FILEDIR=""
 
   _init_completion || return
 
-  if [[ ${cur} == -* ]]; then
-    COMPREPLY=($(compgen -W '${ARGS}' -- ${cur}))
+  if [ "$SHOW_COMP_OPTS" != "" ]; then
+    local SHOW_COMP_OPTS_SEP="$(echo "$SHOW_COMP_OPTS" | tr ',' ' ')"
+    compopt -o $SHOW_COMP_OPTS_SEP
+  fi
+
+  if [[ ${cur} == --* ]]; then
+    COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
+  elif [[ ${cur} == -* ]]; then
+    COMPREPLY=($(compgen -W '${SHORTOPTS}' -- ${cur}))
   else
     case $prev in
-      *) if [ "$SHOW_COMP_OPTS" != "" ]; then
-        local SHOW_COMP_OPTS_SEP="$(echo "$SHOW_COMP_OPTS" | tr ',' ' ')"
-        compopt -o ${SHOW_COMP_OPTS_SEP}
-      fi
-      if [ "$ARRAY" = "show-commands" ]; then
-        COMPREPLY=($(compgen -c -- "${cur}"))
-      elif [ "$ARRAY" = "show-none" ]; then
+    *)
+      if [ -n "$FILEDIR" ]; then _filedir; fi
+      if [[ "$ARRAY" = "show-none" ]]; then
         COMPREPLY=($(compgen -W '' -- "${cur}"))
-      elif [ "$ARRAY" = "show-_filedir" ]; then
+      elif [[ "$ARRAY" = "show-_filedir" ]]; then
         _filedir
-      elif [ "$ARRAY" != "" ]; then
-        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
-      elif [ -n "$OPTS" ]; then
-        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+      elif [[ "$ARRAY" = "show-commands" ]]; then
+        COMPREPLY=($(compgen -c -- "${cur}"))
+      elif [[ -n "$ARRAY" ]]; then
+        #[ $COMP_CWORD -eq 3 ] && \
+          COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+      elif [[ -n "$OPTS" ]]; then
+        #[ $COMP_CWORD -gt 3 ] && \
+          COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
       fi
       return 0
       ;;

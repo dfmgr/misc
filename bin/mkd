@@ -44,7 +44,14 @@ mkd() {
   [ $# -ne 1 ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local CREATE="$1"
-  __cd() { cd "$1" && bash || return 1; }
+  __cd() {
+    if cmd_exists cdd; then
+      cdd "$1" || return 1
+    else
+      cd "$1"
+      bash || return 1
+    fi
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -n "$CREATE" ]; then
     if [ ! -d "$CREATE" ]; then

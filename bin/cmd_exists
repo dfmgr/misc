@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 cmd_exists_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="$(basename $0)"
+  PROG="$(basename "$0")"
   VERSION="202103230741-git"
   USER="${SUDO_USER:-${USER}}"
   HOME="${USER_HOME:-${HOME}}"
@@ -41,10 +41,9 @@ cmd_exists_main() {
   __help() {
     app_help "4" "Usage: cmd_exists  -  cmd_exists --version" \
       "-c, --config           -  create config file" \
-      "-a, --all              -  show all options" \
-      "-l, --list             -  used by completions" \
       "-v, --version          -  display version" \
-      "-h, --help             -  display help"
+      "-h, --help             -  display help" \
+      "--options              -  used by completions"
     exit $?
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -79,14 +78,14 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
-  local SHORTOPTS="a,l,c,v,h"
-  local LONGOPTS="all,list,config,version,help"
+  local SHORTOPTS="c,v,h"
+  local LONGOPTS="options,config,version,help"
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
-  [ -f "$CMD_EXISTS_OPTIONS_DIR/options" ] || __list_options "$CMD_EXISTS_OPTIONS_DIR" "$ARRAY" &>/dev/null
-  [ -f "$CMD_EXISTS_OPTIONS_DIR/array" ] || __list_array "$CMD_EXISTS_OPTIONS_DIR" &>/dev/null
   [ -f "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$CMD_EXISTS_OPTIONS_DIR/options" ] || __list_options "$CMD_EXISTS_OPTIONS_DIR" &>/dev/null
+  [ -f "$CMD_EXISTS_OPTIONS_DIR/array" ] || __list_array "$CMD_EXISTS_OPTIONS_DIR" "$ARRAY" &>/dev/null
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Import config
   [ -f "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE" ] && . "$CMD_EXISTS_CONFIG_DIR/$CMD_EXISTS_CONFIG_FILE"
@@ -96,12 +95,9 @@ EOF
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
-    -a | --all)
-      __list_options "$CMD_EXISTS_OPTIONS_DIR" "$ARRAY"
-      exit $?
-      ;;
-    -l | --list)
-      __list_array "$CMD_EXISTS_OPTIONS_DIR"
+    --options)
+      __list_options "$CMD_EXISTS_OPTIONS_DIR"
+      __list_array "$CMD_EXISTS_OPTIONS_DIR" "$ARRAY"
       exit $?
       ;;
     -v | --version)
