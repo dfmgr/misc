@@ -40,8 +40,8 @@ cdd_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
     app_help "4" "Usage: cdd  aliasName  -  cdd -l" \
-      "-l, --list             - list aliases"
-    "-m, --modify           -  add an alias | -m p Projects" \
+      "-l, --list             - list aliases" \
+      "-m, --modify           -  add an alias | -m p Projects" \
       "-r, --remove           -  remove an alias | -r Projects" \
       "-c, --config           -  create config file" \
       "-v, --version          -  display version" \
@@ -80,23 +80,33 @@ EOF
     fi
   }
   cd_goto() {
+    [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
     clear
-    export PS1_ADD="$PS1_ADD cdd: $1"
-    export SHELL="${SHELL:-$(type -P bash)}"
     if [ ! -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then __config_gen && main "$@"; fi
     local dir="$(list_aliases "folder" "$1")"
+    local alias="$(list_aliases alias "$1")"
     if [ -z "$dir" ]; then
-      printf_red "Entering an unaliased folder - see $PROG -l or $PROG -m aliasName $1"
-      local dir="$1"
-      export PS1_ADD="$PS1_ADD cdd: $1"
+      local dir="${1:-$TMPDIR/$$}"
+      local alias="$(basename $dir)"
+      printf '\n'
+      printf_red "Entering an unaliased folder"
+      printf_red "see $PROG -l or $PROG -m $alias $dir"
     fi
-    [ -d "$dir" ] || mkdir -p "$dir" &>/dev/null
-    export CDD_STATUS="running"
+    local CDD_STATUS="running"
+    local PS1_ADD="$PS1_ADD cdd: ${alias:-$dir}"
+    local SHELL="${SHELL:-$(type -P bash)}"
+    [ -d "$dir" ] || mkdir -p "$dir"
     printf_green "Type quit to return to your previous directory"
     printf_green "entering into $dir using $(basename "$SHELL")"
-    builtin cd "$dir"
-    $SHELL || return 1
-    clear
+    builtin cd "$dir" || return 1
+    if [[ "$dir" = "$PWD" ]]; then
+      cd() { false; }
+      export -f cd
+      PS1_ADD="$PS1_ADD" SHELL="$SHELL" CDD_STATUS="$CDD_STATUS" $SHELL || return 1
+      clear
+    else
+      printf_exit "Failed to cd into $dir"
+    fi
   }
   add_alias() {
     if ! list_aliases alias "$1" | grep -qx "$1"; then
@@ -135,8 +145,6 @@ EOF
       __grep "$1" | awk -F' =' '{print $1,$2}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
     fi
   }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode="" CDD_CONFIG_FILE="" CDD_CONFIG_DIR="" CDD_OPTIONS_DIR=""
