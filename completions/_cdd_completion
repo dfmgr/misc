@@ -51,8 +51,9 @@ _cdd() {
     -l | --list) prev="--list" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -m | --modify)
       prev="-m"
-      [ $COMP_CWORD -eq 2 ] && COMPREPLY=($(compgen -W '$(echo {a..z} {A..Z} {0..9})' -- "${cur}"))
-      [ $COMP_CWORD -eq 3 ] && COMPREPLY=($(compgen -W '' -o plusdirs -- "${cur}"))
+      compopt -o nospace
+      [ $COMP_CWORD -eq 2 ] && COMPREPLY=($(compgen -W '{a..z} {A..Z} {0..9}' -o nospace -- "${cur}"))
+      [ $COMP_CWORD -eq 3 ] && COMPREPLY=($(compgen -W '$(_filedir)' -o filenames -o dirnames -- "${cur}"))
       [ $COMP_CWORD -gt 3 ] && COMPREPLY=($(compgen -W '' -- "${cur}"))
       ;;
     -r | --remove)
