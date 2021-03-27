@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103241748-git
+##@Version       : 202103270925-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
 # @ReadME        : cdd --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 25, 2021 00:24 EDT
+# @Created       : Saturday, Mar 27, 2021 09:47 EDT
 # @File          : cdd
 # @Description   : cd into directories using shortcuts
 # @TODO          :
@@ -15,8 +15,8 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 _cdd() {
   local cur prev words cword opts
-  local cur="${COMP_WORDS[COMP_CWORD]}"
-  local prev="${COMP_WORDS[COMP_CWORD - 1]}"
+  local cur="${COMP_WORDS[$COMP_CWORD]}"
+  local prev="${COMP_WORDS[$COMP_CWORD - 1]}"
   local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev}"
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local CONFFILE="settings.conf"
@@ -27,45 +27,59 @@ _cdd() {
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
   local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo -v -h)"
   local LONGOPTS="$(grep -sEv '#|^$' "$OPTSDIR/long_opts" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep '\--')"
-  local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/short_opts" || echo $DEFAULTOPTS | tr ' ' '\n' | grep -v '\--')"
+  local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/short_opts" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep -v '\--')"
   local OPTS="$DEFAULTOPTS"
   local ARRAY="$DEFAULTARRAY"
   local SHOW_COMP_OPTS=""
-  local FILEDIR="no"
+  local FILEDIR=""
 
   _init_completion || return
-
   if [ "$SHOW_COMP_OPTS" != "" ]; then
     local SHOW_COMP_OPTS_SEP="$(echo "$SHOW_COMP_OPTS" | tr ',' ' ')"
     compopt -o $SHOW_COMP_OPTS_SEP
   fi
-
-  if [[ ${cur} == --* ]]; then
-    COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
-  elif [[ ${cur} == -* ]]; then
+  if [[ ${cur} == --*  ]]; then
+     COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
+  elif [[ ${cur} == -*  ]]; then
     COMPREPLY=($(compgen -W '${SHORTOPTS}' -- ${cur}))
   else
-    case $prev in
-    *)
-      if [ "$FILEDIR" = "yes" ]; then _filedir; fi
-      if [[ "$ARRAY" = "show-none" ]]; then
-        COMPREPLY=($(compgen -W '' -- "${cur}"))
-      elif [[ "$ARRAY" = "show-_filedir" ]]; then
-        _filedir
-      elif [[ "$ARRAY" = "show-commands" ]]; then
-        COMPREPLY=($(compgen -c -- "${cur}"))
-      elif [[ -n "$ARRAY" ]]; then
-      #  [ $COMP_CWORD -eq 3 ] && \
-        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
-      elif [[ -n "$OPTS" ]]; then
-      #  [ $COMP_CWORD -gt 3 ] && \
-      COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
-      fi
-      return 0
+  case ${COMP_WORDS[1]:-$prev} in
+    --options) prev="--options" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
+    -c | --config) prev="--config" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
+    -h | --help) prev="--help" && COMPREPLY=($(compgen -W '' -- "${cur}"));;
+    -v | --version) prev="--version" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
+    -l | --list) prev="--list" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
+    -m | --modify)
+      prev="-m"
+      [ $COMP_CWORD -eq 2 ] && COMPREPLY=($(compgen -W '$(echo {a..z} {A..Z} {0..9})' -- "${cur}"))
+      [ $COMP_CWORD -eq 3 ] && COMPREPLY=($(compgen -W '' -o plusdirs -- "${cur}"))
+      [ $COMP_CWORD -gt 3 ] && COMPREPLY=($(compgen -W '' -- "${cur}"))
       ;;
-    esac
+    -r | --remove)
+      prev="-r"
+      [ $COMP_CWORD -eq 2 ] && COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+      [ $COMP_CWORD -gt 3 ] && COMPREPLY=($(compgen -W '' -- "${cur}"))
+      ;;
+    -) prev="-" COMPREPLY=($(compgen -W '${SHORTOPTS} ${LONGOPTS}' -- ${cur}))
+      ;;
+    *)
+    if [ -n "${ARRAY}" ]; then
+      COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+    elif [[ -n "$OPTS" ]]; then
+      #[ $COMP_CWORD -gt 3 ] && \
+      COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+    elif [[ ${cur} == --* ]]; then
+      COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
+    elif [[ ${cur} == -* ]]; then
+      COMPREPLY=($(compgen -W '${SHORTOPTS}' -- ${cur}))
+    fi
+    return
+    ;;
+  esac
   fi
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
   complete -F _cdd cdd
+# vim ft=shell noai
+
