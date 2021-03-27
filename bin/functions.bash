@@ -237,15 +237,13 @@ app_help() {
   exit "${exitCode:-1}"
 }
 # grep header
-grep_head() {
-  grep -E ^'.*#?@'${1:-Version}'.*  :' "${2:-$filename}" |
-    grep -v '\$' |
-    grep -E ^'.*#.@'${1:-*}'' |
-    sed -E 's/..*#[#, ]@//g' |
-    sed -E 's/.*#[#, ]@//g' |
-    head -n14 |
-    grep '^' || return 1
-}
+sed_remove_empty() { sed '/^\#/d;/^$/d;s#^ ##g'; }
+sed_head_remove() { awk -F'  :' '{print $2}'; }
+sed_head() { sed -E 's|^.*#||g;s#^ ##g;s|^@||g'; }
+grep_head() { grep -sE '[".#]?@[A-Z]' "${2:-$command}" | grep "${1:-}" | head -n 12 | sed_head | sed_remove_empty | grep '^' || return 1; }
+grep_head_remove() { grep -sE '[".#]?@[A-Z]' "${2:-$command}" | grep "${1:-}" | grep -Ev 'GEN_SCRIPTS_*|\${|\$\(' | sed_head_remove | sed '/^\#/d;/^$/d;s#^ ##g' | grep '^' || return 1; }
+grep_version() { grep_head ''${1:-Version}'' "${2:-$command}" | sed_head | sed_head_remove | sed_remove_empty | head -n1 | grep '^'; }
+
 # display version
 app_version() {
   local prog="${PROG:-$APPNAME}"              # get from file
@@ -256,7 +254,7 @@ app_version() {
     printf "\n"
     printf_green "Getting info for $appname"
     grep_head "Version" "$filename" &>/dev/null &&
-      grep_head "*" "$filename" | printf_readline "3" &&
+      grep_head '' "$filename" | printf_readline "3" &&
       printf_green "$(grep_head "Version" "$filename" | head -n1)" ||
       printf_return "${filename:-File} was found, however, No information was provided"
   else
@@ -433,8 +431,8 @@ __cmd_exists() { cmd_exists "$@"; }
 cmd_exists() {
   [ "$CMD_EXISTS_NOTIFY" = "yes" ] || notifications() { true "$@"; }
   if [ "$CMD_EXISTS_INSTALL" = "yes" ]; then
-    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; };
-    else
+    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; }
+  else
     install_missing() { true "$@"; }
   fi
   case "$1" in

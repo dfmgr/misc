@@ -79,7 +79,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
-  local exitCode= CHECKUP_CONFIG_FILE= CHECKUP_CONFIG_DIR= CHECKUP_OPTIONS_DIR=
+  local exitCode=""
   local CHECKUP_CONFIG_FILE="settings.conf"
   local CHECKUP_CONFIG_DIR="$HOME/.config/misc/configs/checkup"
   local CHECKUP_OPTIONS_DIR="$HOME/.local/share/misc/options/checkup"

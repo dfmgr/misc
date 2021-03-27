@@ -39,7 +39,7 @@ dmenu_edit_conf_main() {
   __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
-    app_help "4" "Usage: dmenu_edit_conf  -  dmenu_edit_conf --version" \
+    app_help "4" "Usage: dmenu_edit_conf " \
       "-c, --config           -  create config file" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help" \
@@ -68,7 +68,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
-  local exitCode="" DMENU_EDIT_CONF_CONFIG_FILE="" DMENU_EDIT_CONF_CONFIG_DIR="" DMENU_EDIT_CONF_OPTIONS_DIR=""
+  local exitCode=""
   local DMENU_EDIT_CONF_CONFIG_FILE="settings.conf"
   local DMENU_EDIT_CONF_CONFIG_DIR="$HOME/.config/misc/configs/dmenu_edit_conf"
   local DMENU_EDIT_CONF_OPTIONS_DIR="$HOME/.local/share/misc/options/dmenu_edit_conf"

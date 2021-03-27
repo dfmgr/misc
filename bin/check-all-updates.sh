@@ -73,7 +73,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
-  local exitCode= CHECK_ALL_UPDATES_SH_CONFIG_FILE="" CHECK_ALL_UPDATES_SH_CONFIG_DIR="" CHECK_ALL_UPDATES_SH_OPTIONS_DIR=""
+  local exitCode=
   local CHECK_ALL_UPDATES_SH_CONFIG_FILE="settings.conf"
   local CHECK_ALL_UPDATES_SH_CONFIG_DIR="$HOME/.config/misc/configs/check-all-updates.sh"
   local CHECK_ALL_UPDATES_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/check-all-updates.sh"

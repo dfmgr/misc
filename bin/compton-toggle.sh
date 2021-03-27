@@ -69,7 +69,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
-  local exitCode="" COMPTON_SH_TOGGLE_SH_CONFIG_FILE="" COMPTON_SH_TOGGLE_SH_CONFIG_DIR="" COMPTON_SH_TOGGLE_SH_OPTIONS_DIR=""
+  local exitCode=""
   local COMPTON_SH_TOGGLE_SH_CONFIG_FILE="settings.conf"
   local COMPTON_SH_TOGGLE_SH_CONFIG_DIR="$HOME/.config/misc/configs/compton-toggle.sh"
   local COMPTON_SH_TOGGLE_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/compton-toggle.sh"

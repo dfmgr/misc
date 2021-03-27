@@ -29,6 +29,16 @@ mkd() {
       "-v, --version          -  display version" \
       "-h, --help             -  display help"
   }
+  __create() {
+    if [ ! -d "$CREATE" ]; then
+      if printf_mkdir "$CREATE" 2>/dev/null; then
+        true
+      else
+        printf_exit "Failed to create $CREATE"
+        exitCode=1
+      fi
+    fi
+  }
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -46,23 +56,25 @@ mkd() {
   local CREATE="$1"
   __cd() {
     if cmd_exists cdd; then
-      cdd "$1" || return 1
+      if [[ "$CDD_STATUS" = "running" ]]; then
+        if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
+          __create && printf_green "Created $1"
+        else
+          printf_red "Creating directories outside of $CDD_DIR is forbidden"
+        fi
+      else
+        __create && printf_green "Creating $CREATE and entering the directory" && cdd "$CREATE"
+      fi
     else
-      cd "$1"
-      bash || return 1
+      __create
+      printf_green "Creating $CREATE and entering the directory"
+      printf_green "Type exit to return to your previous directory"
+      builtin cd "$1" && bash || return 1
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -n "$CREATE" ]; then
-    if [ ! -d "$CREATE" ]; then
-      if printf_mkdir "$CREATE" 2>/dev/null; then
-        printf_green "Creating $CREATE and entering the directory"
-      else
-        printf_return "Failed to create $CREATE"
-        exitCode=1
-      fi
-    fi
-    printf_green "Type exit to return to your previous directory" && __cd "$CREATE" && exitCode=0 || exitCode=1
+    __cd "$CREATE" && exitCode=0 || exitCode=1
   else
     __help
     exitCode=1

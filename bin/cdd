@@ -40,9 +40,9 @@ cdd_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
     app_help "4" "Usage: cdd  aliasName  -  cdd -l" \
-      "-l, --list             - list aliases" \
-      "-m, --modify           -  add an alias | -m p Projects" \
-      "-r, --remove           -  remove an alias | -r Projects" \
+      "-l, --list             -  list aliases" \
+      "-m, --modify           -  add an alias | -m p testing" \
+      "-r, --remove           -  remove an alias | -r testing" \
       "-c, --config           -  create config file" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help" \
@@ -79,35 +79,51 @@ EOF
       false
     fi
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  cd() {
+    _cd() { COMPREPLY=($(compgen -W '$(ls -A ./ 2>/dev/null)' -- "${cur}")); } && complete -F _cd cd
+    if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
+      [ "$1" = "" ] && builtin cd "$CDD_DIR" || builtin cd "./$1" || return
+    else
+      builtin cd "$CDD_DIR" || printf_error "cd into $CDD_DIR failed"
+      if [ -z "$CDD_ERROR_MESG" ] && [ -n "$1" ]; then
+        printf_yellow "cd out of $CDD_DIR is disabled while using cdd"
+        printf_yellow "To cd into directories within the cdd enviroment use ./folder and cd to return"
+        CDD_ERROR_MESG="shown"
+      fi
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
+    if [[ "$1" = ./* ]] && [[ "$CDD_STATUS" = "running" ]]; then cd $1 && return; fi
     [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
     clear
     if [ ! -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then __config_gen && main "$@"; fi
     local dir="$(list_aliases "folder" "$1")"
     local alias="$(list_aliases alias "$1")"
     if [ -z "$dir" ]; then
-      local dir="${1:-$TMPDIR/$$}"
-      local alias="$(basename $dir)"
+      local dir="${1:-$HOME/.local/tmp/cdd_project}"
+      local alias="$(basename "$dir/")"
       printf '\n'
       printf_red "Entering an unaliased folder"
       printf_red "see $PROG -l or $PROG -m $alias $dir"
     fi
-    local CDD_STATUS="running"
-    local PS1_ADD="$PS1_ADD cdd: ${alias:-$dir}"
-    local SHELL="${SHELL:-$(type -P bash)}"
+    local STATUS="running"
+    local ADD="$PS1_ADD cdd: ${alias:-$dir}"
     [ -d "$dir" ] || mkdir -p "$dir"
-    printf_green "Type quit to return to your previous directory"
-    printf_green "entering into $dir using $(basename "$SHELL")"
-    builtin cd "$dir" || return 1
     if [[ "$dir" = "$PWD" ]]; then
-      cd() { false; }
-      export -f cd
-      PS1_ADD="$PS1_ADD" SHELL="$SHELL" CDD_STATUS="$CDD_STATUS" $SHELL || return 1
-      clear
-    else
       printf_exit "Failed to cd into $dir"
+    else
+      printf_red "cd out of $dir is disabled while using cdd"
+      printf_green "Type quit to return to your previous directory"
+      printf_green "entering into $dir using $(basename "$SHELL")"
+      builtin cd "$dir" || printf_exit "Failed to enter $dir"
+      export -f cd
+      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" bash || return 1
+      clear
     fi
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   add_alias() {
     if ! list_aliases alias "$1" | grep -qx "$1"; then
       printf_green "Adding the alias $1 to config"
@@ -120,6 +136,7 @@ EOF
     __list_array "$CDD_OPTIONS_DIR" "$ARRAY"
     return $?
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   rm_alias() {
     local alias="$(list_aliases alias "$1")"
     if list_aliases alias '*' | grep -qx "$alias"; then
@@ -132,6 +149,7 @@ EOF
     fi
     return $?
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   list_aliases() {
     if [ ! -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then __config_gen &>/dev/null; fi
     __grep() { grep -E ^''$1' =*..*'$ "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" 2>/dev/null; }
@@ -147,15 +165,15 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
-  local exitCode="" CDD_CONFIG_FILE="" CDD_CONFIG_DIR="" CDD_OPTIONS_DIR=""
+  local exitCode=""
   local CDD_CONFIG_FILE="settings.conf"
   local CDD_CONFIG_DIR="$HOME/.config/misc/configs/cdd"
   local CDD_OPTIONS_DIR="$HOME/.local/share/misc/options/cdd"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
-  local SETARGS="${@}"
-  local SHORTOPTS="c,v,h,m::,r:,f,l"
-  local LONGOPTS="options,config,version,help,modify::,remove,function,list"
+  local SETARGS="${*}"
+  local SHORTOPTS="c,v,h,m::,r:,l"
+  local LONGOPTS="options,config,version,help,modify::,remove,list"
   local ARRAY="$(list_aliases '*' | awk '{print $1}')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
@@ -206,19 +224,22 @@ EOF
       list_aliases alias '*'
       exit
       ;;
-    -f | --function)
-      prinf_green 'function_name() { $(type -P $PROG) "$@"; }'
-      exit
-      ;;
     --)
-      shift 1
+      shift
       break
       ;;
       #*) break ;;
     esac
     shift
   done
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # remove invalid options
   set -- "$SETARGS"
+  while getopts ":*" opt; do
+    case $opt in
+    *) shift ;;
+    esac
+  done
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   cd_goto "$1"

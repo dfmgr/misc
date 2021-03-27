@@ -39,7 +39,7 @@ compton.sh_main() {
   __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
-    app_help "4" "Usage: compton.sh  -  compton.sh --version" \
+    app_help "4" "Usage: compton.sh " \
       "-c, --config           -  create config file" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help" \
@@ -68,7 +68,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
-  local exitCode="" COMPTON_SH_CONFIG_FILE="" COMPTON_SH_CONFIG_DIR="" COMPTON_SH_OPTIONS_DIR=""
+  local exitCode=""
   local COMPTON_SH_CONFIG_FILE="settings.conf"
   local COMPTON_SH_CONFIG_DIR="$HOME/.config/misc/configs/compton.sh"
   local COMPTON_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/compton.sh"

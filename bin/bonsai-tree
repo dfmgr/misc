@@ -76,7 +76,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
-  local exitCode="" BONSAI_TREE_CONFIG_FILE="" BONSAI_TREE_CONFIG_DIR="" BONSAI_TREE_OPTIONS_DIR=""
+  local exitCode=""
   local BONSAI_TREE_CONFIG_FILE="settings.conf"
   local BONSAI_TREE_CONFIG_DIR="$HOME/.config/misc/configs/bonsai-tree"
   local BONSAI_TREE_OPTIONS_DIR="$HOME/.local/share/misc/options/bonsai-tree"
@@ -97,7 +97,7 @@ EOF
   local lineWidth=4   # words per line
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
-  local SETARGS="${@}"
+  local SETARGS="${*}"
   local SHORTOPTS="c,v,h,l,u,t:,i,g:,c:,T,m:,b:,M:,L:"
   local LONGOPTS="options,config,version,help,usage,live,time:,infinite,geo:,leaf:,termcolors,message:,base:,multiplier:,life:"
   local ARRAY=""
