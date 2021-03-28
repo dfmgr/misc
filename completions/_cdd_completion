@@ -20,9 +20,9 @@ _cdd() {
   local CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev}"
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local CONFFILE="settings.conf"
-  local CONFDIR="$HOME/.config/misc/settings/cdd"
-  local OPTSDIR="$HOME/.local/share/misc/options/cdd"
-  local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/cdd}"
+  local CONFDIR="$HOME/.config/myscripts/settings/cdd"
+  local OPTSDIR="$HOME/.local/share/myscripts/options/cdd"
+  local SEARCHDIR="${CONFDIR:-$HOME/.config/myscripts/settings/cdd}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
   local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo -v -h)"
@@ -38,15 +38,15 @@ _cdd() {
     local SHOW_COMP_OPTS_SEP="$(echo "$SHOW_COMP_OPTS" | tr ',' ' ')"
     compopt -o $SHOW_COMP_OPTS_SEP
   fi
-  if [[ ${cur} == --*  ]]; then
-     COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
-  elif [[ ${cur} == -*  ]]; then
+  if [[ ${cur} == --* ]]; then
+    COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
+  elif [[ ${cur} == -* ]]; then
     COMPREPLY=($(compgen -W '${SHORTOPTS}' -- ${cur}))
   else
-  case ${COMP_WORDS[1]:-$prev} in
+    case ${COMP_WORDS[1]:-$prev} in
     --options) prev="--options" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -c | --config) prev="--config" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
-    -h | --help) prev="--help" && COMPREPLY=($(compgen -W '' -- "${cur}"));;
+    -h | --help) prev="--help" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -v | --version) prev="--version" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -l | --list) prev="--list" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -m | --modify)
@@ -61,26 +61,26 @@ _cdd() {
       [ $COMP_CWORD -eq 2 ] && COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
       [ $COMP_CWORD -gt 3 ] && COMPREPLY=($(compgen -W '' -- "${cur}"))
       ;;
-    -) prev="-" COMPREPLY=($(compgen -W '${SHORTOPTS} ${LONGOPTS}' -- ${cur}))
+    -)
+      prev="-" COMPREPLY=($(compgen -W '${SHORTOPTS} ${LONGOPTS}' -- "${cur}"))
       ;;
     *)
-    if [ -n "${ARRAY}" ]; then
-      COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
-    elif [[ -n "$OPTS" ]]; then
-      #[ $COMP_CWORD -gt 3 ] && \
-      COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
-    elif [[ ${cur} == --* ]]; then
-      COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
-    elif [[ ${cur} == -* ]]; then
-      COMPREPLY=($(compgen -W '${SHORTOPTS}' -- ${cur}))
-    fi
-    return
-    ;;
-  esac
+      if [ -n "${ARRAY}" ]; then
+        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+      elif [[ -n "$OPTS" ]]; then
+        #[ $COMP_CWORD -gt 3 ] && \
+        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+      elif [[ ${cur} == --* ]]; then
+        COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
+      elif [[ ${cur} == -* ]]; then
+        COMPREPLY=($(compgen -W '${SHORTOPTS}' -- ${cur}))
+      fi
+      return
+      ;;
+    esac
   fi
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
   complete -F _cdd cdd
 # vim ft=shell noai
-
