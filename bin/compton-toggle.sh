@@ -71,7 +71,7 @@ EOF
   # Defaults
   local exitCode=""
   local COMPTON_SH_TOGGLE_SH_CONFIG_FILE="settings.conf"
-  local COMPTON_SH_TOGGLE_SH_CONFIG_DIR="$HOME/.config/misc/configs/compton-toggle.sh"
+  local COMPTON_SH_TOGGLE_SH_CONFIG_DIR="$HOME/.config/misc/settings/compton-toggle.sh"
   local COMPTON_SH_TOGGLE_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/compton-toggle.sh"
   local COMPTON_SH_TOGGLE_SH_PICOM_FILE="${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/picom.conf}"
   local COMPTON_SH_TOGGLE_SH_COMPTON_FILE="${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/compton.conf}"

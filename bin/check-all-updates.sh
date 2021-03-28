@@ -75,7 +75,7 @@ EOF
   # Defaults
   local exitCode=
   local CHECK_ALL_UPDATES_SH_CONFIG_FILE="settings.conf"
-  local CHECK_ALL_UPDATES_SH_CONFIG_DIR="$HOME/.config/misc/configs/check-all-updates.sh"
+  local CHECK_ALL_UPDATES_SH_CONFIG_DIR="$HOME/.config/misc/settings/check-all-updates.sh"
   local CHECK_ALL_UPDATES_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/check-all-updates.sh"
   local CHECK_ALL_UPDATES_SH_CACHEDIR="${CACHE_DIR:-$HOME/.cache/check_all_updates_sh}"
   local CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS="${CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS:-yes}"

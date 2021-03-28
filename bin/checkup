@@ -81,7 +81,7 @@ EOF
   # Defaults
   local exitCode=""
   local CHECKUP_CONFIG_FILE="settings.conf"
-  local CHECKUP_CONFIG_DIR="$HOME/.config/misc/configs/checkup"
+  local CHECKUP_CONFIG_DIR="$HOME/.config/misc/settings/checkup"
   local CHECKUP_OPTIONS_DIR="$HOME/.local/share/misc/options/checkup"
   local CHECKUP_NOTIFICATIONS_NAME="CheckUP"
   local CHECKUP_NOTIFICATIONS_ENABLE="${CHECKUP_NOTIFICATIONS_ENABLE=yes}"

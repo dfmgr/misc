@@ -72,7 +72,7 @@ EOF
   # Defaults
   local exitCode=""
   local COPY_CONFIG_FILE="settings.conf"
-  local COPY_CONFIG_DIR="$HOME/.config/misc/configs/copy"
+  local COPY_CONFIG_DIR="$HOME/.config/misc/settings/copy"
   local COPY_OPTIONS_DIR="$HOME/.local/share/misc/options/copy"
   local COPY_CUSTOM_COMMAND=''
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

@@ -70,7 +70,7 @@ EOF
   # Defaults
   local exitCode=""
   local COMPTON_SH_CONFIG_FILE="settings.conf"
-  local COMPTON_SH_CONFIG_DIR="$HOME/.config/misc/configs/compton.sh"
+  local COMPTON_SH_CONFIG_DIR="$HOME/.config/misc/settings/compton.sh"
   local COMPTON_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/compton.sh"
   local COMPTON_SH_ICON='  '
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
