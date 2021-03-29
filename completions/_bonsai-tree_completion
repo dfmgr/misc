@@ -29,7 +29,7 @@ _bonsai-tree() {
   local LONGOPTS="$(grep -sEv '#|^$' "$OPTSDIR/long_opts" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep '\--')"
   local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/short_opts" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep -v '\--')"
   local OPTS="$DEFAULTOPTS"
-  local ARRAY="$DEFAULTARRAY"
+  local ARRAY="$OPTS"
   local SHOW_COMP_OPTS=""
   local FILEDIR=""
 
@@ -69,5 +69,6 @@ _bonsai-tree() {
 } &&
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # enable completions
-  complete -F __bonsai-tree _bonsai-tree
+  complete -F _bonsai-tree bonsai-tree
 # vim ft=shell noai
+
