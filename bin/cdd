@@ -83,11 +83,11 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd() {
     _cd() { COMPREPLY=($(compgen -W '$(ls -A ./ 2>/dev/null)' -- "${cur}")); } && complete -F _cd cd
-    if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
-      [ "$1" = "" ] && builtin cd "$CDD_DIR" || builtin cd "./$1" || return
+    if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ../* ]] || [ "$1" = "" ]; then
+      [ "$1" = "" ] && builtin cd "$CDD_DIR" || builtin cd "./$1" || false
     else
       builtin cd "$CDD_DIR" || printf_error "cd into $CDD_DIR failed"
-      if [ -z "$CDD_ERROR_MESG" ] && [ -n "$1" ]; then
+      if [ "$CDD_ERROR_MESG" != "shown" ] && [ -n "$1" ]; then
         printf_yellow "cd out of $CDD_DIR is disabled while using cdd"
         printf_yellow "To cd into directories within the cdd enviroment use ./folder and cd to return"
         CDD_ERROR_MESG="shown"
@@ -120,7 +120,8 @@ EOF
       printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
       export -f cd
-      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" bash || return 1
+      CDD_ERROR_MESG="" CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" bash || return 1
+      unset -F cd
       clear
     fi
   }
