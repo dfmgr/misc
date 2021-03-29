@@ -21,7 +21,7 @@ _check-all-updates.sh() {
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local CONFFILE="settings.conf"
   local CONFDIR="$HOME/.config/misc/settings/check-all-updates.sh"
-  local OPTSDIR="$HOME/.local/share/misc/options/check-all-updates.sh"
+  local OPTSDIR="$HOME/.local/share/misc/check-all-updates.sh/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/check-all-updates.sh}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
@@ -55,10 +55,10 @@ _check-all-updates.sh() {
       elif [[ "$ARRAY" = "show-commands" ]]; then
         COMPREPLY=($(compgen -c -- "${cur}"))
       elif [[ -n "$ARRAY" ]]; then
-      #  [ $COMP_CWORD -eq 3 ] && \
+        #  [ $COMP_CWORD -eq 3 ] && \
         COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
       elif [[ -n "$OPTS" ]]; then
-      #  [ $COMP_CWORD -gt 3 ] && \
+        #  [ $COMP_CWORD -gt 3 ] && \
         COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
       fi
       return 0

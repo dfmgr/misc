@@ -21,7 +21,7 @@ _ex() {
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local CONFFILE="settings.conf"
   local CONFDIR="$HOME/.config/misc/settings/ex"
-  local OPTSDIR="$HOME/.local/share/misc/options/ex"
+  local OPTSDIR="$HOME/.local/share/misc/ex/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/ex}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
@@ -56,10 +56,10 @@ _ex() {
         COMPREPLY=($(compgen -c -- "${cur}"))
       elif [[ -n "$ARRAY" ]]; then
         #[ $COMP_CWORD -eq 3 ] && \
-          COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
       elif [[ -n "$OPTS" ]]; then
         #[ $COMP_CWORD -gt 3 ] && \
-          COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
       fi
       return 0
       ;;

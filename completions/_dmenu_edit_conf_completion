@@ -21,7 +21,7 @@ _dmenu_edit_conf() {
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local CONFFILE="settings.conf"
   local CONFDIR="$HOME/.config/misc/settings/dmenu_edit_conf"
-  local OPTSDIR="$HOME/.local/share/misc/options/dmenu_edit_conf"
+  local OPTSDIR="$HOME/.local/share/misc/dmenu_edit_conf/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/dmenu_edit_conf}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
@@ -56,10 +56,10 @@ _dmenu_edit_conf() {
         COMPREPLY=($(compgen -c -- "${cur}"))
       elif [[ -n "$ARRAY" ]]; then
         #[ $COMP_CWORD -eq 3 ] && \
-          COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+        COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
       elif [[ -n "$OPTS" ]]; then
         #[ $COMP_CWORD -gt 3 ] && \
-          COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
+        COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
       fi
       return 0
       ;;

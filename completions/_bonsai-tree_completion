@@ -20,7 +20,7 @@ _bonsai-tree() {
   local prev="${COMP_WORDS[$COMP_CWORD - 1]}"
   local CONFFILE="settings.conf"
   local CONFDIR="$HOME/.config/misc/settings/bonsai-tree"
-  local OPTSDIR="$HOME/.local/share/misc/options/bonsai-tree"
+  local OPTSDIR="$HOME/.local/share/misc/bonsai-tree/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/bonsai-tree}"
   #local SEARCHCMD="$(___findcmd "$SEARCHDIR/" "d" "1")"
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
@@ -70,4 +70,3 @@ _bonsai-tree() {
   # enable completions
   complete -F __bonsai-tree _bonsai-tree
 # vim ft=shell noai
-

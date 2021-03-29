@@ -21,7 +21,7 @@ _cdd() {
   local FUNCTIONSDIR="${HOME/.local/share/CasjaysDev/functions}"
   local CONFFILE="settings.conf"
   local CONFDIR="$HOME/.config/misc/settings/cdd"
-  local OPTSDIR="$HOME/.local/share/misc/options/cdd"
+  local OPTSDIR="$HOME/.local/share/misc/cdd/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/cdd}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
   local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
