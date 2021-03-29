@@ -51,8 +51,9 @@ compton.sh_main() {
     printf_green "Generating the config file in"
     printf_green "$COMPTON_SH_CONFIG_DIR/$COMPTON_SH_CONFIG_FILE"
     [ -d "$COMPTON_SH_CONFIG_DIR" ] || mkdir -p "$COMPTON_SH_CONFIG_DIR"
+    [ -d "$COMPTON_SH_CONFIG_BACKUP_DIR" ] || mkdir -p "$COMPTON_SH_CONFIG_BACKUP_DIR"
     [ -f "$COMPTON_SH_CONFIG_DIR/$COMPTON_SH_CONFIG_FILE" ] &&
-      cp -Rf "$COMPTON_SH_CONFIG_DIR/$COMPTON_SH_CONFIG_FILE" "$COMPTON_SH_CONFIG_DIR/$COMPTON_SH_CONFIG_FILE.$$"
+      cp -Rf "$COMPTON_SH_CONFIG_DIR/$COMPTON_SH_CONFIG_FILE" "$COMPTON_SH_CONFIG_BACKUP_DIR/$COMPTON_SH_CONFIG_FILE.$$"
     cat <<EOF >"$COMPTON_SH_CONFIG_DIR/$COMPTON_SH_CONFIG_FILE"
 # Settings for compton.sh
 COMPTON_SH_ICON='  '
@@ -71,7 +72,8 @@ EOF
   local exitCode=""
   local COMPTON_SH_CONFIG_FILE="settings.conf"
   local COMPTON_SH_CONFIG_DIR="$HOME/.config/misc/settings/compton.sh"
-  local COMPTON_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/compton.sh"
+  local COMPTON_SH_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/compton.sh/backups"
+  local COMPTON_SH_OPTIONS_DIR="$HOME/.local/share/misc/compton.sh/options"
   local COMPTON_SH_ICON='  '
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings

@@ -53,8 +53,9 @@ copy_main() {
     printf_green "Generating the config file in"
     printf_green "$COPY_CONFIG_DIR/$COPY_CONFIG_FILE"
     [ -d "$COPY_CONFIG_DIR" ] || mkdir -p "$COPY_CONFIG_DIR"
+    [ -d "$COPY_CONFIG_BACKUP_DIR" ] || mkdir -p "$COPY_CONFIG_BACKUP_DIR"
     [ -f "$COPY_CONFIG_DIR/$COPY_CONFIG_FILE" ] &&
-      cp -Rf "$COPY_CONFIG_DIR/$COPY_CONFIG_FILE" "$COPY_CONFIG_DIR/$COPY_CONFIG_FILE.$$"
+      cp -Rf "$COPY_CONFIG_DIR/$COPY_CONFIG_FILE" "$COPY_CONFIG_BACKUP_DIR/$COPY_CONFIG_FILE.$$"
     cat <<EOF >"$COPY_CONFIG_DIR/$COPY_CONFIG_FILE"
 # Settings for copy
 COPY_CUSTOM_COMMAND=''
@@ -73,7 +74,8 @@ EOF
   local exitCode=""
   local COPY_CONFIG_FILE="settings.conf"
   local COPY_CONFIG_DIR="$HOME/.config/misc/settings/copy"
-  local COPY_OPTIONS_DIR="$HOME/.local/share/misc/options/copy"
+  local COPY_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/copy/backups"
+  local COPY_OPTIONS_DIR="$HOME/.local/share/misc/copy/options"
   local COPY_CUSTOM_COMMAND=''
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings

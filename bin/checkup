@@ -52,8 +52,9 @@ checkup_main() {
     printf_green "Generating the config file in"
     printf_green "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE"
     [ -d "$CHECKUP_CONFIG_DIR" ] || mkdir -p "$CHECKUP_CONFIG_DIR"
+    [ -d "$CHECKUP_CONFIG_BACKUP_DIR" ] || mkdir -p "$CHECKUP_CONFIG_BACKUP_DIR"
     [ -f "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" ] &&
-      cp -Rf "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE.$$"
+      cp -Rf "$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE" "$CHECKUP_CONFIG_BACKUP_DIR/$CHECKUP_CONFIG_FILE.$$"
     cat <<EOF >"$CHECKUP_CONFIG_DIR/$CHECKUP_CONFIG_FILE"
 # Settings for checkup
 CHECKUP_NOTIFICATIONS_NAME="CheckUP"
@@ -82,7 +83,8 @@ EOF
   local exitCode=""
   local CHECKUP_CONFIG_FILE="settings.conf"
   local CHECKUP_CONFIG_DIR="$HOME/.config/misc/settings/checkup"
-  local CHECKUP_OPTIONS_DIR="$HOME/.local/share/misc/options/checkup"
+  local CHECKUP_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/checkup/backups"
+  local CHECKUP_OPTIONS_DIR="$HOME/.local/share/misc/checkup/options"
   local CHECKUP_NOTIFICATIONS_NAME="CheckUP"
   local CHECKUP_NOTIFICATIONS_ENABLE="${CHECKUP_NOTIFICATIONS_ENABLE=yes}"
   local CHECKUP_NOTIFICATIONS_SYNC_NAME="📦 $CHECKUP_NOTIFICATIONS_NAME"

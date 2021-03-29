@@ -49,17 +49,18 @@ compton-toggle.sh_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gen_config() {
     printf_green "Generating the config file in"
-    printf_green "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE"
-    [ -d "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR" ] || mkdir -p "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR"
-    [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ] &&
-      cp -Rf "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE.$$"
-    cat <<EOF >"$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE"
+    printf_green "$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE"
+    [ -d "$COMPTON_TOGGLE_SH_CONFIG_DIR" ] || mkdir -p "$COMPTON_TOGGLE_SH_CONFIG_DIR"
+    [ -d "$COMPTON_TOGGLE_SH_CONFIG_BACKUP_DIR" ] || mkdir -p "$COMPTON_TOGGLE_SH_CONFIG_BACKUP_DIR"
+    [ -f "$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE" ] &&
+      cp -Rf "$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE" "$COMPTON_TOGGLE_SH_CONFIG_BACKUP_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE.$$"
+    cat <<EOF >"$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE"
 # Settings for compton-toggle.sh
-COMPTON_SH_TOGGLE_SH_PICOM_FILE="\${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-\$DESKTOP_SESSION_CONFDIR/picom.conf}"
-COMPTON_SH_TOGGLE_SH_COMPTON_FILE="\${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-\$DESKTOP_SESSION_CONFDIR/compton.conf}"
+COMPTON_TOGGLE_SH_PICOM_FILE="\${COMPTON_TOGGLE_SH_PICOM_FILE:-\$DESKTOP_SESSION_CONFDIR/picom.conf}"
+COMPTON_TOGGLE_SH_COMPTON_FILE="\${COMPTON_TOGGLE_SH_PICOM_FILE:-\$DESKTOP_SESSION_CONFDIR/compton.conf}"
 
 EOF
-    if [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ]; then
+    if [ -f "$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE" ]; then
       printf_green "Your config file for compton-toggle.sh has been created"
       true
     else
@@ -70,11 +71,12 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=""
-  local COMPTON_SH_TOGGLE_SH_CONFIG_FILE="settings.conf"
-  local COMPTON_SH_TOGGLE_SH_CONFIG_DIR="$HOME/.config/misc/settings/compton-toggle.sh"
-  local COMPTON_SH_TOGGLE_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/compton-toggle.sh"
-  local COMPTON_SH_TOGGLE_SH_PICOM_FILE="${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/picom.conf}"
-  local COMPTON_SH_TOGGLE_SH_COMPTON_FILE="${COMPTON_SH_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/compton.conf}"
+  local COMPTON_TOGGLE_SH_CONFIG_FILE="settings.conf"
+  local COMPTON_TOGGLE_SH_CONFIG_DIR="$HOME/.config/misc/settings/compton-toggle.sh"
+  local COMPTON_TOGGLE_SH_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/compton-toggle.sh/backups"
+  local COMPTON_TOGGLE_SH_OPTIONS_DIR="$HOME/.local/share/misc/compton-toggle.sh/options"
+  local COMPTON_TOGGLE_SH_PICOM_FILE="${COMPTON_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/picom.conf}"
+  local COMPTON_TOGGLE_SH_COMPTON_FILE="${COMPTON_TOGGLE_SH_PICOM_FILE:-$DESKTOP_SESSION_CONFDIR/compton.conf}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
@@ -83,12 +85,12 @@ EOF
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
-  [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ] || __gen_config &>/dev/null
-  [ -f "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR/options" ] || __list_options "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR" &>/dev/null
-  [ -f "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR/array" ] || __list_array "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  [ -f "$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$COMPTON_TOGGLE_SH_OPTIONS_DIR/options" ] || __list_options "$COMPTON_TOGGLE_SH_OPTIONS_DIR" &>/dev/null
+  [ -f "$COMPTON_TOGGLE_SH_OPTIONS_DIR/array" ] || __list_array "$COMPTON_TOGGLE_SH_OPTIONS_DIR" "$ARRAY" &>/dev/null
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Import config
-  [ -f "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE" ] && . "$COMPTON_SH_TOGGLE_SH_CONFIG_DIR/$COMPTON_SH_TOGGLE_SH_CONFIG_FILE"
+  [ -f "$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE" ] && . "$COMPTON_TOGGLE_SH_CONFIG_DIR/$COMPTON_TOGGLE_SH_CONFIG_FILE"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
@@ -96,8 +98,8 @@ EOF
   while :; do
     case $1 in
     --options)
-      __list_options "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR"
-      __list_array "$COMPTON_SH_TOGGLE_SH_OPTIONS_DIR" "$ARRAY"
+      __list_options "$COMPTON_TOGGLE_SH_OPTIONS_DIR"
+      __list_array "$COMPTON_TOGGLE_SH_OPTIONS_DIR" "$ARRAY"
       exit $?
       ;;
     -v | --version)
@@ -130,10 +132,10 @@ EOF
     if pgrep -x "picom" &>/dev/null; then
       killall picom &>/dev/null || return 1
     else
-      if [ -f "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" ]; then
-        picom -b --config "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" &>/dev/null
-      elif [ -f "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" ]; then
-        picom -b --config "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" &>/dev/null
+      if [ -f "$COMPTON_TOGGLE_SH_PICOM_FILE" ]; then
+        picom -b --config "$COMPTON_TOGGLE_SH_PICOM_FILE" &>/dev/null
+      elif [ -f "$COMPTON_TOGGLE_SH_COMPTON_FILE" ]; then
+        picom -b --config "$COMPTON_TOGGLE_SH_COMPTON_FILE" &>/dev/null
       else
         picom -b &>/dev/null
       fi
@@ -142,10 +144,10 @@ EOF
     if pgrep -x "compton" &>/dev/null; then
       killall compton &>/dev/null || return 1
     else
-      if [ -f "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" ]; then
-        compton -b --config "$COMPTON_SH_TOGGLE_SH_PICOM_FILE" &>/dev/null
-      elif [ -f "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" ]; then
-        compton -b --config "$COMPTON_SH_TOGGLE_SH_COMPTON_FILE" &>/dev/null
+      if [ -f "$COMPTON_TOGGLE_SH_PICOM_FILE" ]; then
+        compton -b --config "$COMPTON_TOGGLE_SH_PICOM_FILE" &>/dev/null
+      elif [ -f "$COMPTON_TOGGLE_SH_COMPTON_FILE" ]; then
+        compton -b --config "$COMPTON_TOGGLE_SH_COMPTON_FILE" &>/dev/null
       else
         compton -b &>/dev/null
       fi

@@ -52,8 +52,9 @@ check-all-updates.sh_main() {
     printf_green "Generating the config file in"
     printf_green "$CHECK_ALL_UPDATES_SH_CONFIG_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE"
     [ -d "$CHECK_ALL_UPDATES_SH_CONFIG_DIR" ] || mkdir -p "$CHECK_ALL_UPDATES_SH_CONFIG_DIR"
+    [ -d "$CHECK_ALL_UPDATES_SH_CONFIG_BACKUP_DIR" ] || mkdir -p "$CHECK_ALL_UPDATES_SH_CONFIG_BACKUP_DIR"
     [ -f "$CHECK_ALL_UPDATES_SH_CONFIG_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE" ] &&
-      cp -Rf "$CHECK_ALL_UPDATES_SH_CONFIG_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE" "$CHECK_ALL_UPDATES_SH_CONFIG_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE.$$"
+      cp -Rf "$CHECK_ALL_UPDATES_SH_CONFIG_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE" "$CHECK_ALL_UPDATES_SH_CONFIG_BACKUP_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE.$$"
     cat <<EOF >"$CHECK_ALL_UPDATES_SH_CONFIG_DIR/$CHECK_ALL_UPDATES_SH_CONFIG_FILE"
 # Settings for check-all-updates.sh
 CHECK_ALL_UPDATES_SH_CACHEDIR="\${CACHE_DIR:-$HOME/.cache/check_all_updates_sh}"
@@ -76,7 +77,8 @@ EOF
   local exitCode=
   local CHECK_ALL_UPDATES_SH_CONFIG_FILE="settings.conf"
   local CHECK_ALL_UPDATES_SH_CONFIG_DIR="$HOME/.config/misc/settings/check-all-updates.sh"
-  local CHECK_ALL_UPDATES_SH_OPTIONS_DIR="$HOME/.local/share/misc/options/check-all-updates.sh"
+  local CHECK_ALL_UPDATES_SH_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/check-all-updates.sh/backups"
+  local CHECK_ALL_UPDATES_SH_OPTIONS_DIR="$HOME/.local/share/misc/check-all-updates.sh/options"
   local CHECK_ALL_UPDATES_SH_CACHEDIR="${CACHE_DIR:-$HOME/.cache/check_all_updates_sh}"
   local CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS="${CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS:-yes}"
   local CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG="${CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG:-yes}"

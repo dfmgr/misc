@@ -52,8 +52,9 @@ datauri_main() {
     printf_green "Generating the config file in"
     printf_green "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE"
     [ -d "$DATAURI_CONFIG_DIR" ] || mkdir -p "$DATAURI_CONFIG_DIR"
+    [ -d "$DATAURI_CONFIG_BACKUP_DIR" ] || mkdir -p "$DATAURI_CONFIG_BACKUP_DIR"
     [ -f "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" ] &&
-      cp -Rf "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE.$$"
+      cp -Rf "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" "$DATAURI_CONFIG_BACKUP_DIR/$DATAURI_CONFIG_FILE.$$"
     cat <<EOF >"$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE"
 # Settings for datauri
 
@@ -71,7 +72,8 @@ EOF
   local exitCode=""
   local DATAURI_CONFIG_FILE="settings.conf"
   local DATAURI_CONFIG_DIR="$HOME/.config/misc/settings/datauri"
-  local DATAURI_OPTIONS_DIR="$HOME/.local/share/misc/options/datauri"
+  local DATAURI_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/datauri/backups"
+  local DATAURI_OPTIONS_DIR="$HOME/.local/share/misc/datauri/options"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"

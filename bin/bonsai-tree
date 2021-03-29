@@ -60,8 +60,9 @@ bonsai-tree_main() {
     printf_green "Generating the config file in"
     printf_green "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
     [ -d "$BONSAI_TREE_CONFIG_DIR" ] || mkdir -p "$BONSAI_TREE_CONFIG_DIR"
+    [ -d "$BONSAI_TREE_CONFIG_BACKUP_DIR" ] || mkdir -p "$BONSAI_TREE_CONFIG_BACKUP_DIR"
     [ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ] &&
-      cp -Rf "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE.$$"
+      cp -Rf "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" "$BONSAI_TREE_CONFIG_BACKUP_DIR/$BONSAI_TREE_CONFIG_FILE.$$"
     cat <<EOF >"$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
 # Settings for bonsai-tree
 
@@ -79,7 +80,8 @@ EOF
   local exitCode=""
   local BONSAI_TREE_CONFIG_FILE="settings.conf"
   local BONSAI_TREE_CONFIG_DIR="$HOME/.config/misc/settings/bonsai-tree"
-  local BONSAI_TREE_OPTIONS_DIR="$HOME/.local/share/misc/options/bonsai-tree"
+  local BONSAI_TREE_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/bonsai-tree/backups"
+  local BONSAI_TREE_OPTIONS_DIR="$HOME/.local/share/misc/bonsai-tree/options"
   local flag_h=false
   local live=false
   local infinite=false

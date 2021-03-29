@@ -66,8 +66,9 @@ delhistory_main() {
     printf_green "Generating the config file in"
     printf_green "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
     [ -d "$DELHISTORY_CONFIG_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_DIR"
+    [ -d "$DELHISTORY_CONFIG_BACKUP_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_BACKUP_DIR"
     [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] &&
-      cp -Rf "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE.$$"
+      cp -Rf "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" "$DELHISTORY_CONFIG_BACKUP_DIR/$DELHISTORY_CONFIG_FILE.$$"
     cat <<EOF >"$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
 # Settings for delhistory
 
@@ -85,7 +86,8 @@ EOF
   local exitCode=""
   local DELHISTORY_CONFIG_FILE="settings.conf"
   local DELHISTORY_CONFIG_DIR="$HOME/.config/misc/settings/delhistory"
-  local DELHISTORY_OPTIONS_DIR="$HOME/.local/share/misc/options/delhistory"
+  local DELHISTORY_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/delhistory/backups"
+  local DELHISTORY_OPTIONS_DIR="$HOME/.local/share/misc/delhistory/options"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"

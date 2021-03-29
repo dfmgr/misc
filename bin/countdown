@@ -51,8 +51,9 @@ countdown_main() {
     printf_green "Generating the config file in"
     printf_green "$COUNTDOWN_CONFIG_DIR/$COUNTDOWN_CONFIG_FILE"
     [ -d "$COUNTDOWN_CONFIG_DIR" ] || mkdir -p "$COUNTDOWN_CONFIG_DIR"
+    [ -d "$COUNTDOWN_CONFIG_BACKUP_DIR" ] || mkdir -p "$COUNTDOWN_CONFIG_BACKUP_DIR"
     [ -f "$COUNTDOWN_CONFIG_DIR/$COUNTDOWN_CONFIG_FILE" ] &&
-      cp -Rf "$COUNTDOWN_CONFIG_DIR/$COUNTDOWN_CONFIG_FILE" "$COUNTDOWN_CONFIG_DIR/$COUNTDOWN_CONFIG_FILE.$$"
+      cp -Rf "$COUNTDOWN_CONFIG_DIR/$COUNTDOWN_CONFIG_FILE" "$COUNTDOWN_CONFIG_BACKUP_DIR/$COUNTDOWN_CONFIG_FILE.$$"
     cat <<EOF >"$COUNTDOWN_CONFIG_DIR/$COUNTDOWN_CONFIG_FILE"
 # Settings for countdown
 COUNTDOWN_CUSTOM_COMMAND=''
@@ -71,7 +72,8 @@ EOF
   local exitCode=""
   local COUNTDOWN_CONFIG_FILE="settings.conf"
   local COUNTDOWN_CONFIG_DIR="$HOME/.config/misc/settings/countdown"
-  local COUNTDOWN_OPTIONS_DIR="$HOME/.local/share/misc/options/countdown"
+  local COUNTDOWN_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/countdown/backups"
+  local COUNTDOWN_OPTIONS_DIR="$HOME/.local/share/misc/countdown/options"
   local COUNTDOWN_CUSTOM_COMMAND=''
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings

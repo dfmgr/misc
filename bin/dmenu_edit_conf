@@ -51,8 +51,9 @@ dmenu_edit_conf_main() {
     printf_green "Generating the config file in"
     printf_green "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE"
     [ -d "$DMENU_EDIT_CONF_CONFIG_DIR" ] || mkdir -p "$DMENU_EDIT_CONF_CONFIG_DIR"
+    [ -d "$DMENU_EDIT_CONFIG_BACKUP_DIR" ] || mkdir -p "$DMENU_EDIT_CONFIG_BACKUP_DIR"
     [ -f "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" ] &&
-      cp -Rf "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE.$$"
+      cp -Rf "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" "$DMENU_EDIT_CONFIG_BACKUP_DIR/$DMENU_EDIT_CONF_CONFIG_FILE.$$"
     cat <<EOF >"$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE"
 # Settings for dmenu_edit_conf
 DMENU_EDIT_USER_CONF_DIR="${DMENU_EDIT_USER_CONF_DIR:-$DMENU_EDIT_CONF_CONFIG_DIR/menus}"
@@ -71,7 +72,8 @@ EOF
   local exitCode=""
   local DMENU_EDIT_CONF_CONFIG_FILE="settings.conf"
   local DMENU_EDIT_CONF_CONFIG_DIR="$HOME/.config/misc/settings/dmenu_edit_conf"
-  local DMENU_EDIT_CONF_OPTIONS_DIR="$HOME/.local/share/misc/options/dmenu_edit_conf"
+  local DMENU_EDIT_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/dmenu_edit_conf/backups"
+  local DMENU_EDIT_CONF_OPTIONS_DIR="$HOME/.local/share/misc/dmenu_edit_conf/options"
   local DMENU_EDIT_USER_CONF_DIR="${DMENU_EDIT_USER_CONF_DIR:-$DMENU_EDIT_CONF_CONFIG_DIR/menus}"
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

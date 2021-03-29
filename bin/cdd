@@ -55,8 +55,9 @@ cdd_main() {
     printf_green "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
     local tempfile="$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.bak"
     [ -d "$CDD_CONFIG_DIR" ] || mkdir -p "$CDD_CONFIG_DIR"
+    [ -d "$CDD_CONFIG_BACKUP_DIR" ] || mkdir -p "$CDD_CONFIG_BACKUP_DIR"
     [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" "$tempfile"
-    [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.$$"
+    [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_CONFIG_FILE.$$"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
 # Settings for cdd
 testing = "${TMPDIR:-/tmp}/testing"
@@ -168,7 +169,8 @@ EOF
   local exitCode=""
   local CDD_CONFIG_FILE="settings.conf"
   local CDD_CONFIG_DIR="$HOME/.config/misc/settings/cdd"
-  local CDD_OPTIONS_DIR="$HOME/.local/share/misc/options/cdd"
+  local CDD_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/cdd/backups"
+  local CDD_OPTIONS_DIR="$HOME/.local/share/misc/cdd/options"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
