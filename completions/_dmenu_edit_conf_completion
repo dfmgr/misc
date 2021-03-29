@@ -13,6 +13,7 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+dmenu_edit_conf --options &>/dev/null
 _dmenu_edit_conf() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"

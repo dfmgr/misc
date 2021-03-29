@@ -13,6 +13,7 @@
 # @Other         : used primarily by i3
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+checkup --options &>/dev/null
 _checkup() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"

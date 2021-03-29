@@ -532,13 +532,13 @@ else
 fi
 
 __list_array() {
-  local OPTSDIR="${1:-$HOME/.local/share/misc/$PROG/options}"
+  local OPTSDIR="${1:-$HOME/.local/share/misc/${PROG:-$APPNAME}/options}"
   mkdir -p "$OPTSDIR"
   echo "${2:-$ARRAY}" >"$OPTSDIR/array"
   return
 }
 __list_options() {
-  local OPTSDIR="${1:-$HOME/.local/share/misc/$PROG/options}"
+  local OPTSDIR="${1:-$HOME/.local/share/misc/${PROG:-$APPNAME}/options}"
   mkdir -p "$OPTSDIR"
   echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' >"$OPTSDIR/options"
   echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' >>"$OPTSDIR/options"
