@@ -81,19 +81,22 @@ EOF
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  _cd() {
+    _find() { find ${1:-$PWD/} -maxdepth 1 -type d 2>/dev/null| sed 's|'"$CDD_DIR/"'||g' | grep -sv '^$'; }
+    prev=""; COMPREPLY=($(compgen -W '$(_find ${cur})' -- "${cur}"));
+  }
   cd() {
-    _cd() { COMPREPLY=($(compgen -W '$(ls -A ./ 2>/dev/null)' -- "${cur}")); } && complete -F _cd cd
-    if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ../* ]] || [ "$1" = "" ]; then
-      [ "$1" = "" ] && builtin cd "$CDD_DIR" || builtin cd "./$1" || false
-    else
-      builtin cd "$CDD_DIR" || printf_error "cd into $CDD_DIR failed"
-      if [ "$CDD_ERROR_MESG" != "shown" ] && [ -n "$1" ]; then
-        printf_yellow "cd out of $CDD_DIR is disabled while using cdd"
-        printf_yellow "To cd into directories within the cdd enviroment use ./folder and cd to return"
-        CDD_ERROR_MESG="shown"
+    _cd && complete -F _cd cd
+    local cddir="$1"
+    if [[ "$CDD_DIR/$cddir" = "$CDD_DIR"** ]] || [[ "$cddir" = "."** ]] || [[ "$cddir" != ".."* ]] || [[ "$cddir" = "" ]]; then
+      if [ "$cddir" = "" ]; then builtin cd "$CDD_DIR" &>/dev/null
+      else builtin cd "$CDD_DIR/$cddir"  &>/dev/null || printf_red "cd into $CDD_DIR/$cddir failed"
       fi
+    else
+      builtin cd "$CDD_DIR" &>/dev/null || printf_red "cd into $CDD_DIR failed"
     fi
   }
+quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
     if [[ "$1" = ./* ]] && [[ "$CDD_STATUS" = "running" ]]; then cd $1 && return; fi
@@ -116,12 +119,12 @@ EOF
       printf_exit "Failed to cd into $dir"
     else
       printf_red "cd out of $dir is disabled while using cdd"
-      printf_green "Type quit to return to your previous directory"
+      printf_green "Type quit to return to your previous directory/shell"
       printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
-      export -f cd
-      CDD_ERROR_MESG="" CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" bash || return 1
-      unset -F cd
+      export -f cd quit _cd
+      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" bash || return 1
+      unset -F cd quit _cd
       clear
     fi
   }
