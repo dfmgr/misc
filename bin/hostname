@@ -41,6 +41,7 @@ main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Use system if available
   if [ -f "/usr/local/bin/hostname" ]; then
     /usr/local/bin/hostname "$@"
     exit $?
@@ -58,6 +59,7 @@ main() {
     ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Create the files
   __hostname() {
     local hostnamecli hostnamecmd hostnamefcmd hostnamescmd hostnamedcmd PATH
     local PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin"
@@ -66,13 +68,15 @@ main() {
       hostnamecmd="$($hostnamecli "-f" 2>/dev/null | grep '^')"
       hostnamefcmd="$($hostnamecli "-f" 2>/dev/null | grep '^')"
       hostnamescmd="$($hostnamecli "-s" 2>/dev/null | grep '^')"
-      if [[ "$hostnamecmd" =~ .local$ ]]; then hostnamedcmd="local"; else
+      if echo "$hostnamecmd" | grep -qv '.*\.' || [[ "$hostnamecmd" =~ .local$ ]]; then
+        hostnamedcmd="local"
+      else
         hostnamedcmd="$($hostnamecli "-d" 2>/dev/null | grep '^')"
       fi
-      [ -f "$HOSTNAME_CACHE_DIR/name" ] || echo "$hostnamecmd" >"$HOSTNAME_CACHE_DIR/name"
-      [ -f "$HOSTNAME_CACHE_DIR/full" ] || echo "$hostnamefcmd" >"$HOSTNAME_CACHE_DIR/full"
-      [ -f "$HOSTNAME_CACHE_DIR/short" ] || echo "$hostnamescmd" >"$HOSTNAME_CACHE_DIR/short"
-      [ -f "$HOSTNAME_CACHE_DIR/domain" ] || echo "$hostnamedcmd" >"$HOSTNAME_CACHE_DIR/domain"
+      [ -f "$HOSTNAME_CACHE_DIR/name" ] || printf '%s\n' "$hostnamecmd" >"$HOSTNAME_CACHE_DIR/name"
+      [ -f "$HOSTNAME_CACHE_DIR/full" ] || printf '%s\n' "$hostnamefcmd" >"$HOSTNAME_CACHE_DIR/full"
+      [ -f "$HOSTNAME_CACHE_DIR/short" ] || printf '%s\n' "$hostnamescmd" >"$HOSTNAME_CACHE_DIR/short"
+      [ -f "$HOSTNAME_CACHE_DIR/domain" ] || printf '%s\n' "$hostnamedcmd" >"$HOSTNAME_CACHE_DIR/domain"
       $hostnamecli "$@" 2>/dev/null | grep '^'
     elif [ -f "$(type -P hostnamectl 2>/dev/null)" ]; then
       shift $#
@@ -80,12 +84,15 @@ main() {
       hostnamecmd="$($hostnamecli | grep 'hostname:' | grep -v '^n/a' | awk '{print $3}' 2>/dev/null | grep '^')"
       hostnamefcmd="$($hostnamecli | grep 'hostname:' | grep -v '^n/a' | awk '{print $3}' 2>/dev/null | grep '^')"
       hostnamescmd="$($hostnamecli | grep 'hostname:' | grep -v '^n/a' | awk '{print $3}' | sed 's#\..*##g' 2>/dev/null | grep '^')"
-      if [[ "$hostnamecmd" =~ .local$ ]]; then hostnamedcmd="local"; else
+      if echo "$hostnamecmd" | grep -qv '.*\.' || [[ "$hostnamecmd" =~ .local$ ]]; then
+        hostnamedcmd="local"
+      else
         hostnamedcmd="$($hostnamecli | grep 'hostname:' | grep -v '^n/a' | awk -F. '{print $(NF-1) "." $NF}' 2>/dev/null | grep '^')"
       fi
-      [ -f "$HOSTNAME_CACHE_DIR/name" ] || $hostnamecmd >"$HOSTNAME_CACHE_DIR/name"
-      [ -f "$HOSTNAME_CACHE_DIR/full" ] || $hostnamescmd >"$HOSTNAME_CACHE_DIR/full"
-      [ -f "$HOSTNAME_CACHE_DIR/short" ] || $hostnamefcmd >"$HOSTNAME_CACHE_DIR/short"
+      [ -f "$HOSTNAME_CACHE_DIR/name" ] || printf '%s\n' "$hostnamecmd" >"$HOSTNAME_CACHE_DIR/name"
+      [ -f "$HOSTNAME_CACHE_DIR/full" ] || printf '%s\n' "$hostnamefcmd" >"$HOSTNAME_CACHE_DIR/full"
+      [ -f "$HOSTNAME_CACHE_DIR/short" ] || printf '%s\n' "$hostnamescmd" >"$HOSTNAME_CACHE_DIR/short"
+      [ -f "$HOSTNAME_CACHE_DIR/domain" ] || printf '%s\n' "$hostnamedcmd" >"$HOSTNAME_CACHE_DIR/domain"
       $hostnamecli 2>/dev/null | grep 'hostname:' | grep -v '^n/a' | awk '{print $3}' | grep '^'
     fi
   }
