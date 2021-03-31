@@ -13,7 +13,7 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-ex --options &>/dev/null
+[ -f "$HOME/.local/share/misc/ex/options/array" ] || ex --options &>/dev/null
 _ex() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"

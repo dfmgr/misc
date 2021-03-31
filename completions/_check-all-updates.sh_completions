@@ -13,7 +13,7 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-check-all-updates.sh --options &>/dev/null
+[ -f "$HOME/.local/share/misc/check-all-updates.sh/options/array" ] || check-all-updates.sh --options &>/dev/null
 _check-all-updates.sh() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"

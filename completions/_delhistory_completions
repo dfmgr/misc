@@ -13,7 +13,7 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-delhistory --options &>/dev/null
+[ -f "$HOME/.local/share/misc/delhistory/options/array" ] || delhistory --options &>/dev/null
 _delhistory() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"

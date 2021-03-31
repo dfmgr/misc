@@ -13,7 +13,7 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-copy --options &>/dev/null
+[ -f "$HOME/.local/share/misc/copy/options/array" ] || copy --options &>/dev/null
 _copy() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"

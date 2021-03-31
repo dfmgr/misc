@@ -13,7 +13,7 @@
 # @Other         :
 # @Resource      : https://github.com/jaagr/polybar/wiki/User-contributed-modules
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-compton-toggle.sh --options &>/dev/null
+[ -f "$HOME/.local/share/misc/compton-toggle.sh/options/array" ] || compton-toggle.sh --options &>/dev/null
 _compton-toggle.sh() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"

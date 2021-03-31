@@ -13,6 +13,7 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ -f "$HOME/.local/share/misc/cdd/options/array" ] || cdd --options &>/dev/null
 _cdd() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[$COMP_CWORD]}"
