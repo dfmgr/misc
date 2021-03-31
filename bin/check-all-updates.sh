@@ -146,13 +146,13 @@ EOF
         updates_arch=0
         updates="$updates_arch"
       fi
-    #    #yay doesn't do sudo
-    #    if [ -f /usr/bin/yay ]; then
-    #        if ! updates_aur=$(yay -Qum 2>/dev/null | wc -l); then
-    #            updates_aur=0
-    #        fi
-    #    fi
-    #    updates=$(("$updates_arch" + "$updates_aur"))
+      #yay doesn't do sudo
+      if [ -f /usr/bin/yay ]; then
+        if ! updates_aur=$(sudo --user $USER yay -Qum 2>/dev/null | wc -l); then
+          updates_aur=0
+        fi
+      fi
+      updates=$(("$updates_arch" + "$updates_aur"))
     #Debian update check
     elif [ -f /usr/bin/apt ]; then
       if ! updates=$(sudo apt-get update >/dev/null && apt-get --just-print upgrade | grep "Inst " | wc -l); then
