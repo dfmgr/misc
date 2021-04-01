@@ -51,14 +51,27 @@ cdd_main() {
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gen_config() {
-    printf_green "Generating the config file in"
+    printf_green "Generating the aliases file in"
     printf_green "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
-    local tempfile="$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.bak"
+    CDD_GREP_COLORS="${CDD_GREP_COLORS:-$GREP_COLORS}"
+    CDD_ALIAS_FILE="${CDD_ALIAS_FILE:-aliases}"
+    if [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then
+      printf_green "Your config file for cdd has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  __gen_alias() {
+    printf_green "Generating the aliases file in"
+    printf_green "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
+    local tempfile="$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.bak"
     [ -d "$CDD_CONFIG_DIR" ] || mkdir -p "$CDD_CONFIG_DIR"
     [ -d "$CDD_CONFIG_BACKUP_DIR" ] || mkdir -p "$CDD_CONFIG_BACKUP_DIR"
-    [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" "$tempfile"
-    [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_CONFIG_FILE.$$"
-    cat <<EOF >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
+    [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$tempfile"
+    [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_ALIAS_FILE.$$"
+    cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
 # Settings for cdd
 testing = "${TMPDIR:-/tmp}/testing"
 projects = "$HOME/Projects"
@@ -67,12 +80,12 @@ music = "$HOME/Music"
 share = "$HOME/local/share"
 
 EOF
-    if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE")" ]; then
-      printf '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
-      cat "$tempfile" | sort -u | grep -v ^'# Settings' | grep -v '^$' >>"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
-      printf '\n' >>"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
+    if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]; then
+      printf '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
+      cat "$tempfile" | sort -u | grep -v ^'# Settings' | grep -v '^$' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
+      printf '\n' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     fi
-    if [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then
+    if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
       printf_green "Your config file for cdd has been created"
       true
     else
@@ -102,7 +115,7 @@ quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
     if [[ "$1" = ./* ]] && [[ "$CDD_STATUS" = "running" ]]; then cd $1 && return; fi
     [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
     clear
-    if [ ! -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then __config_gen && main "$@"; fi
+    if [ ! -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then __config_gen && main "$@"; fi
     local dir="$(list_aliases "folder" "$1")"
     local alias="$(list_aliases alias "$1")"
     if [ -z "$dir" ]; then
@@ -132,9 +145,9 @@ quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
   add_alias() {
     if ! list_aliases alias "$1" | grep -qx "$1"; then
       printf_green "Adding the alias $1 to config"
-      grep -v '^$' "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.tmp"
-      printf "%s\n\n" ''$1' = "'$2'"' >>"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.tmp"
-      mv -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.tmp" "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
+      grep -v '^$' "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
+      printf "%s\n\n" ''$1' = "'$2'"' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
+      mv -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     else
       printf_red "It appears that $1 has already been added"
     fi
@@ -146,8 +159,8 @@ quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
     local alias="$(list_aliases alias "$1")"
     if list_aliases alias '*' | grep -qx "$alias"; then
       printf_green "Removing the alias $alias from config"
-      cat "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" | grep -xv ^"$alias = .*" >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.tmp" &&
-        mv -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE.tmp" "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" || return 1
+      cat "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" | grep -xv ^"$alias = .*" >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" &&
+        mv -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" || return 1
       __list_array "$CDD_OPTIONS_DIR" "$ARRAY"
     else
       printf_red "The alias $1 doesn't exist"
@@ -156,8 +169,8 @@ quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   list_aliases() {
-    if [ ! -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then __config_gen &>/dev/null; fi
-    __grep() { grep -E ^''$1' =*..*'$ "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" 2>/dev/null; }
+    if [ ! -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then __config_gen &>/dev/null; fi
+    __grep() { grep -E ^''$1' =*..*'$ "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" 2>/dev/null; }
     if [ "$1" = "folder" ]; then
       shift 1
       __grep "$1" | awk -F'= ' '{print $2}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
@@ -171,7 +184,9 @@ quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=""
+  local CDD_GREP_COLORS="$GREP_COLORS;mt=38;5;220;1"
   local CDD_CONFIG_FILE="settings.conf"
+  local CDD_ALIAS_FILE="aliases.conf"
   local CDD_CONFIG_DIR="$HOME/.config/misc/settings/cdd"
   local CDD_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/cdd/backups"
   local CDD_OPTIONS_DIR="$HOME/.local/share/misc/cdd/options"
@@ -183,12 +198,13 @@ quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
   local ARRAY="$(list_aliases '*' | awk '{print $1}')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
-  [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"  ] || __gen_config &>/dev/null
+  [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] || __gen_alias &>/dev/null
   [ -f "$CDD_OPTIONS_DIR/options" ] || __list_options "$CDD_OPTIONS_DIR" &>/dev/null
   [ -f "$CDD_OPTIONS_DIR/array" ] || __list_array "$CDD_OPTIONS_DIR" "$ARRAY" &>/dev/null
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Import config
-  #[ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && . "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
+  [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && . "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Check for required applications
   cmd_exists --error bash || exit 1
@@ -248,6 +264,7 @@ quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
   done
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
+  export GREP_COLORS="$CDD_GREP_COLORS"
   cd_goto "$1"
 
   # lets exit with code

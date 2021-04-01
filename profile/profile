@@ -339,8 +339,9 @@ export TODOTXT_REPORT_FILE="$HOME/.local/share/todo/report.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
 CLICOLOR="1"
-GREP_COLORS='mt=37;45'
+GREP_COLORS='mt=38;5;220;1'
 [ -f "$HOME/.config/misc/shell/other/ls" ] && . "$HOME/.config/misc/shell/other/ls"
+[ -f "$HOME/.config/misc/shell/other/grep" ] && . "$HOME/.config/misc/shell/other/grep"
 export CLICOLOR GREP_COLORS LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory

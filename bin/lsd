@@ -37,20 +37,20 @@ fi
 __version() { app_version; }
 __help() {
   app_help "Usage: lsd $PWD" \
-    "-p                     - ls or find"
-  "-v                     -  show version" \
+    "-p                     - ls or find" \
+    "-v                     -  show version" \
     "-d                     -  max depth" \
     "-t                     -  type f,d,l" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
 __find_cmd() {
+  local GREP_COLORS='mt=38;5;220;1'
   local dir="$(dirname $dir/.)"
   find ${follow:--L} ${1:-$dir} -maxdepth ${depth:-1} -type ${type:-d} 2>/dev/null |
     sed 's#'${1:-$dir}/'##g' 2>/dev/null |
     sed 's#'${1:-$dir}'##g' 2>/dev/null |
-    grep '^' |
-    grep -v '^$' &&
+    grep '^' | grep -v '^$' | grep --color '.*.' &&
     return 0 ||
     return 1
 }
