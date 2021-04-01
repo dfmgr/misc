@@ -17,12 +17,13 @@ elif [ -n "$BASH_VERSION" ]; then
   SHELL="$(command -v bash)"
   BASH_SILENCE_DEPRECATION_WARNING="1"
   BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
-  HISTCONTROL="ignoreboth"
+  HISTCONTROL="ignoreboth:erasedups"
   HISTFILESIZE="5000"
   HISTIGNORE="[bf]g:c:clear:history:exit:q"
-  HISTSIZE="50000"
+  HISTSIZE="2000"
+  HISTFILE="$HOME/.config/bash/bash_history"
   export SHELL BASH_SILENCE_DEPRECATION_WARNING BASH_COMPLETION_USER_DIR
-  export HISTCONTROL HISTFILESIZE HISTIGNORE HISTSIZE
+  export HISTCONTROL HISTFILESIZE HISTIGNORE HISTSIZE HISTFILE
   [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook bash >/dev/null 2>&1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
@@ -34,9 +35,12 @@ elif [ -n "$ZSH_VERSION" ]; then
   ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
   ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
   HISTFILE="${ZDOTDIR/.history:-$HOME/.cache/zhistory}"
+  HISTCONTROL="ignoreboth:erasedups"
+  HISTIGNORE="[bf]g:c:clear:history:exit:q"
   SAVEHIST=5000
   HISTSIZE=2000
-  export SHELL ZDOTDIR ZSH_CACHEDIR ZSH ZSH_CUSTOM ZSH_DISABLE_COMPFIX HISTFILE SAVEHIST HISTSIZE
+  HISTFILE="$HOME/.config/zsh/zsh_history"
+  export SHELL ZDOTDIR ZSH_CACHEDIR ZSH ZSH_CUSTOM ZSH_DISABLE_COMPFIX HISTCONTROL HISTIGNORE HISTFILE SAVEHIST HISTSIZE
   [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
