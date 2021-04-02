@@ -13,7 +13,7 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$HOME/.local/share/misc/check-all-updates.sh/options/array" ] || check-all-updates.sh --options &>/dev/null
+#[ -f "$HOME/.local/share/misc/check-all-updates.sh/options/array" ] || check-all-updates.sh --options &>/dev/null
 _check-all-updates.sh() {
   local cur prev words cword opts
   local cur="${COMP_WORDS[COMP_CWORD]}"
@@ -25,8 +25,8 @@ _check-all-updates.sh() {
   local OPTSDIR="$HOME/.local/share/misc/check-all-updates.sh/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/check-all-updates.sh}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
-  local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array")"
-  local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo -v -h)"
+  local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array" || echo '--options --help --version')"
+  local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo '--options --help --version')"
   local LONGOPTS="$(grep -sEv '#|^$' "$OPTSDIR/long_opts" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep '\--')"
   local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/short_opts" || echo $DEFAULTOPTS | tr ' ' '\n' | grep -v '\--')"
   local OPTS="$DEFAULTOPTS"
