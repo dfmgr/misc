@@ -4,8 +4,7 @@
 PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
-PS1="\u@\H $ "
-export PS1
+export PS1='\h:\w\$ '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
 export HISTSIZE=32768;
@@ -26,7 +25,9 @@ elif [ -n "$BASH_VERSION" ]; then
   HISTFILE="$HOME/.config/bash/bash_history"
   export SHELL BASH_SILENCE_DEPRECATION_WARNING BASH_COMPLETION_USER_DIR
   export HISTFILE
-  [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook bash >/dev/null 2>&1
+  if [ -f "$(command -v direnv 2>/dev/null)" ]; then
+    direnv hook bash >/dev/null 2>&1
+  fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
@@ -38,7 +39,9 @@ elif [ -n "$ZSH_VERSION" ]; then
   ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
   HISTFILE="$HOME/.config/zsh/zsh_history"
   export SHELL ZDOTDIR ZSH_CACHEDIR ZSH ZSH_CUSTOM ZSH_DISABLE_COMPFIX HISTFILE
-  [ -f "$(command -v direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
+  if [ -f "$(command -v direnv 2>/dev/null)" ]; then
+    direnv hook zsh >/dev/null 2>&1
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
@@ -115,14 +118,16 @@ fi
 # XDG Settings
 export LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
 export STATE_DIRECTORY="$HOME/.local/lib"
-export CACHE_DIRECTORY="$HOME/.local/cache"
-export RUNTIME_DIRECTORY="$HOME/.local/run"
+export CACHE_DIRECTORY="$HOME/.cache"
+export RUNTIME_DIRECTORY="${XDG_RUNTIME_DIR:-/run/user/$UID}"
 export CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
 export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
 export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
-[ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ] && cp -f "$HOME/.config/local/gitconfig.local" "$HOME/.gitconfig"
+if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
+  cp -f "$HOME/.config/local/gitconfig.local" "$HOME/.gitconfig"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
 if [ "$(uname -s)" = Linux ] && [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
@@ -136,8 +141,9 @@ export SUDO_PROMPT SUDO_ASKPASS
 # export gpg tty
 GPG_TTY="$(tty)"
 SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
-[ -f "$(command -v gpg-agent 2>/dev/null)" ] &&
+if [ -f "$(command -v gpg-agent 2>/dev/null)" ]; then
   gpg-agent --enable-ssh-support --daemon -q &>/dev/null
+fi
 export GPG_TTY SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
@@ -145,10 +151,12 @@ if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
     ssh-agent &>/dev/null
   fi
-  [ -n "$SSH_AUTH_SOCK" ] && ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
+  if [ -n "$SSH_AUTH_SOCK" ]; then
+    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
+  fi
 fi
-if [ "$(find ~/.ssh/id_* 2>/dev/null | wc -l)" -ne "0" ]; then
-  for f in $(find ~/.ssh/id_* 2>/dev/null | grep -v '/*.pub'); do
+if [ -d "$HOME/.ssh" ]; then
+  for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
     ssh-add -q "$f" &>/dev/null
   done
 fi
@@ -167,7 +175,9 @@ export LESS_TERMCAP_us=$'\e[1;4;31m'
 export MANPAGER="less -X"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # add emacs to bin
-[ -d "$HOME/.emacs.d/bin" ] && PATH="$HOME/.emacs.d/bin:$PATH"
+if [ -d "$HOME/.emacs.d/bin" ]; then
+  PATH="$HOME/.emacs.d/bin:$PATH"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # rpm devel
 export QA_RPATHS="$((0x0001 | 0x0010))"
@@ -342,7 +352,16 @@ GREP_COLORS='mt=38;5;220;1'
 export CLICOLOR GREP_COLORS LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
-export WALLPAPERS="$HOME/.local/share/wallpapers"
+export WALLPAPER_DIR="$HOME/.local/share/wallpapers"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup theme directory
+export THEME_DIR="$HOME/.local/share/themes"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup icon directory
+export ICON_DIR="$HOME/.local/share/icons"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup font directory
+export FONT_DIR="$HOME/.local/share/fonts"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
 [ -f "$(command -v lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ] && . "$HOME/.config/misc/shell/other/lf"
