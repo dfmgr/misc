@@ -267,220 +267,218 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -f "$(command -v garcon-url-handler 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v garcon-url-handler 2>/dev/null) --url"
+  BROWSER="$(command -v garcon-url-handler 2>/dev/null) --url"
 elif [ -f "$(command -v firefox 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v firefox 2>/dev/null)"
+  BROWSER="$(command -v firefox 2>/dev/null)"
 elif [ -f "$(command -v chromium 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v chromium 2>/dev/null)"
+  BROWSER="$(command -v chromium 2>/dev/null)"
 elif [ -f "$(command -v google-chrome 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v google-chrome 2>/dev/null)"
+  BROWSER="$(command -v google-chrome 2>/dev/null)"
 elif [ -f "$(command -v opera 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v opera 2>/dev/null)"
+  BROWSER="$(command -v opera 2>/dev/null)"
 elif [ -f "$(command -v epiphany-browser 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v epiphany-browser 2>/dev/null)"
+  BROWSER="$(command -v epiphany-browser 2>/dev/null)"
 elif [ -f "$(command -v falkon 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v falkon 2>/dev/null)"
+  BROWSER="$(command -v falkon 2>/dev/null)"
 elif [ -f "$(command -v midori 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v midori 2>/dev/null)"
+  BROWSER="$(command -v midori 2>/dev/null)"
 elif [ -f "$(command -v netsurf 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v netsurf 2>/dev/null)"
+  BROWSER="$(command -v netsurf 2>/dev/null)"
 elif [ -f "$(command -v surf 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v surf 2>/dev/null)"
+  BROWSER="$(command -v surf 2>/dev/null)"
 elif [ -f "$(command -v arora 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v arora 2>/dev/null)"
+  BROWSER="$(command -v arora 2>/dev/null)"
 elif [ -f '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]; then
-  MYBROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+  BROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
 elif [ -f '/Applications/Firefox.app/Contents/MacOS/firefox-bin' ]; then
-  MYBROWSER='/Applications/Firefox.app/Contents/MacOS/firefox-bin'
+  BROWSER='/Applications/Firefox.app/Contents/MacOS/firefox-bin'
 elif [ -f '/Applications/Opera.app/Contents/MacOS/Opera' ]; then
-  MYBROWSER='/Applications/Opera.app/Contents/MacOS/Opera'
+  BROWSER='/Applications/Opera.app/Contents/MacOS/Opera'
 elif [ -f '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser' ]; then
-  MYBROWSER='/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+  BROWSER='/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
 elif [ -f '/Applications/Tor Browser.app/Contents/MacOS/firefox' ]; then
-  MYBROWSER='/Applications/Tor Browser.app/Contents/MacOS/firefox'
+  BROWSER='/Applications/Tor Browser.app/Contents/MacOS/firefox'
 elif [ -f "$(command -v lynx 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v lynx 2>/dev/null)"
+  BROWSER="$(command -v lynx 2>/dev/null)"
 elif [ -f "$(command -v links 2>/dev/null)" ]; then
-  MYBROWSER="$(command -v links 2>/dev/null)"
+  BROWSER="$(command -v links 2>/dev/null)"
 fi
-export BROWSER="$MYBROWSER"
+export BROWSER="$BROWSER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
 if [ -f "$(command -v termite 2>/dev/null)" ]; then
-  MYTERMINAL="termite"
+  TERMINAL="termite"
 elif [ -f "$(command -v xfce4-terminal 2>/dev/null)" ]; then
-  MYTERMINAL="xfce4-terminal"
+  TERMINAL="xfce4-terminal"
 elif [ -f "$(command -v qterminal 2>/dev/null)" ]; then
-  MYTERMINAL="qterminal"
+  TERMINAL="qterminal"
 elif [ -f "$(command -v mate-terminal 2>/dev/null)" ]; then
-  MYTERMINAL="mate-terminal"
+  TERMINAL="mate-terminal"
 elif [ -f "$(command -v i3-sensible-terminal 2>/dev/null)" ]; then
-  MYTERMINAL="i3-sensible-terminal"
+  TERMINAL="i3-sensible-terminal"
 elif [ -f "$(command -v rofi-sensible-terminal 2>/dev/null)" ]; then
-  MYTERMINAL="rofi-sensible-terminal"
+  TERMINAL="rofi-sensible-terminal"
 elif [ -f "$(command -v terminology 2>/dev/null)" ]; then
-  MYTERMINAL="terminology"
+  TERMINAL="terminology"
 elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm2" ]; then
-  MYTERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm2"
+  TERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm2"
 elif [ -f "/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal" ]; then
-  MYTERMINAL="/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal"
+  TERMINAL="/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal"
 elif [ -f "$(command -v xterm 2>/dev/null)" ]; then
-  MYTERMINAL="xterm"
+  TERMINAL="xterm"
 elif [ -f "$(command -v uxterm 2>/dev/null)" ]; then
-  MYTERMINAL="uxterm"
+  TERMINAL="uxterm"
 fi
-export TERMINAL="$MYTERMINAL"
+export TERMINAL="$TERMINAL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export file manager
 if [ -z "$DESKTOP_SESSION" ]; then
   if [ -f "$(command -v lf 2>/dev/null)" ]; then
-    MYFILEMANAGER="lf"
+    FILEMANAGER="lf"
   elif [ -f "$(command -v vifm 2>/dev/null)" ]; then
-    MYFILEMANAGER="vifm"
+    FILEMANAGER="vifm"
   elif [ -f "$(command -v ranger 2>/dev/null)" ]; then
-    MYFILEMANAGER="ranger"
+    FILEMANAGER="ranger"
   elif [ -f "$(command -v se 2>/dev/null)" ]; then
-    MYFILEMANAGER="se"
+    FILEMANAGER="se"
   elif [ -f "$(command -v cfiles 2>/dev/null)" ]; then
-    MYFILEMANAGER="cfiles"
+    FILEMANAGER="cfiles"
   fi
 else
   if [ -f "$(command -v open 2>/dev/null)" ]; then
-    MYFILEMANAGER="open"
+    FILEMANAGER="open"
   elif [ -f "$(command -v dolphin 2>/dev/null)" ]; then
-    MYFILEMANAGER="dolphin"
+    FILEMANAGER="dolphin"
   elif [ -f "$(command -v thunar 2>/dev/null)" ]; then
-    MYFILEMANAGER="thunar"
+    FILEMANAGER="thunar"
   elif [ -f "$(command -v Thunar 2>/dev/null)" ]; then
-    MYFILEMANAGER="Thunar"
+    FILEMANAGER="Thunar"
   elif [ -f "$(command -v konqueror 2>/dev/null)" ]; then
-    MYFILEMANAGER="konqueror"
+    FILEMANAGER="konqueror"
   elif [ -f "$(command -v spacefm 2>/dev/null)" ]; then
-    MYFILEMANAGER="spacefm"
+    FILEMANAGER="spacefm"
   elif [ -f "$(command -v nemo 2>/dev/null)" ]; then
-    MYFILEMANAGER="nemo"
+    FILEMANAGER="nemo"
   elif [ -f "$(command -v pcmanfm 2>/dev/null)" ]; then
-    MYFILEMANAGER="pcmanfm"
+    FILEMANAGER="pcmanfm"
   elif [ -f "$(command -v polo 2>/dev/null)" ]; then
-    MYFILEMANAGER="caja"
+    FILEMANAGER="caja"
   elif [ -f "$(command -v caja 2>/dev/null)" ]; then
-    MYFILEMANAGER="nautilus"
+    FILEMANAGER="nautilus"
   elif [ -f "$(command -v nautilus 2>/dev/null)" ]; then
-    MYFILEMANAGER="polo"
+    FILEMANAGER="polo"
   elif [ -f "$(command -v polo 2>/dev/null)" ]; then
-    MYFILEMANAGER="polo"
+    FILEMANAGER="polo"
   fi
 fi
 if [[ "$(uname -s)" = Darwin ]]; then
-  MYFILEMANAGER="open"
+  FILEMANAGER="open"
 fi
-export FILEMANAGER="$MYFILEMANAGER"
+export FILEMANAGER="$FILEMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
 if [ -f "$(command -v VirtualBox 2>/dev/null)" ]; then
-  MYVMMANAGER="VirtualBox"
+  VMMANAGER="VirtualBox"
 elif [ -f "$(command -v VMWare 2>/dev/null)" ]; then
-  MYVMMANAGER="VMWare"
+  VMMANAGER="VMWare"
 elif [ -f "$(command -v virt-manager 2>/dev/null)" ]; then
-  MYVMMANAGER="virt-manager"
+  VMMANAGER="virt-manager"
 elif [ -f "$(command -v kubectl 2>/dev/null)" ]; then
-  MYVMMANAGER="kubectl"
+  VMMANAGER="kubectl"
 elif [ -f "$(command -v docker 2>/dev/null)" ]; then
-  MYVMMANAGER="docker"
+  VMMANAGER="docker"
 fi
-export VMMANAGER="$MYVMMANAGER"
+export VMMANAGER="$VMMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
-if [ "$MYTORRENT_NAME" != "config" ] || [ -z "$MYTORRENT" ]; then
-  if [ -f "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
-    MYTORRENT="transmission-remote-gtk"
-  elif [ -f "$(command -v transmission-gtk 2>/dev/null)" ]; then
-    MYTORRENT="transmission-gtk"
-  elif [ -f "$(command -v transmission-cli 2>/dev/null)" ]; then
-    MYTORRENT="transmission-cli"
-  elif [ -f "$(command -v transmission-qt 2>/dev/null)" ]; then
-    MYTORRENT="transmission-qt"
-  elif [ -f "$(command -v deluge 2>/dev/null)" ]; then
-    MYTORRENT="deluge"
-  elif [ -f "$(command -v vuze 2>/dev/null)" ]; then
-    MYTORRENT="vuze"
-  elif [ -f "$(command -v qbittorrent)" ]; then
-    MYTORRENT="qbittorrent"
-  elif [ -f "$(command -v ktorrent 2>/dev/null)" ]; then
-    MYTORRENT="ktorrent"
-  elif [ -f "$(command -v ctorrent 2>/dev/null)" ]; then
-    MYTORRENT="ctorrent"
-  elif [ -f "$(command -v unworkable 2>/dev/null)" ]; then
-    MYTORRENT="unworkable"
-  elif [ -f "$(command -v rtorrent 2>/dev/null)" ]; then
-    MYTORRENT="rtorrent"
-  elif [ -f "$(command -v bitstormlite 2>/dev/null)" ]; then
-    MYTORRENT="bitstormlite"
-  elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
-    MYTORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
-  fi
+if [ -f "$(command -v transmission-remote-gtk 2>/dev/null)" ]; then
+  TORRENT="transmission-remote-gtk"
+elif [ -f "$(command -v transmission-gtk 2>/dev/null)" ]; then
+  TORRENT="transmission-gtk"
+elif [ -f "$(command -v transmission-cli 2>/dev/null)" ]; then
+  TORRENT="transmission-cli"
+elif [ -f "$(command -v transmission-qt 2>/dev/null)" ]; then
+  TORRENT="transmission-qt"
+elif [ -f "$(command -v deluge 2>/dev/null)" ]; then
+  TORRENT="deluge"
+elif [ -f "$(command -v vuze 2>/dev/null)" ]; then
+  TORRENT="vuze"
+elif [ -f "$(command -v qbittorrent)" ]; then
+  TORRENT="qbittorrent"
+elif [ -f "$(command -v ktorrent 2>/dev/null)" ]; then
+  TORRENT="ktorrent"
+elif [ -f "$(command -v ctorrent 2>/dev/null)" ]; then
+  TORRENT="ctorrent"
+elif [ -f "$(command -v unworkable 2>/dev/null)" ]; then
+  TORRENT="unworkable"
+elif [ -f "$(command -v rtorrent 2>/dev/null)" ]; then
+  TORRENT="rtorrent"
+elif [ -f "$(command -v bitstormlite 2>/dev/null)" ]; then
+  TORRENT="bitstormlite"
+elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
+  TORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
 fi
 if [ -f "$(command -v transmission-remote 2>/dev/null)" ] && { [ -z "$DISPLAY" ] || [ -n "$SSH_CONNECTION" ]; }; then
-  MYTORRENT="transmission-remote"
+  TORRENT="transmission-remote"
 fi
-export TORRENT="$MYTORRENT"
+export TORRENT="$TORRENT"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
 if [ -f "$(command -v thunderbird 2>/dev/null)" ]; then
-  MYEMAIL="thunderbird"
+  EMAIL="thunderbird"
 elif [ -f "$(command -v evolution 2>/dev/null)" ]; then
-  MYEMAIL="evolution"
+  EMAIL="evolution"
 elif [ -f "$(command -v clawsmail 2>/dev/null)" ]; then
-  MYEMAIL="clawsmail"
+  EMAIL="clawsmail"
 elif [ -f "$(command -v geary 2>/dev/null)" ]; then
-  MYEMAIL="geary"
+  EMAIL="geary"
 elif [ -f "$(command -v neomutt 2>/dev/null)" ]; then
-  MYEMAIL="neomutt"
+  EMAIL="neomutt"
 elif [ -f "$(command -v mutt 2>/dev/null)" ]; then
-  MYEMAIL="mutt"
+  EMAIL="mutt"
 elif [ -f "$(command -v kmail 2>/dev/null)" ]; then
-  MYEMAIL="kmail"
+  EMAIL="kmail"
 elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
-  MYEMAIL="emacs"
+  EMAIL="emacs"
 elif [ -f "$(command -v gmail 2>/dev/null)" ]; then
-  MYEMAIL="mybrowser https://gmail.com"
+  EMAIL="mybrowser https://gmail.com"
 elif [ -f "$(command -v ymail 2>/dev/null)" ]; then
-  MYEMAIL="mybrowser https://ymail.com"
+  EMAIL="mybrowser https://ymail.com"
 elif [ -f "$(command -v sylpheed 2>/dev/null)" ]; then
-  MYEMAIL="sylpheed"
+  EMAIL="sylpheed"
 fi
-export EMAIL="$MYEMAIL"
+export EMAIL="$EMAIL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
 if [ -f "$(command -v code 2>/dev/null)" ]; then
-  MYEDITOR="code"
+  EDITOR="code"
 elif [ -f "$(command -v vscode 2>/dev/null)" ]; then
-  MYEDITOR="vscode"
+  EDITOR="vscode"
 elif [ -f "$(command -v geany 2>/dev/null)" ]; then
-  MYEDITOR="geany"
+  EDITOR="geany"
 elif [ -f "$(command -v gedit 2>/dev/null)" ]; then
-  MYEDITOR="gedit"
+  EDITOR="gedit"
 elif [ -f "$(command -v atom 2>/dev/null)" ]; then
-  MYEDITOR="atom"
+  EDITOR="atom"
 elif [ -f "$(command -v brackets 2>/dev/null)" ]; then
-  MYEDITOR="brackets"
+  EDITOR="brackets"
 elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
-  MYEDITOR="emacs"
+  EDITOR="emacs"
 elif [ -f "$(command -v mousepad 2>/dev/null)" ]; then
-  MYEDITOR="mousepad"
+  EDITOR="mousepad"
 fi
 if [ -z "$DISPLAY" ]; then
   if [ -f "$(command -v vim 2>/dev/null)" ]; then
-    MYEDITOR="vim"
+    EDITOR="vim"
   elif [ -f "$(command -v nvim 2>/dev/null)" ]; then
-    MYEDITOR="nvim"
+    EDITOR="nvim"
   elif [ -f "$(command -v emacs 2>/dev/null)" ]; then
-    MYEDITOR="emacs"
+    EDITOR="emacs"
   elif [ -f "$(command -v nano 2>/dev/null)" ]; then
-    MYEDITOR="nano"
+    EDITOR="nano"
   fi
 fi
-export EDITOR="$MYEDITOR"
+export EDITOR="$EDITOR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export git version format
 export VERSION_DATE_FORMAT="%Y%m%d%H%M-git"
