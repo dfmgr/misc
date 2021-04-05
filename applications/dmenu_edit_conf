@@ -10,7 +10,7 @@ Icon=preferences-gtk-config
 Exec=dmenu_edit_conf
 Terminal=false
 Actions=
-Categories=GTK;System;GTK;X-XFCE;GNOME;
-Keywords=system;my;
+Categories=GTK;X-XFCE;GNOME;Settings;DesktopSettings;
+Keywords=edit;config;my;
 StartupNotify=false
 
