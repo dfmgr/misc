@@ -154,7 +154,11 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -d "$DMENU_EDIT_USER_CONF_DIR" ]; then
     EDIT_NAME="$(cd "$DMENU_EDIT_USER_CONF_DIR" && find -- * -maxdepth 3 -type f | __dmenu)"
-    . "$DMENU_EDIT_USER_CONF_DIR/$EDIT_NAME"
+    if [ -n "$EDIT_NAME" ]; then
+      . "$DMENU_EDIT_USER_CONF_DIR/$EDIT_NAME"
+    else
+      notifications "$PROG" "No file selected"
+    fi
   fi
   #printf_exit "E:$EDIT_NAME e:$editConfig"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

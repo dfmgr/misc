@@ -8,9 +8,10 @@ GenericName=EditConf
 Comment=List Config files to edit.
 Icon=preferences-gtk-config
 Exec=dmenu_edit_conf
+Path=~
 Terminal=false
 Actions=
-Categories=GTK;X-XFCE;GNOME;Settings;DesktopSettings;
+Categories=System;GTK;Utility;GTK;X-XFCE;GNOME;MyScripts;
 Keywords=edit;config;my;
 StartupNotify=false
 
