@@ -19,7 +19,7 @@ dmenu_edit_conf_main() {
   # @Created       : Tuesday, Mar 23, 2021 16:33 EDT
   # @File          : dmenu_edit_conf
   # @Description   : dmenu for editing configuration files
-  # @TODO          : Move to misc user scripts
+  # @TODO          :
   # @Other         :
   # @Resource      :
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -56,6 +56,7 @@ dmenu_edit_conf_main() {
       cp -Rf "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" "$DMENU_EDIT_CONFIG_BACKUP_DIR/$DMENU_EDIT_CONF_CONFIG_FILE.$$"
     cat <<EOF >"$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE"
 # Settings for dmenu_edit_conf
+DMENU_EDIT_EDITOR="${DMENU_EDIT_EDITOR}"
 DMENU_EDIT_USER_CONF_DIR="${DMENU_EDIT_USER_CONF_DIR:-$DMENU_EDIT_CONF_CONFIG_DIR/menus}"
 
 EOF
@@ -67,6 +68,17 @@ EOF
       false
     fi
   }
+  __gen_files() {
+    for f in ~/.config/myscripts/*/settings.conf ~/.config/misc/settings/*/settings.conf; do
+      name="$(basename "$(dirname "$f")")"
+      link="$f"
+      if [ ! -f "$DMENU_EDIT_USER_CONF_DIR/$name" ]; then
+        echo 'editConfig="'$link'"' >"$DMENU_EDIT_USER_CONF_DIR/$name"
+      #printf_green "Created $name to $link"
+      #printf_green "in: $DMENU_EDIT_USER_CONF_DIR/$name"
+      fi
+    done
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=""
@@ -75,13 +87,15 @@ EOF
   local DMENU_EDIT_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/dmenu_edit_conf/backups"
   local DMENU_EDIT_CONF_OPTIONS_DIR="$HOME/.local/share/misc/dmenu_edit_conf/options"
   local DMENU_EDIT_USER_CONF_DIR="${DMENU_EDIT_USER_CONF_DIR:-$DMENU_EDIT_CONF_CONFIG_DIR/menus}"
-
+  local DMENU_EDIT_EDITOR="${DMENU_EDIT_EDITOR:-$EDITOR}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
-  local SETARGS="${*}"
-  local SHORTOPTS="c,v,h"
-  local LONGOPTS="options,config,version,help"
-  local ARRAY="$(find -L "$DMENU_EDIT_USER_CONF_DIR/" -maxdepth 3 -type f 2>/dev/null)"
+  local editConfig SETARGS SHORTOPTS LONGOPTS
+  editConfig=""
+  SETARGS="${*}"
+  SHORTOPTS="c,v,h"
+  LONGOPTS="options,config,version,help"
+  ARRAY="$(find -L "$DMENU_EDIT_USER_CONF_DIR/" -maxdepth 3 -type f 2>/dev/null)"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
   [ -f "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" ] || __gen_config &>/dev/null
@@ -92,7 +106,8 @@ EOF
   [ -f "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE" ] && . "$DMENU_EDIT_CONF_CONFIG_DIR/$DMENU_EDIT_CONF_CONFIG_FILE"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
-  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
+  local setopts
+  setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case $1 in
@@ -111,6 +126,7 @@ EOF
       ;;
     -c | --config)
       __gen_config
+      __gen_files
       exit $?
       ;;
     --)
@@ -137,11 +153,13 @@ EOF
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -d "$DMENU_EDIT_USER_CONF_DIR" ]; then
-    EDIT_NAME="$(cd "$DMENU_EDIT_USER_CONF_DIR" && find * -maxdepth 3 -type f | __dmenu)"
+    EDIT_NAME="$(cd "$DMENU_EDIT_USER_CONF_DIR" && find -- * -maxdepth 3 -type f | __dmenu)"
     . "$DMENU_EDIT_USER_CONF_DIR/$EDIT_NAME"
   fi
+  #printf_exit "E:$EDIT_NAME e:$editConfig"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -f "$editConfig" ]; then
+    notifications "$PROG" "Opening $editConfig"
     myeditor "$editConfig"
   else
     notifications "$PROG" "Can not find the file: $editConfig" || printf_exit "Can not find the file: $editConfig"
