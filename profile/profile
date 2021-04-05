@@ -345,30 +345,28 @@ if [ -z "$DESKTOP_SESSION" ]; then
     FILEMANAGER="cfiles"
   fi
 else
-  if [ -f "$(command -v open 2>/dev/null)" ]; then
-    FILEMANAGER="open"
-  elif [ -f "$(command -v dolphin 2>/dev/null)" ]; then
-    FILEMANAGER="dolphin"
-  elif [ -f "$(command -v thunar 2>/dev/null)" ]; then
+  if [ -f "$(command -v thunar 2>/dev/null)" ]; then
     FILEMANAGER="thunar"
   elif [ -f "$(command -v Thunar 2>/dev/null)" ]; then
     FILEMANAGER="Thunar"
-  elif [ -f "$(command -v konqueror 2>/dev/null)" ]; then
-    FILEMANAGER="konqueror"
+  elif [ -f "$(command -v caja 2>/dev/null)" ]; then
+    FILEMANAGER="caja"
+  elif [ -f "$(command -v pcmanfm 2>/dev/null)" ]; then
+    FILEMANAGER="pcmanfm"
   elif [ -f "$(command -v spacefm 2>/dev/null)" ]; then
     FILEMANAGER="spacefm"
   elif [ -f "$(command -v nemo 2>/dev/null)" ]; then
     FILEMANAGER="nemo"
-  elif [ -f "$(command -v pcmanfm 2>/dev/null)" ]; then
-    FILEMANAGER="pcmanfm"
   elif [ -f "$(command -v polo 2>/dev/null)" ]; then
-    FILEMANAGER="caja"
-  elif [ -f "$(command -v caja 2>/dev/null)" ]; then
-    FILEMANAGER="nautilus"
+    FILEMANAGER="polo"
   elif [ -f "$(command -v nautilus 2>/dev/null)" ]; then
-    FILEMANAGER="polo"
+    FILEMANAGER="nautilus"
   elif [ -f "$(command -v polo 2>/dev/null)" ]; then
     FILEMANAGER="polo"
+  elif [ -f "$(command -v konqueror 2>/dev/null)" ]; then
+    FILEMANAGER="konqueror"
+  elif [ -f "$(command -v dolphin 2>/dev/null)" ]; then
+    FILEMANAGER="dolphin"
   fi
 fi
 if [[ "$(uname -s)" = Darwin ]]; then
