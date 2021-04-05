@@ -1,0 +1,16 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=EditConf
+GenericName=EditConf
+Comment=List Config files to edit.
+Icon=preferences-gtk-config
+Exec=dmenu_edit_conf
+Terminal=false
+Actions=
+Categories=GTK;System;GTK;X-XFCE;GNOME;
+Keywords=system;my;
+StartupNotify=false
+
