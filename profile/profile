@@ -596,6 +596,9 @@ mkdir -p "$HOME/.local/share/nodejs/nvm"
 mkdir -p "$HOME/.local/share/wallpapers"
 mkdir -p "$TMPDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# global functions
+[ -f "$HOME/.config/shell/functions/global.sh" ] && . "$HOME/.config/shell/functions/global.sh"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # passmgr settings - add your passmgr setup here
 [ -f "$HOME/.config/secure/passmgr.txt" ] && . "$HOME/.config/secure/passmgr.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
