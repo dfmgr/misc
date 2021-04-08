@@ -174,6 +174,7 @@ fi
 #   fi
 # fi
 # export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
+[ -d "$HOME/.ssh" ] || mkdir -p "$HOME/.ssh/known_hosts.d"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
 export LESS_TERMCAP_mb=$'\e[1;32m'
@@ -221,30 +222,39 @@ fi
 export BANNER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
-GEM_HOME="$HOME/.local/share/gem"
-GEM_PATH="$HOME/.local/share/gem"
-PATH="$GEM_HOME/bin:$PATH"
-export GEM_HOME GEM_PATH
+if [ -d "HOME/.local/share/gem" ]; then
+  GEM_HOME="$HOME/.local/share/gem"
+  GEM_PATH="$HOME/.local/share/gem"
+  PATH="$GEM_HOME/bin:$PATH"
+  export GEM_HOME GEM_PATH
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-[ -f "$HOME/.local/share/scripts/rvm" ] && export rvm_path="$HOME/.local/share/rvm"
-[ -f "$HOME/.local/share/rvm/scripts/rvm" ] && . "$HOME/.local/share/rvm/scripts/rvm"
-[ -d "$HOME/.local/share/rvm/bin" ] && PATH="$HOME/.local/share/rvm/bin:$PATH"
+if [ -f "$HOME/.local/share/scripts/rvm" ]; then
+  rvm_path="$HOME/.local/share/rvm"
+  [ -f "$rvm_path/rvm" ] && . "$rvm_path/scripts/rvm"
+  [ -d "$rvm_path/bin" ] && PATH="$rvm_path/bin:$PATH"
+  export rvm_path
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-FNM_DIR="$HOME/.local/share/nodejs/fnm"
-FNM_MULTISHELL_PATH="$HOME/.local/bin"
-export FNM_DIR FNM_MULTISHELL_PATH
+if [ -d "$HOME/.local/share/nodejs/fnm" ]; then
+  FNM_DIR="$HOME/.local/share/nodejs/fnm"
+  FNM_MULTISHELL_PATH="$HOME/.local/bin"
+  export FNM_DIR FNM_MULTISHELL_PATH
 #[ -f "$(command -v fnm 2>/dev/null)" ] && fnm env --use-on-cd --fnm-dir="$FNM_DIR"/ &>/dev/null
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-NVM_DIR="$HOME/.local/share/nodejs/nvm"
-NVM_BIN="$HOME/.local/bin"
-NO_UPDATE_NOTIFIER="true"
-NODE_REPL_HISTORY_SIZE=2000
-[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
+if [ -d "$HOME/.local/share/nodejs/nvm" ]; then
+  NVM_DIR="$HOME/.local/share/nodejs/nvm"
+  NVM_BIN="$HOME/.local/bin"
+  NO_UPDATE_NOTIFIER="true"
+  NODE_REPL_HISTORY_SIZE=2000
+  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+  export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup setV
 SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
@@ -485,11 +495,12 @@ export VERSION_DATE_FORMAT="%Y%m%d%H%M-git"
 export TODO_DIR="$HOME/.local/share/editors/todos"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export todo.sh config
-export TODOSH_DIR="$HOME/.local/share/todo"
-export TODOTXT_CFG_FILE="$HOME/.config/todo/config"
-export TODOTXT_FILE="$HOME/.local/share/todo/todo.txt"
-export TODOTXT_DONE_FILE="$HOME/.local/share/todo/done.txt"
-export TODOTXT_REPORT_FILE="$HOME/.local/share/todo/report.txt"
+export TODOSH_DIR="$HOME/.local/share/todo.sh"
+export TODOTXT_CFG_FILE="$TODOSH_DIR/config"
+export TODOTXT_FILE="$TODOSH_DIR/todo.txt"
+export TODOTXT_DONE_FILE="$TODOSH_DIR/done.txt"
+export TODOTXT_REPORT_FILE="$TODOSH_DIR/report.txt"
+[ -d "$TODOSH_DIR" ] || mkdir -p "$TODOSH_DIR"
 [ -f "$TODOTXT_CFG_FILE" ] || touch "$TODOTXT_CFG_FILE"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
@@ -533,6 +544,7 @@ export ASCIINEMA_API_URL="https://asciinema.org"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cheat.sh settings
 export CHTSH_HOME="$HOME/.config/cheatsh"
+[ -d "$CHTSH_HOME" ] || mkdir -p "$CHTSH_HOME"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # task warrior settings
 export TASKRC="$HOME/.taskrc"
@@ -580,19 +592,12 @@ if [ "$(uname -s)" = Darwin ]; then
   export HOMEBREW_INSTALL_BADGE HOMEBREW_CASK_OPTS
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# create directories
-mkdir -p "$HOME/.ssh/known_hosts.d"
+# Create directories
 mkdir -p "$HOME/.local/bin"
 mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
-mkdir -p "$HOME/.config/todo"
 mkdir -p "$HOME/.config/local"
 mkdir -p "$HOME/.config/secure"
-mkdir -p "$HOME/.config/cheatsh"
-mkdir -p "$HOME/.local/share/rvm"
-mkdir -p "$HOME/.local/share/gem/bin"
-mkdir -p "$HOME/.local/share/nodejs/fnm"
-mkdir -p "$HOME/.local/share/nodejs/nvm"
 mkdir -p "$HOME/.local/share/wallpapers"
 mkdir -p "$TMPDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
