@@ -28,6 +28,9 @@ elif [ -n "$BASH_VERSION" ]; then
   if [ -f "$(command -v direnv 2>/dev/null)" ]; then
     direnv hook bash >/dev/null 2>&1
   fi
+  if [ -f "$HOME/.bash_history"]; then
+    mv -f "$HOME/.bash_history" "$HISTFILE"
+  fi
   export SHELL BASH_SILENCE_DEPRECATION_WARNING BASH_COMPLETION_USER_DIR HISTFILE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
@@ -330,6 +333,8 @@ elif [ -f "$(command -v rofi-sensible-terminal 2>/dev/null)" ]; then
   TERMINAL="rofi-sensible-terminal"
 elif [ -f "$(command -v terminology 2>/dev/null)" ]; then
   TERMINAL="terminology"
+elif [ -f "$(command -v gnome-terminal 2>/dev/null)" ]; then
+  TERMINAL="gnome-terminal"
 elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm2" ]; then
   TERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm2"
 elif [ -f "/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal" ]; then
