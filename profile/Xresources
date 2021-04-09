@@ -1,5 +1,5 @@
 ! Include the colors
-#include                        "~/.config/xresources/colors"
+#include                        "$HOME/.config/xresources/colors"
 
 ! Default Settings
 *.theme:                        Obsidian-Purple
@@ -100,4 +100,3 @@ XTerm.vt100.translations:       \n\
     Ctrl <Key>k: larger-vt-font()
     Ctrl Shift <Key>C: copy-selection(CLIPBOARD) \n\
     Ctrl Shift <Key>V: insert-selection(CLIPBOARD)
-
