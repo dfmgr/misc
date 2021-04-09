@@ -30,6 +30,7 @@ elif [ -n "$BASH_VERSION" ]; then
   fi
   if [ -f "$HOME/.bash_history" ]; then
     mv -f "$HOME/.bash_history" "$HISTFILE"
+    history -r
   fi
   export SHELL BASH_SILENCE_DEPRECATION_WARNING BASH_COMPLETION_USER_DIR HISTFILE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -75,7 +76,8 @@ export LC_ALL="$LC_ALL"
 # configure display
 if [ -n "$DISPLAY" ]; then
   if [ -n "$DISPLAY_LOW_DENSITY" ] && grep -siq chromium /proc/version; then
-    DISPLAY="$DISPLAY_LOW_DENSITY"
+    DISPLAY="$DISPLAY"
+    DISPLAY_LOW_DENSITY="$DISPLAY"
   fi
   if [ -f "$(command -v xrandr 2>/dev/null)" ]; then
     RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
