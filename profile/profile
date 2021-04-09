@@ -168,16 +168,16 @@ if [ -d "$HOME/.ssh" ]; then
     ssh-add -q "$f" &>/dev/null
   done
 fi
-# if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-#   if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
-#     ssh-agent &>/dev/null
-#   fi
-#   if [ -n "$SSH_AUTH_SOCK" ]; then
-#     ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
-#   fi
-# fi
-# export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
-[ -d "$HOME/.ssh" ] || mkdir -p "$HOME/.ssh/known_hosts.d"
+if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
+  if [ -f "$(command -v ssh-agent 2>/dev/null)" ]; then
+    ssh-agent &>/dev/null
+  fi
+  if [ -n "$SSH_AUTH_SOCK" ]; then
+    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
+  fi
+fi
+[ -d "$HOME/.ssh/known_hosts.d" ] || mkdir -p "$HOME/.ssh/known_hosts.d"
+export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
 export LESS_TERMCAP_mb=$'\e[1;32m'
