@@ -1,5 +1,5 @@
 ! Include the colors
-#include                        "$HOME/.config/xresources/colors"
+#include                        ~/.config/xresources/colors
 
 ! Default Settings
 *.theme:                        Obsidian-Purple
