@@ -55,9 +55,9 @@ main() {
   # can be overriden from env
   PASTE_URL="${PRIVATE_PASTEBIN_URL:-https://casjay.cc}"
   PASTE_API="${PRIVATE_PASTEBIN_API:-/api/create}"
-  PASTE_APIKEY="${PRIVATE_PASTEBIN_APIKEY:-apikey}"
-  PASTE_USER="${PASTEIT_USER:-$USER}"
-  PASTE_EMAIL="${PASTEIT_EMAIL:-$USER@HOSTNAME}"
+  PASTE_APIKEY="${PRIVATE_PASTEBIN_APIKEY:-}"
+  PASTE_USER="${PRIVATE_PASTEBIN_USER:-$USER}"
+  PASTE_EMAIL="${PRIVATE_PASTEBIN_EMAIL:-$USER@HOSTNAME}"
   # filter url for printing (remove password)
   print_url() {
     local url="$1"
