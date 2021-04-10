@@ -53,9 +53,11 @@ main() {
   PROGRAM=${0##*/}
 
   # can be overriden from env
-  PASTE_URL="${PRIVATE_PASTEBIN_URL:-https://casjay.cc}/api/create"
+  PASTE_URL="${PRIVATE_PASTEBIN_URL:-https://casjay.cc}"
+  PASTE_API="${PRIVATE_PASTEBIN_API:-/api/create}"
   PASTE_APIKEY="${PRIVATE_PASTEBIN_APIKEY:-apikey}"
-
+  PASTE_USER="${PASTEIT_USER:-$USER}"
+  PASTE_EMAIL="${PASTEIT_EMAIL:-$USER@HOSTNAME}"
   # filter url for printing (remove password)
   print_url() {
     local url="$1"
@@ -76,7 +78,7 @@ main() {
 	EOF
 
     # do paste
-    curl "$PASTE_URL${PASTE_APIKEY+?apikey=${PASTE_APIKEY}}" \
+    curl "$PASTE_URL$PASTE_API${PASTE_APIKEY+?apikey=${PASTE_APIKEY}}" \
       ${title+-F title="$title"} \
       ${name+-F name="$name"} \
       ${private+-F private="$private"} \
@@ -135,7 +137,7 @@ Options:
     unset reply
 
     # default to user
-    name=${SUDO_USER:-$USER}
+    name=${PASTE_USER}
   }
 
   set_defaults
@@ -221,3 +223,4 @@ Options:
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main "$@"
 # end
+
