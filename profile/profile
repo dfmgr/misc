@@ -175,7 +175,7 @@ if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
     ssh-agent &>/dev/null
   fi
   if [ -n "$SSH_AUTH_SOCK" ]; then
-    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock"
+    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock" &>/dev/null
   fi
 fi
 [ -d "$HOME/.ssh/known_hosts.d" ] || mkdir -p "$HOME/.ssh/known_hosts.d"
