@@ -249,7 +249,9 @@ if [ "$NODE_MANAGER" = "fnm" ] || { [ -d "$HOME/.local/share/nodejs/fnm" ] && [ 
   export FNM_DIR FNM_MULTISHELL_PATH
   if [ -f "$(command -v fnm 2>/dev/null)" ]; then
     fnm env &>/dev/null
-    fnm completions --shell $(basename "$SHELL") 2>/dev/null
+    if [ ! -f "$BASH_COMPLETION_USER_DIR/_fnm_completions" ] && [ "$(basename "$SHELL")" = "bash" ]; then
+      fnm completions --shell bash > "$BASH_COMPLETION_USER_DIR/_fnm_completions" 2>/dev/null
+    fi
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
