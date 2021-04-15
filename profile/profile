@@ -243,15 +243,18 @@ if [ -f "$HOME/.local/share/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-if [ -d "$HOME/.local/share/nodejs/fnm" ]; then
+if [ "$NODE_MANAGER" = "fnm" ] || { [ -d "$HOME/.local/share/nodejs/fnm" ] && [ ! "$(command -v nvm)" ]; }; then
   FNM_DIR="$HOME/.local/share/nodejs/fnm"
   FNM_MULTISHELL_PATH="$HOME/.local/bin"
   export FNM_DIR FNM_MULTISHELL_PATH
-#[ -f "$(command -v fnm 2>/dev/null)" ] && fnm env --use-on-cd --fnm-dir="$FNM_DIR"/ &>/dev/null
+  if [ -f "$(command -v fnm 2>/dev/null)" ]; then
+    fnm env &>/dev/null
+    fnm completions --shell $(basename "$SHELL") 2>/dev/null
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-if [ -d "$HOME/.local/share/nodejs/nvm" ]; then
+if [ "$NODE_MANAGER" = "nmv" ] ||  { [ -d "$HOME/.local/share/nodejs/nvm" ] && [ ! "$(command -v fnm)" ]; }; then
   NVM_DIR="$HOME/.local/share/nodejs/nvm"
   NVM_BIN="$HOME/.local/bin"
   NO_UPDATE_NOTIFIER="true"
