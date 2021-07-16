@@ -58,6 +58,9 @@ SET_DATE="$(date +'%Y-%m-%d')"
 devnull() { "$@" >/dev/null 2>&1; }
 devnull2() { "$@" 2>/dev/null; }
 
+# sudo
+sudoif() { (sudo -vn && sudo -ln) 2>&1 | grep -v 'may not' >/dev/null && return 0 || return 1; }
+
 # commands
 command() { builtin command ${1+"$@"}; }
 type() { builtin type ${1+"$@"}; }
