@@ -326,7 +326,9 @@ fi
 export BROWSER="$BROWSER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
-if [ -f "$(command -v termite 2>/dev/null)" ]; then
+if [ -f "$(command -v garcon-terminal-handler 2>/dev/null)" ]; then
+  TERMINAL="garcon-terminal-handler"
+elif [ -f "$(command -v termite 2>/dev/null)" ]; then
   TERMINAL="termite"
 elif [ -f "$(command -v xfce4-terminal 2>/dev/null)" ]; then
   TERMINAL="xfce4-terminal"
