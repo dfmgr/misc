@@ -58,7 +58,7 @@ REPORAW="$REPO/raw/$REPO_BRANCH"
 APPVERSION="$(__appversion "$REPORAW/version.txt")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup plugins
-PLUGNAMES=""
+PLUGNAMES="asdf "
 PLUGDIR="${SHARE:-$HOME/.local/share}/$APPNAME"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Call the dfmgr function
@@ -133,11 +133,11 @@ fi
 # Plugins
 if __am_i_online; then
   if [ "$PLUGNAMES" != "" ]; then
-    if [ -d "$PLUGDIR"/PLUREP/.git ]; then
-      execute "git_update $PLUGDIR/PLUGREP" "Updating plugin PLUGNAME"
+    if [ -d "$PLUGDIR/asdf/.git" ]; then
+      execute "git_update $PLUGDIR/asdf" "Updating plugin asdf"
     else
       execute
-      "git_clone PLUGINREPO $PLUGDIR/PLUGREP" "Installing plugin PLUGREP"
+      "git_clone https://github.com/asdf-vm/asdf $PLUGDIR/asdf" "Installing plugin asdf"
     fi
   fi
   # exit on fail
