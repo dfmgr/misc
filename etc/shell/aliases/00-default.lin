@@ -1,5 +1,18 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202103251632-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : README.md
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 25, 2021 16:36 EDT
+# @File          : 00-default.lin
+# @Description   :
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # System Aliases
 alias q='exit'
 alias :q='exit'
@@ -13,7 +26,7 @@ alias map='xargs -n1'
 alias n='npm'
 alias path='printf "%b\n" "${PATH//:/\\n}"'
 alias t='tmux'
-alias bashrc='clear && source ~/.bashrc'
+alias zshrc='clear && source ~/.zshrc'
 alias inputrc='bind -f ~/.inputrc'
 alias tailf='tail -f'
 alias mount='mount -l'
@@ -36,12 +49,19 @@ alias egrep='grep -E --color=auto'
 alias fgrep='grep -F --color=auto'
 alias cp_rpf='cp --parents -Rfv'
 alias less='less -r'
-alias tmux_ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh'
+alias tmux_ssh='tmux -f '$HOME/.config/tmux/tmux.ssh.conf' new-session -D -A -s ssh'
+alias 755d='find ${1:-.} -type d -exec chmod 755 {} \;'
+alias 755f='find ${1:-.} -type f -exec chmod 755 {} \;'
+alias 644f='find ${1:-.} -type f -exec chmod 644 {} \;'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -n "$DISPLAY" ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# OSS code
-[ -n "$(command -v code-oss 2>/dev/null)" ] && alias code='code-oss'
+# VisualStudio code
+if [ -n "$(command -v code-oss 2>/dev/null)" ]; then 
+alias code='code-oss'
+elif [ -n "$(command -v code-insiders 2>/dev/null)" ]; then
+alias code='code-insiders'
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
 alias sudo='sudo -H '
@@ -54,7 +74,6 @@ alias ipconfig='sudo ifconfig '
 alias systemctl='sudo systemctl '
 alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
 alias flushdns='sudo systemd-resolve --flush-caches '
-[ -f "$(command -v docker)" ] && alias docker='sudo docker '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
 [ "$(uname -s)" = Linux ] && [ -f "$(command -v apt 2>/dev/null)" ] && alias apt='sudo apt '
@@ -83,13 +102,20 @@ alias cd..='cd ..'
 alias vi='vim '
 alias vim='vim '
 alias vis='vim +set si '
+alias svim='sudo vim'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
 [ -f "$(command -v nvim)" ] && [ -f $HOME/.config/neovim/init.vim ] && alias nvim='nvim -u $HOME/.config/neovim/init.vim' || \
   [ -f "$(command -v nvim)" ] && [ -f $HOME/.config/nvim/init.vim ] && alias nvim='nvim -u $HOME/.config/nvim/init.vim' 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#Set docker
+if [ -f "$(command -v docker)" ]; then 
+  alias docker='sudo docker '
+  alias drun='docker run --rm -it -v "${PWD}":/app -w /app'
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
-[ -f "$(command -v trash)" ] && alias empty-trash='trash empty' ||  \
+[ -f "$(command -v trash)" ] && alias empty-trash='trash empty' || \
   alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/*'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Hide/show icons.
@@ -115,11 +141,11 @@ alias open='xdg-open '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-best='youtube-dl --extract-audio --audio-format best --config-location $HOME/.config/youtube-dl/music '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-flac='youtube-dl --extract-audio --audio-format flac --config-location $HOME/.config/youtube-dl/music '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-m4a='youtube-dl --extract-audio --audio-format m4a --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-mp3='youtube-dl --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
+[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-mp3='youtube-dl --audio-quality 320k --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-opus='youtube-dl --extract-audio --audio-format opus --config-location $HOME/.config/youtube-dl/music '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-vorbis='youtube-dl --extract-audio --audio-format vorbis --config-location $HOME/.config/youtube-dl/music '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-wav='youtube-dl --extract-audio --audio-format wav --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytda='youtube-dl -f bestaudio  --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
+[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytda='youtube-dl -f bestaudio --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytdv='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/videos '
 [ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -129,7 +155,7 @@ alias open='xdg-open '
 [ -f "$(command -v pianobar 2>/dev/null)" ] && alias pandora='pianobar'
 [ -f "$(command -v tizonia 2>/dev/null)" ] && alias cloudplayer='tizonia'
 [ -f "$(command -v youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer'
-[ -f "$(command -v mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || \ 
+[ -f "$(command -v mpc)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || \ 
   alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
