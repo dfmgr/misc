@@ -171,7 +171,7 @@ EOF
       asdf install $pkg latest
     done
   else
-    asdf plugin-list-all | awk '{print $1}' | column
+    asdf plugin-list-all | awk '{print $1}' | printf_column
     printf '\n'
   fi
 
