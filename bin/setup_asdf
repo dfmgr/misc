@@ -1,0 +1,176 @@
+#!/usr/bin/env bash
+setup_asdf_main() {
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="$(basename "$0")"
+  VERSION="202107281513-git"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
+  trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_ASDF_TEMP_FILE" ] && rm -Rf "$SETUP_ASDF_TEMP_FILE" &>/dev/null' EXIT
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 202107281513-git
+  # @Author        : jason
+  # @Contact       : jason
+  # @License       : LICENSE.md
+  # @ReadME        : setup_asdf --help
+  # @Copyright     : Copyright: (c) 2021 jason, jason
+  # @Created       : Wednesday, Jul 28, 2021 20:29 EDT
+  # @File          : setup_asdf
+  # @Description   :
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  __version() { app_version; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __help() {
+    app_help "4" "Usage: setup_asdf  " \
+      "-c, --config           -  create config file" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help" \
+      "--options              -  used by completions"
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE"
+    [ -d "$SETUP_ASDF_CONFIG_DIR" ] || mkdir -p "$SETUP_ASDF_CONFIG_DIR"
+    [ -d "$SETUP_ASDF_CONFIG_BACKUP_DIR" ] || mkdir -p "$SETUP_ASDF_CONFIG_BACKUP_DIR"
+    [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ] &&
+      cp -Rf "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" "$SETUP_ASDF_CONFIG_BACKUP_DIR/$SETUP_ASDF_CONFIG_FILE.$$"
+    cat <<EOF >"$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE"
+# Settings for setup_asdf
+SETUP_ASDF_NOTIFY_ENABLED="yes"
+SETUP_ASDF_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+SETUP_ASDF_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_ASDF_NOTIFY_CLIENT_ICON}"
+
+EOF
+    if [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ]; then
+      printf_green "Your config file for setup_asdf has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode=""
+  local SETUP_ASDF_CONFIG_FILE="settings.conf"
+  local SETUP_ASDF_CONFIG_DIR="$HOME/.config/misc/setup_asdf"
+  local SETUP_ASDF_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/setup_asdf/backups"
+  local SETUP_ASDF_OPTIONS_DIR="$HOME/.local/share/misc/setup_asdf/options"
+  local SETUP_ASDF_TEMP_FILE="${TMPDIR:-/tmp}/setup_asdf"
+  local SETUP_ASDF_NOTIFY_ENABLED="yes"
+  local SETUP_ASDF_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+  local SETUP_ASDF_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_ASDF_NOTIFY_CLIENT_ICON}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="$*"
+  local SHORTOPTS="c,v,h"
+  local LONGOPTS="options,config,version,help"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate Files
+  [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$SETUP_ASDF_OPTIONS_DIR/options" ] || __list_options "$SETUP_ASDF_OPTIONS_DIR" &>/dev/null
+  [ -f "$SETUP_ASDF_OPTIONS_DIR/array" ] || __list_array "$SETUP_ASDF_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  if [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ]; then
+    . "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE"
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -a -n "$PROG" -- "$@" 2>/dev/null)
+  eval set -- "${setopts[@]}" 2>/dev/null
+  while :; do
+    case $1 in
+    --options)
+      shift 1
+      __list_array "$SETUP_ASDF_OPTIONS_DIR" "$ARRAY"
+      __list_options "$SETUP_ASDF_OPTIONS_DIR"
+      exit $?
+      ;;
+    -v | --version)
+      shift 1
+      __version
+      exit $?
+      ;;
+    -h | --help)
+      shift 1
+      __help
+      exit $?
+      ;;
+    -c | --config)
+      shift 1
+      __gen_config
+      exit $?
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+      #*) break ;;
+    esac
+  done
+  #set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Actions based on env
+  export NOTIFY_CLIENT_NAME="${SETUP_ASDF_NOTIFY_CLIENT_NAME}"
+  export NOTIFY_CLIENT_ICON="${SETUP_ASDF_NOTIFY_CLIENT_ICON}"
+  if [ "$SETUP_ASDF_NOTIFY_ENABLED" = "yes" ]; then
+    __notifications() {
+      notifications "$*" || return 1
+    }
+  else
+    __notifications() { false; }
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications/Network check
+  cmd_exists --error bash asdf || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # APP Variables
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  if [ $# -ne 0 ]; then
+    LISTARRAY="$@"
+    for pkg in $LISTARRAY; do
+      asdf plugin add $pkg
+      asdf install $pkg latest
+    done
+  else
+    asdf plugin add "$1"
+    asdf install "$1" latest
+  fi
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # lets exit with code
+  return ${exitCode:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+setup_asdf_main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lets exit with code
+exit ${exitCode:-$?}
