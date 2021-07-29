@@ -73,12 +73,14 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __apt_install() {
     sudo true
-    export APT_OPTS="-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold""
-    local PKGLIST="libncurses5-dev libgnome-dev libgnomeui-dev libgtk2.0-dev libatk1.0-dev "
-    local PKGLIST+="libbonoboui2-dev libcairo2-dev libx11-dev libxpm-dev libxt-dev "
-    local PKGLIST+="python-dev python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git "
-    pkmgr silent install "$PKGLIST"
-    return $?
+    if [ "$1" = vim ] || [ "$1" = all ]; then
+      export APT_OPTS="-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold""
+      local VIMPKGLIST="libncurses5-dev libgnome-dev libgnomeui-dev libgtk2.0-dev libatk1.0-dev "
+      local VIMPKGLIST+="libbonoboui2-dev libcairo2-dev libx11-dev libxpm-dev libxt-dev "
+      local VIMPKGLIST+="python-dev python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git "
+      pkmgr silent install "$VIMPKGLIST"
+      return $?
+    fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __yum_install() {
@@ -108,7 +110,7 @@ EOF
   local SETARGS="$*"
   local SHORTOPTS="c,v,h,i"
   local LONGOPTS="options,config,version,help,install"
-  local ARRAY=""
+  local ARRAY="$(asdf plugin-list-all)"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
   [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ] || __gen_config &>/dev/null
@@ -149,13 +151,13 @@ EOF
     -i | --install)
       shift 1
       if cmd_exists apt; then
-        __apt_install
+        __apt_install all
       elif cmd_exists yum; then
-        __yum_install
+        __yum_install all
       elif cmd_exists pacman; then
-        __pac_install
+        __pac_install all
       elif cmd_exists brew; then
-        __brew_install
+        __brew_install all
       fi
       exit $?
       ;;
@@ -189,14 +191,18 @@ EOF
   if [ $# -ne 0 ]; then
     LISTARRAY="$*"
     for pkg in $LISTARRAY; do
+      __apt_install $pkg
       asdf plugin add $pkg
       asdf install $pkg latest
     done
   else
-    asdf plugin-list-all | awk '{print $1}' | printf_column
+    if [ -f "$SETUP_ASDF_OPTIONS_DIR/array" ]; then
+      printf_column <$("$SETUP_ASDF_OPTIONS_DIR/array")
+    else
+      asdf plugin-list-all | awk '{print $1}' | printf_column
+    fi
     printf '\n'
   fi
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
   return ${exitCode:-$?}
