@@ -71,6 +71,18 @@ EOF
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __apt_install() {
+    sudo true
+    export DEBIAN_FRONTEND=noninteractive
+    export APT_OPTS="-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold""
+    local PKGLIST="libncurses5-dev libgnome-dev libgnomeui-dev libgtk2.0-dev libatk1.0-dev "
+    local PKGLIST+="libbonoboui2-dev libcairo2-dev libx11-dev libxpm-dev libxt-dev "
+    local PKGLIST+="python-dev python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git "
+    local PKGRM="vim vim-runtime gvim vim-tiny vim-common vim-gui-common vim-nox "
+    sudo -HE apt -yy -qq --assume-yes --purge "$PKGRM"
+    sudo -HE apt install "$APT_OPTS" --ignore-missing -yy -qq --allow-unauthenticated --assume-yes "$PKGLIST"
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=""
   local SETUP_ASDF_CONFIG_FILE="settings.conf"
@@ -151,8 +163,11 @@ EOF
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
+  if [ "$1" = pkgs ]; then
+    cmd_exists apt && __apt_install
+  fi
   if [ $# -ne 0 ]; then
-    LISTARRAY="$@"
+    LISTARRAY="$*"
     for pkg in $LISTARRAY; do
       asdf plugin add $pkg
       asdf install $pkg latest
