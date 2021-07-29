@@ -12,7 +12,8 @@ HISTSIZE=32768
 HISTFILESIZE="${HISTSIZE}"
 SAVEHIST=4096
 HISTCONTROL=ignoredups:erasedups
-export HISTSIZE HISTFILESIZE SAVEHIST HISTCONTROL
+BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
+export HISTSIZE HISTFILESIZE SAVEHIST HISTCONTROL BASH_COMPLETION_USER_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
@@ -23,7 +24,6 @@ if [ -n "$SH_VERSION" ]; then
 elif [ -n "$BASH_VERSION" ]; then
   SHELL="$(command -v bash)"
   BASH_SILENCE_DEPRECATION_WARNING="1"
-  BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
   HISTFILE="$HOME/.config/bash/bash_history"
   if [ -f "$(command -v direnv 2>/dev/null)" ]; then
     direnv hook bash >/dev/null 2>&1
@@ -32,7 +32,7 @@ elif [ -n "$BASH_VERSION" ]; then
     mv -f "$HOME/.bash_history" "$HISTFILE"
     history -r
   fi
-  export SHELL BASH_SILENCE_DEPRECATION_WARNING BASH_COMPLETION_USER_DIR HISTFILE
+  export SHELL BASH_SILENCE_DEPRECATION_WARNING HISTFILE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
