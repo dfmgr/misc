@@ -78,6 +78,19 @@ EOF
     local PKGLIST+="libbonoboui2-dev libcairo2-dev libx11-dev libxpm-dev libxt-dev "
     local PKGLIST+="python-dev python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git "
     pkmgr silent install "$PKGLIST"
+    return $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __yum_install() {
+    return
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __pac_install() {
+    return
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __brew_install() {
+    return
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
@@ -93,8 +106,8 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="$*"
-  local SHORTOPTS="c,v,h"
-  local LONGOPTS="options,config,version,help"
+  local SHORTOPTS="c,v,h,i"
+  local LONGOPTS="options,config,version,help,install"
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
@@ -133,6 +146,19 @@ EOF
       __gen_config
       exit $?
       ;;
+    -i | --install)
+      shift 1
+      if cmd_exists apt; then
+        __apt_install
+      elif cmd_exists yum; then
+        __yum_install
+      elif cmd_exists pacman; then
+        __pac_install
+      elif cmd_exists brew; then
+        __brew_install
+      fi
+      exit $?
+      ;;
     --)
       shift 1
       break
@@ -160,10 +186,6 @@ EOF
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  if [ "$1" = pkgs ]; then
-    shift 1
-    cmd_exists apt && __apt_install
-  fi
   if [ $# -ne 0 ]; then
     LISTARRAY="$*"
     for pkg in $LISTARRAY; do
