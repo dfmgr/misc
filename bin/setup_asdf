@@ -173,8 +173,7 @@ EOF
       asdf install $pkg latest
     done
   else
-    asdf plugin add "$1"
-    asdf install "$1" latest
+    asdf plugin-list-all | awk '{print $1}' | column
   fi
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
