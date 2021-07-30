@@ -74,6 +74,7 @@ cdd_main() {
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_ALIAS_FILE.$$"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
 # Settings for cdd
+default = "$HOME/.local/tmp/cdd_project"
 testing = "${TMPDIR:-/tmp}/testing"
 projects = "$HOME/Projects"
 pictures = "$HOME/Pictures"
