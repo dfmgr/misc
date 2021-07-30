@@ -71,8 +71,8 @@ EOF
   local CONFDIR="$HOME/.config/misc/settings/gitup"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local gitdir="${1:-$PWD}"
-  local repo="$(__git_remote_pull "$gitdir")"
-  local gitdir="$(__git_top_dir "$gitdir")"
+  local repo="$MYCURRDIR"
+  local gitdir="$(__git_top_dir "$MYCURRDIR")"
   local oldpwd="$PWD"
   local gitversion="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
