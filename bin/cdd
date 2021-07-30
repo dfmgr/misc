@@ -134,6 +134,7 @@ EOF
       printf_red "Entering an unaliased folder"
       printf_red "see $PROG -l or $PROG -m $alias $dir"
     fi
+    local SHELL="${SHELL:-bash}"
     local STATUS="running"
     local ADD="$PS1_ADD cdd: ${alias:-$dir}"
     [ -d "$dir" ] || mkdir -p "$dir"
@@ -145,7 +146,7 @@ EOF
       printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
       export -f cd quit _cd
-      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" bash || return 1
+      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL || return 1
       unset -F cd quit _cd &>/dev/null
       sleep 3
       clear
