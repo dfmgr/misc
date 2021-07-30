@@ -254,7 +254,7 @@ EOF
       add_alias "$2" "$3"
       exit $?
       ;;
-    -l | --list_aliases)
+    -l | --list)
       list_aliases alias '*'
       exit $?
       ;;
