@@ -60,7 +60,7 @@ check-all-updates.sh_main() {
 CHECK_ALL_UPDATES_SH_CACHEDIR="\${CACHE_DIR:-$HOME/.cache/check_all_updates_sh}"
 CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS="\${CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS:-yes}"
 CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG="\${CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG:-yes}"
-CHECK_ALL_UPDATES_SH_SUDO_ASKPASS_PROGRAM="\${SUDO_ASKPASS:-/usr/local/bin/dmenupass}"
+CHECK_ALL_UPDATES_SH_SUDO_ASKPASS_PROGRAM="\${SUDO_ASKPASS:-/usr/local/bin/ask_for_password}"
 __ask_me_to_update() { ask_yes_no_question "Would you like to update" "pkmgr silent upgrade"; }
 
 EOF
@@ -82,7 +82,7 @@ EOF
   local CHECK_ALL_UPDATES_SH_CACHEDIR="${CACHE_DIR:-$HOME/.cache/check_all_updates_sh}"
   local CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS="${CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS:-yes}"
   local CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG="${CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG:-yes}"
-  local CHECK_ALL_UPDATES_SH_SUDO_ASKPASS_PROGRAM="${SUDO_ASKPASS:-/usr/local/bin/dmenupass}"
+  local CHECK_ALL_UPDATES_SH_SUDO_ASKPASS_PROGRAM="${SUDO_ASKPASS:-/usr/local/bin/ask_for_password}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"

@@ -148,8 +148,8 @@ if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
-if [ "$(uname -s)" = Linux ] && [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v dmenupass 2>/dev/null)" ]; then
-  SUDO_ASKPASS="$(command -v dmenupass 2>/dev/null)"
+if [ "$(uname -s)" = Linux ] && [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v ask_for_password 2>/dev/null)" ]; then
+  SUDO_ASKPASS="/usr/local/bin/ask_for_password"
 else
   SUDO_ASKPASS="$SUDO_ASKPASS"
 fi
