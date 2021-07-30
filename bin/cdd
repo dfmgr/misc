@@ -254,7 +254,7 @@ EOF
       ;;
     -l | --list_aliases)
       list_aliases alias '*'
-      exit
+      exit $?
       ;;
     -s | --shell)
       SHELL="$2"
