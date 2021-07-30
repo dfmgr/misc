@@ -202,8 +202,8 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
-  local SHORTOPTS="c,v,h,m::,r:,l"
-  local LONGOPTS="options,config,version,help,modify::,remove,list"
+  local SHORTOPTS="c,v,h,m::,r:,l,s:"
+  local LONGOPTS="options,config,version,help,modify::,remove,list,shell:"
   local ARRAY="$(list_aliases '*' | awk '{print $1}')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
@@ -254,6 +254,10 @@ EOF
     -l | --list_aliases)
       list_aliases alias '*'
       exit
+      ;;
+    -s | --shell)
+      SHELL="$2"
+      shift 1
       ;;
     --)
       shift
