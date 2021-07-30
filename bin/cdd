@@ -258,7 +258,11 @@ EOF
       exit $?
       ;;
     -s | --shell)
-      SHELL="$2"
+      if [ -f "$2" ] || cmd_exists "$2"; then
+        SHELL="$2"
+      else
+        printf_exit "$2 seems to be an invalid shell"
+      fi
       shift 1
       ;;
     --)
