@@ -135,7 +135,7 @@ EOF
       printf_red "see $PROG -l or $PROG -m $alias $dir"
     fi
     local STATUS="running"
-    local ADD="$PS1_ADD | cdd: ${alias:-$dir}"
+    local ADD="$PS1_ADD cdd: ${alias:-$dir}"
     [ -d "$dir" ] || mkdir -p "$dir"
     if [[ "$dir" = "$PWD" ]]; then
       printf_exit "Failed to cd into $dir"
