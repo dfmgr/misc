@@ -15,13 +15,14 @@
 
 import requests
 
-CITY = "${MYLOCATIONZIP:-5136454}"
+CITY = "${MYCITYID:-5136454}"
 API_KEY = "${OPENWEATHERMAP_ACCESS_TOKEN:-756edce7e9d4c385ef9499a53492678c}"
 UNITS = "Imperial"
 UNIT_KEY = "F"
 LANG = "en"
 
-REQ = requests.get("http://api.openweathermap.org/data/2.5/weather?id={}&lang={}&appid={}&units={}".format(CITY, LANG, API_KEY, UNITS))
+REQ = requests.get(
+    "http://api.openweathermap.org/data/2.5/weather?id={}&lang={}&appid={}&units={}".format(CITY, LANG, API_KEY, UNITS))
 try:
     # HTTP CODE = OK
     if REQ.status_code == 200:
