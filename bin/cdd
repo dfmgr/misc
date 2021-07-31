@@ -121,9 +121,9 @@ EOF
       builtin cd "$CDD_DIR" &>/dev/null || printf_red "cd into $CDD_DIR failed"
     fi
   }
-  q() { printf_red "Exiting the cdd enviroment" && history -a && sleep 3 && builtin exit &>/dev/null; }
-  quit() { printf_red "Exiting the cdd enviroment" && history -a && sleep 3 && builtin exit &>/dev/null; }
-  exit() { printf_red "Exiting the cdd enviroment" && history -a && sleep 3 && builtin exit &>/dev/null; }
+  q() { printf "\t\tExiting the cdd enviroment\n" && history -a && sleep 3 && builtin exit &>/dev/null; }
+  quit() { printf "\t\tExiting the cdd enviroment\n" && history -a && sleep 3 && builtin exit &>/dev/null; }
+  exit() { printf "\t\tExiting the cdd enviroment\n" && history -a && sleep 3 && builtin exit &>/dev/null; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
     if [[ "$1" = ./* ]] && [[ "$CDD_STATUS" = "running" ]]; then cd "$1" && return; fi
@@ -152,7 +152,7 @@ EOF
       printf_green "Type quit to return to your previous directory/shell"
       printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
-      export -f cd quit _cd q exit _cd_git_pull printf_red printf_color &>/dev/null
+      export -f cd quit _cd q exit _cd_git_pull &>/dev/null
       CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL 2>/dev/null || return 1
       unset -F cd quit _cd q exit _cd_git_pull &>/dev/null
       sleep 3
