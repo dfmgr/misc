@@ -96,18 +96,22 @@ EOF
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
   _cd() {
     _find() { find ${1:-$PWD/} -maxdepth 1 -type d 2>/dev/null | sed 's|'"$CDD_DIR/"'||g' | grep -sv '^$'; }
     local prev=
     local COMPREPLY=($(compgen -W '$(_find ${cur})' -- "${cur}"))
   }
   cd() {
+    __git_pull() {
+      if [ -d "$cddir/.git" ]; then
+        git -C "$cddir" pull -q &>/dev/null &
+        disown
+      fi
+    }
     _cd && complete -F _cd cd
+    __git_pull
     local cddir="$1"
-    if [ -d "$cddir/.git" ]; then
-      git -C "$cddir" pull -q &>/dev/null &
-      disown
-    fi
     if [[ "$CDD_DIR/$cddir" = "$CDD_DIR"** ]] || [[ "$cddir" = "."** ]] || [[ "$cddir" != ".."* ]] || [[ "$cddir" = "" ]]; then
       if [ "$cddir" = "" ]; then
         builtin cd "$CDD_DIR" &>/dev/null || printf_red "cd into $CDD_DIR failed"
