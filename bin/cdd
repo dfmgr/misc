@@ -152,8 +152,8 @@ EOF
       printf_green "Type quit to return to your previous directory/shell"
       printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
-      export -f cd quit _cd q exit _cd_git_pull printf_red &>/dev/null
-      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL || return 1
+      export -f cd quit _cd q exit _cd_git_pull printf_red printf_color &>/dev/null
+      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL 2>/dev/null || return 1
       unset -F cd quit _cd q exit _cd_git_pull &>/dev/null
       sleep 3
       clear
