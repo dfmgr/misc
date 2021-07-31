@@ -58,7 +58,7 @@ mkd() {
     if cmd_exists cdd; then
       if [[ "$CDD_STATUS" = "running" ]]; then
         if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
-          __create && printf_green "Created $1" && builtin cd "$1"
+          __create && printf_green "Created $1" && builtin cd "$1" &>/dev/null
         else
           printf_red "Creating directories outside of $CDD_DIR is forbidden"
         fi
@@ -66,10 +66,9 @@ mkd() {
         __create && printf_green "Creating $CREATE and entering the directory" && cdd "$CREATE"
       fi
     else
-      __create
       printf_green "Creating $CREATE and entering the directory"
       printf_green "Type exit to return to your previous directory"
-      builtin cd "$1" && bash || return 1
+      __create && builtin cd "$1" && bash || return 1
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

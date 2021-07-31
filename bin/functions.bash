@@ -124,7 +124,7 @@ printf_custom() {
   printf "\n"
 }
 
-printf_exit() {
+printf_return() {
   [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
   [[ $1 == ?(-)+([0-9]) ]] && local exit="$1" && shift 1 || local exit="1"
   printf_color "\t\t$1\n" "$color" && return $exit
@@ -520,7 +520,7 @@ else
     local exitCode=0
     local cmdsPID=""
     __set_trap "EXIT" "__kill_all_subprocesses"
-    eval "$CMDS" &>/dev/null 2>"$TMP_FILE" &
+    eval "$CMDS" >/dev/null 2>"$TMP_FILE" &
     cmdsPID=$!
     __show_spinner "$cmdsPID" "$CMDS" "$MSG"
     wait "$cmdsPID" &>/dev/null
