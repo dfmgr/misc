@@ -80,7 +80,6 @@ projects = "$HOME/Projects"
 pictures = "$HOME/Pictures"
 music = "$HOME/Music"
 share = "$HOME/local/share"
-
 EOF
     if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]; then
       printf '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
@@ -96,21 +95,18 @@ EOF
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
   _cd() {
     _find() { find ${1:-$PWD/} -maxdepth 1 -type d 2>/dev/null | sed 's|'"$CDD_DIR/"'||g' | grep -sv '^$'; }
     local prev=
     local COMPREPLY=($(compgen -W '$(_find ${cur})' -- "${cur}"))
   }
-  _cd_git_pull() {
-    if [ -d "$cddir/.git" ]; then
-      git -C "$cddir" pull -q &>/dev/null
-    fi
-  }
   cd() {
     _cd && complete -F _cd cd
-    _cd_git_pull
     local cddir="$1"
+    if [ -d "$cddir/.git" ]; then
+      git -C "$cddir" pull &>/dev/null &
+      disown
+    fi
     if [[ "$CDD_DIR/$cddir" = "$CDD_DIR"** ]] || [[ "$cddir" = "."** ]] || [[ "$cddir" != ".."* ]] || [[ "$cddir" = "" ]]; then
       if [ "$cddir" = "" ]; then
         builtin cd "$CDD_DIR" &>/dev/null || printf_red "cd into $CDD_DIR failed"
@@ -121,9 +117,7 @@ EOF
       builtin cd "$CDD_DIR" &>/dev/null || printf_red "cd into $CDD_DIR failed"
     fi
   }
-  q() { printf "\t\tExiting the cdd enviroment\n" && history -a && sleep 3 && builtin exit &>/dev/null; }
-  quit() { printf "\t\tExiting the cdd enviroment\n" && history -a && sleep 3 && builtin exit &>/dev/null; }
-  exit() { printf "\t\tExiting the cdd enviroment\n" && history -a && sleep 3 && builtin exit &>/dev/null; }
+  quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
     if [[ "$1" = ./* ]] && [[ "$CDD_STATUS" = "running" ]]; then cd "$1" && return; fi
@@ -152,9 +146,9 @@ EOF
       printf_green "Type quit to return to your previous directory/shell"
       printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
-      export -f cd quit _cd q exit _cd_git_pull &>/dev/null
-      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL 2>/dev/null || return 1
-      unset -F cd quit _cd q exit _cd_git_pull &>/dev/null
+      export -f cd quit _cd
+      CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL || return 1
+      unset -F cd quit _cd &>/dev/null
       sleep 3
       clear
     fi
