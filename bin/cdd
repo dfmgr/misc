@@ -119,7 +119,9 @@ EOF
       builtin cd "$CDD_DIR" &>/dev/null || printf_red "cd into $CDD_DIR failed"
     fi
   }
-  quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit; }
+  q() { printf_red "Exiting the cdd enviroment" && history -a && sleep 3 && builtin exit; }
+  quit() { printf_red "Exiting the cdd enviroment" && history -a && sleep 3 && builtin exit; }
+  exit() { printf_red "Exiting the cdd enviroment" && history -a && sleep 3 && builtin exit; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
     if [[ "$1" = ./* ]] && [[ "$CDD_STATUS" = "running" ]]; then cd "$1" && return; fi
