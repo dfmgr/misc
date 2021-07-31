@@ -103,12 +103,9 @@ EOF
     local COMPREPLY=($(compgen -W '$(_find ${cur})' -- "${cur}"))
   }
   cd() {
-    __git_pull() {
-      if [ -d "$cddir/.git" ]; then
-        git -C "$cddir" pull -q &>/dev/null &
-        disown
-      fi
-    }
+    if [ -d "$cddir/.git" ]; then
+      git -C "$cddir" pull -q &>/dev/null
+    fi
     _cd && complete -F _cd cd
     __git_pull
     local cddir="$1"
