@@ -106,6 +106,7 @@ EOF
     local cddir="$1"
     if [ -d "$cddir/.git" ]; then
       git -C "$cddir" pull &>/dev/null &
+      disown
     fi
     if [[ "$CDD_DIR/$cddir" = "$CDD_DIR"** ]] || [[ "$cddir" = "."** ]] || [[ "$cddir" != ".."* ]] || [[ "$cddir" = "" ]]; then
       if [ "$cddir" = "" ]; then
