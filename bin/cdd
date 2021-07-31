@@ -102,12 +102,14 @@ EOF
     local prev=
     local COMPREPLY=($(compgen -W '$(_find ${cur})' -- "${cur}"))
   }
-  cd() {
+  _cd_git_pull() {
     if [ -d "$cddir/.git" ]; then
       git -C "$cddir" pull -q &>/dev/null
     fi
+  }
+  cd() {
     _cd && complete -F _cd cd
-    __git_pull
+    _cd_git_pull
     local cddir="$1"
     if [[ "$CDD_DIR/$cddir" = "$CDD_DIR"** ]] || [[ "$cddir" = "."** ]] || [[ "$cddir" != ".."* ]] || [[ "$cddir" = "" ]]; then
       if [ "$cddir" = "" ]; then
@@ -150,9 +152,9 @@ EOF
       printf_green "Type quit to return to your previous directory/shell"
       printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
-      export -f cd quit _cd
+      export -f cd quit _cd q exit _cd_git_pull &>/dev/null
       CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL || return 1
-      unset -F cd quit _cd &>/dev/null
+      unset -F cd quit _cd q exit _cd_git_pull &>/dev/null
       sleep 3
       clear
     fi
