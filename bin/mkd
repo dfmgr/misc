@@ -58,7 +58,7 @@ mkd() {
     if cmd_exists cdd; then
       if [[ "$CDD_STATUS" = "running" ]]; then
         if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
-          __create && printf_green "Created $1"
+          __create && printf_green "Created $1" && cd "$1"
         else
           printf_red "Creating directories outside of $CDD_DIR is forbidden"
         fi
