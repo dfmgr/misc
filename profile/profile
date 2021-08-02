@@ -232,6 +232,7 @@ GODIR="$GOPATH"
 GOBIN="$GOPATH/bin"
 GOCACHE="$HOME/.cache/go-build"
 export GOPATH GODIR GOBIN GOCACHE
+[ -d "$GOBIN" ] && PATH="$GOBIN:$PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
 if [ -d "HOME/.local/share/gem" ]; then
