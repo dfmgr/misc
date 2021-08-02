@@ -271,10 +271,11 @@ SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
+GOROOT="$HOME/.local/share/go"
 GOPATH="$HOME/.local/share/go"
 GODIR="$GOPATH"
 GOBIN="$GOPATH/bin"
-export GOPATH GOBIN GODIR
+export GOROOT GOPATH GOBIN GODIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
 [ -d "$HOME/.cargo" ] && PATH="$HOME/.cargo/bin:$PATH"
