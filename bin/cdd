@@ -46,8 +46,8 @@ cdd_main() {
       "-c, --config           -  create config file" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help" \
-      "-s, --shell            -  change shell"
-    "--options              -  used by completions"
+      "-s, --shell            -  change shell" \
+      "--options              -  used by completions"
     exit $?
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -99,6 +99,7 @@ EOF
     _find() { find ${1:-$PWD/} -maxdepth 1 -type d 2>/dev/null | sed 's|'"$CDD_DIR/"'||g' | grep -sv '^$'; }
     local prev=
     local COMPREPLY=($(compgen -W '$(_find ${cur})' -- "${cur}"))
+    _init_completion || return
   }
   cd() {
     _cd && complete -F _cd cd

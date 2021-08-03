@@ -30,7 +30,18 @@ mkd() {
       "-h, --help             -  display help"
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __change_dir() {
+    if [ -d "$1" ]; then
+      printf_green "Creating $CREATE and entering the directory"
+      printf_green "Type exit to return to your previous directory"
+      builtin cd "$1"
+      $SHELL
+    else
+      printf_return "Failed to create $1"
+    fi
+  }
   __create() {
+    local CREATE="${1:-$CREATE}"
     if [ ! -d "$CREATE" ]; then
       if printf_mkdir "$CREATE" 2>/dev/null; then
         true
@@ -59,18 +70,17 @@ mkd() {
     if cmd_exists cdd; then
       if [[ "$CDD_STATUS" = "running" ]]; then
         if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
-          __create && builtin cd "$1" &>/dev/null && printf_green "Created $1" || return 1
+          __create "${CREATE//$CDD_DIR\//}" || return 1
         else
           printf_red "Creating directories outside of $CDD_DIR is forbidden"
         fi
       else
-        __create && printf_green "Creating $CREATE and entering the directory" && cdd "$CREATE"
+        __create "$CREATE" || return 1
       fi
     else
-      printf_green "Creating $CREATE and entering the directory"
-      printf_green "Type exit to return to your previous directory"
-      __create && builtin cd "$1" && bash || return 1
+      __create "$CREATE" || return 1
     fi
+    __change_dir "$CREATE"
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ -n "$CREATE" ]; then
