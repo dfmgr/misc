@@ -111,7 +111,7 @@ printf_mkdir() {
 
 printf_question_term() {
   printf_question "$* [yN] "
-  read -r -n 1 -s REPLY
+  read -r -n 1 REPLY
   printf "\n"
   [[ "$REPLY" == "y" || "$REPLY" == "Y" ]] && return 0 || return 1
 }
