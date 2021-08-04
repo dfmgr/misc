@@ -512,11 +512,11 @@ if [ -z "$DISPLAY" ]; then
   fi
 else
   if [ -f "$(command -v code-oss 2>/dev/null)" ]; then
-    MYEDITOR="code-oss -w"
+    MYEDITOR="code-oss"
   elif [ -f "$(command -v code-insiders 2>/dev/null)" ]; then
-    MYEDITOR="code-insiders -w"
+    MYEDITOR="code-insiders"
   elif [ -f "$(command -v code 2>/dev/null)" ]; then
-    MYEDITOR="code -w"
+    MYEDITOR="code"
   elif [ -f "$(command -v vscode 2>/dev/null)" ]; then
     MYEDITOR="vscode"
   elif [ -f "$(command -v geany 2>/dev/null)" ]; then
