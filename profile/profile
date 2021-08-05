@@ -7,7 +7,7 @@ PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/s
 PS1='\h:\w\$ '
 export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export NODE_MANAGER=nvm
+export NODE_MANAGER="fnm"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
 HISTSIZE=32768
@@ -258,31 +258,28 @@ if [ -f "$HOME/.local/share/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-if [ "$NODE_MANAGER" = "fnm" ] && type -P fnm &>/dev/null || { [ -d "$HOME/.local/share/nodejs/fnm" ] && [ ! "$(command -v nvm)" ]; }; then
-  FNM_DIR="$HOME/.local/share/nodejs/fnm"
-  FNM_MULTISHELL_PATH="$FNM_DIR/multishell"
-  PATH="$FNM_MULTISHELL_PATH/bin:$PATH"
-  export FNM_DIR FNM_MULTISHELL_PATH PATH
-fi
+FNM_DIR="$HOME/.local/share/nodejs/fnm"
+FNM_MULTISHELL_PATH="$FNM_DIR/multishell"
+PATH="$FNM_MULTISHELL_PATH/bin:$PATH"
+export FNM_DIR FNM_MULTISHELL_PATH PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-if [ "$NODE_MANAGER" = "nmv" ] && type -P nvm &>/dev/null || { [ -d "$HOME/.local/share/nodejs/nvm" ] && [ ! "$(command -v fnm)" ]; }; then
-  NVM_DIR="$HOME/.local/share/nodejs/nvm"
-  NVM_BIN="$HOME/.local/bin"
-  NO_UPDATE_NOTIFIER="true"
-  NODE_REPL_HISTORY_SIZE=2000
-  [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-  [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-  export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
-fi
+NVM_DIR="$HOME/.local/share/nodejs/nvm"
+NVM_BIN="$HOME/.local/bin"
+NO_UPDATE_NOTIFIER="true"
+NODE_REPL_HISTORY_SIZE=2000
+[ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup setV
 SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
-[ -d "$HOME/.cargo" ] && PATH="$HOME/.cargo/bin:$PATH"
-[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+CARGO_HOME="$HOME/.local/share/carge"
+PATH="$CARGO_HOME/bin:$PATH"
+[ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
 if [ -f "$(command -v hub 2>/dev/null)" ]; then
