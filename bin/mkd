@@ -25,7 +25,7 @@ mkd() {
   # Main function
   __version() { app_version; }
   __help() {
-    app_help "Usage: mkd directorytoCreate" \
+    app_help "Usage:    mkd directorytoCreate" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help"
   }
@@ -34,7 +34,7 @@ mkd() {
     if [ -d "$1" ]; then
       printf_green "Creating $CREATE and entering the directory"
       printf_green "Type exit to return to your previous directory"
-      builtin cd "$1"
+      builtin cd "$1" || return
       $SHELL
     else
       printf_return "Failed to create $1"
@@ -98,3 +98,4 @@ mkd "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+

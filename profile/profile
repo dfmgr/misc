@@ -7,6 +7,8 @@ PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/s
 PS1='\h:\w\$ '
 export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+export NODE_MANAGER=nvm
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
 HISTSIZE=32768
 HISTFILESIZE="${HISTSIZE}"
@@ -256,20 +258,15 @@ if [ -f "$HOME/.local/share/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-if [ "$NODE_MANAGER" = "fnm" ] || { [ -d "$HOME/.local/share/nodejs/fnm" ] && [ ! "$(command -v nvm)" ]; }; then
+if [ "$NODE_MANAGER" = "fnm" ] && type -P fnm &>/dev/null || { [ -d "$HOME/.local/share/nodejs/fnm" ] && [ ! "$(command -v nvm)" ]; }; then
   FNM_DIR="$HOME/.local/share/nodejs/fnm"
-  FNM_MULTISHELL_PATH="$HOME/.local/bin"
-  export FNM_DIR FNM_MULTISHELL_PATH
-  if [ -f "$(command -v fnm 2>/dev/null)" ]; then
-    fnm env &>/dev/null
-    if [ ! -f "$BASH_COMPLETION_USER_DIR/_fnm_completions" ] && [ "$(basename "$SHELL")" = "bash" ]; then
-      fnm completions --shell bash >"$BASH_COMPLETION_USER_DIR/_fnm_completions" 2>/dev/null
-    fi
-  fi
+  FNM_MULTISHELL_PATH="$FNM_DIR/multishell"
+  PATH="$FNM_MULTISHELL_PATH/bin:$PATH"
+  export FNM_DIR FNM_MULTISHELL_PATH PATH
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-if [ "$NODE_MANAGER" = "nmv" ] || { [ -d "$HOME/.local/share/nodejs/nvm" ] && [ ! "$(command -v fnm)" ]; }; then
+if [ "$NODE_MANAGER" = "nmv" ] && type -P nvm &>/dev/null || { [ -d "$HOME/.local/share/nodejs/nvm" ] && [ ! "$(command -v fnm)" ]; }; then
   NVM_DIR="$HOME/.local/share/nodejs/nvm"
   NVM_BIN="$HOME/.local/bin"
   NO_UPDATE_NOTIFIER="true"
