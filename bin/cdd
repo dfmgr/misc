@@ -56,6 +56,13 @@ cdd_main() {
     printf_green "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
     CDD_GREP_COLORS="${CDD_GREP_COLORS:-$GREP_COLORS}"
     CDD_ALIAS_FILE="${CDD_ALIAS_FILE:-aliases}"
+    cat <<EOF >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
+# Settings for cdd
+CDD_OPTIONS_DEFAULT_PROJECT_NAME="${CDD_OPTIONS_DEFAULT_PROJECT_NAME:-default}"
+CDD_OPTIONS_PROJECT_DIR="${CDD_OPTIONS_PROJECT_DIR:-$HOME/.local/share/cdd/projects}"
+CDD_OPTIONS_TMP_DIR="${CDD_OPTIONS_TMP_DIR:-$HOME/.local/tmp/cdd}"
+EOF
+
     if [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] || [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
       printf_green "Your config file for cdd has been created"
       true
@@ -74,7 +81,7 @@ cdd_main() {
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_ALIAS_FILE.$$"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
 # Alias settings for cdd
-default = "$HOME/.local/share/cdd_project/'${CDD_OPTIONS_DEFAULT_PROJECT_NAME}'"
+default = "$CDD_OPTIONS_PROJECT_DIR/${CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
 testing = "${TMPDIR:-/tmp}/testing"
 projects = "$HOME/Projects"
 pictures = "$HOME/Pictures"
@@ -82,16 +89,9 @@ music = "$HOME/Music"
 share = "$HOME/local/share"
 EOF
 
-    cat <<EOF >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
-# Settings for cdd
-CDD_OPTIONS_DEFAULT_PROJECT_NAME=default
-CDD_OPTIONS_PROJECT_DIR"$HOME/.local/share/cdd/projects"
-CDD_OPTIONS_TMP_DIR="${CDD_OPTIONS_TMP_DIR:-$HOME/.local/tmp/cdd}"
-EOF
-
     if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]; then
       printf '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
-      cat "$tempfile" | sort -u | grep -v ^'# Settings' | grep -v '^$' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
+      grep -v ^'# Settings' "$tempfile" | sort -u | grep -v '^$' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       printf '\n' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     fi
     if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then
@@ -138,24 +138,24 @@ EOF
     local dir="$(list_aliases "folder" "$1")"
     local alias="$(list_aliases alias "$1")"
     if [ -z "$dir" ]; then
-      local dir="${1:-$HOME/.local/tmp/cdd_project}"
+      local dir="${1:-$CDD_OPTIONS_PROJECT_DIR/$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
       local alias="$(basename "$dir/")"
       printf '\n'
-      printf_red "Entering an unaliased folder"
-      printf_red "see $PROG -l or $PROG -m $alias $dir"
+      printf_blue "Entering the default folder"
+      printf_cyan "see $PROG -l or $PROG -a name directory"
     fi
     local SHELL="${SHELL:-bash}"
     local STATUS="running"
-    local ADD="$PS1_ADD cdd: ${alias:-$dir}"
+    local ADD="$PS1_ADD| cdd: ${alias:-$dir}"
     [ -d "$dir" ] || mkdir -p "$dir"
     if [[ "$dir" = "$PWD" ]]; then
       printf_exit "Failed to cd into $dir"
     else
-      printf_red "cd out of $dir is disabled while using cdd"
-      printf_green "Type quit to return to your previous directory/shell"
-      printf_green "entering into $dir using $(basename "$SHELL")"
       builtin cd "$dir" || printf_exit "Failed to enter $dir"
       export -f cd quit _cd
+      printf_green "Type quit to return to your previous directory/shell"
+      printf_green "entering into $dir using $(basename "$SHELL")"
+      printf_red "cd out of $dir is disabled while using cdd"
       CDD_DIR="$PWD" PS1_ADD="$ADD" CDD_STATUS="$STATUS" $SHELL || return 1
       unset -F cd quit _cd &>/dev/null
       sleep 3
@@ -164,6 +164,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   add_alias() {
+    [ $# = 2 ] || printf_exit "Usage: $PROG add name Directory"
     if ! list_aliases alias "$1" | grep -qx "$1"; then
       printf_green "Adding the alias $1 to config"
       grep -v '^$' "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
@@ -177,6 +178,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   rm_alias() {
+    [ $# = 1 ] || printf_exit "Usage: $PROG add delete"
     local alias="$(list_aliases alias "$1")"
     if list_aliases alias '*' | grep -qx "$alias"; then
       printf_green "Removing the alias $alias from config"
@@ -194,7 +196,7 @@ EOF
     __grep() { grep -E ^''$1' =*..*'$ "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" 2>/dev/null; }
     if [ "$1" = "folder" ]; then
       shift 1
-      __grep "$1" | awk -F'= ' '{print $2}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
+      __grep "$1" | awk -F'= ' '{print $2}' | sed -e 's#" ##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
     elif [ "$1" = "alias" ]; then
       shift 1
       __grep "$1" | awk -F' =' '{print $1}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
@@ -213,13 +215,13 @@ EOF
   local CDD_OPTIONS_DIR="$HOME/.local/share/misc/cdd/options"
   local CDD_OPTIONS_TMP_DIR="${TMPDIR:-/tmp}/testing"
   local CDD_OPTIONS_DEFAULT_PROJECT_NAME=${CDD_OPTIONS_DEFAULT_PROJECT_NAME:-default}
-  local CDD_OPTIONS_PROJECT_DIR="${CDD_OPTIONS_DEFAULT_PROJECT_NAME:-$HOME/.local/share/cdd/projects}"
+  local CDD_OPTIONS_PROJECT_DIR="${CDD_OPTIONS_PROJECT_DIR:-$HOME/.local/share/cdd/projects}"
   local CDD_OPTIONS_TMP_DIR="${CDD_OPTIONS_TMP_DIR:-$HOME/.local/tmp/cdd}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
-  local SHORTOPTS="c,v,h,m::,r:,l,s:"
-  local LONGOPTS="options,config,version,help,modify::,remove,list,shell:"
+  local SHORTOPTS="c,v,h,m::,r:,l,s:,a::"
+  local LONGOPTS="options,config,version,help,modify::,remove,list,shell:,add::"
   local ARRAY="$(list_aliases '*' | awk '{print $1}')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
@@ -256,15 +258,21 @@ EOF
       __gen_config
       exit $?
       ;;
-    -r | --remove)
-      rm_alias "$2"
-      shift 1
+    -a | --add)
+      shift 2
+      [ -n "$3" ] || printf_exit "Usage: $PROG -m alias folder"
+      add_alias "$2" "$3"
       exit $?
       ;;
     -m | --modify)
       shift 2
       [ -n "$3" ] || printf_exit "Usage: $PROG -m alias folder"
       add_alias "$2" "$3"
+      exit $?
+      ;;
+    -r | --remove)
+      rm_alias "$2"
+      shift 1
       exit $?
       ;;
     -l | --list)
