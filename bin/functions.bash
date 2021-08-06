@@ -99,6 +99,14 @@ printf_execute_error() { printf_color "\t\t[ ✖ ] $1 $2 [ ✖ ] \n" 1; }
 printf_execute_error_stream() { while read -r line; do printf_execute_error "↳ ERROR: $line"; done; }
 printf_help() { printf_blue "$*"; }
 
+printf_debug() {
+  printf_yellow "Running in debug mode "
+  for d in "$@"; do
+    echo "$d" | printf_readline "5"
+  done
+  exit 1
+}
+
 printf_mkdir() {
   [ -n "$1" ] || return 1
   if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p $1"; then

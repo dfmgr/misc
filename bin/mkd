@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-mkd() {
+__mkd() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   PROG="mkd"
   USER="${SUDO_USER:-${USER}}"
@@ -23,34 +23,6 @@ mkd() {
   # @Resource      :
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Main function
-  __version() { app_version; }
-  __help() {
-    app_help "Usage:    mkd directorytoCreate" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help"
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __change_dir() {
-    if [ -d "$1" ]; then
-      printf_green "Creating $CREATE and entering the directory"
-      printf_green "Type exit to return to your previous directory"
-      builtin cd "$1" || return
-      $SHELL
-    else
-      printf_return "Failed to create $1"
-    fi
-  }
-  __create() {
-    local CREATE="${1:-$CREATE}"
-    if [ ! -d "$CREATE" ]; then
-      if printf_mkdir "$CREATE" 2>/dev/null; then
-        true
-      else
-        printf_exit "Failed to create $CREATE"
-        exitCode=1
-      fi
-    fi
-  }
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
     . "$DIR/functions.bash"
@@ -59,32 +31,70 @@ mkd() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
-  esac
-  [ $# -ne 1 ] && __help
+  __version() { app_version; }
+  __help() {
+    app_help "Usage:    mkd directorytoCreate" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help"
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local CREATE="$1"
+  # App functions
+  __change_dir() {
+    if [ -d "$1" ]; then
+      printf_green "Creating $DIR_TO_CREATE and entering the directory"
+      printf_cyan "Type exit to return to your previous directory"
+      builtin cd "$1" || return
+      $SHELL
+    else
+      printf_return "Failed to create $1"
+    fi
+  }
+  __create() {
+    local DIR_TO_CREATE="${1:-$DIR_TO_CREATE}"
+    if [ ! -d "$DIR_TO_CREATE" ]; then
+      if printf_mkdir "$DIR_TO_CREATE" 2>/dev/null; then
+        true
+      else
+        printf_exit "Failed to create $DIR_TO_CREATE"
+        exitCode=1
+      fi
+    fi
+  }
   __cd() {
     if cmd_exists cdd; then
       if [[ "$CDD_STATUS" = "running" ]]; then
         if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
-          __create "${CREATE//$CDD_DIR\//}" || return 1
+          __create "${DIR_TO_CREATE//$CDD_DIR\//}" || return 1
         else
           printf_red "Creating directories outside of $CDD_DIR is forbidden"
         fi
       else
-        __create "$CREATE" || return 1
+        __create "$DIR_TO_CREATE" || return 1
       fi
     else
-      __create "$CREATE" || return 1
+      __create "$DIR_TO_CREATE" || return 1
     fi
-    __change_dir "$CREATE"
+    __change_dir "$DIR_TO_CREATE"
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ -n "$CREATE" ]; then
-    __cd "$CREATE" && exitCode=0 || exitCode=1
+  case $1 in
+  -v | --version) __version ;;
+  -h | --help) __help ;;
+  esac
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ $# = 0 ] && __help
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local DIR_TO_CREATE="$@"
+  local failed=0
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [ $# -gt 1 ]; then
+    for dir in $DIR_TO_CREATE; do
+      printf_green "Creating the directories: $dir"
+      mkdir -p "$dir" 2>/dev/null || failed+=1
+      [ $failed = 0 ] || printf_red "Failed to create $dir"
+    done
+  elif [ -n "$DIR_TO_CREATE" ]; then
+    __cd "$DIR_TO_CREATE" && exitCode=0 || exitCode=1
   else
     __help
     exitCode=1
@@ -93,9 +103,8 @@ mkd() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-mkd "$@"
+__mkd "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
-
