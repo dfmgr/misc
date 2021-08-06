@@ -16,7 +16,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 11:37 EST
 # @File          : __muttsync
-# @Description   :
+# @Description   : Sync mailboxes wit mbsync
 # @TODO          :
 # @Other         :
 # @Resource      :

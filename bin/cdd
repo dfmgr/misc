@@ -73,20 +73,28 @@ cdd_main() {
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$tempfile"
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_ALIAS_FILE.$$"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
-# Settings for cdd
-default = "$HOME/.local/tmp/cdd_project"
+# Alias settings for cdd
+default = "$HOME/.local/share/cdd_project/'${CDD_OPTIONS_DEFAULT_PROJECT_NAME}'"
 testing = "${TMPDIR:-/tmp}/testing"
 projects = "$HOME/Projects"
 pictures = "$HOME/Pictures"
 music = "$HOME/Music"
 share = "$HOME/local/share"
 EOF
+
+    cat <<EOF >"$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
+# Settings for cdd
+CDD_OPTIONS_DEFAULT_PROJECT_NAME=default
+CDD_OPTIONS_PROJECT_DIR"$HOME/.local/share/cdd/projects"
+CDD_OPTIONS_TMP_DIR="${CDD_OPTIONS_TMP_DIR:-$HOME/.local/tmp/cdd}"
+EOF
+
     if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]; then
       printf '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       cat "$tempfile" | sort -u | grep -v ^'# Settings' | grep -v '^$' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       printf '\n' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     fi
-    if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
+    if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then
       printf_green "Your config file for cdd has been created"
       true
     else
@@ -203,6 +211,10 @@ EOF
   local CDD_CONFIG_DIR="$HOME/.config/misc/settings/cdd"
   local CDD_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/cdd/backups"
   local CDD_OPTIONS_DIR="$HOME/.local/share/misc/cdd/options"
+  local CDD_OPTIONS_TMP_DIR="${TMPDIR:-/tmp}/testing"
+  local CDD_OPTIONS_DEFAULT_PROJECT_NAME=${CDD_OPTIONS_DEFAULT_PROJECT_NAME:-default}
+  local CDD_OPTIONS_PROJECT_DIR="${CDD_OPTIONS_DEFAULT_PROJECT_NAME:-$HOME/.local/share/cdd/projects}"
+  local CDD_OPTIONS_TMP_DIR="${CDD_OPTIONS_TMP_DIR:-$HOME/.local/tmp/cdd}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"

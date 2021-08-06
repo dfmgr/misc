@@ -17,7 +17,7 @@ __mailsync() {
   # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
   # @Created       : Thursday, Mar 11, 2021 10:26 EST
   # @File          : __mailsync
-  # @Description   : sync your email
+  # @Description   : Sync your email
   # @TODO          :
   # @Other         :
   # @Resource      :
