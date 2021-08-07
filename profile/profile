@@ -150,16 +150,9 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
 if command -v ask_for_password &>/dev/null; then
-  if [ -n "$DISPLAY" ]; then
-    SUDO_ASKPASS="/usr/local/bin/ask_for_password"
-    #SUDO_PROMPT="/usr/local/bin/ask_for_password"
-  elif [ "$(uname -s)" = MacOS ]; then
-    SUDO_ASKPASS="/usr/local/bin/ask_for_password"
-    #SUDO_PROMPT="/usr/local/bin/ask_for_password"
+  if [ -z "$DISPLAY" ]; then
+    SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
   fi
-else
-  #SUDO_ASKPASS="${SUDO_ASKPASS:-}"
-  SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
 fi
 export SUDO_PROMPT SUDO_ASKPASS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
