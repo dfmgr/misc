@@ -76,19 +76,13 @@ export LC_IDENTIFICATION="en_US.UTF-8"
 export LC_ALL="$LC_ALL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure display
-if [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ] || [ -z "$DISPLAY" ]; then
-  export DISPLAY=""
-else
-  if [ -n "$DISPLAY" ]; then
-    if [ -n "$DISPLAY_LOW_DENSITY" ] && grep -siq chromium /proc/version; then
-      DISPLAY="$DISPLAY"
-      DISPLAY_LOW_DENSITY="$DISPLAY"
-    fi
-    if [ -f "$(command -v xrandr 2>/dev/null)" ]; then
-      RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
-    fi
+if [ -n "$DISPLAY" ]; then
+  if [ -n "$DISPLAY_LOW_DENSITY" ] && grep -siq chromium /proc/version; then
+    DISPLAY_LOW_DENSITY="$DISPLAY"
   fi
-
+  if [ -f "$(command -v xrandr 2>/dev/null)" ]; then
+    RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
+  fi
 fi
 export DISPLAY RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -155,12 +149,18 @@ if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
-if [ "$(uname -s)" = Linux ] && [ -n "$DESKTOP_SESSION" ] && [ -f "$(command -v ask_for_password 2>/dev/null)" ]; then
-  SUDO_ASKPASS="/usr/local/bin/ask_for_password"
+if [ -f "$(command -v ask_for_password 2>/dev/null)" ]; then
+  if [ -n "$DISPLAY" ]; then
+    SUDO_ASKPASS="/usr/local/bin/ask_for_password"
+    SUDO_PROMPT="/usr/local/bin/ask_for_password"
+  elif [ "$(uname -s)" = MacOS ]; then
+    SUDO_ASKPASS="/usr/local/bin/ask_for_password"
+    SUDO_PROMPT="/usr/local/bin/ask_for_password"
+  fi
 else
-  SUDO_ASKPASS="$SUDO_ASKPASS"
+  SUDO_ASKPASS="${SUDO_ASKPASS:-}"
+  SUDO_PROMPT="$(printf "\n\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m" && echo)"
 fi
-SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
 export SUDO_PROMPT SUDO_ASKPASS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
