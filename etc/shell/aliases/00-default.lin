@@ -47,7 +47,14 @@ alias egrep='grep -E --color=auto '
 alias fgrep='grep -F --color=auto '
 alias cp_rpf='cp --parents -Rfv '
 alias less='less -r '
-alias ssh-tmux='tmux -f '~/.config/tmux/tmux.ssh.conf' new-session -D -A -s ssh '
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# helpers
+alias tmux-ssh='tmux -f '~/.config/tmux/tmux.ssh.conf' new-session -D -A -s ssh '
+alias screen-ssh='screen -c $HOME/.config/screen/dev/sshrc '
+alias screen-node='screen -c $HOME/.config/screen/dev/noderc '
+alias screen-custom='screen -c $HOME/.config/screen/dev/singlerc '
+alias screen-dev='screen -c $HOME/.config/screen/dev/developmentrc '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
 alias profilerc='source ~/.profile'
