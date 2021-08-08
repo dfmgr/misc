@@ -175,7 +175,7 @@ EOF
     unset -F cd quit _cd &>/dev/null
     sleep .5
     clear
-    return ${exitCode:$?}
+    return ${exitCode:-$?}
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   add_alias() {
