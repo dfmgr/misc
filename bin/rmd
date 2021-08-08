@@ -40,36 +40,45 @@ main() {
   case $1 in
   -v | --version) __version ;;
   -h | --help) __help ;;
+  -*) shift 1 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __rm_file() { rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local files delete_dir delete_file delete_error_file exitCode
-  if [ $# -ne 0 ]; then
-    local files="$*"
-    for file in $files; do
-      if [[ "$file" = -* ]]; then
-        if [ ! -e "$file" ]; then
-          file="" && shift 1
-        fi
-      fi
-      if [ -n "$file" ]; then
-        if [ -d "$file" ]; then
-          printf_green "Deleting folder and all files within: $file"
-          __rm_file "$file"
-        elif [ -e "$file" ]; then
-          printf_green "Deleting the file: $file"
-          __rm_file "$file" &>/dev/null
-        else
-          printf_red "Failed to delete non-existant file/folder: $file"
-          local exitCode=1
-        fi
-      fi
-    done
-  else
+  files delete_dir delete_file delete_error_file exitCode SAVEIFS IFS tLen
+  SAVEIFS=$IFS
+  IFS=$(echo -en "\n\b")
+  files="($(find "$@" -type f))"
+  tLen=${#files[@]}
+  if [ $# = 0 ]; then
     printf_red "Must provide path to file or folder for deletion"
     return 1
+  else
+    if type -P trash &>/dev/null; then
+      trash "$files"
+    else
+      for file in $files; do
+        if [[ "$file" = -* ]]; then
+          if [ ! -e "$file" ]; then
+            file="" && shift 1
+          fi
+        fi
+        if [ -n "$file" ]; then
+          if [ -d "$file" ]; then
+            printf_green "Deleting folder and all files within: $file"
+            __rm_file "$file"
+          elif [ -e "$file" ]; then
+            printf_green "Deleting the file: $file"
+            __rm_file "$file" &>/dev/null
+          else
+            printf_red "Failed to delete non-existant file/folder: $file"
+            exitCode=1
+          fi
+        fi
+      done
+    fi
   fi
+  IFS=$SAVEIFS
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
