@@ -60,11 +60,6 @@ main() {
       done
     else
       for file in $files; do
-        if [[ "$file" = -* ]]; then
-          if [ ! -e "$file" ]; then
-            file="" && shift 1
-          fi
-        fi
         if [ -n "$file" ]; then
           if [ -d "$file" ]; then
             printf_green "Deleting folder and all files within: $file"
