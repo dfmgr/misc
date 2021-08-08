@@ -72,7 +72,11 @@ EOF
     fi
   }
   __gen_alias() {
-    printf_green "Generating the aliases file in"
+    if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
+      printf_green "Updating the aliases file in"
+    else
+      printf_green "Generating the aliases file in"
+    fi
     printf_green "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     local tempfile="$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.bak"
     [ -d "$CDD_CONFIG_DIR" ] || mkdir -p "$CDD_CONFIG_DIR"
@@ -263,6 +267,7 @@ EOF
       ;;
     -c | --config)
       __gen_config
+      __gen_alias
       exit $?
       ;;
     -a | --add)
