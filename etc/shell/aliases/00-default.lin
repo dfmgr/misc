@@ -14,53 +14,59 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # System Aliases
-alias q='exit'
-alias :q='exit'
-alias :q!='exit'
-alias :w='history -a'
-alias c='clear'
-alias ch='history -c &>/dev/null && history -w &>/dev/null'
-alias g='git'
-alias m='man'
-alias map='xargs -n1'
-alias n='npm'
-alias path='printf "%b\n" "${PATH//:/\\n}"'
-alias t='tmux'
-alias zshrc='clear && source ~/.zshrc'
-alias inputrc='bind -f ~/.inputrc'
-alias tailf='tail -f'
-alias mount='mount -l'
-alias h='history'
-alias j='jobs -l'
-alias nowtime='date +"%T"'
-alias nowdate='date +"%m-%d-%Y"'
-alias wget='wget -c'
-alias df='df -H'
-alias du='du -ch'
-alias setverfile='setver --file'
-alias userlist='cut -d: -f1 /etc/passwd'
-alias muttsync='__muttsync'
-alias mutt='neomutt'
-alias sort='LC_ALL=C sort'
-alias uniq='LC_ALL=C uniq'
-alias lynx='lynx -cfg=$HOME/.config/lynx/lynx.cfg -lss=$HOME/.config/lynx/lynx.lss'
-alias grep='grep --color=auto'
-alias egrep='grep -E --color=auto'
-alias fgrep='grep -F --color=auto'
-alias cp_rpf='cp --parents -Rfv'
-alias less='less -r'
-alias tmux_ssh='tmux -f '$HOME/.config/tmux/tmux.ssh.conf' new-session -D -A -s ssh'
-alias 755d='find ${1:-.} -type d -exec chmod 755 {} \;'
-alias 755f='find ${1:-.} -type f -exec chmod 755 {} \;'
-alias 644f='find ${1:-.} -type f -exec chmod 644 {} \;'
+alias q='exit '
+alias :q='exit '
+alias :q!='exit '
+alias :w='history -a '
+alias c='clear '
+alias ch='history -c &>/dev/null && history -w &>/dev/null '
+alias g='git '
+alias m='man '
+alias map='xargs -n1 '
+alias n='npm '
+alias path='printf "%b\n" "${PATH//:/\\n}" '
+alias t='tmux '
+alias tailf='tail -f '
+alias mount='mount -l '
+alias h='history '
+alias j='jobs -l '
+alias nowtime='date +"%T" '
+alias nowdate='date +"%m-%d-%Y" '
+alias wget='wget -c '
+alias df='df -H '
+alias du='du -ch '
+alias setverfile='setver --file '
+alias userlist='cut -d: -f1 /etc/passwd '
+alias muttsync='__muttsync '
+alias mutt='neomutt '
+alias sort='LC_ALL=C sort '
+alias uniq='LC_ALL=C uniq '
+alias lynx='lynx -cfg=$HOME/.config/lynx/lynx.cfg -lss=$HOME/.config/lynx/lynx.lss '
+alias grep='grep --color=auto '
+alias egrep='grep -E --color=auto '
+alias fgrep='grep -F --color=auto '
+alias cp_rpf='cp --parents -Rfv '
+alias less='less -r '
+alias ssh-tmux='tmux -f '~/.config/tmux/tmux.ssh.conf' new-session -D -A -s ssh '
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# shell
+alias profilerc='source ~/.profile'
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# zsh specific
+[ "$(basename "$SHELL")" = "zsh" ] && alias zshrc='clear && source ~/.zshrc'
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# bash specific
+[ "$(basename "$SHELL")" = "bash" ] && alias inputrc='bind -f ~/.inputrc'
+[ "$(basename "$SHELL")" = "bash" ] && alias zshrc='clear && source ~/.zshrc'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -n "$DISPLAY" ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
+[ "$(uname -s)" = Darwin ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # VisualStudio code
-if [ -n "$(command -v code-oss 2>/dev/null)" ]; then 
-alias code='code-oss'
+if [ -n "$(command -v code-oss 2>/dev/null)" ]; then
+    alias code='code-oss'
 elif [ -n "$(command -v code-insiders 2>/dev/null)" ]; then
-alias code='code-insiders'
+    alias code='code-insiders'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
@@ -76,11 +82,12 @@ alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
 alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
-[ "$(uname -s)" = Linux ] && [ -f "$(command -v apt 2>/dev/null)" ] && alias apt='sudo apt '
-[ "$(uname -s)" = Linux ] && [ -f "$(command -v apt-get 2>/dev/null)" ] && alias apt='sudo apt-get '
-[ "$(uname -s)" = Linux ] && [ -f "$(command -v dnf 2>/dev/null)" ] && alias apt='sudo dnf '
-[ "$(uname -s)" = Linux ] && [ -f "$(command -v yum 2>/dev/null)" ] && alias apt='sudo yum '
-[ "$(uname -s)" = Linux ] && [ -f "$(command -v pacman 2>/dev/null)" ] && alias apt='sudo pacman '
+[ "$(uname -s)" = Linux ] && [ -n "$(command -v apt 2>/dev/null)" ] && alias apt='sudo apt '
+[ "$(uname -s)" = Linux ] && [ -n "$(command -v apt-get 2>/dev/null)" ] && alias apt='sudo apt-get '
+[ "$(uname -s)" = Linux ] && [ -n "$(command -v dnf 2>/dev/null)" ] && alias apt='sudo dnf '
+[ "$(uname -s)" = Linux ] && [ -n "$(command -v yum 2>/dev/null)" ] && alias apt='sudo yum '
+[ "$(uname -s)" = Linux ] && [ -n "$(command -v pacman 2>/dev/null)" ] && alias apt='sudo pacman '
+[ -n "$(command -v pkmgr 2>/dev/null)" ] && alias apt='pkmgr ' && alias apt='pkmgr ' && alias apt='pkmgr ' && alias apt='pkmgr ' && alias apt='pkmgr ' && alias brew='pkmgr '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
 alias ls='ls --color=auto '
@@ -91,82 +98,81 @@ alias ll='ls -l --color=auto '
 alias dir='ls -D --color=auto'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # CD Aliases
-alias ~='cd ~'
-alias ..='cd ..'
-alias ...='cd ../..'
-alias ....='cd ../../..'
-alias .....='cd ../../../..'
-alias cd..='cd ..'
+alias ~='cd '
+alias ..='cd .. '
+alias ...='cd ../.. '
+alias ....='cd ../../.. '
+alias .....='cd ../../../.. '
+alias cd..='cd .. '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
 alias vi='vim '
 alias vim='vim '
 alias vis='vim +set si '
-alias svim='sudo vim'
+alias svim='sudo vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
-[ -f "$(command -v nvim)" ] && [ -f $HOME/.config/neovim/init.vim ] && alias nvim='nvim -u $HOME/.config/neovim/init.vim' || \
-  [ -f "$(command -v nvim)" ] && [ -f $HOME/.config/nvim/init.vim ] && alias nvim='nvim -u $HOME/.config/nvim/init.vim' 
+[ -n "$(command -v nvim)" ] && [ -f "$HOME/.config/neovim/init.vim" ] && alias nvim='nvim -u $HOME/.config/neovim/init.vim ' ||
+    [ -n "$(command -v nvim)" ] && [ -f "$HOME/.config/nvim/init.vim" ] && alias nvim='nvim -u $HOME/.config/nvim/init.vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
-if [ -f "$(command -v docker)" ]; then 
-  alias docker='sudo docker '
-  alias drun='docker run --rm -it -v "${PWD}":/app -w /app'
-fi
+[ -n "$(command -v docker)" ] && alias docker='sudo docker '
+[ -n "$(command -v docker)" ] && alias drun='docker run --rm -it -v "${PWD}":/app -w /app '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
-[ -f "$(command -v trash)" ] && alias empty-trash='trash empty' || \
-  alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/*'
+[ -n "$(command -v trash)" ] && alias empty-trash='trash empty ' ||
+    alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/* '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Hide/show icons.
-alias desktop-icons-hide='gsettings set org.gnome.desktop.background show-desktop-icons false'
-alias desktop-icons-show='gsettings set org.gnome.desktop.background show-desktop-icons true'
+[ "$(uname -s)" = Darwin ] && alias desktop-icons-hide='defaults write com.apple.finder CreateDesktop false; killall Finder; say hiding desktop icons; '
+[ "$(uname -s)" = Darwin ] && alias desktop-icons-hide='defaults write com.apple.finder CreateDesktop true; killall Finder; say showing desktop icons; '
+[ -n "$(command -v gsettings)" ] && alias desktop-icons-hide='gsettings set org.gnome.desktop.background show-desktop-icons false '
+[ -n "$(command -v gsettings)" ] && alias desktop-icons-show='gsettings set org.gnome.desktop.background show-desktop-icons true '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Lock Screen
-[ -f "$(command -v gnome-screensaver-command)" ] && alias afk='gnome-screensaver-command --lock'
-[ -f "$(command -v xflock4)" ] && alias afk='xflock4'
+[ -n "$(command -v xflock4)" ] && alias afk='xflock4 '
+[ -n "$(command -v gnome-screensaver-command)" ] && alias afk='gnome-screensaver-command --lock '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # logout
-[ -f "$(command -v xfce4-session-logout)" ] && alias logout='xfce4-session-logout'
+[ -n "$(command -v xfce4-session-logout)" ] && alias logout='xfce4-session-logout '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Open command
-alias o='xdg-open '
-alias open='xdg-open '
+[ "$(uname -s)" = Darwin ] || alias open='xdg-open '
+[ "$(uname -s)" = Darwin ] && alias o='open ' || alias o='xdg-open '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #youtube-dl
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias nightcorea='youtube-dl --extract-audio --audio-format mp3 --embed-thumbnail --add-metadata --audio-quality 320k --config-location $HOME/.config/youtube-dl/nightcorea '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias nightcorev='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/nightcorev '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytv-best='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-aac='youtube-dl --extract-audio --audio-format aac --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-best='youtube-dl --extract-audio --audio-format best --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-flac='youtube-dl --extract-audio --audio-format flac --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-m4a='youtube-dl --extract-audio --audio-format m4a --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-mp3='youtube-dl --audio-quality 320k --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-opus='youtube-dl --extract-audio --audio-format opus --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-vorbis='youtube-dl --extract-audio --audio-format vorbis --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-wav='youtube-dl --extract-audio --audio-format wav --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytda='youtube-dl -f bestaudio --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytdv='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/videos '
-[ -f "$(command -v youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias nightcorea='youtube-dl --extract-audio --audio-format mp3 --embed-thumbnail --add-metadata --audio-quality 320k --config-location $HOME/.config/youtube-dl/nightcorea '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias nightcorev='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/nightcorev '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytv-best='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-aac='youtube-dl --extract-audio --audio-format aac --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-best='youtube-dl --extract-audio --audio-format best --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-flac='youtube-dl --extract-audio --audio-format flac --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-m4a='youtube-dl --extract-audio --audio-format m4a --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-mp3='youtube-dl --audio-quality 320k --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-opus='youtube-dl --extract-audio --audio-format opus --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-vorbis='youtube-dl --extract-audio --audio-format vorbis --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias yta-wav='youtube-dl --extract-audio --audio-format wav --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytda='youtube-dl -f bestaudio --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytdv='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/videos '
+[ -n "$(command -v youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Media
-[ -f "$(command -v castero 2>/dev/null)" ] && alias podcasts='castero'
-[ -f "$(command -v spotifyd 2>/dev/null)" ] && alias spotify='spotifyd'
-[ -f "$(command -v pianobar 2>/dev/null)" ] && alias pandora='pianobar'
-[ -f "$(command -v tizonia 2>/dev/null)" ] && alias cloudplayer='tizonia'
-[ -f "$(command -v youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer'
-[ -f "$(command -v mpc)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || \ 
-  alias mpc='mpc -h "$MPDSERVER" '
+[ -n "$(command -v castero 2>/dev/null)" ] && alias podcasts='castero '
+[ -n "$(command -v spotifyd 2>/dev/null)" ] && alias spotify='spotifyd '
+[ -n "$(command -v pianobar 2>/dev/null)" ] && alias pandora='pianobar '
+[ -n "$(command -v tizonia 2>/dev/null)" ] && alias cloudplayer='tizonia '
+[ -n "$(command -v youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer '
+[ -n "$(command -v mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
-alias list-my-functions='typeset -F | less'
-alias list-my-aliases='alias | less'
+alias list-my-functions='typeset -F | less '
+alias list-my-aliases='alias | less '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Fun alias
-alias tw='rainbowstream -iot'
-alias twitter='twitter'
-alias mylatlong='mylocation | grep --color=none "LAT\|LON"'
-alias emj='emojis'
+alias tw='rainbowstream -iot '
+alias twitter='twitter '
+alias mylatlong='mylocation | grep --color=none "LAT\|LON" '
+alias emj='emojis '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # other
 
