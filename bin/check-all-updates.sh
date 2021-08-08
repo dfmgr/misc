@@ -82,7 +82,7 @@ EOF
   local CHECK_ALL_UPDATES_SH_CACHEDIR="${CACHE_DIR:-$HOME/.cache/check_all_updates_sh}"
   local CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS="${CHECK_ALL_UPDATES_SH_ENABLE_NOTIFICATIONS:-yes}"
   local CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG="${CHECK_ALL_UPDATES_SH_ENABLE_UPDATE_NAG:-yes}"
-  local CHECK_ALL_UPDATES_SH_SUDO_ASKPASS_PROGRAM="${SUDO_ASKPASS:-/usr/local/bin/ask_for_password}"
+  local CHECK_ALL_UPDATES_SH_SUDO_ASKPASS_PROGRAM="${SUDO_ASKPASS:-}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
@@ -144,7 +144,6 @@ EOF
     if [ -f /usr/bin/pacman ]; then
       if ! updates_arch=$(pacman -Qu 2>/dev/null | wc -l); then
         updates_arch=0
-        updates="$updates_arch"
       fi
       #yay doesn't do sudo
       if [ -f /usr/bin/yay ]; then
@@ -152,20 +151,20 @@ EOF
           updates_aur=0
         fi
       fi
-      updates=$(("$updates_arch" + "$updates_aur"))
+      [ -n "$updates_arch" ] && updates=$(("$updates_arch" + "$updates_aur")) || updates="$updates_arch"
     #Debian update check
     elif [ -f /usr/bin/apt ]; then
-      if ! updates=$(sudo apt-get update >/dev/null && apt-get --just-print upgrade | grep "Inst " | wc -l); then
+      if ! updates=$(sudo apt update &>/dev/null && sudo apt --just-print upgrade 2>/dev/null | grep "Inst " | wc -l); then
         updates=0
       fi
 
     elif [ -f /usr/bin/dnf ]; then
-      if ! updates=$(sudo dnf check-update -q | grep -v Security | wc -l); then
+      if ! updates=$(sudo dnf check-update -q 2>/dev/null | grep -v Security | wc -l); then
         updates=0
       fi
 
     elif [ -f /usr/bin/yum ]; then
-      if ! updates=$(sudo yum check-update -q | grep -v Security | wc -l); then
+      if ! updates=$(sudo yum check-update -q 2>/dev/null | grep -v Security | wc -l); then
         updates=0
       fi
     fi
@@ -201,3 +200,4 @@ check-all-updates.sh_main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # End application
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
