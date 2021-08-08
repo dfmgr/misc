@@ -43,12 +43,12 @@ main() {
   -*) shift 1 ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __rm_file() { rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1; }
+  __rm_file() { eval rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local files exitCode SAVEIFS IFS
   SAVEIFS=$IFS
-  IFS=$(echo -en "\n\b")
-  files="$(cat  "$@")"
+  IFS= read -r "$@" &>/dev/null
+  files="$*"
     if [ $# = 0 ]; then
     printf_red "Must provide path to file or folder for deletion"
     return 1
@@ -56,7 +56,7 @@ main() {
 
     if type -P trash &>/dev/null; then
       for file in $files; do
-        trash "$files"
+        eval trash "$files"
       done
     else
       for file in $files; do
