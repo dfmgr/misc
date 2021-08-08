@@ -85,7 +85,6 @@ EOF
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$tempfile"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
 # Alias settings for cdd
-current_project = "."
 default = "$CDD_OPTIONS_PROJECT_DIR/${CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
 screen = "$CDD_OPTIONS_PROJECT_DIR/dev-screen"
 tmux = "$CDD_OPTIONS_PROJECT_DIR/dev-tmux"
@@ -150,7 +149,10 @@ EOF
     fi
     local dir="$(list_aliases "folder" "$1")"
     local alias="$(list_aliases alias "$1")"
-    [ "$alias" = "current_project" ] && dir="$(basename $(dirname $PWD/.))"
+    if [ "$1" = "current_project" ] || [ "$1" = "current" ] || [ "$1" = "." ]; then
+      local alias="$(basename $(dirname $PWD/.))"
+      local dir="$PWD"
+    fi
     if [ -z "$dir" ]; then
       local dir="${1:-$CDD_OPTIONS_PROJECT_DIR/$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
       local alias="$(basename "$dir/")"
