@@ -72,7 +72,6 @@ EOF
     fi
   }
   __gen_alias() {
-  set -x
     if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
       local cdd_update=true
       printf_green "Updating the aliases file in"
@@ -84,7 +83,6 @@ EOF
     [ -d "$CDD_CONFIG_DIR" ] || mkdir -p "$CDD_CONFIG_DIR"
     [ -d "$CDD_CONFIG_BACKUP_DIR" ] || mkdir -p "$CDD_CONFIG_BACKUP_DIR"
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$tempfile"
-    [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_ALIAS_FILE.$$"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
 # Alias settings for cdd
 current_project = "."
@@ -99,6 +97,7 @@ share = "$HOME/local/share"
 EOF
 
     if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]; then
+      cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_ALIAS_FILE.$$"
       printf '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       grep -v ^'# Settings' "$tempfile" | sort -u | grep -v '^$' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       printf '\n' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
@@ -110,6 +109,7 @@ EOF
       printf_red "Failed to create the config file"
       false
     fi
+    return $?
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   _cd() {
