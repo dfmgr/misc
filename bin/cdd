@@ -145,7 +145,7 @@ EOF
     [[ "$CDD_STATUS" = "running" ]] && [[ "$1" = ./* ]] && cd "$1" && return
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] || __gen_config "$@"
     [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
-    if [[ "$1" = "current_project" ]] || [ "$1" = "." ]] || [[ "$CDD_STATUS" != "running" ]]; then
+    if  [[ "$CDD_STATUS" != "running" ]] && { [[ "$1" = "current_project" ]] || [[ "$1" = "." ]]; }; then
       local dir="$PWD"
       local alias="$(basename $(dirname $PWD/.))"
       local message="Entering the $dir with alias $alias"
