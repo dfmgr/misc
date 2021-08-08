@@ -72,7 +72,9 @@ EOF
     fi
   }
   __gen_alias() {
+  set -x
     if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
+      local cdd_update=true
       printf_green "Updating the aliases file in"
     else
       printf_green "Generating the aliases file in"
