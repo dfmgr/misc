@@ -138,8 +138,9 @@ EOF
     fi
     export CD_INTO_CUR="$BASE_CDD_DIR/$CD_INTO_DIR"
   }
-  quit() { alias q='quit'; alias exit='quit'; printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit &>/dev/null; }
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit &>/dev/null; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
     clear
     [[ "$CDD_STATUS" = "running" ]] && [[ "$1" = ./* ]] && cd "$1" && return
@@ -161,7 +162,7 @@ EOF
       local message="entering into $dir"
       [ -d "$dir" ] || mkdir -p "$dir"
     fi
-    export -f cd quit _cd
+    export -f cd quit _cd q exit
     local exitCode=0
     local STATUS="running"
     local SHELL="${SHELL:-bash}"
