@@ -197,9 +197,9 @@ EOF
     done
   else
     if [ -f "$SETUP_ASDF_OPTIONS_DIR/array" ]; then
-      printf_column <$("$SETUP_ASDF_OPTIONS_DIR/array")
+      echo "$SETUP_ASDF_OPTIONS_DIR/array" | printf_column 
     else
-      asdf plugin-list-all | awk '{print $1}' | printf_column
+      echo asdf plugin-list-all | awk '{print $1}' | printf_column
     fi
     printf '\n'
   fi
