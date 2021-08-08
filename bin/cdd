@@ -167,7 +167,7 @@ EOF
     local exitCode=0
     local STATUS="running"
     local SHELL="${SHELL:-bash}"
-    local PS1_ADD_CDD="$PS1_ADD cdd: ${alias:-$dir} |"
+    local PS1_ADD_CDD="$PS1_ADD cdd: ${alias:-$dir}"
     [ ! -d "$dir" ] && mkdir -p "$dir"
     [ -d "$dir" ] && builtin cd "$dir" || printf_exit "Failed to enter $dir"
     [ -n "$message" ] && printf_green "$message using $(basename "$SHELL")"
