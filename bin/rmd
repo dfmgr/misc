@@ -45,7 +45,7 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __rm_file() { rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  files delete_dir delete_file delete_error_file exitCode SAVEIFS IFS tLen
+  local files delete_dir delete_file delete_error_file exitCode SAVEIFS IFS tLen
   SAVEIFS=$IFS
   IFS=$(echo -en "\n\b")
   files="($(find "$@" -type f))"
@@ -55,7 +55,9 @@ main() {
     return 1
   else
     if type -P trash &>/dev/null; then
-      trash "$files"
+      for file in $files; do
+        trash "$files"
+      done
     else
       for file in $files; do
         if [[ "$file" = -* ]]; then
