@@ -147,24 +147,24 @@ EOF
       fi
       #yay doesn't do sudo
       if [ -f /usr/bin/yay ]; then
-        if ! updates_aur=$(sudo --user $USER yay -Qum 2>/dev/null | wc -l); then
+        if ! updates_aur=$(yay -Qum 2>/dev/null | wc -l); then
           updates_aur=0
         fi
       fi
       [ -n "$updates_arch" ] && updates=$(("$updates_arch" + "$updates_aur")) || updates="$updates_arch"
     #Debian update check
     elif [ -f /usr/bin/apt ]; then
-      if ! updates=$(sudo apt update &>/dev/null && sudo apt --just-print upgrade 2>/dev/null | grep "Inst " | wc -l); then
+      if ! updates=$(apt -q -y --ignore-hold --allow-change-held-packages --allow-unauthenticated -s dist-upgrade 2>/dev/null | grep  ^Inst | wc -l); then
         updates=0
       fi
 
     elif [ -f /usr/bin/dnf ]; then
-      if ! updates=$(sudo dnf check-update -q 2>/dev/null | grep -v Security | wc -l); then
+      if ! updates=$(yum -q check-update 2>/dev/null | grep -v Security | wc -l); then
         updates=0
       fi
 
     elif [ -f /usr/bin/yum ]; then
-      if ! updates=$(sudo yum check-update -q 2>/dev/null | grep -v Security | wc -l); then
+      if ! updates=$(yum -q check-update 2>/dev/null | grep -v Security | wc -l); then
         updates=0
       fi
     fi
