@@ -44,23 +44,22 @@ main() {
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __rm_file() { 
-    IFS= read -r "$@" &>/dev/null
-    eval rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1
+    find "$@" -maxdepth 1 -print0 | while IFS= read -r -d '' files; do
+      eval rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1
+    done
     }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local files exitCode SAVEIFS IFS
-  SAVEIFS=$IFS
-  IFS= read -r "$@" &>/dev/null
+  local files exitCode
     if [ $# = 0 ]; then
     printf_red "Must provide path to file or folder for deletion"
     return 1
   else
     if type -P trash &>/dev/null; then
-      for file in "$@"; do
-        eval trash "$files"
+      find "$@" -maxdepth 1 -print0 | while IFS= read -r -d '' file; do
+        eval trash "$file"
       done
     else
-      for file in "$@"; do
+      find "$@" -maxdepth 1 -print0 | while IFS= read -r -d '' file; do
         if [ -n "$file" ]; then
           if [ -d "$file" ]; then
             printf_green "Deleting folder and all files within: $file"
