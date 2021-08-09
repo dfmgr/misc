@@ -47,7 +47,7 @@ alias egrep='grep -E --color=auto '
 alias fgrep='grep -F --color=auto '
 alias cp_rpf='cp --parents -Rfv '
 alias less='less -r '
-alias update-sys='printf_blue "Updating your system. This may take a while......" && pkmgr silent update && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system"'
+alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent update && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system"'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # helpers
 alias tmux-ssh='tmux -f '~/.config/tmux/tmux.ssh.conf' new-session -D -A -s ssh '
