@@ -18,7 +18,7 @@ check-all-updates.sh_main() {
   # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
   # @Created       : Tuesday, Mar 23, 2021 08:34 EDT
   # @File          : check-all-updates.sh
-  # @Description   : check for package updates
+  # @Description   : Check for package updates
   # @TODO          :
   # @Other         :
   # @Resource      :
@@ -141,33 +141,39 @@ EOF
   # begin main app
   if am_i_online; then
     #Arch update check
-    if [ -f /usr/bin/pacman ]; then
+    if [ -n "$(builtin type -P pacman)" ]; then
       if ! updates_arch=$(pacman -Qu 2>/dev/null | wc -l); then
         updates_arch=0
       fi
       #yay doesn't do sudo
-      if [ -f /usr/bin/yay ]; then
+      if [ -n "$(builtin type -P yay)" ]; then
         if ! updates_aur=$(yay -Qum 2>/dev/null | wc -l); then
           updates_aur=0
         fi
       fi
       [ -n "$updates_arch" ] && updates=$(("$updates_arch" + "$updates_aur")) || updates="$updates_arch"
+      
     #Debian update check
-    elif [ -f /usr/bin/apt ]; then
+    elif [ -n "$(builtin type -P apt)" ]; then
       if ! updates=$(apt -q -y --ignore-hold --allow-change-held-packages --allow-unauthenticated -s dist-upgrade 2>/dev/null | grep  ^Inst | wc -l); then
         updates=0
       fi
 
-    elif [ -f /usr/bin/dnf ]; then
-      if ! updates=$(yum -q check-update 2>/dev/null | grep -v Security | wc -l); then
+    elif [ -n "$(builtin type -P dnf)" ]; then
+      if ! updates=$(dnf -q check-update 2>/dev/null | grep -v Security | wc -l); then
         updates=0
       fi
 
-    elif [ -f /usr/bin/yum ]; then
+    elif [ -n "$(builtin type -P yum)" ]; then
       if ! updates=$(yum -q check-update 2>/dev/null | grep -v Security | wc -l); then
         updates=0
       fi
     fi
+    
+    elif [ -n "$(builtin type -P brew)" ]; then
+      if ! updates=$(brew outdated 2>/dev/null | grep -v Security | wc -l); then 
+        updates=0
+      fi
   else
     updates=0
   fi
@@ -200,4 +206,3 @@ check-all-updates.sh_main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # End application
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
