@@ -55,11 +55,11 @@ main() {
     return 1
   else
     if type -P trash &>/dev/null; then
-      find "$@" -maxdepth 1 -print0 | while IFS= read -r -d '' file; do
-        eval trash "$file"
+      find "$@" -maxdepth 0 -print0 | while IFS= read -r -d '' file; do
+        IFS=$'\n' trash "$file"
       done
     else
-      find "$@" -maxdepth 1 -print0 | while IFS= read -r -d '' file; do
+      find "$@" -maxdepth 0 -print0 | while IFS= read -r -d '' file; do
         if [ -n "$file" ]; then
           if [ -d "$file" ]; then
             printf_green "Deleting folder and all files within: $file"
@@ -75,7 +75,6 @@ main() {
       done
     fi
   fi
-  IFS=$SAVEIFS
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
