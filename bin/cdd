@@ -84,7 +84,7 @@ EOF
     [ -d "$CDD_CONFIG_BACKUP_DIR" ] || mkdir -p "$CDD_CONFIG_BACKUP_DIR"
     [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$tempfile"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
-# Alias settings for cdd
+# Alias settings for cdd - format: name = "/mydir"
 default = "$CDD_OPTIONS_PROJECT_DIR/${CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
 screen = "$CDD_OPTIONS_PROJECT_DIR/dev-screen"
 tmux = "$CDD_OPTIONS_PROJECT_DIR/dev-tmux"
@@ -278,14 +278,12 @@ EOF
       ;;
     -a | --add)
       shift 2
-      [ -n "$3" ] || printf_exit "Usage: $PROG -add alias folder"
-      echo "$*"
       add_alias "$2" "$3"
       exit $?
       ;;
     -m | --modify)
       shift 2
-      [ -n "$3" ] || printf_exit "Usage: $PROG -m alias folder"
+      [ -z "$2" ] && [ -z "$3" ] && [ -n "$EDITOR" ] && $EDITOR "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       add_alias "$2" "$3"
       exit $?
       ;;
