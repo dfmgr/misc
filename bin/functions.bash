@@ -13,6 +13,8 @@
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PATH="/usr/local/opt/gnu-getopt/bin:$PATH"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 MYARGS="$*"
 __search_dir() {
   # I'm sure there is a better way to do this
