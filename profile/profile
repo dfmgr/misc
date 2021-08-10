@@ -161,7 +161,7 @@ fi
 export GPG_TTY SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
-if [ -d "$HOME/.ssh" ]; then
+if [ -d "$HOME/.ssh" ] && ls "$HOME/.ssh"/id_* &>/dev/null; then
   for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
     ssh-add -q "$f" &>/dev/null
   done
