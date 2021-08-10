@@ -278,7 +278,8 @@ EOF
       ;;
     -a | --add)
       shift 2
-      [ -n "$3" ] || printf_exit "Usage: $PROG -m alias folder"
+      [ -n "$3" ] || printf_exit "Usage: $PROG -add alias folder"
+      echo "$*"
       add_alias "$2" "$3"
       exit $?
       ;;
