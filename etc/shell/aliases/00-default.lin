@@ -69,13 +69,6 @@ alias profilerc='source ~/.profile'
 [ -n "$DISPLAY" ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
 [ "$(uname -s)" = Darwin ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# VisualStudio code
-if [ -n "$(builtin type -P code-oss 2>/dev/null)" ]; then
-  alias code='code-oss'
-elif [ -n "$(builtin type -P code-insiders 2>/dev/null)" ]; then
-  alias code='code-insiders'
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
 alias sudo='sudo sudo --preserve-env=PATH '
 alias svi='sudo vim '
@@ -112,6 +105,16 @@ alias ...='cd ../.. '
 alias ....='cd ../../.. '
 alias .....='cd ../../../.. '
 alias cd..='cd .. '
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# VisualStudio code
+if [ -n "$(builtin type -P code-oss 2>/dev/null)" ]; then
+  alias code='code-oss'
+elif [ -n "$(builtin type -P code-insiders 2>/dev/null)" ]; then
+  alias code='code-insiders'
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Geany 
+ [ -n "$(builtin type -P geany 2>/dev/null)" ] && alias='geany --socket-file=/tmp/geany.sock &>/dev/null '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
 alias vi='vim '
