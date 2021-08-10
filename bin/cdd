@@ -93,6 +93,7 @@ projects = "$HOME/Projects"
 pictures = "$HOME/Pictures"
 music = "$HOME/Music"
 share = "$HOME/local/share"
+
 EOF
 
     if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]; then
@@ -150,19 +151,17 @@ EOF
       local dir="$PWD"
       local alias="$(basename $(dirname $PWD/.))"
       local message="Entering the $dir with alias $alias"
-      printf '\n'
+    elif [ -n "$(list_aliases "folder" "$1")" ]; then
+      local dir="$(list_aliases "folder" "$1")"
+      local alias="$(list_aliases alias "$1")"
+      local message="entering into $dir"
     elif [ -z "$dir" ]; then
       local dir="${1:-$CDD_OPTIONS_PROJECT_DIR/$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
       local alias="$(basename "$dir/")"
       local message="Entering the default folder"
       local message_add="see $PROG -l or $PROG -a name directory"
-      printf '\n'
-    else
-      local dir="$(list_aliases "folder" "$1")"
-      local alias="$(list_aliases alias "$1")"
-      local message="entering into $dir"
-      printf '\n'
     fi
+    printf '\n'
     export -f cd quit _cd 
     local exitCode=0
     local STATUS="running"
