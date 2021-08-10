@@ -46,7 +46,6 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local files delete_dir delete_file delete_error_file exitCode
   if [ $# -ne 0 ]; then
-  if 
     local files="$*"
     for file in $files; do
       if [[ "$file" = -* ]]; then
