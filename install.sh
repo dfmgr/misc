@@ -157,7 +157,7 @@ run_postinst() {
   done
   if [ -d "$HOME/bin" ]; then cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"; fi
   if [ -d "$HOME/.bin" ]; then cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"; fi
-  if [ -n "$(builtin type -P powerline-go)" ] && [ -z [ -n "$(builtin type -P powerline)" ]; then 
+  if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then 
     ln_sf "$(builtin type -P powerline-go)" "/usr/local/bin/powerline"
   fi
 }
