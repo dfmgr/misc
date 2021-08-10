@@ -19,14 +19,14 @@ export HISTSIZE HISTFILESIZE SAVEHIST HISTCONTROL BASH_COMPLETION_USER_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
-  SHELL="$(builtin type -P sh)"
+  SHELL="$(which sh 2>/dev/null)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bash specific
 elif [ -n "$BASH_VERSION" ]; then
-  SHELL="$(builtin type -P bash)"
+  SHELL="$(which bash 2>/dev/null)"
   BASH_SILENCE_DEPRECATION_WARNING="1"
   HISTFILE="$HOME/.config/bash/bash_history"
-  if [ -n "$(builtin type -P direnv 2>/dev/null)" ]; then
+  if [ -n "$(which direnv 2>/dev/null)" ]; then
     direnv hook bash >/dev/null 2>&1
   fi
   if [ -f "$HOME/.bash_history" ]; then
@@ -37,14 +37,14 @@ elif [ -n "$BASH_VERSION" ]; then
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
-  SHELL="$(builtin type -P zsh)"
+  SHELL="$(which zsh 2>/dev/null)"
   ZDOTDIR="$HOME/.config/zsh"
   ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
   ZSH="$HOME/.local/share/zsh/oh-my-zsh"
   ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
   ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
   HISTFILE="$HOME/.config/zsh/zsh_history"
-  if [ -n "$(builtin type -P direnv 2>/dev/null)" ]; then
+  if [ -n "$(which direnv 2>/dev/null)" ]; then
     direnv hook zsh >/dev/null 2>&1
   fi
   export ZDOTDIR ZSH_CACHEDIR ZSH ZSH_CUSTOM ZSH_DISABLE_COMPFIX HISTFILE
@@ -80,21 +80,21 @@ if [ -n "$DISPLAY" ]; then
   if [ -n "$DISPLAY_LOW_DENSITY" ] && grep -siq chromium /proc/version; then
     DISPLAY_LOW_DENSITY="$DISPLAY"
   fi
-  if [ -n "$(builtin type -P xrandr 2>/dev/null)" ]; then
+  if [ -n "$(which xrandr 2>/dev/null)" ]; then
     RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
   fi
 fi
 export DISPLAY RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
-if [ -n "$DISPLAY" ] && [ -n "$(builtin type -P xset 2>/dev/null)" ]; then
+if [ -n "$DISPLAY" ] && [ -n "$(which xset 2>/dev/null)" ]; then
   xset s off &>/dev/null
   xset -dpms &>/dev/null
   xset s off -dpms &>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enviroment variables when using a desktop
-# if [ -z "$SSH_CONNECTION" ] && [ -n "$DISPLAY" ] && [ -n "$(builtin type -P dbus-update-activation-environment 2>/dev/null)" ]; then
+# if [ -z "$SSH_CONNECTION" ] && [ -n "$DISPLAY" ] && [ -n "$(which dbus-update-activation-environment 2>/dev/null)" ]; then
 #   dbus-update-activation-environment --systemd DBUS_SESSION_BUS_ADDRESS DISPLAY XAUTHORITY 2>/dev/null
 #   export DBUS_SESSION_BUS_ADDRESS XDG_RUNTIME_DIR
 # fi
@@ -102,7 +102,7 @@ fi
 # enable control alt backspace
 if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
   XKBOPTIONS="terminate:ctrl_alt_bksp"
-  if [ -n "$(builtin type -P setxkbmap 2>/dev/null)" ]; then
+  if [ -n "$(which setxkbmap 2>/dev/null)" ]; then
     setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" 2>/dev/null
   fi
   export XKBOPTIONS
@@ -110,11 +110,11 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup modifiers
 if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ]; then
-  if [ -n "$(builtin type -P ibus 2>/dev/null)" ]; then
+  if [ -n "$(which ibus 2>/dev/null)" ]; then
     XMODIFIERS=@im=ibus
     GTK_IM_MODULE=ibus
     QT_IM_MODULE=ibus
-  elif [ -n "$(builtin type -P fcitx 2>/dev/null)" ]; then
+  elif [ -n "$(which fcitx 2>/dev/null)" ]; then
     XMODIFIERS=@im=fcitx
     GTK_IM_MODULE=fcitx
     QT_IM_MODULE=fcitx
@@ -127,7 +127,7 @@ if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
   if [ ! -f "$HOME/.Xdefaults" ]; then
     touch "$HOME/.Xdefaults"
   fi
-  if [ -n "$(builtin type -P xrdb 2>/dev/null)" ]; then
+  if [ -n "$(which xrdb 2>/dev/null)" ]; then
     xrdb -merge "$HOME/.Xdefaults" 2>/dev/null
   fi
 fi
@@ -155,7 +155,7 @@ export SUDO_PROMPT
 # export gpg tty
 GPG_TTY="$(tty)"
 SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
-if [ -n "$(builtin type -P gpg-agent 2>/dev/null)" ]; then
+if [ -n "$(which gpg-agent 2>/dev/null)" ]; then
   gpg-agent --enable-ssh-support --daemon -q &>/dev/null
 fi
 export GPG_TTY SSH_AUTH_SOCK
@@ -167,7 +167,7 @@ if [ -d "$HOME/.ssh" ]; then
   done
 fi
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-  if [ -n "$(builtin type -P ssh-agent 2>/dev/null)" ]; then
+  if [ -n "$(which ssh-agent 2>/dev/null)" ]; then
     ssh-agent &>/dev/null
   fi
   if [ -n "$SSH_AUTH_SOCK" ]; then
@@ -211,11 +211,11 @@ NOTES_DIRECTORY="$HOME/.local/share/editors/notes"
 export NOTES_SERVER_NAME NOTES_DIRECTORY
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create a banner
-if [ -n "$(builtin type -P figlet 2>/dev/null)" ]; then
+if [ -n "$(which figlet 2>/dev/null)" ]; then
   BANNER="figlet -f banner"
-elif [ -n "$(builtin type -P toilet 2>/dev/null)" ]; then
+elif [ -n "$(which toilet 2>/dev/null)" ]; then
   BANNER="toilet -f mono9.tlf"
-elif [ -n "$(builtin type -P banner 2>/dev/null)" ]; then
+elif [ -n "$(which banner 2>/dev/null)" ]; then
   BANNER="banner"
 else
   BANNER="echo -e"
@@ -271,40 +271,40 @@ PATH="$CARGO_HOME/bin:$PATH"
 [ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
-if [ -n "$(builtin type -P hub 2>/dev/null)" ]; then
+if [ -n "$(which hub 2>/dev/null)" ]; then
   eval "$(hub alias -s >/dev/null 2>&1)"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -z "$DISPLAY" ]; then
-  if [ -n "$(builtin type -P lynx 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P lynx 2>/dev/null)"
-  elif [ -n "$(builtin type -P links 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P links 2>/dev/null)"
+  if [ -n "$(which lynx 2>/dev/null)" ]; then
+    MYBROWSER="$(which lynx 2>/dev/null)"
+  elif [ -n "$(which links 2>/dev/null)" ]; then
+    MYBROWSER="$(which links 2>/dev/null)"
   fi
 else
-  if [ -n "$(builtin type -P garcon-url-handler 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P garcon-url-handler 2>/dev/null) --url"
-  elif [ -n "$(builtin type -P firefox 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P firefox 2>/dev/null)"
-  elif [ -n "$(builtin type -P chromium 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P chromium 2>/dev/null)"
-  elif [ -n "$(builtin type -P google-chrome 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P google-chrome 2>/dev/null)"
-  elif [ -n "$(builtin type -P opera 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P opera 2>/dev/null)"
-  elif [ -n "$(builtin type -P epiphany-browser 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P epiphany-browser 2>/dev/null)"
-  elif [ -n "$(builtin type -P falkon 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P falkon 2>/dev/null)"
-  elif [ -n "$(builtin type -P midori 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P midori 2>/dev/null)"
-  elif [ -n "$(builtin type -P netsurf 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P netsurf 2>/dev/null)"
-  elif [ -n "$(builtin type -P surf 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P surf 2>/dev/null)"
-  elif [ -n "$(builtin type -P arora 2>/dev/null)" ]; then
-    MYBROWSER="$(builtin type -P arora 2>/dev/null)"
+  if [ -n "$(which garcon-url-handler 2>/dev/null)" ]; then
+    MYBROWSER="$(which garcon-url-handler 2>/dev/null) --url"
+  elif [ -n "$(which firefox 2>/dev/null)" ]; then
+    MYBROWSER="$(which firefox 2>/dev/null)"
+  elif [ -n "$(which chromium 2>/dev/null)" ]; then
+    MYBROWSER="$(which chromium 2>/dev/null)"
+  elif [ -n "$(which google-chrome 2>/dev/null)" ]; then
+    MYBROWSER="$(which google-chrome 2>/dev/null)"
+  elif [ -n "$(which opera 2>/dev/null)" ]; then
+    MYBROWSER="$(which opera 2>/dev/null)"
+  elif [ -n "$(which epiphany-browser 2>/dev/null)" ]; then
+    MYBROWSER="$(which epiphany-browser 2>/dev/null)"
+  elif [ -n "$(which falkon 2>/dev/null)" ]; then
+    MYBROWSER="$(which falkon 2>/dev/null)"
+  elif [ -n "$(which midori 2>/dev/null)" ]; then
+    MYBROWSER="$(which midori 2>/dev/null)"
+  elif [ -n "$(which netsurf 2>/dev/null)" ]; then
+    MYBROWSER="$(which netsurf 2>/dev/null)"
+  elif [ -n "$(which surf 2>/dev/null)" ]; then
+    MYBROWSER="$(which surf 2>/dev/null)"
+  elif [ -n "$(which arora 2>/dev/null)" ]; then
+    MYBROWSER="$(which arora 2>/dev/null)"
   elif [ -f '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]; then
     MYBROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   elif [ -f '/Applications/Firefox.app/Contents/MacOS/firefox-bin' ]; then
@@ -329,31 +329,31 @@ if [ -z "$DISPLAY" ]; then
     MYTERMINAL="$SHELL -c"
   fi
 else
-  if [ -n "$(builtin type -P termite 2>/dev/null)" ]; then
+  if [ -n "$(which termite 2>/dev/null)" ]; then
     MYTERMINAL="termite"
-  elif [ -n "$(builtin type -P xfce4-terminal 2>/dev/null)" ]; then
+  elif [ -n "$(which xfce4-terminal 2>/dev/null)" ]; then
     MYTERMINAL="xfce4-terminal"
-  elif [ -n "$(builtin type -P qterminal 2>/dev/null)" ]; then
+  elif [ -n "$(which qterminal 2>/dev/null)" ]; then
     MYTERMINAL="qterminal"
-  elif [ -n "$(builtin type -P mate-terminal 2>/dev/null)" ]; then
+  elif [ -n "$(which mate-terminal 2>/dev/null)" ]; then
     MYTERMINAL="mate-terminal"
-  elif [ -n "$(builtin type -P i3-sensible-terminal 2>/dev/null)" ]; then
+  elif [ -n "$(which i3-sensible-terminal 2>/dev/null)" ]; then
     MYTERMINAL="i3-sensible-terminal"
-  elif [ -n "$(builtin type -P rofi-sensible-terminal 2>/dev/null)" ]; then
+  elif [ -n "$(which rofi-sensible-terminal 2>/dev/null)" ]; then
     MYTERMINAL="rofi-sensible-terminal"
-  elif [ -n "$(builtin type -P terminology 2>/dev/null)" ]; then
+  elif [ -n "$(which terminology 2>/dev/null)" ]; then
     MYTERMINAL="terminology"
-  elif [ -n "$(builtin type -P gnome-terminal 2>/dev/null)" ]; then
+  elif [ -n "$(which gnome-terminal 2>/dev/null)" ]; then
     MYTERMINAL="gnome-terminal"
   elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm2" ]; then
     MYTERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm2"
   elif [ -f "/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal" ]; then
     MYTERMINAL="/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal"
-  elif [ -n "$(builtin type -P xterm 2>/dev/null)" ]; then
+  elif [ -n "$(which xterm 2>/dev/null)" ]; then
     MYTERMINAL="xterm"
-  elif [ -n "$(builtin type -P uxterm 2>/dev/null)" ]; then
+  elif [ -n "$(which uxterm 2>/dev/null)" ]; then
     MYTERMINAL="uxterm"
-  elif [ -n "$(builtin type -P garcon-terminal-handler 2>/dev/null)" ]; then
+  elif [ -n "$(which garcon-terminal-handler 2>/dev/null)" ]; then
     MYTERMINAL="garcon-terminal-handler"
   fi
 fi
@@ -361,39 +361,39 @@ export TERMINAL="$MYTERMINAL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export file manager
 if [ -z "$DISPLAY" ]; then
-  if [ -n "$(builtin type -P lf 2>/dev/null)" ]; then
+  if [ -n "$(which lf 2>/dev/null)" ]; then
     MYFILEMANAGER="lf"
-  elif [ -n "$(builtin type -P vifm 2>/dev/null)" ]; then
+  elif [ -n "$(which vifm 2>/dev/null)" ]; then
     MYFILEMANAGER="vifm"
-  elif [ -n "$(builtin type -P ranger 2>/dev/null)" ]; then
+  elif [ -n "$(which ranger 2>/dev/null)" ]; then
     MYFILEMANAGER="ranger"
-  elif [ -n "$(builtin type -P cfiles 2>/dev/null)" ]; then
+  elif [ -n "$(which cfiles 2>/dev/null)" ]; then
     MYFILEMANAGER="cfiles"
-  elif [ -n "$(builtin type -P se 2>/dev/null)" ]; then
+  elif [ -n "$(which se 2>/dev/null)" ]; then
     MYFILEMANAGER="se"
   fi
 else
-  if [ -n "$(builtin type -P caja 2>/dev/null)" ]; then
+  if [ -n "$(which caja 2>/dev/null)" ]; then
     MYFILEMANAGER="caja"
-  elif [ -n "$(builtin type -P thunar 2>/dev/null)" ]; then
+  elif [ -n "$(which thunar 2>/dev/null)" ]; then
     MYFILEMANAGER="thunar"
-  elif [ -n "$(builtin type -P Thunar 2>/dev/null)" ]; then
+  elif [ -n "$(which Thunar 2>/dev/null)" ]; then
     MYFILEMANAGER="Thunar"
-  elif [ -n "$(builtin type -P spacefm 2>/dev/null)" ]; then
+  elif [ -n "$(which spacefm 2>/dev/null)" ]; then
     MYFILEMANAGER="spacefm"
-  elif [ -n "$(builtin type -P nemo 2>/dev/null)" ]; then
+  elif [ -n "$(which nemo 2>/dev/null)" ]; then
     MYFILEMANAGER="nemo"
-  elif [ -n "$(builtin type -P pcmanfm 2>/dev/null)" ]; then
+  elif [ -n "$(which pcmanfm 2>/dev/null)" ]; then
     MYFILEMANAGER="pcmanfm"
-  elif [ -n "$(builtin type -P polo 2>/dev/null)" ]; then
+  elif [ -n "$(which polo 2>/dev/null)" ]; then
     MYFILEMANAGER="polo"
-  elif [ -n "$(builtin type -P nautilus 2>/dev/null)" ]; then
+  elif [ -n "$(which nautilus 2>/dev/null)" ]; then
     MYFILEMANAGER="nautilus"
-  elif [ -n "$(builtin type -P polo 2>/dev/null)" ]; then
+  elif [ -n "$(which polo 2>/dev/null)" ]; then
     MYFILEMANAGER="polo"
-  elif [ -n "$(builtin type -P dolphin 2>/dev/null)" ]; then
+  elif [ -n "$(which dolphin 2>/dev/null)" ]; then
     MYFILEMANAGER="dolphin"
-  elif [ -n "$(builtin type -P konqueror 2>/dev/null)" ]; then
+  elif [ -n "$(which konqueror 2>/dev/null)" ]; then
     MYFILEMANAGER="konqueror"
   fi
 fi
@@ -403,48 +403,48 @@ fi
 export FILEMANAGER="$MYFILEMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
-if [ -n "$(builtin type -P VirtualBox 2>/dev/null)" ]; then
+if [ -n "$(which VirtualBox 2>/dev/null)" ]; then
   MYVMMANAGER="VirtualBox"
-elif [ -n "$(builtin type -P VMWare 2>/dev/null)" ]; then
+elif [ -n "$(which VMWare 2>/dev/null)" ]; then
   MYVMMANAGER="VMWare"
-elif [ -n "$(builtin type -P virt-manager 2>/dev/null)" ]; then
+elif [ -n "$(which virt-manager 2>/dev/null)" ]; then
   MYVMMANAGER="virt-manager"
-elif [ -n "$(builtin type -P kubectl 2>/dev/null)" ]; then
+elif [ -n "$(which kubectl 2>/dev/null)" ]; then
   MYVMMANAGER="kubectl"
-elif [ -n "$(builtin type -P docker 2>/dev/null)" ]; then
+elif [ -n "$(which docker 2>/dev/null)" ]; then
   MYVMMANAGER="docker"
 fi
 export VMMANAGER="$MYVMMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
 if [ -z "$DISPLAY" ]; then
-  if [ -n "$(builtin type -P transmission-remote 2>/dev/null)" ]; then
+  if [ -n "$(which transmission-remote 2>/dev/null)" ]; then
     MYTORRENT="transmission-remote"
   fi
 else
-  if [ -n "$(builtin type -P transmission-remote-gtk 2>/dev/null)" ]; then
+  if [ -n "$(which transmission-remote-gtk 2>/dev/null)" ]; then
     MYTORRENT="transmission-remote-gtk"
-  elif [ -n "$(builtin type -P transmission-gtk 2>/dev/null)" ]; then
+  elif [ -n "$(which transmission-gtk 2>/dev/null)" ]; then
     MYTORRENT="transmission-gtk"
-  elif [ -n "$(builtin type -P transmission-cli 2>/dev/null)" ]; then
+  elif [ -n "$(which transmission-cli 2>/dev/null)" ]; then
     MYTORRENT="transmission-cli"
-  elif [ -n "$(builtin type -P transmission-qt 2>/dev/null)" ]; then
+  elif [ -n "$(which transmission-qt 2>/dev/null)" ]; then
     MYTORRENT="transmission-qt"
-  elif [ -n "$(builtin type -P deluge 2>/dev/null)" ]; then
+  elif [ -n "$(which deluge 2>/dev/null)" ]; then
     MYTORRENT="deluge"
-  elif [ -n "$(builtin type -P vuze 2>/dev/null)" ]; then
+  elif [ -n "$(which vuze 2>/dev/null)" ]; then
     MYTORRENT="vuze"
-  elif [ -n "$(builtin type -P qbittorrent)" ]; then
+  elif [ -n "$(which qbittorrent)" ]; then
     MYTORRENT="qbittorrent"
-  elif [ -n "$(builtin type -P ktorrent 2>/dev/null)" ]; then
+  elif [ -n "$(which ktorrent 2>/dev/null)" ]; then
     MYTORRENT="ktorrent"
-  elif [ -n "$(builtin type -P ctorrent 2>/dev/null)" ]; then
+  elif [ -n "$(which ctorrent 2>/dev/null)" ]; then
     MYTORRENT="ctorrent"
-  elif [ -n "$(builtin type -P unworkable 2>/dev/null)" ]; then
+  elif [ -n "$(which unworkable 2>/dev/null)" ]; then
     MYTORRENT="unworkable"
-  elif [ -n "$(builtin type -P rtorrent 2>/dev/null)" ]; then
+  elif [ -n "$(which rtorrent 2>/dev/null)" ]; then
     MYTORRENT="rtorrent"
-  elif [ -n "$(builtin type -P bitstormlite 2>/dev/null)" ]; then
+  elif [ -n "$(which bitstormlite 2>/dev/null)" ]; then
     MYTORRENT="bitstormlite"
   elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
     MYTORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
@@ -454,29 +454,29 @@ export TORRENT="$MYTORRENT"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
 if [ -z "$DISPLAY" ]; then
-  if [ -n "$(builtin type -P neomutt 2>/dev/null)" ]; then
+  if [ -n "$(which neomutt 2>/dev/null)" ]; then
     MYEMAIL="neomutt"
-  elif [ -n "$(builtin type -P mutt 2>/dev/null)" ]; then
+  elif [ -n "$(which mutt 2>/dev/null)" ]; then
     MYEMAIL="mutt"
-  elif [ -n "$(builtin type -P emacs 2>/dev/null)" ]; then
+  elif [ -n "$(which emacs 2>/dev/null)" ]; then
     MYEMAIL="emacs"
   fi
 else
-  if [ -n "$(builtin type -P thunderbird 2>/dev/null)" ]; then
+  if [ -n "$(which thunderbird 2>/dev/null)" ]; then
     MYEMAIL="thunderbird"
-  elif [ -n "$(builtin type -P evolution 2>/dev/null)" ]; then
+  elif [ -n "$(which evolution 2>/dev/null)" ]; then
     MYEMAIL="evolution"
-  elif [ -n "$(builtin type -P clawsmail 2>/dev/null)" ]; then
+  elif [ -n "$(which clawsmail 2>/dev/null)" ]; then
     MYEMAIL="clawsmail"
-  elif [ -n "$(builtin type -P geary 2>/dev/null)" ]; then
+  elif [ -n "$(which geary 2>/dev/null)" ]; then
     MYEMAIL="geary"
-  elif [ -n "$(builtin type -P kmail 2>/dev/null)" ]; then
+  elif [ -n "$(which kmail 2>/dev/null)" ]; then
     MYEMAIL="kmail"
-  elif [ -n "$(builtin type -P gmail 2>/dev/null)" ]; then
+  elif [ -n "$(which gmail 2>/dev/null)" ]; then
     MYEMAIL="mybrowser https://gmail.com"
-  elif [ -n "$(builtin type -P ymail 2>/dev/null)" ]; then
+  elif [ -n "$(which ymail 2>/dev/null)" ]; then
     MYEMAIL="mybrowser https://ymail.com"
-  elif [ -n "$(builtin type -P sylpheed 2>/dev/null)" ]; then
+  elif [ -n "$(which sylpheed 2>/dev/null)" ]; then
     MYEMAIL="sylpheed"
   fi
 fi
@@ -484,35 +484,35 @@ export EMAIL="$MYEMAIL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
 if [ -z "$DISPLAY" ]; then
-  if [ -n "$(builtin type -P vim 2>/dev/null)" ]; then
+  if [ -n "$(which vim 2>/dev/null)" ]; then
     MYEDITOR="vim"
-  elif [ -n "$(builtin type -P nvim 2>/dev/null)" ]; then
+  elif [ -n "$(which nvim 2>/dev/null)" ]; then
     MYEDITOR="nvim"
-  elif [ -n "$(builtin type -P nano 2>/dev/null)" ]; then
+  elif [ -n "$(which nano 2>/dev/null)" ]; then
     MYEDITOR="nano"
-  elif [ -n "$(builtin type -P emacs 2>/dev/null)" ]; then
+  elif [ -n "$(which emacs 2>/dev/null)" ]; then
     MYEDITOR="emacs"
   fi
 else
-  if [ -n "$(builtin type -P code-oss 2>/dev/null)" ]; then
+  if [ -n "$(which code-oss 2>/dev/null)" ]; then
     MYEDITOR="code-oss"
-  elif [ -n "$(builtin type -P code-insiders 2>/dev/null)" ]; then
+  elif [ -n "$(which code-insiders 2>/dev/null)" ]; then
     MYEDITOR="code-insiders"
-  elif [ -n "$(builtin type -P code 2>/dev/null)" ]; then
+  elif [ -n "$(which code 2>/dev/null)" ]; then
     MYEDITOR="code"
-  elif [ -n "$(builtin type -P vscode 2>/dev/null)" ]; then
+  elif [ -n "$(which vscode 2>/dev/null)" ]; then
     MYEDITOR="vscode"
-  elif [ -n "$(builtin type -P geany 2>/dev/null)" ]; then
+  elif [ -n "$(which geany 2>/dev/null)" ]; then
     MYEDITOR="geany"
-  elif [ -n "$(builtin type -P gedit 2>/dev/null)" ]; then
+  elif [ -n "$(which gedit 2>/dev/null)" ]; then
     MYEDITOR="gedit"
-  elif [ -n "$(builtin type -P atom 2>/dev/null)" ]; then
+  elif [ -n "$(which atom 2>/dev/null)" ]; then
     MYEDITOR="atom"
-  elif [ -n "$(builtin type -P brackets 2>/dev/null)" ]; then
+  elif [ -n "$(which brackets 2>/dev/null)" ]; then
     MYEDITOR="brackets"
-  elif [ -n "$(builtin type -P mousepad 2>/dev/null)" ]; then
+  elif [ -n "$(which mousepad 2>/dev/null)" ]; then
     MYEDITOR="mousepad"
-  elif [ -n "$(builtin type -P emacs 2>/dev/null)" ]; then
+  elif [ -n "$(which emacs 2>/dev/null)" ]; then
     MYEDITOR="emacs"
   fi
 fi
@@ -541,7 +541,7 @@ GREP_COLORS='mt=38;5;220;1'
 export CLICOLOR GREP_COLORS LS_COLORS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-if [ -n "$(builtin type -P lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ]; then
+if [ -n "$(which lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ]; then
   . "$HOME/.config/misc/shell/other/lf"
 fi
 export LF_ICONS
@@ -585,30 +585,30 @@ echo -e -n "\x1b[\x35 q" 2>/dev/null
 echo -e -n "\e]12;cyan\a" 2>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # multi_clipboard
-if [ -n "$(builtin type -P multi_clipboard)" ]; then
+if [ -n "$(which multi_clipboard 2>/dev/null)" ]; then
   export SCREENEXCHANGE="$HOME/.screen-exchange"
   export SCREEN_MSGMINWAIT="1"
   export CLIPBOARD="$HOME/.clipboard"
   export CLMAXHIST="20"
   export CLSEP='\x07'
   if [ "$(uname -s)" = Linux ]; then
-    if builtin type -P xsel >/dev/null 2>&1; then
+    if which xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
       export CLX="xsel"
-    elif builtin type -P xclip >/dev/null 2>&1; then
+    elif which xclip >/dev/null 2>&1; then
       export CLXOS="xclip"
       export CLX="xclip"
     fi
   elif [ "$(uname -s)" = cygwin ]; then
-    if builtin type -P xsel >/dev/null 2>&1; then
+    if which xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
       export CLX="xsel"
-    elif builtin type -P xclip >/dev/null 2>&1; then
+    elif which xclip >/dev/null 2>&1; then
       export CLXOS="xclip"
       export CLX="xclip"
     fi
   elif [ "$(uname -s)" = Darwin ]; then
-    if builtin type -P pbcopy >/dev/null 2>&1; then
+    if which pbcopy >/dev/null 2>&1; then
       export CLXOS="pbcopy"
       export CLX="pbcopy"
     fi
