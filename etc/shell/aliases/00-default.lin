@@ -50,11 +50,11 @@ alias less='less -r '
 alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent update && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system"'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # helpers
-alias tmux-ssh='tmux -f '~/.config/tmux/tmux.ssh.conf' new-session -D -A -s ssh '
-alias screen-ssh='screen -c $HOME/.config/screen/dev/sshrc '
-alias screen-node='screen -c $HOME/.config/screen/dev/noderc '
-alias screen-custom='screen -c $HOME/.config/screen/dev/singlerc '
-alias screen-dev='screen -c $HOME/.config/screen/dev/developmentrc '
+[ -f "$HOME/.config/tmux/" ] && [ -f "$(type -P tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
+[ -f "$HOME/.config/screen/dev/sshrc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-ssh='screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='screen '
+[ -f "$HOME/.config/screen/dev/noderc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-node='screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='screen '
+[ -f "$HOME/.config/screen/dev/singlerc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-custom='screen -c $HOME/.config/screen/dev/singlerc ' || alias screen-custom='screen '
+[ -f "$HOME/.config/screen/dev/developmentrc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-dev='screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='screen '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
 alias profilerc='source ~/.profile'
