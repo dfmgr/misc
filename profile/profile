@@ -239,8 +239,8 @@ if [ -d "HOME/.local/share/gem" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-if [ -f "$HOME/.local/share/scripts/rvm" ]; then
-  rvm_path="$HOME/.local/share/rvm"
+if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
+  rvm_path="$local/share/rvm/scripts/rvm"
   [ -f "$rvm_path/rvm" ] && . "$rvm_path/scripts/rvm"
   [ -d "$rvm_path/bin" ] && PATH="$rvm_path/bin:$PATH"
   export rvm_path
