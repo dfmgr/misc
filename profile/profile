@@ -223,8 +223,10 @@ fi
 export BANNER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua
-[ -s "$HOME/.local/share/luaver/luaver" ] && . "$HOME/.local/share/luaver/luaver"
-[ -s "$HOME/.local/share/luaver/completions/luaver.bash" ] && . "$HOME/.local/share/luaver/completions/luaver.bash"
+LUAVER_HOME="$HOME/.local/share/luaver"
+[ -s "$LUAVER_HOME/luaver" ] && . "$LUAVER_HOME/luaver"
+[ -s "$LUAVER_HOME/completions/luaver.bash" ] && . "$LUAVER_HOME/completions/luaver.bash"
+export LUAVER_HOME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
 GOPATH="$HOME/.local/share/go"
