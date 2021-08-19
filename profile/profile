@@ -222,6 +222,10 @@ else
 fi
 export BANNER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# configure lua
+[ -s "$HOME/.local/share/luaver/luaver" ] && . "$HOME/.local/share/luaver/luaver"
+[ -s "$HOME/.local/share/luaver/completions/luaver.bash" ] && . "$HOME/.local/share/luaver/completions/luaver.bash"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
 GOPATH="$HOME/.local/share/go"
 GODIR="$GOPATH"
