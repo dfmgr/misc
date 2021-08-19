@@ -167,12 +167,13 @@ EOF
     local STATUS="running"
     local SHELL="${SHELL:-bash}"
     local PS1_ADD_CDD="$PS1_ADD cdd: ${alias:-$dir}"
-    [ ! -d "$dir" ] && mkdir -p "$dir"
+    [ -d "$dir" ] || mkdir -p "$dir"
     [ -d "$dir" ] && builtin cd "$dir" || printf_exit "Failed to enter $dir"
     [ -n "$message" ] && printf_green "$message using $(basename "$SHELL")"
     [ -n "$message_add" ] && printf_blue "$message_add"
     printf_cyan "Type quit to return to your previous directory/shell"
     printf_red "cd out of $dir is disabled while using cdd"
+    sleep 1
     BASE_CDD_DIR="$PWD" PS1_ADD="$PS1_ADD_CDD" CDD_STATUS="$STATUS" $SHELL && exitCode=0 || exitCode=1
     unset -F cd quit _cd &>/dev/null
     sleep .5
