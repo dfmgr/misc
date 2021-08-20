@@ -138,6 +138,16 @@ if am_i_online; then
     else
       execute "git_clone https://github.com/asdf-vm/asdf $PLUGDIR/asdf" "Installing plugin asdf"
     fi
+    if [ -d "$PLUGDIR/basher/.git" ]; then
+      execute "git_update $PLUGDIR/basher" "Updating plugin basher"
+    else
+      execute "git_clone https://github.com/basherpm/basher $PLUGDIR/basher" "Installing plugin basher"
+    fi
+    if [ -d "$PLUGDIR/luaver/.git" ]; then
+      execute "git_update $PLUGDIR/luaver" "Updating plugin luaver"
+    else
+      execute "git_clone https://github.com/DhavalKapil/luaver $PLUGDIR/luaver" "Installing plugin luaver"
+    fi
   fi
   # exit on fail
   failexitcode $? "Git has failed"
