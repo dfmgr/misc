@@ -224,16 +224,16 @@ fi
 export BANNER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua - https://github.com/DhavalKapil/luaver
-LUAVER_HOME="$HOME/.local/share/misc/luaver"
+LUAVER_HOME="$HOME/.local/share/misc/plugins/luaver"
 export LUAVER_HOME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure asdf - https://asdf-vm.com
-ASDF_DIR="$HOME/.local/share/misc/asdf"
+ASDF_DIR="$HOME/.local/share/misc/plugins/asdf"
 export ASDF_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure basher - https://www.basher.it
-BASHER_ROOT="$HOME/.local/share/misc/basher"
-PATH="$HOME/.local/share/bash/misc/bin:$PATH"
+BASHER_ROOT="$HOME/.local/share/misc/plugins/basher"
+PATH="$HOME/.local/share/bash/misc/plugins/bin:$PATH"
 export BASHER_ROOT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
