@@ -11,8 +11,8 @@ export PS1
 export NODE_MANAGER="fnm"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
-HISTSIZE=32768
-HISTFILESIZE="${HISTSIZE}"
+HISTSIZE=1200
+HISTFILESIZE=1200
 SAVEHIST=4096
 HISTCONTROL=ignoredups:erasedups
 BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
@@ -233,7 +233,7 @@ export ASDF_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure basher - https://www.basher.it
 BASHER_ROOT="$HOME/.local/share/misc/plugins/basher"
-PATH="$HOME/.local/share/bash/misc/plugins/bin:$PATH"
+PATH="$HOME/.local/share/misc/plugins/basher/bin:$PATH"
 export BASHER_ROOT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
