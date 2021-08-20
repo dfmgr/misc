@@ -1,3 +1,4 @@
+#!/bin/bash
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
@@ -282,126 +283,114 @@ if [ -n "$(which hub 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
-if [ -z "$DISPLAY" ]; then
-  if [ -n "$(which lynx 2>/dev/null)" ]; then
-    MYBROWSER="$(which lynx 2>/dev/null)"
-  elif [ -n "$(which links 2>/dev/null)" ]; then
-    MYBROWSER="$(which links 2>/dev/null)"
-  fi
-else
-  if [ -n "$(which garcon-url-handler 2>/dev/null)" ]; then
-    MYBROWSER="$(which garcon-url-handler 2>/dev/null) --url"
-  elif [ -n "$(which firefox 2>/dev/null)" ]; then
-    MYBROWSER="$(which firefox 2>/dev/null)"
-  elif [ -n "$(which chromium 2>/dev/null)" ]; then
-    MYBROWSER="$(which chromium 2>/dev/null)"
-  elif [ -n "$(which google-chrome 2>/dev/null)" ]; then
-    MYBROWSER="$(which google-chrome 2>/dev/null)"
-  elif [ -n "$(which opera 2>/dev/null)" ]; then
-    MYBROWSER="$(which opera 2>/dev/null)"
-  elif [ -n "$(which epiphany-browser 2>/dev/null)" ]; then
-    MYBROWSER="$(which epiphany-browser 2>/dev/null)"
-  elif [ -n "$(which falkon 2>/dev/null)" ]; then
-    MYBROWSER="$(which falkon 2>/dev/null)"
-  elif [ -n "$(which midori 2>/dev/null)" ]; then
-    MYBROWSER="$(which midori 2>/dev/null)"
-  elif [ -n "$(which netsurf 2>/dev/null)" ]; then
-    MYBROWSER="$(which netsurf 2>/dev/null)"
-  elif [ -n "$(which surf 2>/dev/null)" ]; then
-    MYBROWSER="$(which surf 2>/dev/null)"
-  elif [ -n "$(which arora 2>/dev/null)" ]; then
-    MYBROWSER="$(which arora 2>/dev/null)"
-  elif [ -f '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]; then
-    MYBROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
-  elif [ -f '/Applications/Firefox.app/Contents/MacOS/firefox-bin' ]; then
-    MYBROWSER='/Applications/Firefox.app/Contents/MacOS/firefox-bin'
-  elif [ -f '/Applications/Opera.app/Contents/MacOS/Opera' ]; then
-    MYBROWSER='/Applications/Opera.app/Contents/MacOS/Opera'
-  elif [ -f '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser' ]; then
-    MYBROWSER='/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
-  elif [ -f '/Applications/Tor Browser.app/Contents/MacOS/firefox' ]; then
-    MYBROWSER='/Applications/Tor Browser.app/Contents/MacOS/firefox'
-  fi
+if [ -n "$(which garcon-url-handler 2>/dev/null)" ]; then
+  MYBROWSER="$(which garcon-url-handler 2>/dev/null) --url"
+elif [ -n "$(which firefox 2>/dev/null)" ]; then
+  MYBROWSER="$(which firefox 2>/dev/null)"
+elif [ -n "$(which chromium 2>/dev/null)" ]; then
+  MYBROWSER="$(which chromium 2>/dev/null)"
+elif [ -n "$(which google-chrome 2>/dev/null)" ]; then
+  MYBROWSER="$(which google-chrome 2>/dev/null)"
+elif [ -n "$(which opera 2>/dev/null)" ]; then
+  MYBROWSER="$(which opera 2>/dev/null)"
+elif [ -n "$(which epiphany-browser 2>/dev/null)" ]; then
+  MYBROWSER="$(which epiphany-browser 2>/dev/null)"
+elif [ -n "$(which falkon 2>/dev/null)" ]; then
+  MYBROWSER="$(which falkon 2>/dev/null)"
+elif [ -n "$(which midori 2>/dev/null)" ]; then
+  MYBROWSER="$(which midori 2>/dev/null)"
+elif [ -n "$(which netsurf 2>/dev/null)" ]; then
+  MYBROWSER="$(which netsurf 2>/dev/null)"
+elif [ -n "$(which surf 2>/dev/null)" ]; then
+  MYBROWSER="$(which surf 2>/dev/null)"
+elif [ -n "$(which arora 2>/dev/null)" ]; then
+  MYBROWSER="$(which arora 2>/dev/null)"
+elif [ -f '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]; then
+  MYBROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
+elif [ -f '/Applications/Firefox.app/Contents/MacOS/firefox-bin' ]; then
+  MYBROWSER='/Applications/Firefox.app/Contents/MacOS/firefox-bin'
+elif [ -f '/Applications/Opera.app/Contents/MacOS/Opera' ]; then
+  MYBROWSER='/Applications/Opera.app/Contents/MacOS/Opera'
+elif [ -f '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser' ]; then
+  MYBROWSER='/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
+elif [ -f '/Applications/Tor Browser.app/Contents/MacOS/firefox' ]; then
+  MYBROWSER='/Applications/Tor Browser.app/Contents/MacOS/firefox'
+elif [ -n "$(which lynx 2>/dev/null)" ]; then
+  MYBROWSER="$(which lynx 2>/dev/null)"
+elif [ -n "$(which links 2>/dev/null)" ]; then
+  MYBROWSER="$(which links 2>/dev/null)"
 fi
 export BROWSER="$MYBROWSER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
-if [ -z "$DISPLAY" ]; then
-  if cmd_exists tmux; then
-    MYTERMINAL="tmux new"
-  elif cmd_exists screen; then
-    MYTERMINAL="screen"
-  else
-    MYTERMINAL="$SHELL -c"
-  fi
+if [ -n "$(which termite 2>/dev/null)" ]; then
+  MYTERMINAL="termite"
+elif [ -n "$(which xfce4-terminal 2>/dev/null)" ]; then
+  MYTERMINAL="xfce4-terminal"
+elif [ -n "$(which qterminal 2>/dev/null)" ]; then
+  MYTERMINAL="qterminal"
+elif [ -n "$(which mate-terminal 2>/dev/null)" ]; then
+  MYTERMINAL="mate-terminal"
+elif [ -n "$(which i3-sensible-terminal 2>/dev/null)" ]; then
+  MYTERMINAL="i3-sensible-terminal"
+elif [ -n "$(which rofi-sensible-terminal 2>/dev/null)" ]; then
+  MYTERMINAL="rofi-sensible-terminal"
+elif [ -n "$(which terminology 2>/dev/null)" ]; then
+  MYTERMINAL="terminology"
+elif [ -n "$(which gnome-terminal 2>/dev/null)" ]; then
+  MYTERMINAL="gnome-terminal"
+elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm2" ]; then
+  MYTERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm2"
+elif [ -f "/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal" ]; then
+  MYTERMINAL="/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal"
+elif [ -n "$(which xterm 2>/dev/null)" ]; then
+  MYTERMINAL="xterm"
+elif [ -n "$(which uxterm 2>/dev/null)" ]; then
+  MYTERMINAL="uxterm"
+elif [ -n "$(which garcon-terminal-handler 2>/dev/null)" ]; then
+  MYTERMINAL="garcon-terminal-handler"
+elif cmd_exists tmux; then
+  MYTERMINAL="tmux new"
+elif cmd_exists screen; then
+  MYTERMINAL="screen"
 else
-  if [ -n "$(which termite 2>/dev/null)" ]; then
-    MYTERMINAL="termite"
-  elif [ -n "$(which xfce4-terminal 2>/dev/null)" ]; then
-    MYTERMINAL="xfce4-terminal"
-  elif [ -n "$(which qterminal 2>/dev/null)" ]; then
-    MYTERMINAL="qterminal"
-  elif [ -n "$(which mate-terminal 2>/dev/null)" ]; then
-    MYTERMINAL="mate-terminal"
-  elif [ -n "$(which i3-sensible-terminal 2>/dev/null)" ]; then
-    MYTERMINAL="i3-sensible-terminal"
-  elif [ -n "$(which rofi-sensible-terminal 2>/dev/null)" ]; then
-    MYTERMINAL="rofi-sensible-terminal"
-  elif [ -n "$(which terminology 2>/dev/null)" ]; then
-    MYTERMINAL="terminology"
-  elif [ -n "$(which gnome-terminal 2>/dev/null)" ]; then
-    MYTERMINAL="gnome-terminal"
-  elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm2" ]; then
-    MYTERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm2"
-  elif [ -f "/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal" ]; then
-    MYTERMINAL="/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal"
-  elif [ -n "$(which xterm 2>/dev/null)" ]; then
-    MYTERMINAL="xterm"
-  elif [ -n "$(which uxterm 2>/dev/null)" ]; then
-    MYTERMINAL="uxterm"
-  elif [ -n "$(which garcon-terminal-handler 2>/dev/null)" ]; then
-    MYTERMINAL="garcon-terminal-handler"
-  fi
+  MYTERMINAL="$SHELL -c"
 fi
 export TERMINAL="$MYTERMINAL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export file manager
-if [ -z "$DISPLAY" ]; then
-  if [ -n "$(which lf 2>/dev/null)" ]; then
-    MYFILEMANAGER="lf"
-  elif [ -n "$(which vifm 2>/dev/null)" ]; then
-    MYFILEMANAGER="vifm"
-  elif [ -n "$(which ranger 2>/dev/null)" ]; then
-    MYFILEMANAGER="ranger"
-  elif [ -n "$(which cfiles 2>/dev/null)" ]; then
-    MYFILEMANAGER="cfiles"
-  elif [ -n "$(which se 2>/dev/null)" ]; then
-    MYFILEMANAGER="se"
-  fi
-else
-  if [ -n "$(which caja 2>/dev/null)" ]; then
-    MYFILEMANAGER="caja"
-  elif [ -n "$(which thunar 2>/dev/null)" ]; then
-    MYFILEMANAGER="thunar"
-  elif [ -n "$(which Thunar 2>/dev/null)" ]; then
-    MYFILEMANAGER="Thunar"
-  elif [ -n "$(which spacefm 2>/dev/null)" ]; then
-    MYFILEMANAGER="spacefm"
-  elif [ -n "$(which nemo 2>/dev/null)" ]; then
-    MYFILEMANAGER="nemo"
-  elif [ -n "$(which pcmanfm 2>/dev/null)" ]; then
-    MYFILEMANAGER="pcmanfm"
-  elif [ -n "$(which polo 2>/dev/null)" ]; then
-    MYFILEMANAGER="polo"
-  elif [ -n "$(which nautilus 2>/dev/null)" ]; then
-    MYFILEMANAGER="nautilus"
-  elif [ -n "$(which polo 2>/dev/null)" ]; then
-    MYFILEMANAGER="polo"
-  elif [ -n "$(which dolphin 2>/dev/null)" ]; then
-    MYFILEMANAGER="dolphin"
-  elif [ -n "$(which konqueror 2>/dev/null)" ]; then
-    MYFILEMANAGER="konqueror"
-  fi
+if [ -n "$(which caja 2>/dev/null)" ]; then
+  MYFILEMANAGER="caja"
+elif [ -n "$(which thunar 2>/dev/null)" ]; then
+  MYFILEMANAGER="thunar"
+elif [ -n "$(which Thunar 2>/dev/null)" ]; then
+  MYFILEMANAGER="Thunar"
+elif [ -n "$(which spacefm 2>/dev/null)" ]; then
+  MYFILEMANAGER="spacefm"
+elif [ -n "$(which nemo 2>/dev/null)" ]; then
+  MYFILEMANAGER="nemo"
+elif [ -n "$(which pcmanfm 2>/dev/null)" ]; then
+  MYFILEMANAGER="pcmanfm"
+elif [ -n "$(which polo 2>/dev/null)" ]; then
+  MYFILEMANAGER="polo"
+elif [ -n "$(which nautilus 2>/dev/null)" ]; then
+  MYFILEMANAGER="nautilus"
+elif [ -n "$(which polo 2>/dev/null)" ]; then
+  MYFILEMANAGER="polo"
+elif [ -n "$(which dolphin 2>/dev/null)" ]; then
+  MYFILEMANAGER="dolphin"
+elif [ -n "$(which konqueror 2>/dev/null)" ]; then
+  MYFILEMANAGER="konqueror"
+elif [ -n "$(which lf 2>/dev/null)" ]; then
+  MYFILEMANAGER="lf"
+elif [ -n "$(which vifm 2>/dev/null)" ]; then
+  MYFILEMANAGER="vifm"
+elif [ -n "$(which ranger 2>/dev/null)" ]; then
+  MYFILEMANAGER="ranger"
+elif [ -n "$(which cfiles 2>/dev/null)" ]; then
+  MYFILEMANAGER="cfiles"
+elif [ -n "$(which se 2>/dev/null)" ]; then
+  MYFILEMANAGER="se"
 fi
 if [[ "$(uname -s)" = Darwin ]]; then
   MYFILEMANAGER="open"
@@ -423,104 +412,92 @@ fi
 export VMMANAGER="$MYVMMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
-if [ -z "$DISPLAY" ]; then
-  if [ -n "$(which transmission-remote 2>/dev/null)" ]; then
-    MYTORRENT="transmission-remote"
-  fi
-else
-  if [ -n "$(which transmission-remote-gtk 2>/dev/null)" ]; then
-    MYTORRENT="transmission-remote-gtk"
-  elif [ -n "$(which transmission-gtk 2>/dev/null)" ]; then
-    MYTORRENT="transmission-gtk"
-  elif [ -n "$(which transmission-cli 2>/dev/null)" ]; then
-    MYTORRENT="transmission-cli"
-  elif [ -n "$(which transmission-qt 2>/dev/null)" ]; then
-    MYTORRENT="transmission-qt"
-  elif [ -n "$(which deluge 2>/dev/null)" ]; then
-    MYTORRENT="deluge"
-  elif [ -n "$(which vuze 2>/dev/null)" ]; then
-    MYTORRENT="vuze"
-  elif [ -n "$(which qbittorrent)" ]; then
-    MYTORRENT="qbittorrent"
-  elif [ -n "$(which ktorrent 2>/dev/null)" ]; then
-    MYTORRENT="ktorrent"
-  elif [ -n "$(which ctorrent 2>/dev/null)" ]; then
-    MYTORRENT="ctorrent"
-  elif [ -n "$(which unworkable 2>/dev/null)" ]; then
-    MYTORRENT="unworkable"
-  elif [ -n "$(which rtorrent 2>/dev/null)" ]; then
-    MYTORRENT="rtorrent"
-  elif [ -n "$(which bitstormlite 2>/dev/null)" ]; then
-    MYTORRENT="bitstormlite"
-  elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
-    MYTORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
-  fi
+if [ -n "$(which transmission-remote-gtk 2>/dev/null)" ]; then
+  MYTORRENT="transmission-remote-gtk"
+elif [ -n "$(which transmission-gtk 2>/dev/null)" ]; then
+  MYTORRENT="transmission-gtk"
+elif [ -n "$(which transmission-cli 2>/dev/null)" ]; then
+  MYTORRENT="transmission-cli"
+elif [ -n "$(which transmission-qt 2>/dev/null)" ]; then
+  MYTORRENT="transmission-qt"
+elif [ -n "$(which deluge 2>/dev/null)" ]; then
+  MYTORRENT="deluge"
+elif [ -n "$(which vuze 2>/dev/null)" ]; then
+  MYTORRENT="vuze"
+elif [ -n "$(which qbittorrent)" ]; then
+  MYTORRENT="qbittorrent"
+elif [ -n "$(which ktorrent 2>/dev/null)" ]; then
+  MYTORRENT="ktorrent"
+elif [ -n "$(which ctorrent 2>/dev/null)" ]; then
+  MYTORRENT="ctorrent"
+elif [ -n "$(which unworkable 2>/dev/null)" ]; then
+  MYTORRENT="unworkable"
+elif [ -n "$(which rtorrent 2>/dev/null)" ]; then
+  MYTORRENT="rtorrent"
+elif [ -n "$(which bitstormlite 2>/dev/null)" ]; then
+  MYTORRENT="bitstormlite"
+elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
+  MYTORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
+elif [ -n "$(which transmission-remote 2>/dev/null)" ]; then
+  MYTORRENT="transmission-remote"
 fi
 export TORRENT="$MYTORRENT"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
-if [ -z "$DISPLAY" ]; then
-  if [ -n "$(which neomutt 2>/dev/null)" ]; then
-    MYEMAIL="neomutt"
-  elif [ -n "$(which mutt 2>/dev/null)" ]; then
-    MYEMAIL="mutt"
-  elif [ -n "$(which emacs 2>/dev/null)" ]; then
-    MYEMAIL="emacs"
-  fi
-else
-  if [ -n "$(which thunderbird 2>/dev/null)" ]; then
-    MYEMAIL="thunderbird"
-  elif [ -n "$(which evolution 2>/dev/null)" ]; then
-    MYEMAIL="evolution"
-  elif [ -n "$(which clawsmail 2>/dev/null)" ]; then
-    MYEMAIL="clawsmail"
-  elif [ -n "$(which geary 2>/dev/null)" ]; then
-    MYEMAIL="geary"
-  elif [ -n "$(which kmail 2>/dev/null)" ]; then
-    MYEMAIL="kmail"
-  elif [ -n "$(which gmail 2>/dev/null)" ]; then
-    MYEMAIL="mybrowser https://gmail.com"
-  elif [ -n "$(which ymail 2>/dev/null)" ]; then
-    MYEMAIL="mybrowser https://ymail.com"
-  elif [ -n "$(which sylpheed 2>/dev/null)" ]; then
-    MYEMAIL="sylpheed"
-  fi
+if [ -n "$(which thunderbird 2>/dev/null)" ]; then
+  MYEMAIL="thunderbird"
+elif [ -n "$(which evolution 2>/dev/null)" ]; then
+  MYEMAIL="evolution"
+elif [ -n "$(which clawsmail 2>/dev/null)" ]; then
+  MYEMAIL="clawsmail"
+elif [ -n "$(which geary 2>/dev/null)" ]; then
+  MYEMAIL="geary"
+elif [ -n "$(which kmail 2>/dev/null)" ]; then
+  MYEMAIL="kmail"
+elif [ -n "$(which gmail 2>/dev/null)" ]; then
+  MYEMAIL="mybrowser https://gmail.com"
+elif [ -n "$(which ymail 2>/dev/null)" ]; then
+  MYEMAIL="mybrowser https://ymail.com"
+elif [ -n "$(which sylpheed 2>/dev/null)" ]; then
+  MYEMAIL="sylpheed"
+elif [ -n "$(which neomutt 2>/dev/null)" ]; then
+  MYEMAIL="neomutt"
+elif [ -n "$(which mutt 2>/dev/null)" ]; then
+  MYEMAIL="mutt"
+elif [ -n "$(which emacs 2>/dev/null)" ]; then
+  MYEMAIL="emacs"
 fi
 export EMAIL="$MYEMAIL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
-if [ -z "$DISPLAY" ]; then
-  if [ -n "$(which vim 2>/dev/null)" ]; then
-    MYEDITOR="vim"
-  elif [ -n "$(which nvim 2>/dev/null)" ]; then
-    MYEDITOR="nvim"
-  elif [ -n "$(which nano 2>/dev/null)" ]; then
-    MYEDITOR="nano"
-  elif [ -n "$(which emacs 2>/dev/null)" ]; then
-    MYEDITOR="emacs"
-  fi
-else
-  if [ -n "$(which code-oss 2>/dev/null)" ]; then
-    MYEDITOR="code-oss"
-  elif [ -n "$(which code-insiders 2>/dev/null)" ]; then
-    MYEDITOR="code-insiders"
-  elif [ -n "$(which code 2>/dev/null)" ]; then
-    MYEDITOR="code"
-  elif [ -n "$(which vscode 2>/dev/null)" ]; then
-    MYEDITOR="vscode"
-  elif [ -n "$(which geany 2>/dev/null)" ]; then
-    MYEDITOR="geany"
-  elif [ -n "$(which gedit 2>/dev/null)" ]; then
-    MYEDITOR="gedit"
-  elif [ -n "$(which atom 2>/dev/null)" ]; then
-    MYEDITOR="atom"
-  elif [ -n "$(which brackets 2>/dev/null)" ]; then
-    MYEDITOR="brackets"
-  elif [ -n "$(which mousepad 2>/dev/null)" ]; then
-    MYEDITOR="mousepad"
-  elif [ -n "$(which emacs 2>/dev/null)" ]; then
-    MYEDITOR="emacs"
-  fi
+if [ -n "$(which code-oss 2>/dev/null)" ]; then
+  MYEDITOR="code-oss"
+elif [ -n "$(which code-insiders 2>/dev/null)" ]; then
+  MYEDITOR="code-insiders"
+elif [ -n "$(which code 2>/dev/null)" ]; then
+  MYEDITOR="code"
+elif [ -n "$(which vscode 2>/dev/null)" ]; then
+  MYEDITOR="vscode"
+elif [ -n "$(which geany 2>/dev/null)" ]; then
+  MYEDITOR="geany"
+elif [ -n "$(which gedit 2>/dev/null)" ]; then
+  MYEDITOR="gedit"
+elif [ -n "$(which atom 2>/dev/null)" ]; then
+  MYEDITOR="atom"
+elif [ -n "$(which brackets 2>/dev/null)" ]; then
+  MYEDITOR="brackets"
+elif [ -n "$(which mousepad 2>/dev/null)" ]; then
+  MYEDITOR="mousepad"
+elif [ -n "$(which emacs 2>/dev/null)" ]; then
+  MYEDITOR="emacs"
+elif [ -n "$(which vim 2>/dev/null)" ]; then
+  MYEDITOR="vim"
+elif [ -n "$(which nvim 2>/dev/null)" ]; then
+  MYEDITOR="nvim"
+elif [ -n "$(which nano 2>/dev/null)" ]; then
+  MYEDITOR="nano"
+elif [ -n "$(which emacs 2>/dev/null)" ]; then
+  MYEDITOR="emacs"
 fi
 export EDITOR="$MYEDITOR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
