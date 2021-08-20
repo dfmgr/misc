@@ -225,8 +225,6 @@ export BANNER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua
 LUAVER_HOME="$HOME/.local/share/luaver"
-[ -s "$LUAVER_HOME/luaver" ] && . "$LUAVER_HOME/luaver"
-[ -s "$LUAVER_HOME/completions/luaver.bash" ] && . "$LUAVER_HOME/completions/luaver.bash"
 export LUAVER_HOME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
