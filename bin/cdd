@@ -9,7 +9,7 @@ cdd_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #set opts
   clear
-  set -xo
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ##@Version       : 202103230741-git
   # @Author        : Jason Hempstead
@@ -25,10 +25,10 @@ cdd_main() {
   # @Resource      :
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Main function file
-  if [ -f "$SRC_DIR/functions.bash" ]; then
+  if [[ -f "$SRC_DIR/functions.bash" ]]; then
     FUNCTIONS_DIR="$SRC_DIR"
     . "$FUNCTIONS_DIR/functions.bash"
-  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  elif [[ -f "$HOME/.local/bin/functions.bash" ]]; then
     FUNCTIONS_DIR="$HOME/.local/bin"
     . "$FUNCTIONS_DIR/functions.bash"
   else
@@ -64,7 +64,7 @@ CDD_OPTIONS_PROJECT_DIR="${CDD_OPTIONS_PROJECT_DIR:-$HOME/.local/share/cdd/proje
 CDD_OPTIONS_TMP_DIR="${CDD_OPTIONS_TMP_DIR:-$HOME/.local/tmp/cdd}"
 EOF
 
-    if [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] || [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
+    if [[ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]] || [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]]; then
       printf_green "Your config file for cdd has been created"
       true
     else
@@ -73,7 +73,7 @@ EOF
     fi
   }
   __gen_alias() {
-    if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then
+    if [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]]; then
       local cdd_update=true
       printf_green "Updating the aliases file in"
     else
@@ -81,9 +81,9 @@ EOF
     fi
     printf_green "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     local tempfile="$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.bak"
-    [ -d "$CDD_CONFIG_DIR" ] || mkdir -p "$CDD_CONFIG_DIR"
-    [ -d "$CDD_CONFIG_BACKUP_DIR" ] || mkdir -p "$CDD_CONFIG_BACKUP_DIR"
-    [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$tempfile"
+    [[ -d "$CDD_CONFIG_DIR" ]] || mkdir -p "$CDD_CONFIG_DIR"
+    [[ -d "$CDD_CONFIG_BACKUP_DIR" ]] || mkdir -p "$CDD_CONFIG_BACKUP_DIR"
+    [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] && cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$tempfile"
     cat <<EOF >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
 # Alias settings for cdd - format: name = "/mydir"
 default = "$CDD_OPTIONS_PROJECT_DIR/${CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
@@ -97,13 +97,13 @@ share = "$HOME/local/share"
 
 EOF
 
-    if [ -f "$tempfile" ] && [ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]; then
+    if [[ -f "$tempfile" ]] && [[ "$(<"$tempfile")" != "$(<"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE")" ]]; then
       cp -Rf "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" "$CDD_CONFIG_BACKUP_DIR/$CDD_ALIAS_FILE.$$"
-      printf '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
+      printf '%s' '# Settings for '$PROG'\n' >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       grep -v ^'# Settings' "$tempfile" | sort -u | grep -v '^$' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       printf '\n' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     fi
-    if [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] && [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]; then
+    if [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] && [[ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]]; then
       printf_green "Your config file for cdd has been created"
       true
     else
@@ -119,71 +119,74 @@ EOF
     local COMPREPLY=($(compgen -W '$(_find ${cur})' -- "${cur}"))
     _init_completion || return
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd() {
     _cd && complete -F _cd cd
+    local REPO_UPDATED
     local CD_INTO_DIR="$1"
-    if [ -d "$CD_INTO_DIR/.git" ]; then
-      git -C "$CD_INTO_DIR" pull &>/dev/null &
-      disown
+    if [[ -d "$CD_INTO_DIR/.git" ]]; then
+      [[ -n "$REPO_UPDATED" ]] || printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull && REPO_UPDATED="yes"
     fi
-    if [ "$CD_INTO_DIR" = "" ] && [ "$CD_INTO_DIR" = "/" ]; then
-      builtin cd "$BASE_CDD_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR failed"
-    elif [[ "$CD_INTO_DIR" =~ "$BASE_CDD_DIR/$CD_INTO_DIR"** ]]; then
-      builtin cd "$BASE_CDD_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR failed"
-    elif [[ -e "$BASE_CDD_DIR/$CD_INTO_DIR" ]]; then
-      builtin cd "$BASE_CDD_DIR/$CD_INTO_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR/$CD_INTO_DIR failed"
-    elif [ "$CD_INTO_DIR" = ..* ]; then
-      builtin cd "$BASE_CDD_DIR/$CD_INTO_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR/$CD_INTO_DIR failed"
-    else
-      printf_red "cd out of /home/jason/.local/share/cdd/projects/default is disabled"
-      return 1
-    fi
+    #   if [[ "$CD_INTO_DIR" = "" ]] && [[ "$CD_INTO_DIR" = "/" ]]; then
+    #     builtin cd "$BASE_CDD_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR failed"
+    #   elif [[ "$CD_INTO_DIR" =~ "$BASE_CDD_DIR/$CD_INTO_DIR"** ]]; then
+    #     builtin cd "$BASE_CDD_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR failed"
+    #   elif [[ -e "$BASE_CDD_DIR/$CD_INTO_DIR" ]]; then
+    #     builtin cd "$BASE_CDD_DIR/$CD_INTO_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR/$CD_INTO_DIR failed"
+    #   elif [[ "$CD_INTO_DIR" = ..* ]]; then
+    #     builtin cd "$BASE_CDD_DIR/$CD_INTO_DIR" &>/dev/null || printf_red "cd into $BASE_CDD_DIR/$CD_INTO_DIR failed"
+    #   else
+    #     printf_red "cd out of /home/jason/.local/share/cdd/projects/default is disabled"
+    #     return 1
+    #   fi
     export CD_INTO_CUR="$BASE_CDD_DIR/$CD_INTO_DIR"
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit &>/dev/null; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
+    local dir folder message message_add
     [[ "$CDD_STATUS" = "running" ]] && [[ "$1" = ./* ]] && cd "$1" && return
-    [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] || __gen_config "$@"
-    [ -z "$CDD_STATUS" ] || printf_exit "cdd already appears to be active "
-    if  [[ "$CDD_STATUS" != "running" ]] && { [[ "$1" = "current_project" ]] || [[ "$1" = "." ]]; }; then
-      local dir="$PWD"
-      local alias="$(basename $(dirname $PWD/.))"
-      local message="Entering the $dir with alias $alias"
-    elif [ -n "$(list_aliases "folder" "$1")" ]; then
-      local dir="$(list_aliases "folder" "$1")"
-      local alias="$(list_aliases alias "$1")"
-      local message="entering into $dir"
-    elif [ -z "$dir" ]; then
-      local dir="${1:-$CDD_OPTIONS_PROJECT_DIR/$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
-      local alias="$(basename "$dir/")"
-      local message="Entering the default folder"
-      local message_add="see $PROG -l or $PROG -a name directory"
+    [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] || __gen_config "$@"
+    [[ -z "$CDD_STATUS" ]] || printf_exit "cdd already appears to be active "
+    if [[ "$CDD_STATUS" != "running" ]] && { [[ "$1" = "current_project" ]] || [[ "$1" = "." ]]; }; then
+      dir="$PWD"
+      folder="$(basename $(dirname $PWD/.))"
+      message="Entering the $dir with alias $alias"
+    elif [[ -n "$(list_aliases "folder" "$1")" ]]; then
+      dir="$(list_aliases "folder" "$1")"
+      folder="$(list_aliases alias "$1")"
+      message="entering into $dir"
+    elif [[ -z "$dir" ]]; then
+      dir="${1:-$CDD_OPTIONS_PROJECT_DIR/$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
+      folder="$(basename "$dir/")"
+      message="Entering the default folder"
+      message_add="see $PROG -l or $PROG -a name directory"
     fi
     printf '\n'
-    export -f cd quit _cd 
     local exitCode=0
     local STATUS="running"
     local SHELL="${SHELL:-bash}"
-    local PS1_ADD_CDD="$PS1_ADD cdd: ${alias:-$dir}"
-    [ -d "$dir" ] || mkdir -p "$dir"
-    [ -d "$dir" ] && builtin cd "$dir" || printf_exit "Failed to enter $dir"
-    [ -n "$message" ] && printf_green "$message using $(basename "$SHELL" 2>/dev/null)"
-    [ -n "$message_add" ] && printf_blue "$message_add"
+    local PS1_ADD_CDD="$PS1_ADD cdd: ${folder:-$dir}"
+    [[ -d "$dir" ]] || mkdir -p "$dir"
+    [[ -d "$dir" ]] && builtin cd "$dir" || printf_exit "Failed to enter $dir"
+    [[ -n "$message" ]] && printf_green "$message using $(basename "$SHELL" 2>/dev/null)"
+    [[ -n "$message_add" ]] && printf_blue "$message_add"
     printf_cyan "Type quit to return to your previous directory/shell"
-    printf_red "cd out of $dir is disabled while using cdd"
-    BASE_CDD_DIR="$PWD" PS1_ADD="$PS1_ADD_CDD" CDD_STATUS="$STATUS" 
+    printf_red "cd out of $dir is not recommended while using cdd"
+    BASE_CDD_DIR="$PWD" PS1_ADD="$PS1_ADD_CDD" CDD_STATUS="$STATUS"
+    export -f quit _cd
     export BASE_CDD_DIR PS1_ADD CDD_STATUS
-    eval $SHELL -l && exitCode=0 || exitCode=1
-    unset -F cd quit _cd &>/dev/null
+    $SHELL -l
+    exitCode=$?
+    unset -f cd quit _cd &>/dev/null
     sleep .5
     clear
     return ${exitCode:-$?}
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   add_alias() {
-    [ $# = 2 ] || printf_exit "Usage: $PROG add name Directory"
+    [[ $# = 2 ]] || printf_exit "Usage: $PROG add name Directory"
     if ! list_aliases alias "$1" | grep -qx "$1"; then
       printf_green "Adding the alias $1 to config"
       grep -v '^$' "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
@@ -197,11 +200,12 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   rm_alias() {
-    [ $# = 1 ] || printf_exit "Usage: $PROG add delete"
-    local alias="$(list_aliases alias "$1")"
-    if list_aliases alias '*' | grep -qx "$alias"; then
-      printf_green "Removing the alias $alias from config"
-      cat "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" | grep -xv ^"$alias = .*" >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" &&
+    local folder
+    [[ $# = 1 ]] || printf_exit "Usage: $PROG add delete"
+    folder="$(list_aliases alias "$1")"
+    if list_aliases alias '*' | grep -qx "$folder"; then
+      printf_green "Removing the alias $folder from config"
+      grep -sxv ^"$folder = .*" "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" &&
         mv -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" || return 1
       __list_array "$CDD_OPTIONS_DIR" "$ARRAY"
     else
@@ -211,12 +215,12 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   list_aliases() {
-    if [ ! -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]; then __gen_config &>/dev/null; fi
+    if [[ ! -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]]; then __gen_config &>/dev/null; fi
     __grep() { grep -E ^''$1' =*..*'$ "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" | sed 's|"||g' 2>/dev/null; }
-    if [ "$1" = "folder" ]; then
+    if [[ "$1" = "folder" ]]; then
       shift 1
       __grep "$1" | awk -F'= ' '{print $2}' | sed -e 's#" ##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
-    elif [ "$1" = "alias" ]; then
+    elif [[ "$1" = "alias" ]]; then
       shift 1
       __grep "$1" | awk -F' =' '{print $1}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
     else
@@ -244,13 +248,13 @@ EOF
   local ARRAY="$(list_aliases '*' | awk '{print $1}')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
-  [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] || __gen_config &>/dev/null
-  [ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ] || __gen_alias &>/dev/null
-  [ -f "$CDD_OPTIONS_DIR/options" ] || __list_options "$CDD_OPTIONS_DIR" &>/dev/null
-  [ -f "$CDD_OPTIONS_DIR/array" ] || __list_array "$CDD_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  [[ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]] || __gen_config &>/dev/null
+  [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] || __gen_alias &>/dev/null
+  [[ -f "$CDD_OPTIONS_DIR/options" ]] || __list_options "$CDD_OPTIONS_DIR" &>/dev/null
+  [[ -f "$CDD_OPTIONS_DIR/array" ]] || __list_array "$CDD_OPTIONS_DIR" "$ARRAY" &>/dev/null
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Import config
-  [ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ] && . "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
+  [[ -f "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE" ]] && . "$CDD_CONFIG_DIR/$CDD_CONFIG_FILE"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Check for required applications
   cmd_exists --error bash || exit 1
@@ -285,7 +289,7 @@ EOF
       ;;
     -m | --modify)
       shift 2
-      [ -z "$2" ] && [ -z "$3" ] && [ -n "$EDITOR" ] && $EDITOR "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
+      [[ -z "$2" ]] && [[ -z "$3" ]] && [[ -n "$EDITOR" ]] && $EDITOR "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
       add_alias "$2" "$3"
       exit $?
       ;;
@@ -299,7 +303,7 @@ EOF
       exit $?
       ;;
     -s | --shell)
-      if [ -f "$2" ] || cmd_exists "$2"; then
+      if [[ -f "$2" ]] || cmd_exists "$2"; then
         SHELL="$2"
       else
         printf_exit "$2 seems to be an invalid shell"
