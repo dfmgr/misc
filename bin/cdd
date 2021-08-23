@@ -9,7 +9,7 @@ cdd_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #set opts
   clear
-
+  set -xo
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ##@Version       : 202103230741-git
   # @Author        : Jason Hempstead
@@ -173,7 +173,9 @@ EOF
     [ -n "$message_add" ] && printf_blue "$message_add"
     printf_cyan "Type quit to return to your previous directory/shell"
     printf_red "cd out of $dir is disabled while using cdd"
-    BASE_CDD_DIR="$PWD" PS1_ADD="$PS1_ADD_CDD" CDD_STATUS="$STATUS" eval $SHELL -l && exitCode=0 || exitCode=1
+    BASE_CDD_DIR="$PWD" PS1_ADD="$PS1_ADD_CDD" CDD_STATUS="$STATUS" 
+    export BASE_CDD_DIR PS1_ADD CDD_STATUS
+    eval $SHELL -l && exitCode=0 || exitCode=1
     unset -F cd quit _cd &>/dev/null
     sleep .5
     clear
