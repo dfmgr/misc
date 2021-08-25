@@ -143,11 +143,11 @@ EOF
     *.zip) unzip "$filename" ;;
     *.Z) uncompress "$filename" ;;
     *.7z) 7z x "$filename" ;;
-    *) printf_red ""$filename" cannot be extracted via ex" && return 1 ;;
+    *) printf_red "$filename cannot be extracted via ex" && return 1 ;;
     esac
     return $?
   else
-    printf_red ""$filename" is not a valid file"
+    printf_red "$filename is not a valid file"
     return 1
   fi
 

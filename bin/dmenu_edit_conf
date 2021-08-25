@@ -145,7 +145,7 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   if cmd_exists rofi; then
-    __dmenu() { rofi -show -dmenu -i -p 'Edit config file: '; }
+    __dmenu() { rofi -theme ${ROFI_THEME:-purple} -show -dmenu -i -p 'Edit config file: '; }
   elif cmd_exists dmenu; then
     __dmenu() { dmenu -i -p 'Edit config file: '; }
   else
