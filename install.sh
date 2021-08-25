@@ -124,10 +124,10 @@ if am_i_online; then
   if [ -d "$INSTDIR/.git" ]; then
     execute "git_update $INSTDIR" "Updating $APPNAME configurations"
   else
-    execute "git_clone $REPO $INSTDIR" "Installing $APPNAME configurations"
+    execute "git_clone $REPO $INSTDIR" "Installing $APPNAME ions"
   fi
   # exit on fail
-  failexitcode $? "Git has failed"
+  failexitcode $? "Failed to download $REPO/$APPNAME to $INSTDIR"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Plugins
@@ -167,7 +167,7 @@ run_postinst() {
   done
   if [ -d "$HOME/bin" ]; then cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"; fi
   if [ -d "$HOME/.bin" ]; then cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"; fi
-  if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then 
+  if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then
     ln_sf "$(builtin type -P powerline-go)" "/usr/local/bin/powerline"
   fi
 }
