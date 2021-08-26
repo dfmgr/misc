@@ -430,7 +430,7 @@ elif [ -n "$(which deluge 2>/dev/null)" ]; then
   MYTORRENT="deluge"
 elif [ -n "$(which vuze 2>/dev/null)" ]; then
   MYTORRENT="vuze"
-elif [ -n "$(which qbittorrent)" ]; then
+elif [ -n "$(which qbittorrent 2>/dev/null)" ]; then
   MYTORRENT="qbittorrent"
 elif [ -n "$(which ktorrent 2>/dev/null)" ]; then
   MYTORRENT="ktorrent"
