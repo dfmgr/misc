@@ -14,8 +14,9 @@ HISTSIZE=1200
 HISTFILESIZE=1200
 SAVEHIST=4096
 HISTCONTROL=ignoredups:erasedups
+HISTIGNORE="[bf]g:exit:pwd:clear:q:!"
 BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
-export HISTSIZE HISTFILESIZE SAVEHIST HISTCONTROL BASH_COMPLETION_USER_DIR
+export HISTSIZE HISTFILESIZE SAVEHIST HISTCONTROL HISTIGNORE BASH_COMPLETION_USER_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
