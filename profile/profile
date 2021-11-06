@@ -27,7 +27,7 @@ elif [ -n "$BASH_VERSION" ]; then
   SHELL="$(which bash 2>/dev/null)"
   BASH_SILENCE_DEPRECATION_WARNING="1"
   HISTFILE="$HOME/.config/bash/bash_history"
-  OSH="$HOME/.local/share/bash/oh-my-bash";
+  OSH="$HOME/.local/share/bash/oh-my-bash"
   if [ -n "$(which direnv 2>/dev/null)" ]; then
     direnv hook bash >/dev/null 2>&1
   fi
@@ -282,9 +282,11 @@ SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
-CARGO_HOME="$HOME/.local/share/carge"
-PATH="$CARGO_HOME/bin:$PATH"
+RUST_HOME="$HOME/.local/share/rust"
+CARGO_HOME="$HOME/.local/share/cargo"
+PATH="$CARGO_HOME/bin:$RUST_HOME/bin:$PATH"
 [ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
+export RUST_HOME CARGO_HOME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
 if [ -n "$(which hub 2>/dev/null)" ]; then
