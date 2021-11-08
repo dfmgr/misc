@@ -191,7 +191,7 @@ return_error() {
 
 # get description for help
 get_desc() {
-  local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/sbin"
+  local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
   local appname="$SRC_DIR/${PROG:-$APPNAME}"
   local desc="$(grep_head "Description" "$appname" | head -n1 | sed 's#..* : ##g')"
   [ -n "$desc" ] && printf '%s' "$desc" || printf '%s' "$appname help"
@@ -463,7 +463,7 @@ cmd_exists() {
     ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local command="$@"
+  local command="$*"
   local exitCode="0"
   local missing=""
   for cmd in $command; do
