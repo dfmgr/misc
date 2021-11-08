@@ -127,6 +127,12 @@ while :; do
     __gen_files
     exit $?
     ;;
+  -a | --add)
+    printf_green ""
+    notifications "$PROG" ""
+    echo "" | tee "$DMENU_EDIT_USER_CONF_DIR/$NAME"
+    exit
+    ;;
   --)
     shift 1
     break
@@ -143,16 +149,16 @@ cmd_exists --error bash || exit 1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # begin main app
 if cmd_exists rofi; then
-  __dmenu() { rofi -theme ${ROFI_THEME:-purple} -show -dmenu -i -p 'Edit config file: ' || return 1; }
+  __dmenu() { rofi -theme ${ROFI_THEME:-purple} -show -dmenu -i -p 'Edit config file' || return 1; }
 elif cmd_exists dmenu; then
-  __dmenu() { dmenu -i -p 'Edit config file: '; }
+  __dmenu() { dmenu -i -p 'Edit config file'; }
 else
   notifications "$PROG" "This requires either dmenu or rofi"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ -d "$DMENU_EDIT_USER_CONF_DIR" ]; then
   GET_CONFIGS="$(cd "$DMENU_EDIT_USER_CONF_DIR" && find -- * -maxdepth 3 -type f)"
-  EDIT_NAME="$(echo "exit $GET_CONFIGS" | __dmenu)"
+  EDIT_NAME="$(echo -e "exit\n$GET_CONFIGS" | __dmenu)"
   if [ -n "$EDIT_NAME" ]; then
     . "$DMENU_EDIT_USER_CONF_DIR/$EDIT_NAME"
   else
@@ -161,8 +167,10 @@ if [ -d "$DMENU_EDIT_USER_CONF_DIR" ]; then
 fi
 #printf_exit "E:$EDIT_NAME e:$editConfig"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[[ "$editConfig" = "exit" ]] && exit 1
-if [[ -e "$editConfig" ]]; then
+if [[ "$editConfig" = "exit" ]]; then
+  notifications "$PROG" "exiting due to user cancel"
+  exit 1
+elif [[ -e "$editConfig" ]]; then
   notifications "$PROG" "Opening $editConfig"
   myeditor "$editConfig"
 else

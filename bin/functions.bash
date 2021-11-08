@@ -66,10 +66,6 @@ sudoif() { (sudo -vn && sudo -ln) 2>&1 | grep -v 'may not' >/dev/null && return 
 # commands
 command() { builtin command ${1+"$@"}; }
 type() { builtin type ${1+"$@"}; }
-notifications() {
-  local notify="$(type -P notifications 2>/dev/null)"
-  [ -n "$notify" ] && $notify "$@" || true
-}
 mkd() { devnull mkdir -p "$@"; }
 rm_rf() { devnull rm -Rf "$@"; }
 cp_rf() { if [ -e "$1" ]; then devnull cp -Rfa "$@"; fi; }
