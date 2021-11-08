@@ -36,7 +36,7 @@ setup_asdf_main() {
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  # helper functions - See https://github.com/dfmgr/misc/blob/main/bin/functions.bash
   __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
@@ -124,7 +124,7 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -a -n "$PROG" -- "$@" 2>/dev/null)
-  eval set -- "${setopts[@]}" 2>/dev/null
+  eval set -- "${setopts}" 2>/dev/null
   while :; do
     case $1 in
     --options)

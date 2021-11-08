@@ -169,7 +169,7 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [[ "$editConfig" = "exit" ]]; then
   notifications "$PROG" "exiting due to user cancel"
-  exit 1
+  exit 0
 elif [[ -e "$editConfig" ]]; then
   notifications "$PROG" "Opening $editConfig"
   myeditor "$editConfig"

@@ -49,6 +49,7 @@ __mkd() {
       printf_return "Failed to create $1"
     fi
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __create() {
     local DIR_TO_CREATE="${1:-$DIR_TO_CREATE}"
     if [ ! -d "$DIR_TO_CREATE" ]; then
@@ -60,6 +61,7 @@ __mkd() {
       fi
     fi
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __cd() {
     if cmd_exists cdd; then
       if [[ "$CDD_STATUS" = "running" ]]; then
@@ -84,12 +86,12 @@ __mkd() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ $# = 0 ] && __help
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local DIR_TO_CREATE="$@"
+  local DIR_TO_CREATE="$*"
   local failed=0
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [ $# -gt 1 ]; then
     for dir in $DIR_TO_CREATE; do
-      printf_green "Creating the directories: $dir"
+      printf_green "Creating the directory: $dir"
       mkdir -p "$dir" 2>/dev/null || failed+=1
       [ $failed = 0 ] || printf_red "Failed to create $dir"
     done
