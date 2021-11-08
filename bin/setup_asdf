@@ -16,7 +16,7 @@ setup_asdf_main() {
   # @Contact       : jason
   # @License       : LICENSE.md
   # @ReadME        : setup_asdf --help
-  # @Copyright     : Copyright: (c) 2021 jason, jason
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, Casjays Developments
   # @Created       : Wednesday, Jul 28, 2021 20:29 EDT
   # @File          : setup_asdf
   # @Description   :
@@ -197,9 +197,9 @@ EOF
     done
   else
     if [ -f "$SETUP_ASDF_OPTIONS_DIR/array" ]; then
-      echo "$SETUP_ASDF_OPTIONS_DIR/array" | printf_column
+      cat "$SETUP_ASDF_OPTIONS_DIR/array" | printf_column
     else
-      echo asdf plugin-list-all | awk '{print $1}' | printf_column
+      asdf plugin-list-all | awk '{print $1}' | printf_column
     fi
     printf '\n'
   fi
