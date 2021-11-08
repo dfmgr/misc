@@ -43,7 +43,7 @@ main() {
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   rawData=$(sensors -f | grep -m 1 Core | awk '{print substr($3, 2, length($3)-5)}')
-  tempCore="($rawData)"
+  tempCore=($rawData)
   degree="°F"
   temperaturesValues=(140 150 160 170 180 190)
   temperaturesColors=("#6bff49" "#f4cb24" "#ff8819" "#ff3205" "#f40202" "#ef02db")
@@ -52,8 +52,12 @@ main() {
   for iCore in ${!tempCore[*]}; do
     for iTemp in ${!temperaturesValues[*]}; do
       if (("${tempCore[$iCore]}" < "${temperaturesValues[$iTemp]}")); then
-        tmpEcho="%{F${temperaturesColors[$iTemp]}}${tempCore[$iCore]}$degree%{F-}"
-        finalEcho="$finalEcho $tmpEcho"
+        if [[ -n "$(pidof polybar &>/dev/null)" ]]; then
+          tmpEcho="%{F${temperaturesColors[$iTemp]}}${tempCore[$iCore]}$degree%{F-}"
+        else
+          tmpEcho="${tempCore[$iCore]}$degree"
+        fi
+        finalEcho="$tmpEcho"
         break
       fi
     done
@@ -65,15 +69,19 @@ main() {
   for iTemp in ${!temperaturesValues[*]}; do
     if (("$sum" < "${temperaturesValues[$iTemp]}")); then
       ## This line will color the icon too
-      tmpEcho="%{F${temperaturesColors[$iTemp]}}${temperaturesIcons[$iTemp]}%{F-}"
-      ## This line will NOT color the icon
-      #tmpEcho="${temperaturesIcons[$iTemp]}"
-      finalEcho=" $finalEcho $tmpEcho"
+      if [[ -n "$(pidof polybar &>/dev/null)" ]]; then
+        tmpEcho="%{F${temperaturesColors[$iTemp]}}${temperaturesIcons[$iTemp]}%{F-}"
+      else
+        ## This line will NOT color the icon
+        tmpEcho="${temperaturesIcons[$iTemp]}"
+      fi
+      finalTemp="$tmpEcho"
+      finalEcho="$finalTemp $finalEcho "
       break
     fi
   done && exitCode+=0 || exitCode+=1
 
-  printf "%s\n" "$finalEcho"
+  echo -e "$finalEcho"
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
