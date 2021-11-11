@@ -266,6 +266,7 @@ fi
 FNM_DIR="$HOME/.local/share/nodejs/fnm"
 FNM_MULTISHELL_PATH="$FNM_DIR/multishell"
 PATH="$FNM_MULTISHELL_PATH/bin:$PATH"
+eval "$(fnm env --shell $(basename "$SHELL"))"
 export FNM_DIR FNM_MULTISHELL_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
