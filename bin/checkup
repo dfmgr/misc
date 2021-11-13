@@ -148,7 +148,7 @@ EOF
   cmd_exists --error bash || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  if [ "$(command -v pkmgr)" ]; then
+  if [ "$(command -v pkmgr 2>/dev/null)" ]; then
     __notify "$CHECKUP_NOTIFICATIONS_SYNC_NAME" "$CHECKUP_NOTIFICATIONS_SYNC_MESG"
     packages="$(pkmgr check)"
     if [ -n "$packages" ]; then
