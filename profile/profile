@@ -257,8 +257,8 @@ fi
 # Ruby Version Manager
 if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
   rvm_path="$HOME/.local/share/rvm"
-  [ -f "$rvm_path/rvm" ] && . "$rvm_path/scripts/rvm"
-  [ -d "$rvm_path/bin" ] && PATH="$rvm_path/bin:$PATH"
+  . "$rvm_path/scripts/rvm"
+  . "$rvm_path/scripts/completion"
   export rvm_path
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -278,7 +278,7 @@ NODE_REPL_HISTORY_SIZE=2000
 [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# setup setV
+# setup python setV
 SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
