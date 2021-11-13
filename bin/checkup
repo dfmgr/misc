@@ -36,7 +36,7 @@ checkup_main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # helper functions - See github.com/dfmgr/misc/bin/functions.bash
-  __notify() { [[ "$CHECKUP_NOTIFICATIONS_ENABLE" = "yes" ]] && notifications "$1" "$2"; }
+  __notify() { notifications "$1" "$2"; }
   __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
@@ -166,7 +166,8 @@ EOF
   else
     local exitCode=1
   fi
-
+  echo $packages
+  type notifications
   # lets exit with code
   return "${exitCode:-$?}"
 }

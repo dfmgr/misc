@@ -442,7 +442,7 @@ ask_confirm() {
 __cmd_exists() { cmd_exists "$@"; }
 # command check
 cmd_exists() {
-  [ "$CMD_EXISTS_NOTIFY" = "yes" ] || notifications() { true "$@"; }
+  [ "$CMD_EXISTS_NOTIFY" = "yes" ] && __notifications() { __notifications "$@"; } || __notifications() { true "$@"; }
   if [ "$CMD_EXISTS_INSTALL" = "yes" ]; then
     install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; }
   else
@@ -477,15 +477,15 @@ cmd_exists() {
   done
   if [ "$show" = "true" ] && [ -n "$found" ]; then
     printf_green "$found"
-    notifications "CMD Exists" "Found: $found"
+    __notifications "CMD Exists" "Found: $found"
   fi
   if [ "$show" = "true" ] && [ -n "$found" ] && [ -n "$missing" ]; then
     printf_red "${message:-Missing: $missing}"
-    notifications "CMD Exists" "${message:-Missing: $missing}"
+    __notifications "CMD Exists" "${message:-Missing: $missing}"
   fi
   if [ "$error" = "show" ] && [ -n "$missing" ] && [ -z "$show" ]; then
     printf_red "${message:-Missing: $missing}" >&2
-    notifications "CMD Exists" "${message:-Missing: $missing}"
+    __notifications "CMD Exists" "${message:-Missing: $missing}"
     exitCode="1"
   fi
   [ -z "$missing" ] || install_missing "$missing"
