@@ -155,7 +155,7 @@ EOF
       if [ "$packages" = 0 ]; then
         __notify "$CHECKUP_NOTIFICATIONS_NOUPDATES_NAME" "$CHECKUP_NOTIFICATIONS_NOUPDATES_MESG"
       else
-        __notify "$CHECKUP_NOTIFICATIONS_UPDATES_NAME" "$CHECKUP_NOTIFICATIONS_UPDATES_MESG"
+        __notify "$CHECKUP_NOTIFICATIONS_UPDATES_NAME" "$packages $CHECKUP_NOTIFICATIONS_UPDATES_MESG"
       fi
       local exitCode=0
     else
@@ -167,7 +167,6 @@ EOF
     local exitCode=1
   fi
   echo $packages
-  type notifications
   # lets exit with code
   return "${exitCode:-$?}"
 }
