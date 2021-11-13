@@ -149,7 +149,7 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   if [ "$(command -v pkmgr)" ]; then
-    notifications "$CHECKUP_NOTIFICATIONS_SYNC_NAME" "$CHECKUP_NOTIFICATIONS_SYNC_MESG"
+    __notify "$CHECKUP_NOTIFICATIONS_SYNC_NAME" "$CHECKUP_NOTIFICATIONS_SYNC_MESG"
     packages="$(pkmgr check)"
     if [ -n "$packages" ]; then
       if [ "$packages" = 0 ]; then
