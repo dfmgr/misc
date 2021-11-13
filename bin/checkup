@@ -36,7 +36,7 @@ checkup_main() {
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # helper functions - See github.com/dfmgr/misc/bin/functions.bash
-  __notify() { [ "$CHECKUP_NOTIFICATIONS_ENABLE" = "yes" ] && notifications "$1" "$2"; }
+  __notify() { [[ "$CHECKUP_NOTIFICATIONS_ENABLE" = "yes" ]] && notifications "$1" "$2"; }
   __version() { app_version; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
@@ -59,10 +59,10 @@ checkup_main() {
 # Settings for checkup
 CHECKUP_NOTIFICATIONS_NAME="CheckUP"
 CHECKUP_NOTIFICATIONS_ENABLE="${CHECKUP_NOTIFICATIONS_ENABLE:-yes}"
-CHECKUP_NOTIFICATIONS_SYNC_NAME="📦 \$CHECKUP_NOTIFICATIONS_NAME"
-CHECKUP_NOTIFICATIONS_NOUPDATES_NAME="📦 \$CHECKUP_NOTIFICATIONS_NAME"
-CHECKUP_NOTIFICATIONS_UPDATES_NAME="🎁 \$CHECKUP_NOTIFICATIONS_NAME"
-CHECKUP_NOTIFICATIONS_ERROR_NAME="📦 \$CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_SYNC_NAME="📦 $CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_NOUPDATES_NAME="📦 $CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_UPDATES_NAME="🎁 $CHECKUP_NOTIFICATIONS_NAME"
+CHECKUP_NOTIFICATIONS_ERROR_NAME="📦 $CHECKUP_NOTIFICATIONS_NAME"
 CHECKUP_NOTIFICATIONS_SYNC_MESG="Checking for package updates..."
 CHECKUP_NOTIFICATIONS_NOUPDATES_MESG="No updates available"
 CHECKUP_NOTIFICATIONS_UPDATES_MESG="Updates available."
@@ -150,8 +150,9 @@ EOF
   # begin main app
   if [ "$(command -v pkmgr)" ]; then
     notifications "$CHECKUP_NOTIFICATIONS_SYNC_NAME" "$CHECKUP_NOTIFICATIONS_SYNC_MESG"
-    if pkmgr check; then
-      if [ "$(pkmgr check)" = 0 ]; then
+    packages="$(pkmgr check)"
+    if [ -n "$packages" ]; then
+      if [ "$packages" = 0 ]; then
         __notify "$CHECKUP_NOTIFICATIONS_NOUPDATES_NAME" "$CHECKUP_NOTIFICATIONS_NOUPDATES_MESG"
       else
         __notify "$CHECKUP_NOTIFICATIONS_UPDATES_NAME" "$CHECKUP_NOTIFICATIONS_UPDATES_MESG"
