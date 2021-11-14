@@ -256,10 +256,9 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
 if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
-  rvm_path="$HOME/.local/share/rvm"
+  export rvm_path="$HOME/.local/share/rvm"
   . "$rvm_path/scripts/rvm"
   . "$rvm_path/scripts/completion"
-  export rvm_path
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
