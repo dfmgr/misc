@@ -263,11 +263,9 @@ if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-FNM_DIR="$HOME/.local/share/nodejs/fnm"
-FNM_MULTISHELL_PATH="$FNM_DIR/multishell"
-PATH="$FNM_MULTISHELL_PATH/bin:$PATH"
-eval "$(fnm env --shell $(basename "$SHELL"))"
-export FNM_DIR FNM_MULTISHELL_PATH
+export FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
+[[ -n "$(command -v nvm 2>/dev/null)" ]] && eval "$(fnm env --shell $(basename "$SHELL"))"
+[[ -n "$(command -v nvm 2>/dev/null)" ]] && eval "$(fnm completions --shell $(basename "$SHELL"))"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
 NVM_DIR="$HOME/.local/share/nodejs/nvm"
@@ -279,7 +277,7 @@ NODE_REPL_HISTORY_SIZE=2000
 export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python setV
-SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/venv/"
+SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/setvenv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
