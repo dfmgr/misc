@@ -262,7 +262,7 @@ if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-[[ -n "$(builtin type -P fnm 2>/dev/null)" ]] && eval "$(fnm env 2>/dev/null)"
+[[ -n "$(builtin command -v fnm 2>/dev/null)" ]] && eval "$(fnm env 2>/dev/null)"
 FNM_DIR="$HOME/.local/share/nodejs/fnm"
 FNM_BIN="$HOME/.local/bin"
 export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
