@@ -263,9 +263,9 @@ if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-export FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
-[[ -n "$(command -v nvm 2>/dev/null)" ]] && eval "$(fnm env --shell $(basename "$SHELL"))"
-[[ -n "$(command -v nvm 2>/dev/null)" ]] && eval "$(fnm completions --shell $(basename "$SHELL"))"
+FNM_DIR="${FNM_DIR:-$HOME/.local/share/nodejs/fnm}"
+FNM_BIN="${FNM_BIN:-$HOME/.local/bin}"
+export FNM_DIR FNM_BIN
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
 NVM_DIR="$HOME/.local/share/nodejs/nvm"
