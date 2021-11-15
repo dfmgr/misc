@@ -261,8 +261,18 @@ if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
   . "$rvm_path/scripts/completion"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Node
+if [ -f "$(command -v node 2>/dev/null)" ]; then
+  NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
+  NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+  PATH="$NPM_PACKAGES/bin:$PATH"
+  MANPATH="$NPM_PACKAGES/share/man:$(manpath)"
+  npm config set prefix "$NPM_PACKAGES"
+fi
+export NPM_PACKAGES NODE_PATH PATH MANPATH
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-[[ -n "$(builtin command -v fnm 2>/dev/null)" ]] && eval "$(fnm env 2>/dev/null)"
+[[ -f "$(builtin command -v fnm 2>/dev/null)" ]] && eval "$(fnm env 2>/dev/null)"
 FNM_DIR="$HOME/.local/share/nodejs/fnm"
 FNM_BIN="$HOME/.local/bin"
 export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
