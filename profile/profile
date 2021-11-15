@@ -272,11 +272,11 @@ export NPM_PACKAGES NODE_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 if [[ -f "$(builtin command -v fnm 2>/dev/null)" ]]; then
-  eval "$(fnm env 2>/dev/null)"
   FNM_BIN="$HOME/.local/bin"
   FNM_DIR="$HOME/.local/share/nodejs/fnm"
   TMP_BIN_PATH="$FNM_MULTISHELL_PATH/bin:$TMP_BIN_PATH"
   export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
+  eval "$(fnm env 2>/dev/null)"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
