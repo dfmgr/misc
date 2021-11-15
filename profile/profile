@@ -1,13 +1,15 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
-export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
+PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
+export PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
 # PS1="$USER@$(hostname -s 2>/dev/null):$(basename "$SHELL") # "
 # export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export NODE_MANAGER="fnm"
+NODE_MANAGER="fnm"
+export NODE_MANAGER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
 HISTSIZE=1200
@@ -274,9 +276,8 @@ export NPM_PACKAGES NODE_PATH
 if [[ -f "$(builtin command -v fnm 2>/dev/null)" ]]; then
   FNM_BIN="$HOME/.local/bin"
   FNM_DIR="$HOME/.local/share/nodejs/fnm"
-  TMP_BIN_PATH="$FNM_MULTISHELL_PATH/bin:$TMP_BIN_PATH"
+  eval "$(FNM_BIN="$FNM_BIN" FNM_DIR="$FNM_DIR" PATH="$TMP_BIN_PATH:$PATH" FNM_MULTISHELL_PATH="$FNM_MULTISHELL_PATH" fnm env 2>/dev/null)"
   export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
-  eval "$(fnm env 2>/dev/null)"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
