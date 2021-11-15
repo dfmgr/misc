@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
-TMP_BIN_PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
+export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
 # PS1="$USER@$(hostname -s 2>/dev/null):$(basename "$SHELL") # "
@@ -666,8 +666,9 @@ mkdir -p "$TMPDIR"
 [ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | tr '\n' ':' | sed 's#::#:.#g')"
-export PATH
+SET_PATH="$(echo "$PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | tr '\n' ':' | sed 's|:.:|:.|g')"
+SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | tr '\n' ':' | sed 's|:.:|:.|g')"
+export PATH="$SET_TMP_PATH:$SET_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
 PROFILERCSRC="$HOME/.profile"
@@ -679,6 +680,6 @@ if [ -n "$SSH_CONNECTION" ] && [ -f "$HOME/.config/misc/shell/other/ssh" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
-
+unset SET_PATH SET_TMP_PATH TMP_BIN_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
