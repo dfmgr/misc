@@ -4,8 +4,8 @@
 TMP_BIN_PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
-#PS1='\h:\w\$ '
-export PS1
+# PS1="$USER@$(hostname -s 2>/dev/null):$(basename "$SHELL") # "
+# export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export NODE_MANAGER="fnm"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
