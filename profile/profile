@@ -229,7 +229,10 @@ export BANNER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua - https://github.com/DhavalKapil/luaver
 LUAVER_HOME="$HOME/.local/share/misc/plugins/luaver"
-export LUAVER_HOME
+LUAROCKS_BIN="$HOME/.local/share/lua/luarocks/bin"
+LUAROCKS_PREFIX="$HOME/.local/share/lua/luarocks"
+TMP_BIN_PATH="$LUAROCKS_BIN"
+export LUAVER_HOME LUAROCKS_PREFIX LUAROCKS_BIN
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure asdf - https://asdf-vm.com
 ASDF_DIR="$HOME/.local/share/misc/plugins/asdf"
