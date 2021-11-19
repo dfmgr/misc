@@ -31,18 +31,20 @@
 *.hintstyle:                    hintslight
 *.lcdfilter:                    lcddefault
 
-*.font:                     xft:Hack Nerd Font Mono:style=Regular:size=11:hinting=full, xft:Symbola:size=11:antialias=true:hinting=full, xft:PowerlineSymbols:size=11:antialias=true:hinting=full
-!*.font:                     xft:GohuFont:size=8:antialias=true, \
-!*.font:                     xft:gohufont:size=11:antialias=false
-!*.font:                     -*-creep-regular-*-*--16-*-*-*-*-*-*-1
-!*.font:                     -*-lime-*-*-*--11-*-*-*-*-*-*-1
-!*.font:                     xft:creep:size=16:antialias=true
-!*.font:                     xft:envy code r:size=9:antialias=false
-!*.font:                     xft:lemon:size=16:antialias=false
-!*.font:                     xft:lime:size=16:antialias=false
-!*.font:                     xft:neep:size=11:antialias=false
-!*.font:                     xft:perfect dos vga 437:size=11:antialias=false
-!*.font:                     xft:tewi:size=11:antialias=false
+*.font:                      xft:Hack Nerd Font Mono:style=Regular:size=11:hinting=full, \
+        xft:Symbola:size=11:antialias=true:hinting=full, \
+        xft:PowerlineSymbols:size=11:antialias=true:hinting=full, \
+        xft:GohuFont:size=8:antialias=true, \
+        xft:gohufont:size=11:antialias=false, \
+        xft:creep:size=16:antialias=true, \
+        xft:envy code r:size=9:antialias=false, \
+        xft:lemon:size=16:antialias=false, \
+        xft:lime:size=16:antialias=false, \
+        xft:neep:size=11:antialias=false, \
+        xft:perfect dos vga 437:size=11:antialias=false, \
+        xft:tewi:size=11:antialias=false, \
+        -*-creep-regular-*-*--16-*-*-*-*-*-*-1, \
+        -*-lime-*-*-*--11-*-*-*-*-*-*-1
 !*.boldFont:
 !*.italicFont:
 !*.bolditalicFont:

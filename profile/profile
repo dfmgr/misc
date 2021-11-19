@@ -17,8 +17,7 @@ HISTFILESIZE=1200
 SAVEHIST=4096
 HISTCONTROL=ignoredups:erasedups
 HISTIGNORE="[bf]g:exit:pwd:clear:q:!"
-BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
-export HISTSIZE HISTFILESIZE SAVEHIST HISTCONTROL HISTIGNORE BASH_COMPLETION_USER_DIR
+export HISTSIZE HISTFILESIZE SAVEHIST HISTCONTROL HISTIGNORE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
@@ -30,6 +29,7 @@ elif [ -n "$BASH_VERSION" ]; then
   BASH_SILENCE_DEPRECATION_WARNING="1"
   HISTFILE="$HOME/.config/bash/bash_history"
   OSH="$HOME/.local/share/bash/oh-my-bash"
+  BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
   if [ -n "$(which direnv 2>/dev/null)" ]; then
     direnv hook bash >/dev/null 2>&1
   fi
@@ -37,7 +37,7 @@ elif [ -n "$BASH_VERSION" ]; then
     mv -f "$HOME/.bash_history" "$HISTFILE"
     history -r
   fi
-  export BASH_SILENCE_DEPRECATION_WARNING HISTFILE
+  export BASH_SILENCE_DEPRECATION_WARNING HISTFILE BASH_COMPLETION_USER_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
@@ -87,6 +87,8 @@ if [ -n "$DISPLAY" ]; then
   if [ -n "$(which xrandr 2>/dev/null)" ]; then
     RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
   fi
+else
+  RESOLUTION="${RESOLUTION:-}"
 fi
 export DISPLAY RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -264,7 +266,7 @@ if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
   export rvm_path="$HOME/.local/share/rvm"
   . "$rvm_path/scripts/rvm"
   . "$rvm_path/scripts/completion"
-  TMP_BIN_PATH="$rvm_path/bin"
+  TMP_BIN_PATH="$rvm_path/bin:$TMP_BIN_PATH"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Node
