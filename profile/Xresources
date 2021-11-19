@@ -50,7 +50,7 @@
 !*.bolditalicFont:
 
 ! emacs configuration
-Emacs.alpha:                    95
+Emacs.alpha:                    98
 emacs.FontBackend:              xft
 Emacs.font:                     Hack Nerd Font Mono-8
 
