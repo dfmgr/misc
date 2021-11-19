@@ -159,6 +159,7 @@ run_postinst() {
   for f in curlrc dircolors gntrc inputrc libao myclirc profile rpmmacros wgetrc Xresources xscreensaver; do
     [ -L "$HOME/.$f" ] && rm_link "$HOME/.$f"
     cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
+    replace "$HOME/.$f" "/home/jason" "$HOME"
   done
   for c in CasjaysDev dunst lynx xresources; do
     [ -L "$HOME/.config/$c" ] && rm_link "$HOME/.config/$c"
