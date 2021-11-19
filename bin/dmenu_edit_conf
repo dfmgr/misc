@@ -157,7 +157,7 @@ else
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ -d "$DMENU_EDIT_USER_CONF_DIR" ]; then
-  GET_CONFIGS="$(find "$DMENU_EDIT_USER_CONF_DIR" -maxdepth 3 -type f | sed "s|$DMENU_EDIT_USER_CONF_DIR/||g" | grep '^' || exit 1)"
+  GET_CONFIGS="$(find "$DMENU_EDIT_USER_CONF_DIR" -maxdepth 3 -type f | sort -u | sed "s|$DMENU_EDIT_USER_CONF_DIR/||g" | grep '^' || exit 1)"
   EDIT_NAME="$(echo -e "exit\n$GET_CONFIGS" | __dmenu)"
   if [[ "$EDIT_NAME" = "exit" ]]; then
     notifications "$PROG" "exiting due to user cancel"
