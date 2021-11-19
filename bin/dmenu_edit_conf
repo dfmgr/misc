@@ -151,31 +151,43 @@ cmd_exists --error bash || exit 1
 if cmd_exists rofi; then
   __dmenu() { rofi -theme ${ROFI_THEME:-purple} -show -dmenu -i -p 'Edit config file' || return 1; }
 elif cmd_exists dmenu; then
-  __dmenu() { dmenu -i -p 'Edit config file'; }
+  __dmenu() { dmenu -i -p 'Edit config file' || return 1; }
 else
   notifications "$PROG" "This requires either dmenu or rofi"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [ -d "$DMENU_EDIT_USER_CONF_DIR" ]; then
-  GET_CONFIGS="$(cd "$DMENU_EDIT_USER_CONF_DIR" && find -- * -maxdepth 3 -type f)"
+  GET_CONFIGS="$(find "$DMENU_EDIT_USER_CONF_DIR" -maxdepth 3 -type f | sed "s|$DMENU_EDIT_USER_CONF_DIR/||g" | grep '^' || exit 1)"
   EDIT_NAME="$(echo -e "exit\n$GET_CONFIGS" | __dmenu)"
-  if [ -n "$EDIT_NAME" ]; then
+  if [[ "$EDIT_NAME" = "exit" ]]; then
+    notifications "$PROG" "exiting due to user cancel"
+    exit 1
+  elif [ -n "$EDIT_NAME" ] && [[ -f "$DMENU_EDIT_USER_CONF_DIR/$EDIT_NAME" ]]; then
     . "$DMENU_EDIT_USER_CONF_DIR/$EDIT_NAME"
+  elif [[ -z "$EDIT_NAME" ]] || [[ -z "$GET_CONFIGS" ]]; then
+    notifications "$PROG" "exiting due to no configuration"
+    exit 1
   else
     notifications "$PROG" "No file selected"
+    exit 1
   fi
+else
+  notifications "$PROG" "exiting due to no configuration"
+  exit 1
 fi
-#printf_exit "E:$EDIT_NAME e:$editConfig"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if [[ "$editConfig" = "exit" ]]; then
   notifications "$PROG" "exiting due to user cancel"
-  exit 0
+  exit 1
+elif [[ -z "$editConfig" ]]; then
+  notifications "$PROG" "exiting due to no configuration"
+  exitCode=1
 elif [[ -e "$editConfig" ]]; then
   notifications "$PROG" "Opening $editConfig"
-  myeditor "$editConfig"
+  myeditor "$editConfig" && exitCode=0 || exitCode=1
 else
   notifications "$PROG" "$editConfig does not exist"
-  eval $PROG "$*" || exit
+  exitCode=1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lets exit with code
