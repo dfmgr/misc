@@ -31,20 +31,20 @@
 *.hintstyle:                    hintslight
 *.lcdfilter:                    lcddefault
 
-*.font:                      xft:Hack Nerd Font Mono:style=Regular:size=11:hinting=full, \
-                             xft:Symbola:size=11:antialias=true:hinting=full, \
-                             xft:PowerlineSymbols:size=11:antialias=true:hinting=full, \
-                             xft:GohuFont:size=8:antialias=true, \
-                             xft:gohufont:size=11:antialias=false, \
-                             xft:creep:size=16:antialias=true, \
-                             xft:envy code r:size=9:antialias=false, \
-                             xft:lemon:size=16:antialias=false, \
-                             xft:lime:size=16:antialias=false, \
-                             xft:neep:size=11:antialias=false, \
-                             xft:perfect dos vga 437:size=11:antialias=false, \
-                             xft:tewi:size=11:antialias=false, \
-                             -*-creep-regular-*-*--16-*-*-*-*-*-*-1, \
-                             -*-lime-*-*-*--11-*-*-*-*-*-*-1
+*.font:                         xft:Hack Nerd Font Mono:style=Regular:size=11:hinting=full, \
+                                xft:Symbola:size=11:antialias=true:hinting=full, \
+                                xft:PowerlineSymbols:size=11:antialias=true:hinting=full, \
+                                xft:GohuFont:size=8:antialias=true, \
+                                xft:gohufont:size=11:antialias=false, \
+                                xft:creep:size=16:antialias=true, \
+                                xft:envy code r:size=9:antialias=false, \
+                                xft:lemon:size=16:antialias=false, \
+                                xft:lime:size=16:antialias=false, \
+                                xft:neep:size=11:antialias=false, \
+                                xft:perfect dos vga 437:size=11:antialias=false, \
+                                xft:tewi:size=11:antialias=false, \
+                                -*-creep-regular-*-*--16-*-*-*-*-*-*-1, \
+                                -*-lime-*-*-*--11-*-*-*-*-*-*-1
 !*.boldFont:
 !*.italicFont:
 !*.bolditalicFont:
