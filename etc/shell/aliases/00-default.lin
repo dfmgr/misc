@@ -113,6 +113,9 @@ elif [ -n "$(which code-insiders 2>/dev/null)" ]; then
   alias code='code-insiders'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Powershell
+[ -f "$(type -f pwsh-preview 2>/dev/null)" ] && alias pwsh='pwsh-preview '
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geany
 [ -n "$(which geany 2>/dev/null)" ] && alias='geany --socket-file=/tmp/geany.sock &>/dev/null '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
