@@ -77,6 +77,7 @@ EOF
     bash -c "$(curl -q -LSs "$SETUP_GOFISH_INSTALL_SCRIPT" &>/dev/null)" &&
       gofish init &>/dev/null && true || false
     if type -P gofish &>/dev/null; then
+      gofish update &>/dev/null
       printf_green "gofish has been installed"
       return 0
     else
