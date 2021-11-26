@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+setup_gofish_main() {
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="$(basename "$0")"
+  VERSION="202107281513-git"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
+  trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_GOFISH_TEMP_FILE" ] && rm -Rf "$SETUP_GOFISH_TEMP_FILE" &>/dev/null' EXIT
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 202107281513-git
+  # @Author        : jason
+  # @Contact       : jason
+  # @License       : LICENSE.md
+  # @ReadME        : setup_gofish --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, Casjays Developments
+  # @Created       : Wednesday, Jul 28, 2021 20:29 EDT
+  # @File          : setup_gofish
+  # @Description   :
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper functions - See https://github.com/dfmgr/misc/blob/main/bin/functions.bash
+  __version() { app_version; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __help() {
+    app_help "4" "Usage: setup_gofish  " \
+      "-c, --config           -  create config file" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help" \
+      "--options              -  used by completions"
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE"
+    [ -d "$SETUP_GOFISH_CONFIG_DIR" ] || mkdir -p "$SETUP_GOFISH_CONFIG_DIR"
+    [ -d "$SETUP_GOFISH_CONFIG_BACKUP_DIR" ] || mkdir -p "$SETUP_GOFISH_CONFIG_BACKUP_DIR"
+    [ -f "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE" ] &&
+      cp -Rf "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE" "$SETUP_GOFISH_CONFIG_BACKUP_DIR/$SETUP_GOFISH_CONFIG_FILE.$$"
+    cat <<EOF >"$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE"
+# Settings for setup_gofish
+SETUP_GOFISH_NOTIFY_ENABLED="yes"
+SETUP_GOFISH_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+SETUP_GOFISH_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_GOFISH_NOTIFY_CLIENT_ICON}"
+SETUP_GOFISH_INSTALL_SCRIPT="${SETUP_GOFISH_INSTALL_SCRIPT:-https://raw.githubusercontent.com/fishworks/gofish/main/scripts/install.sh}"
+
+EOF
+    if [ -f "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE" ]; then
+      printf_green "Your config file for setup_gofish has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gofish_install() {
+    sudo true
+    bash -c "$(curl -q -LSs "$SETUP_GOFISH_INSTALL_SCRIPT" &>/dev/null)" &&
+      gofish init &>/dev/null && true || false
+    if type -P gofish &>/dev/null; then
+      printf_green "gofish has been installed"
+      return 0
+    else
+      printf_red "Failed to install gofish"
+      return 1
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __yum_install() {
+    return
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __pac_install() {
+    return
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __brew_install() {
+    return
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode=""
+  local SETUP_GOFISH_CONFIG_FILE="settings.conf"
+  local SETUP_GOFISH_CONFIG_DIR="$HOME/.config/misc/setup_gofish"
+  local SETUP_GOFISH_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/setup_gofish/backups"
+  local SETUP_GOFISH_OPTIONS_DIR="$HOME/.local/share/misc/setup_gofish/options"
+  local SETUP_GOFISH_TEMP_FILE="${TMPDIR:-/tmp}/setup_gofish"
+  local SETUP_GOFISH_NOTIFY_ENABLED="yes"
+  local SETUP_GOFISH_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+  local SETUP_GOFISH_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_GOFISH_NOTIFY_CLIENT_ICON}"
+  local SETUP_GOFISH_INSTALL_SCRIPT="${SETUP_GOFISH_INSTALL_SCRIPT:-https://raw.githubusercontent.com/fishworks/gofish/main/scripts/install.sh}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="$*"
+  local SHORTOPTS="c,v,h,i"
+  local LONGOPTS="options,config,version,help,install"
+  local ARRAY="$(gofish search | grep -v NAME | awk '{print $1}' | grep '^')"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate Files
+  [ -f "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$SETUP_GOFISH_OPTIONS_DIR/options" ] || __list_options "$SETUP_GOFISH_OPTIONS_DIR" &>/dev/null
+  [ -f "$SETUP_GOFISH_OPTIONS_DIR/array" ] || __list_array "$SETUP_GOFISH_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  if [ -f "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE" ]; then
+    . "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE"
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -a -n "$PROG" -- "$@" 2>/dev/null)
+  eval set -- "${setopts}" 2>/dev/null
+  while :; do
+    case $1 in
+    --options)
+      shift 1
+      __list_array "$SETUP_GOFISH_OPTIONS_DIR" "$ARRAY"
+      __list_options "$SETUP_GOFISH_OPTIONS_DIR"
+      exit $?
+      ;;
+    -v | --version)
+      shift 1
+      __version
+      exit $?
+      ;;
+    -h | --help)
+      shift 1
+      __help
+      exit $?
+      ;;
+    -c | --config)
+      shift 1
+      __gen_config
+      exit $?
+      ;;
+    -i | --install)
+      shift 1
+      __gofish_install
+      exit $?
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+      #*) break ;;
+    esac
+  done
+  #set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Actions based on env
+  export NOTIFY_CLIENT_NAME="${SETUP_GOFISH_NOTIFY_CLIENT_NAME}"
+  export NOTIFY_CLIENT_ICON="${SETUP_GOFISH_NOTIFY_CLIENT_ICON}"
+  if [ "$SETUP_GOFISH_NOTIFY_ENABLED" = "yes" ]; then
+    __notifications() {
+      notifications "$*" || return 1
+    }
+  else
+    __notifications() { false; }
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications/Network check
+  cmd_exists --error bash || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # APP Variables
+  GOFISH_HOME="${GOFISH_HOME:-/usr/local/gofish}"
+  GOFISH_RIGS="${GOFISH_RIGS:-$GOFISH_HOME/Rigs}"
+  GOFISH_CACHE="${GOFISH_CACHE:-$HOME/cache/.gofish}"
+  GOFISH_BARREL="${GOFISH_BARREL:-$GOFISH_HOME/Barrel}"
+  GOFISH_DEFAULT_RIG="${GOFISH_DEFAULT_RIG:-$GOFISH_HOME/Rigs/github.com/fishworks/fish-food}"
+  export GOFISH_HOME GOFISH_RIGS GOFISH_CACHE GOFISH_BARREL GOFISH_DEFAULT_RIG
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  cmd_exists gofish || __gofish_install || exit 1
+  if [ $# -ne 0 ]; then
+    LISTARRAY="$*"
+    for pkg in $LISTARRAY; do
+      gofish install $pkg
+    done
+  else
+    gofish search | grep -v NAME | awk '{print $1}' | grep '^' | column
+    printf '\n'
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # lets exit with code
+  return ${exitCode:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+setup_gofish_main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lets exit with code
+exit ${exitCode:-$?}
