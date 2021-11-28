@@ -15,7 +15,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[ -f "$HOME/.local/share/misc/cdd/options/array" ] || cdd --options &>/dev/null
 _cdd() {
-  __grep() { GREP_COLORS="" grep -E ^''$1' =*..*'$ "$HOME/.config/misc/settings/cdd/aliases.conf" | sed 's|"||g' 2>/dev/null; }
+  __grep() { GREP_COLORS="" grep -sE ^''$1' =*..*'$ "$HOME/.config/misc/settings/cdd/aliases.conf" | sed 's|"||g' 2>/dev/null; }
   local cur prev words cword opts
   local cur="${COMP_WORDS[$COMP_CWORD]}"
   local prev="${COMP_WORDS[$COMP_CWORD - 1]}"
