@@ -15,6 +15,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #[ -f "$HOME/.local/share/misc/cdd/options/array" ] || cdd --options &>/dev/null
 _cdd() {
+  __grep() { GREP_COLORS="" grep -E ^''$1' =*..*'$ "$HOME/.config/misc/settings/cdd/aliases.conf" | sed 's|"||g' 2>/dev/null; }
   local cur prev words cword opts
   local cur="${COMP_WORDS[$COMP_CWORD]}"
   local prev="${COMP_WORDS[$COMP_CWORD - 1]}"
@@ -25,7 +26,7 @@ _cdd() {
   local OPTSDIR="$HOME/.local/share/misc/cdd/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/cdd}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
-  local DEFAULTARRAY="$(cmd_exists cdd && cdd --list || echo "")"
+  local DEFAULTARRAY="$(__grep "*" | awk -F' =' '{print $1}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^')"
   local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo '--options --help --version')"
   local LONGOPTS="$(grep -sEv '#|^$' "$OPTSDIR/options" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep '\--')"
   local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/options" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep -v '\--')"
