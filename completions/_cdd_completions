@@ -25,7 +25,7 @@ _cdd() {
   local OPTSDIR="$HOME/.local/share/misc/cdd/options"
   local SEARCHDIR="${CONFDIR:-$HOME/.config/misc/settings/cdd}"
   #local SEARCHCMD="$(find -L $SEARCHDIR -maxdepth 3 -type f 2>/dev/null| sed "s#"$SEARCHDIR/"##g" 2>/dev/null | grep '^')"
-  local DEFAULTARRAY="$([ -f "$OPTSDIR/array" ] && grep -sEv '#|^$' "$OPTSDIR/array" || echo '--options --help --version')"
+  local DEFAULTARRAY="$(cmd_exists cdd && cdd --list || echo "")"
   local DEFAULTOPTS="$([ -f "$OPTSDIR/options" ] && grep -sEv '#|^$' "$OPTSDIR/options" || echo '--options --help --version')"
   local LONGOPTS="$(grep -sEv '#|^$' "$OPTSDIR/options" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep '\--')"
   local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/options" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep -v '\--')"
