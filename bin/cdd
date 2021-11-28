@@ -93,7 +93,7 @@ testing = "${TMPDIR:-/tmp}/testing"
 projects = "$HOME/Projects"
 pictures = "$HOME/Pictures"
 music = "$HOME/Music"
-share = "$HOME/local/share"
+share = "$HOME/.local/share"
 
 EOF
 
@@ -124,6 +124,7 @@ EOF
     _cd && complete -F _cd cd
     local REPO_UPDATED
     local CD_INTO_DIR="$1"
+    [[ -f "$PWD/.env" ]] && . "$PWD/.env"
     if [[ -d "$CD_INTO_DIR/.git" ]]; then
       [[ -n "$REPO_UPDATED" ]] || printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull && REPO_UPDATED="yes"
     fi
