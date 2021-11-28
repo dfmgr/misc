@@ -32,6 +32,7 @@ __search_dir() {
   done
   SET_DIR="$SEARCH_DIR"
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __search_file() {
   while :; do
     ARGS="$MYARGS"
@@ -55,14 +56,14 @@ SET_HOUR="$(date +'%H')"
 SET_MINUTE="$(date +'%M')"
 SET_TIME="$(date +'%H:%M')"
 SET_DATE="$(date +'%Y-%m-%d')"
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # dont output
 devnull() { "$@" >/dev/null 2>&1; }
 devnull2() { "$@" 2>/dev/null; }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo
 sudoif() { (sudo -vn && sudo -ln) 2>&1 | grep -v 'may not' >/dev/null && return 0 || return 1; }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # commands
 command() { builtin command ${1+"$@"}; }
 type() { builtin type ${1+"$@"}; }
@@ -71,11 +72,14 @@ rm_rf() { devnull rm -Rf "$@"; }
 cp_rf() { if [ -e "$1" ]; then devnull cp -Rfa "$@"; fi; }
 mv_f() { if [ -e "$1" ]; then devnull mv -f "$@"; fi; }
 ln_rm() { devnull find "${1:-$HOME}" -xtype l -delete; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ln_sf() {
   devnull ln -sf "$@"
   ln_rm "${1:-$HOME}"
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # colorize
 printf_color() { printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"; }
 printf_normal() { printf_color "\t\t$1\n" "$2"; }
@@ -96,7 +100,7 @@ printf_execute_success() { printf_color "\t\t[ ✔ ] $1 [ ✔ ] \n" 2; }
 printf_execute_error() { printf_color "\t\t[ ✖ ] $1 $2 [ ✖ ] \n" 1; }
 printf_execute_error_stream() { while read -r line; do printf_execute_error "↳ ERROR: $line"; done; }
 printf_help() { printf_blue "$*"; }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_debug() {
   printf_yellow "Running in debug mode "
   for d in "$@"; do
@@ -104,7 +108,7 @@ printf_debug() {
   done
   exit 1
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_mkdir() {
   [ -n "$1" ] || return 1
   if ask_confirm "$1 doesn't exist should i create it?" "mkdir -p $1"; then
@@ -114,7 +118,7 @@ printf_mkdir() {
     return 1
   fi
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_question_term() {
   printf_question "$* [yN] "
   read -r -n 1 REPLY
@@ -125,7 +129,7 @@ printf_question_term() {
     return 1
   fi
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_custom() {
   [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
   local msg="$*"
@@ -133,26 +137,26 @@ printf_custom() {
   printf_color "\t\t$msg" "$color"
   printf "\n"
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_return() {
   [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
   [[ $1 == ?(-)+([0-9]) ]] && local exit="$1" && shift 1 || local exit="1"
   printf_color "\t\t$1\n" "$color" && return $exit
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_exit() {
   [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
   [[ $1 == ?(-)+([0-9]) ]] && local exit="$1" && shift 1 || local exit="1"
   printf_color "\t\t$1\n" "$color" && exit $exit
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_custom_question() {
   [[ $1 == ?(-)+([0-9]) ]] && local color="$1" && shift 1 || local color="3"
   local msg="$*"
   shift
   printf_color "\t\t$msg" "$color"
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_read() {
   set -o pipefail
   test -n "$1" && test -z "${1//[0-9]/}" && local color="$1" && shift 1 || local color="6"
@@ -162,7 +166,7 @@ printf_read() {
   printf "\n"
   set +o pipefail
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_readline() {
   set -o pipefail
   test -n "$1" && test -z "${1//[0-9]/}" && local color="$1" && shift 1 || local color="6"
@@ -172,7 +176,7 @@ printf_readline() {
   done
   set +o pipefail
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 printf_column() {
   set -o pipefail
   test -n "$1" && test -z "${1//[0-9]/}" && local color="$1" && shift 1 || local color="6"
@@ -182,13 +186,13 @@ printf_column() {
   printf "\n"
   set +o pipefail
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 return_error() {
   printf '%s' "$*"
   printf '\n'
   return 1
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # get description for help
 get_desc() {
   local PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
@@ -196,6 +200,7 @@ get_desc() {
   local desc="$(grep_head "Description" "$appname" | head -n1 | sed 's#..* : ##g')"
   [ -n "$desc" ] && printf '%s' "$desc" || printf '%s' "$appname help"
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # display help
 app_help() {
   printf "\n"
@@ -249,6 +254,7 @@ app_help() {
   printf "\n"
   exit "${exitCode:-1}"
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # grep header
 sed_remove_empty() { sed '/^\#/d;/^$/d;s#^ ##g'; }
 sed_head_remove() { awk -F'  :' '{print $2}'; }
@@ -256,7 +262,7 @@ sed_head() { sed -E 's|^.*#||g;s#^ ##g;s|^@||g'; }
 grep_head() { grep -sE '[".#]?@[A-Z]' "${2:-$command}" | grep "${1:-}" | head -n 12 | sed_head | sed_remove_empty | grep '^' || return 1; }
 grep_head_remove() { grep -sE '[".#]?@[A-Z]' "${2:-$command}" | grep "${1:-}" | grep -Ev 'GEN_SCRIPTS_*|\${|\$\(' | sed_head_remove | sed '/^\#/d;/^$/d;s#^ ##g' | grep '^' || return 1; }
 grep_version() { grep_head ''${1:-Version}'' "${2:-$command}" | sed_head | sed_head_remove | sed_remove_empty | head -n1 | grep '^'; }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # display version
 app_version() {
   local prog="${PROG:-$APPNAME}"              # get from file
@@ -277,7 +283,7 @@ app_version() {
   printf "\n"
   exit "${exitCode:-$?}"
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 check_local() {
   local file="${1:-$PWD}"
   if [ -d "$file" ]; then
@@ -304,7 +310,7 @@ check_local() {
     type="pipe"
     localfile="true"
     return 0
-  elif [ -c "$"file"" ]; then
+  elif [ -c "$file" ]; then
     type=character
     localfile=true
     return 0
@@ -318,6 +324,7 @@ check_local() {
     return 1
   fi
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 check_uri() {
   local url="$1"
   if echo "$url" | grep -q "http.*://\S\+\.[A-Za-z]\+\S*"; then
@@ -337,6 +344,7 @@ check_uri() {
     return 1
   fi
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __am_i_online() { am_i_online "$@" &>/dev/null; }
 # online check
 am_i_online() {
@@ -389,7 +397,7 @@ am_i_online() {
   fi
   return ${exitCode:-$?}
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 notify_good() {
   local prog="${PROG:-$APPNAME}"
   local name="${1:-$(basename $0)}"
@@ -398,7 +406,7 @@ notify_good() {
   printf_green "${prog:-$name}: $message"
   return 0
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 notify_error() {
   local prog="${PROG:-$APPNAME}"
   local name="${1:-$(basename $0)}"
@@ -407,6 +415,7 @@ notify_error() {
   printf_red "${prog:-$name}: $message"
   return 1
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ask question and execute
 ask_confirm() {
   local question="${1:-Continue}"
@@ -439,10 +448,15 @@ ask_confirm() {
     return ${exitCode:-$?}
   fi
 }
-__cmd_exists() { cmd_exists "$@"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # command check
+__cmd_exists() { cmd_exists "$@"; }
 cmd_exists() {
-  [ "$CMD_EXISTS_NOTIFY" = "yes" ] && __notifications() { __notifications "$@"; } || __notifications() { true "$@"; }
+  if [ "$CMD_EXISTS_NOTIFY" = "yes" ]; then
+    __notifications() { notifications "$@"; }
+  else
+    __notifications() { true "$@"; }
+  fi
   if [ "$CMD_EXISTS_INSTALL" = "yes" ]; then
     install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; }
   else
@@ -492,7 +506,7 @@ cmd_exists() {
   unset cmd command missing
   return ${exitCode:-$?}
 }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # show a spinner while executing code or zenity
 if [ -f "$(command -v zenity 2>/dev/null)" ] && [ -n "$DESKTOP_SESSION" ]; then
   execute() {
@@ -543,13 +557,14 @@ else
     return $exitCode
   }
 fi
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __list_array() {
   local OPTSDIR="${1:-$HOME/.local/share/misc/${PROG:-$APPNAME}/options}"
   mkdir -p "$OPTSDIR"
   echo "${2:-$ARRAY}" >"$OPTSDIR/array"
   return
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __list_options() {
   local OPTSDIR="${1:-$HOME/.local/share/misc/${PROG:-$APPNAME}/options}"
   mkdir -p "$OPTSDIR"
@@ -558,12 +573,14 @@ __list_options() {
   return
 }
 __dirname() { cd "$1" 2>/dev/null && pwd || return 1; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_porcelain_count() {
   [ -d "$(__git_top_dir "${1:-.}")/.git" ] &&
     [ "$(git -C "${1:-.}" status --porcelain 2>/dev/null | wc -l 2>/dev/null)" -eq "0" ] &&
     return 0 || return 1
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_porcelain() { __git_porcelain_count "${1:-.}" && return 0 || return 1; }
 __git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 unset SEARCH_DIR SEARCH_FILE ARGS opts
