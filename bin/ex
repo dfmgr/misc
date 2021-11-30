@@ -132,23 +132,24 @@ EOF
   filename="${file:-$1}"
   if [ -f "$filename" ]; then
     case "$filename" in
-    *.tar.bz2) tar xjf "$filename" ;;
-    *.tar.gz) tar xzf "$filename" ;;
-    *.bz2) bunzip2 "$filename" ;;
-    *.rar) unrar x "$filename" ;;
-    *.gz) gunzip "$filename" ;;
-    *.tar) tar xf "$filename" ;;
-    *.tbz2) tar xjf "$filename" ;;
-    *.tgz) tar xzf "$filename" ;;
-    *.zip) unzip "$filename" ;;
-    *.Z) uncompress "$filename" ;;
-    *.7z) 7z x "$filename" ;;
-    *) printf_red "$filename cannot be extracted via ex" && return 1 ;;
+    *.tar.bz2) tar xjf "$filename" || false ;;
+    *.tar.gz) tar xzf "$filename" || false ;;
+    *.bz2) bunzip2 "$filename" || false ;;
+    *.rar) unrar x "$filename" || false ;;
+    *.gz) gunzip "$filename" || false ;;
+    *.tar) tar xf "$filename" || false ;;
+    *.tbz2) tar xjf "$filename" || false ;;
+    *.tgz) tar xzf "$filename" || false ;;
+    *.zip) unzip "$filename" || false ;;
+    *.Z) uncompress "$filename" || false ;;
+    *.7z) 7z x "$filename" || false ;;
+    *.xz) unex "$filename" || false ;;
+    *) printf_red "$filename cannot be extracted via ex" && false ;;
     esac
-    return $?
+    exitCode=$?
   else
     printf_red "$filename is not a valid file"
-    return 1
+    exitCode=1
   fi
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
