@@ -285,44 +285,48 @@ app_version() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 check_local() {
+  local showv=""
+  [[ "$1" = -s ]] && shift 1 && showv=true
   local file="${1:-$PWD}"
   if [ -d "$file" ]; then
     type="dir"
     localfile="true"
-    return 0
+    exitCode=0
   elif [ -f "$file" ]; then
     type="file"
     localfile="true"
-    return 0
+    exitCode=0
   elif [ -L "$file" ]; then
     type="symlink"
     localfile="true"
-    return 0
+    exitCode=0
   elif [ -S "$file" ]; then
     type="socket"
     localfile="true"
-    return 0
+    exitCode=0
   elif [ -b "$file" ]; then
     type="block"
     localfile="true"
-    return 0
+    exitCode=0
   elif [ -p "$file" ]; then
     type="pipe"
     localfile="true"
-    return 0
+    exitCode=0
   elif [ -c "$file" ]; then
-    type=character
-    localfile=true
-    return 0
+    type="character"
+    localfile="true"
+    exitCode=0
   elif [ -e "$file" ]; then
     type="file"
     localfile="true"
-    return 0
+    exitCode=0
   else
     type=""
     localfile=""
-    return 1
+    exitCode=1
   fi
+  [ -n "$showv" ] || echo "$type"
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 check_uri() {
