@@ -326,26 +326,27 @@ check_local() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 check_uri() {
+  local showv=""
+  [[ "$1" = -s ]] && shift 1 && showv=true
   local url="$1"
   if echo "$url" | grep -q "http.*://\S\+\.[A-Za-z]\+\S*"; then
     uri="http"
-    return 0
-  elif echo "$url" | grep -q "https.*://\S\+\.[A-Za-z]\+\S*"; then
-    uri="https"
-    return 0
+    exitCode=0
   elif echo "$url" | grep -q "ftp.*://\S\+\.[A-Za-z]\+\S*"; then
     uri="ftp"
-    return 0
+    exitCode=0
   elif echo "$url" | grep -q "git.*://\S\+\.[A-Za-z]\+\S*"; then
     uri="git"
-    return 0
+    exitCode=0
   elif echo "$url" | grep -q "ssh.*://\S\+\.[A-Za-z]\+\S*"; then
     uri="ssh"
-    return 0
+    exitCode=0
   else
     uri=""
-    return 1
+    exitCode=1
   fi
+  [ -n "$showv" ] || echo "$uri"
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 notify_good() {
