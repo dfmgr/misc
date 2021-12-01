@@ -143,7 +143,7 @@ EOF
     *.zip) unzip "$filename" || false ;;
     *.Z) uncompress "$filename" || false ;;
     *.7z) 7z x "$filename" || false ;;
-    *.xz) unex "$filename" || false ;;
+    *.xz) ex "$filename" || false ;;
     *) printf_red "$filename cannot be extracted via ex" && false ;;
     esac
     exitCode=$?
