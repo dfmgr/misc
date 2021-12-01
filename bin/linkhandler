@@ -42,14 +42,6 @@ main() {
   -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ -z "$FILEMANAGER" ]; then
-    FILEMANAGER="$(command -v myfilemanager || command -v thunar || command -v vifm || command -v se)"
-  fi
-  [ -z "$1" ] && {
-    "$FILEMANAGER"
-    exit $?
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cmd_exists --error setsid || exit 1
   case "$1" in
   *mkv | *webm | *mp4 | *youtube.com/watch* | *youtube.com/playlist* | *youtu.be* | *hooktube.com* | *bitchute.com*)
@@ -81,7 +73,11 @@ main() {
   *)
     if [ -f "$1" ]; then
       setsid "$TERMINAL" -e "$EDITOR $1" &>/dev/null && return 0 || return 1 &
-    else
+    elif [ -d "$1" ]; then
+      FILEMANAGER="$(command -v myfilemanager || command -v thunar || command -v vifm || command -v se)"
+      eval "$FILEMANAGER" "$*"
+      exit $?
+    elif [ -n "$(check_uri "$1")" ]; then
       setsid "$BROWSER" "$1" &>/dev/null && return 0 || return 1 &
     fi
     ;;

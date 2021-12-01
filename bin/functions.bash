@@ -330,6 +330,9 @@ check_uri() {
   if echo "$url" | grep -q "http.*://\S\+\.[A-Za-z]\+\S*"; then
     uri="http"
     return 0
+  elif echo "$url" | grep -q "https.*://\S\+\.[A-Za-z]\+\S*"; then
+    uri="https"
+    return 0
   elif echo "$url" | grep -q "ftp.*://\S\+\.[A-Za-z]\+\S*"; then
     uri="ftp"
     return 0
@@ -343,59 +346,6 @@ check_uri() {
     uri=""
     return 1
   fi
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__am_i_online() { am_i_online "$@" &>/dev/null; }
-# online check
-am_i_online() {
-  __curl() { devnull2 timeout 1 curl --disable -LSIs --max-time 1 "$site" | grep -e "HTTP/[0123456789]" | grep "200" -n1 &>/dev/null; }
-  __ping() { devnull2 timeout 1 ping -c1 "$site" &>/dev/null; }
-  case $1 in
-  *err* | *show)
-    shift 1
-    showerror=yes
-    site="${1:-1.1.1.1}"
-    ;;
-  *console)
-    shift 1
-    console="yes"
-    site="${1:-1.1.1.1}"
-    ;;
-  *)
-    site="${1:-1.1.1.1}"
-    ;;
-  esac
-  shift
-  test_ping() {
-    __ping || false
-    pingExit="$?"
-    return ${pingExit:-$?}
-  }
-  test_http() {
-    __curl || false
-    httpExit="$?"
-    return ${httpExit:-$?}
-  }
-  if test_ping || test_http; then exitCode=0; else
-    exitCode="1"
-    OFFLINE="true"
-  fi
-  if [ "$pingExit" = 0 ] || [ "$httpExit" = 0 ]; then
-    if [ "$console" = "yes" ]; then
-      notifications "Am I Online" "$site is up: you seem to be connected to the internet"
-      exitCode="0"
-    fi
-  else
-    if [ "$console" = "yes" ]; then
-      notifications "Am I Online" "$site is down: you appear to not be connected to the internet"
-      exitCode="1"
-    fi
-    if [ "$showerror" = "yes" ] && [ -z "$console" ]; then
-      notifications "Am I Online" "$site is down: you appear to not be connected to the internet"
-      exitCode="1"
-    fi
-  fi
-  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 notify_good() {
@@ -425,12 +375,15 @@ ask_confirm() {
   else
     __zenity() { zenity --question --text="$1" --ellipsize --default-cancel && $2 || return 1; }
     __dmenu() { [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1; }
+    __rofi() { [ "$(printf "No\\nYes" | rofi -dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1; }
     __dialog() { gdialog --trim --cr-wrap --colors --title "question" --yesno "$1" 15 40 && "$2" || return 1; }
     __term() { printf_question_term "$1" && $2 || return 1; }
     if [ -n "$DESKTOP_SESSION" ] || [ -n "$DISPLAY" ]; then
       if [ -f "$(command -v zenity 2>/dev/null)" ]; then
         __zenity "$question" "$command" && notify_good || notify_error
-      elif [ -f "$(command -v dmenu1 2>/dev/null)" ]; then
+      elif [ -f "$(command -v rofi 2>/dev/null)" ]; then
+        __rofi "$question" "$command" && notify_good || notify_error
+      elif [ -f "$(command -v dmenu 2>/dev/null)" ]; then
         __dmenu "$question" "$command" && notify_good || notify_error
       elif [ -f "$(command -v gdialog 2>/dev/null)" ]; then
         __dialog "$question" "$command" && notify_good || notify_error
@@ -447,64 +400,6 @@ ask_confirm() {
     fi
     return ${exitCode:-$?}
   fi
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# command check
-__cmd_exists() { cmd_exists "$@"; }
-cmd_exists() {
-  if [ "$CMD_EXISTS_NOTIFY" = "yes" ]; then
-    __notifications() { notifications "$@"; }
-  else
-    __notifications() { true "$@"; }
-  fi
-  if [ "$CMD_EXISTS_INSTALL" = "yes" ]; then
-    install_missing() { ask_confirm "Would you like to install $*" "pkmgr install $*" || return 1; }
-  else
-    install_missing() { true "$@"; }
-  fi
-  case "$1" in
-  --show)
-    local show=true
-    shift 1
-    ;;
-  --error | --err)
-    local error=show
-    shift 1
-    ;;
-  --message | --msg)
-    local message="$1"
-    shift 2
-    ;;
-  esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local command="$*"
-  local exitCode="0"
-  local missing=""
-  for cmd in $command; do
-    if command -v "$cmd" &>/dev/null || type -p "$cmd" &>/dev/null || return 1; then
-      found+="$cmd "
-      local exitCode+=0
-    else
-      missing="$cmd "
-      local exitCode+=1
-    fi
-  done
-  if [ "$show" = "true" ] && [ -n "$found" ]; then
-    printf_green "$found"
-    __notifications "CMD Exists" "Found: $found"
-  fi
-  if [ "$show" = "true" ] && [ -n "$found" ] && [ -n "$missing" ]; then
-    printf_red "${message:-Missing: $missing}"
-    __notifications "CMD Exists" "${message:-Missing: $missing}"
-  fi
-  if [ "$error" = "show" ] && [ -n "$missing" ] && [ -z "$show" ]; then
-    printf_red "${message:-Missing: $missing}" >&2
-    __notifications "CMD Exists" "${message:-Missing: $missing}"
-    exitCode="1"
-  fi
-  [ -z "$missing" ] || install_missing "$missing"
-  unset cmd command missing
-  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # show a spinner while executing code or zenity

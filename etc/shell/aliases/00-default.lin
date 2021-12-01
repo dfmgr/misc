@@ -49,12 +49,13 @@ alias cp_rpf='cp --parents -Rfv '
 alias less='less -r '
 alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent upgrade && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system"'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# helpers
-[ -f "$HOME/.config/tmux/" ] && [ -f "$(type -P tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
-[ -f "$HOME/.config/screen/dev/sshrc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-ssh='screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='screen -t ssh '
-[ -f "$HOME/.config/screen/dev/noderc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-node='screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='screen -t node '
-[ -f "$HOME/.config/screen/dev/singlerc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-custom='screen -c $HOME/.config/screen/dev/singlerc ' || alias screen-custom='screen -t single '
-[ -f "$HOME/.config/screen/dev/developmentrc" ] && [ -f "$(type -P screen 2>/dev/null)" ] && alias screen-dev='screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='screen -t dev '
+# multiplexers
+[ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
+[ -f "$HOME/.config/screen/other/socialrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-social='screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='screen -t social '
+[ -f "$HOME/.config/screen/dev/sshrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-ssh='screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='screen -t ssh '
+[ -f "$HOME/.config/screen/dev/noderc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-node='screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='screen -t node '
+[ -f "$HOME/.config/screen/dev/singlerc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-custom='screen -c $HOME/.config/screen/dev/singlerc ' || alias screen-custom='screen -t single '
+[ -f "$HOME/.config/screen/dev/developmentrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-dev='screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='screen -t dev '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
 alias profilerc='source ~/.profile'
@@ -67,10 +68,9 @@ alias profilerc='source ~/.profile'
 [ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias bashrc='clear && source ~/.bashrc'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -n "$DISPLAY" ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
-[ "$(uname -s)" = Darwin ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
-alias sudo='sudo sudo --preserve-env=PATH '
+alias sudo='sudo --preserve-env=PATH '
 alias svi='sudo vim '
 alias adb='sudo adb '
 alias npmg='sudo npm -g '
@@ -87,15 +87,12 @@ alias flushdns='sudo systemd-resolve --flush-caches '
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P dnf 2>/dev/null)" ] && alias apt='sudo dnf '
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P yum 2>/dev/null)" ] && alias apt='sudo yum '
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P pacman 2>/dev/null)" ] && alias apt='sudo pacman '
-[ -n "$(builtin type -P pkmgr 2>/dev/null)" ] && alias apt='pkmgr ' && alias apt='pkmgr ' && alias apt='pkmgr ' &&
-  alias apt='pkmgr ' && alias apt='pkmgr ' && alias brew='pkmgr '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
 alias ls='ls --color=auto '
-alias l.='ls -LA --color=auto '
 alias la='ls -A --color=auto'
-alias lla='ls -lA --color=auto '
 alias ll='ls -l --color=auto '
+alias lla='ls -lA --color=auto '
 alias dir='ls -D --color=auto'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # CD Aliases
@@ -114,10 +111,10 @@ elif [ -n "$(builtin type -P code-insiders 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Powershell
-[ -f "$(type -P pwsh-preview 2>/dev/null)" ] && alias pwsh='pwsh-preview '
+[ -f "$(builtin type -P pwsh-preview 2>/dev/null)" ] && alias pwsh='pwsh-preview '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geany
-[ -n "$(type -P geany 2>/dev/null)" ] && alias='geany --socket-file=/tmp/geany.sock &>/dev/null '
+[ -f "$(builtin type -P geany 2>/dev/null)" ] && alias='geany --socket-file=/tmp/geany.sock &>/dev/null '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
 alias vi='vim '
@@ -126,8 +123,11 @@ alias vis='vim +set si '
 alias svim='sudo vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
-[ -n "$(builtin -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/neovim/init.vim" ] && alias nvim='nvim -u $HOME/.config/neovim/init.vim ' ||
-  [ -n "$(builtin type -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/nvim/init.vim" ] && alias nvim='nvim -u $HOME/.config/nvim/init.vim '
+if [ -n "$(builtin type -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/neovim/init.vim" ]; then
+  alias nvim='nvim -u $HOME/.config/neovim/init.vim '
+elif [ -n "$(builtin type -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/nvim/init.vim" ]; then
+  alias nvim='nvim -u $HOME/.config/nvim/init.vim '
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
 [ -n "$(builtin type -P docker 2>/dev/null)" ] && alias docker='sudo docker '
@@ -138,8 +138,6 @@ alias svim='sudo vim '
   alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/* '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Hide/show icons.
-[ "$(uname -s)" = Darwin ] && alias desktop-icons-hide='defaults write com.apple.finder CreateDesktop false; killall Finder; say hiding desktop icons; '
-[ "$(uname -s)" = Darwin ] && alias desktop-icons-hide='defaults write com.apple.finder CreateDesktop true; killall Finder; say showing desktop icons; '
 [ -n "$(builtin type -P gsettings 2>/dev/null)" ] && alias desktop-icons-hide='gsettings set org.gnome.desktop.background show-desktop-icons false '
 [ -n "$(builtin type -P gsettings 2>/dev/null)" ] && alias desktop-icons-show='gsettings set org.gnome.desktop.background show-desktop-icons true '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -151,8 +149,7 @@ alias svim='sudo vim '
 [ -n "$(builtin type -P xfce4-session-logout 2>/dev/null)" ] && alias logout='xfce4-session-logout '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Open command
-[ "$(uname -s)" = Darwin ] || alias open='xdg-open '
-[ "$(uname -s)" = Darwin ] && alias o='open ' || alias o='xdg-open '
+[ "$(uname -s)" = Linux ] && alias open='xdg-open '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #youtube-dl
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorea='youtube-dl --extract-audio --audio-format mp3 --embed-thumbnail --add-metadata --audio-quality 320k --config-location $HOME/.config/youtube-dl/nightcorea '
