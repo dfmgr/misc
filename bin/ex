@@ -132,26 +132,140 @@ EOF
   filename="${file:-$1}"
   if [ -f "$filename" ]; then
     case "$filename" in
-    *.tar.bz2) tar xjf "$filename" || false ;;
-    *.tar.gz) tar xzf "$filename" || false ;;
-    *.bz2) bunzip2 "$filename" || false ;;
-    *.rar) unrar x "$filename" || false ;;
-    *.gz) gunzip "$filename" || false ;;
-    *.tar) tar xf "$filename" || false ;;
-    *.tbz2) tar xjf "$filename" || false ;;
-    *.tgz) tar xzf "$filename" || false ;;
-    *.zip) unzip "$filename" || false ;;
-    *.Z) uncompress "$filename" || false ;;
-    *.7z) 7z x "$filename" || false ;;
-    *.xz) ex "$filename" || false ;;
-    *) printf_red "$filename cannot be extracted via ex" && false ;;
+    *.tar.bz2)
+      cmd_exists tar || printf_exit "Please install tar"
+      printf_blue "Attempting to extract $filename using tar"
+      if tar xjf "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.tar.gz)
+      cmd_exists tar || printf_exit "Please install tar"
+      printf_blue "Attempting to extract $filename using tar"
+      if tar xzf "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.bz2)
+      cmd_exists bunzip2 || printf_exit "Please install bunzip2"
+      printf_blue "Attempting to extract $filename using bunzip2"
+      if bunzip2 "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.rar)
+      cmd_exists unrar || printf_exit "Please install unrar"
+      printf_blue "Attempting to extract $filename using unrar"
+      if unrar x "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.gz)
+      cmd_exists gunzip || printf_exit "Please install gunzip"
+      printf_blue "Attempting to extract $filename using gunzip"
+      if gunzip "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.tar)
+      cmd_exists tar || printf_exit "Please install tar"
+      printf_blue "Attempting to extract $filename using tar"
+      if tar xf "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.tbz2)
+      cmd_exists tar || printf_exit "Please install tar"
+      printf_blue "Attempting to extract $filename using tar"
+      if tar xjf "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.tgz)
+      cmd_exists tar || printf_exit "Please install tar"
+      printf_blue "Attempting to extract $filename using tar"
+      if tar xzf "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.zip)
+      cmd_exists unzip || printf_exit "Please install unzip"
+      printf_blue "Attempting to extract $filename using unzip"
+      if unzip "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.Z)
+      cmd_exists uncompress || printf_exit "Please install uncompress"
+      printf_blue "Attempting to extract $filename using uncompress"
+      if uncompress "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.7z)
+      cmd_exists 7z || printf_exit "Please install 7z"
+      printf_blue "Attempting to extract $filename using 7z"
+      if 7z x "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *.xz)
+      cmd_exists unxz || printf_exit "Please install unxz"
+      printf_blue "Attempting to extract $filename using unxz"
+      if unxz "$filename" &>/dev/null; then
+        exitCode=0
+      else
+        exitCode=1
+      fi
+      ;;
+
+    *)
+      printf_red "$filename cannot be extracted "
+      exitCode=1
+      ;;
     esac
-    exitCode=$?
   else
     printf_red "$filename is not a valid file"
     exitCode=1
   fi
-
+  if [[ "$exitCode" = 0 ]]; then
+    printf_green "File has been extracted"
+  else
+    printf_red "Failed to extract file"
+  fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
   return "${exitCode:-$?}"
