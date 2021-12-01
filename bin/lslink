@@ -44,7 +44,7 @@ main() {
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   search="${*:-.}"
-  files="$(ls -la "$search" | awk '{print $11}' | grep -v '^$' | grep '^')"
+  files="$(ls -la "$search" 2>/dev/null | awk '{print $11}' | grep -v '^$' | grep '^')"
   if [[ -n "$files" ]]; then
     if [[ -n "$RAW" ]]; then
       printf "%s\n" "$files"
