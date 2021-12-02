@@ -89,6 +89,7 @@ alias flushdns='sudo systemd-resolve --flush-caches '
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P pacman 2>/dev/null)" ] && alias apt='sudo pacman '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
+alias l.='ls -A | grep -E --color=auto '\''^\.'\'''
 alias ls='ls --color=auto '
 alias la='ls -A --color=auto'
 alias ll='ls -l --color=auto '

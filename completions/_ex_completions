@@ -28,7 +28,7 @@ _ex() {
   local OPTS=""
   local LONGOPTS="--options --help --version --config"
   local SHORTOPTS=""
-  local ARRAY=""
+  local ARRAY="show-_filedir"
 
   _init_completion || return
 
