@@ -50,6 +50,7 @@ __find_cmd() {
   find ${follow:--L} ${1:-$dir} -maxdepth ${depth:-1} -type ${type:-d} 2>/dev/null |
     sed 's#'${1:-$dir}/'##g' 2>/dev/null |
     sed 's#'${1:-$dir}'##g' 2>/dev/null |
+    sort -u |
     grep '^' | grep -v '^$' | grep --color '.*.' &&
     return 0 ||
     return 1
