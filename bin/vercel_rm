@@ -28,6 +28,20 @@ __help() {
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__vercel_app() {
+  if [[ -f "$(builtin type -P vercel 2>/dev/null)" ]]; then
+    vercel "$*"
+    return $?
+  elif [[ -f "$(builtin type -P now 2>/dev/null)" ]]; then
+    now "$*"
+    return $?
+  else
+    printf_red "Neither vercel nor now is installed"
+    return 1
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
   if [[ -f "$DIR/functions.bash" ]]; then
@@ -42,23 +56,17 @@ main() {
   -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [[ -f "$(builtin type -P vercel 2>/dev/null)" ]]; then
-    if [[ -n "$1" ]]; then
-      vercel rm $1 --safe --yes && return 0 || return 1
-    else
-      vercel ls
-      return $?
-    fi
-  elif [[ -f "$(builtin type -P now 2>/dev/null)" ]]; then
-    if [[ -n "$1" ]]; then
-      now rm $1 --safe --yes && return 0 || return 1
-    else
-      now ls
-      return $?
-    fi
+  if [[ $# = 0 ]]; then
+    __vercel_app ls
+    return $?
   else
-    printf_red "Neither vercel nor now is installed"
-    return 1
+    if [[ "$1" = "--all" ]]; then
+      for app in $(__vercel_app ls 2>&1 | grep -Ev ' Fetching.*|Vercel CLI.*|>.*|project         latest|^$' | awk '{print $1}'); do
+        __vercel_app rm $app --safe --yes && return 0 || return 1
+      done
+    else
+      __vercel_app rm $1 --safe --yes && return 0 || return 1
+    fi
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
