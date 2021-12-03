@@ -83,10 +83,10 @@ alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt 2>/dev/null)" ] && alias apt='sudo apt '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt-get 2>/dev/null)" ] && alias apt='sudo apt-get '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P dnf 2>/dev/null)" ] && alias apt='sudo dnf '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P yum 2>/dev/null)" ] && alias apt='sudo yum '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P pacman 2>/dev/null)" ] && alias apt='sudo pacman '
+[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt-get 2>/dev/null)" ] && alias apt-get='sudo apt-get '
+[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P dnf 2>/dev/null)" ] && alias dnf='sudo dnf '
+[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P yum 2>/dev/null)" ] && alias yum='sudo yum '
+[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P pacman 2>/dev/null)" ] && alias pacman='sudo pacman '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
 alias l.='ls -A | grep -E --color=auto '\''^\.'\'''
