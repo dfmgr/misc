@@ -105,7 +105,7 @@ main() {
   local cwd="${*:-$PWD}"
   [[ "$cwd" = "." ]] && local cwd="$PWD"
   if [ ! -e "$cwd" ]; then
-    local errormsg="I'm sorry report that '$1' doesn't exist"
+    local errormsg="I'm sorry to report that '$1' doesn't exist"
     local error=true
   fi
   if [ -d "$cwd" ]; then
