@@ -62,8 +62,8 @@ main() {
   else
     if [[ "$1" = "--all" ]]; then
       for app in $(__vercel_app ls 2>&1 | grep -Ev ' Fetching.*|Vercel CLI.*|>.*|project         latest|^$' | awk '{print $1}'); do
-        __vercel_app rm $app --safe --yes && return 0 || return 1
-      done
+        __vercel_app rm "$app" --safe --yes
+      done && return 0 || return 1
     else
       __vercel_app rm $1 --safe --yes && return 0 || return 1
     fi
