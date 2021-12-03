@@ -43,9 +43,19 @@ main() {
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if [[ -f "$(builtin type -P vercel 2>/dev/null)" ]]; then
-    vercel rm $1 --safe --yes && return 0 || return 1
+    if [[ -n "$1" ]]; then
+      vercel rm $1 --safe --yes && return 0 || return 1
+    else
+      vercel ls
+      return $?
+    fi
   elif [[ -f "$(builtin type -P now 2>/dev/null)" ]]; then
-    now rm $1 --safe --yes && return 0 || return 1
+    if [[ -n "$1" ]]; then
+      now rm $1 --safe --yes && return 0 || return 1
+    else
+      now ls
+      return $?
+    fi
   else
     printf_red "Neither vercel nor now is installed"
     return 1
