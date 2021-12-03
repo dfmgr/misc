@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="vercel_rm"
+PROG="vercel_app"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
@@ -12,11 +12,11 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
-# @ReadME        : vercel_rm --help
+# @ReadME        : vercel_app --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 08:15 EST
-# @File          : vercel_rm
-# @Description   : adds files permissons in binary form to the ls command output
+# @File          : vercel_app
+# @Description   : vercel wrapper app with rm all unaliased deployments
 # @TODO          :
 # @Other         :
 # @Resource      :
@@ -24,7 +24,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # Main function
 __version() { app_version; }
 __help() {
-  app_help "Usage: vercel_rm filename" \
+  app_help "Usage: vercel_app [command]" \
     "-v, --version          -  display version" \
     "-h, --help             -  display help"
 }
