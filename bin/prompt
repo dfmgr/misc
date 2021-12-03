@@ -32,33 +32,44 @@ __help() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __make_conf() {
-  local filename="$CONFDIR/$NAME.sh"
-  echo '# Prompt for '$NAME'
-NAME="'$1'"
-COMMAND="'$2'"
-PROMPT="$(printf "No\\nYes" | dmenu -i -p "$NAME" -nb darkred -sb red -sf white -nf gray)"
-if [ "$PROMPT" = "Yes" ]; then
+  local NAME="$1" && shift 1
+  local PROMPTNAME="$1" && shift 1
+  local COMMAND="$*"
+  local filename="$CONFDIR/$NAME"
+  cat <<EOF | tee "$filename" &>/dev/null
+# Prompt for $NAME
+
+if [ "\$(printf "No\\nYes" | dmenu -i -p '$PROMPTNAME' -nb darkred -sb red -sf white -nf gray)" = "Yes" ]; then
   $COMMAND
 else
   exit 1
 fi
-# End dmenu prompt'
-  [ -f "$filename" ] && chmod -f 755 "$filename"
+# End dmenu prompt
+
+EOF
+  [ -f "$filename" ] && chmod -f 755 "$filename" && return 0 || return 1
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __create() {
-  printf_green "Generating the config for $1"
   local NAME="${1/ /_}"
   local PROMPTNAME="$1"
   local PROMPTCOMMAND="$2"
   shift $#
-  if [ -f "$CONFDIR/$NAME.sh" ]; then printf_exit "$NAME already exists in $CONFDIR"; fi
-  __make_conf "$PROMPTNAME" "$PROMPTCOMMAND" >"$CONFDIR/$NAME.sh" 2>/dev/null
-  if [ -f "$CONFDIR/$NAME.sh" ]; then
-    printf_return "Successfully create the prompt for $NAME" 0 2
+  printf_green "Generating the config for $PROMPTNAME"
+  if [ -f "$CONFDIR/$NAME" ]; then
+    printf_red "😿 $NAME already exists in $CONFDIR 😿"
+    exitCode=1
   else
-    printf_return "Failed to create $CONFDIR/$NAME.sh"
+    __make_conf "$NAME" "$PROMPTNAME" "$PROMPTCOMMAND" 2>/dev/null
+    if [[ "$?" = 0 ]] && [ -f "$CONFDIR/$NAME" ]; then
+      printf_green "😹 Successfully create the prompt for $NAME 😹"
+      exitCode=0
+    else
+      printf_red "😠 Failed to create $CONFDIR/$NAME 😠"
+      exitCode=1
+    fi
   fi
+  return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 main() {
@@ -83,18 +94,24 @@ main() {
   -h | --help) __help ;;
   -c | --config)
     shift 1
+    [[ "$1" = "--remove" ]] && shift 1 && rm -Rf "${CONFDIR:?}/${1/ /_}"
     __create "$1" "$2"
     exit $?
     ;;
   -f | --file)
+    name="${1/ /_}"
     filename="${2/$CONFDIR\//$filename}"
     file="$CONFDIR/$filename"
     shift 2
     ;;
   *)
-    if [ -f "$1" ]; then
-      filename="${1/$CONFDIR\//$filename}"
+    name="${1/ /_}"
+    if [ -f "$CONFDIR/$name" ]; then
+      filename="${name/$CONFDIR\//$filename}"
       file="$CONFDIR/$filename"
+    elif [ -f "$name" ]; then
+      filename="$name"
+      file="$name"
     fi
     if [ -z "$file" ]; then
       [ -z "$1" ] || [ -z "$2" ] || __help
