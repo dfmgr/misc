@@ -103,21 +103,21 @@ main() {
     shift
   done
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local cwd="${@:-$PWD}"
+  local cwd="${*:-$PWD}"
   [[ "$cwd" = "." ]] && local cwd="$PWD"
   if [ ! -e "$cwd" ]; then
     local errormsg="I'm sorry report that '$1' doesn't exist"
     local error=true
   fi
   if [ -d "$cwd" ]; then
-    __find() { __find_cmd "$cwd/." "$@"; }
+    __find() { __find_cmd "${1:-$cwd}/." "$@"; }
   elif [ -f "$cwd" ]; then
-    __find() { basename "$cwd"; }
+    __find() { basename "${1:-$cwd}"; }
   else
-    __find() { ls -A "$cwd" | sed 's#'$cwd/'##g'; }
+    __find() { ls -A "${1:-$cwd}" 2>/dev/null | sed 's#'${1:-$cwd}/'##g'; }
   fi
   dir="$cwd"
-  if [ -z "$error" ] && __find; then
+  if [ -z "$error" ] && __find "$dir"; then
     local exitCode=0
   else
     printf_red "${errormsg:-${dir%/*} appears to have no other directories}" >&2
