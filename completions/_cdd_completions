@@ -51,6 +51,7 @@ _cdd() {
     -h | --help) prev="--help" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -v | --version) prev="--version" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -l | --list) prev="--list" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
+    -d | --delete) prev="--list" && COMPREPLY=($(compgen -W '' -- "${cur}")) ;;
     -m | --modify)
       prev="-m"
       compopt -o nospace

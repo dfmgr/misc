@@ -41,13 +41,14 @@ cdd_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __help() {
     app_help "4" "Usage: cdd  aliasName  -  cdd -l" \
+      "-d, --delete           -  delete all files in dir" \
       "-l, --list             -  list aliases" \
       "-m, --modify           -  add an alias | -m p testing" \
       "-r, --remove           -  remove an alias | -r testing" \
       "-c, --config           -  create config file" \
+      "-s, --shell            -  change shell" \
       "-v, --version          -  display version" \
       "-h, --help             -  display help" \
-      "-s, --shell            -  change shell" \
       "--options              -  used by completions"
     exit $?
   }
@@ -244,8 +245,8 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="${*}"
-  local SHORTOPTS="c,v,h,m::,r:,l,s:,a::"
-  local LONGOPTS="options,config,version,help,modify::,remove,list,shell:,add::"
+  local SHORTOPTS="c,v,h,m::,r:,l,s:,a::,d"
+  local LONGOPTS="options,config,version,help,modify::,remove,list,shell:,add::,delete"
   local ARRAY="$(list_aliases '*' | awk '{print $1}')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
@@ -310,6 +311,14 @@ EOF
         printf_exit "$2 seems to be an invalid shell"
       fi
       shift 1
+      ;;
+    -d | --delete)
+      shift 1
+      if [[ -n "$BASE_CDD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
+        rm -Rf "$BASE_CDD_DIR/."
+      else
+        printf_red "cdd is not active refusing to run command"
+      fi
       ;;
     --)
       shift
