@@ -8,7 +8,6 @@ cdd_main() {
   SRC_DIR="${BASH_SOURCE%/*}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #set opts
-  clear
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ##@Version       : 202103230741-git
@@ -147,6 +146,7 @@ EOF
   quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit &>/dev/null; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
+    clear
     local dir folder message message_add
     [[ "$CDD_STATUS" = "running" ]] && [[ "$1" = ./* ]] && cd "$1" && return
     [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] || __gen_config "$@"
@@ -315,10 +315,13 @@ EOF
     -d | --delete)
       shift 1
       if [[ -n "$BASE_CDD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
-        rm -Rf "${BASE_CDD_DIR:?}/*"
+        for file in "$BASE_CDD_DIR"/.* "$BASE_CDD_DIR"/*; do
+          rm -Rfv "${file:?'Refusing to delete due to empty var'}" 2>/dev/null
+        done
       else
-        printf_red "cdd is not active refusing to run command"
+        printf_red "cdd is not active refusing to delete files"
       fi
+      exit $?
       ;;
     --)
       shift
