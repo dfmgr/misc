@@ -472,7 +472,10 @@ __list_options() {
   echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' >>"$OPTSDIR/options"
   return
 }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __dirname() { cd "$1" 2>/dev/null && pwd || return 1; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__is_dir() { echo "${1:-/}" | grep -q "^${2:-/}$" && return 1 || return 0; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_porcelain_count() {
   [ -d "$(__git_top_dir "${1:-.}")/.git" ] &&

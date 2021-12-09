@@ -229,6 +229,7 @@ EOF
       __grep "$1" | awk -F' =' '{print $1,$2}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
     fi
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   delete() {
     if [[ -n "$BASE_CDD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
       printf_blue "Deleting all files in $BASE_CDD_DIR"
