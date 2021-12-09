@@ -315,7 +315,7 @@ EOF
     -d | --delete)
       shift 1
       if [[ -n "$BASE_CDD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
-        rm -Rf "$BASE_CDD_DIR/."
+        rm -Rf "${BASE_CDD_DIR:?}/*"
       else
         printf_red "cdd is not active refusing to run command"
       fi
