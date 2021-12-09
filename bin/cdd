@@ -229,6 +229,17 @@ EOF
       __grep "$1" | awk -F' =' '{print $1,$2}' | sed -e 's#"##g' 2>/dev/null | grep -Ev '^$|^#' | grep '^'
     fi
   }
+  delete() {
+    if [[ -n "$BASE_CDD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
+      printf_blue "Deleting all files in $BASE_CDD_DIR"
+      sleep 3
+      for file in "$BASE_CDD_DIR"/.* "$BASE_CDD_DIR"/*; do
+        rm -Rf "${file}" 2>/dev/null
+      done
+    else
+      printf_red "cdd is not active refusing to delete files"
+    fi
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=""
@@ -314,13 +325,6 @@ EOF
       ;;
     -d | --delete)
       shift 1
-      if [[ -n "$BASE_CDD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
-        for file in "$BASE_CDD_DIR"/.* "$BASE_CDD_DIR"/*; do
-          rm -Rfv "${file:?'Refusing to delete due to empty var'}" 2>/dev/null
-        done
-      else
-        printf_red "cdd is not active refusing to delete files"
-      fi
       exit $?
       ;;
     --)
