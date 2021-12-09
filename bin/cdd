@@ -232,7 +232,7 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   delete() {
     if [[ -n "$CDD_CWD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
-      FILES_TO_DELETE="$(find -L "$PWD/*" -type f,d,l 2>/dev/null)"
+      FILES_TO_DELETE="$(find -L "$CDD_CWD_DIR"/* -maxdepth 0 -type f,d,l 2>/dev/null)"
       if [[ -n "$FILES_TO_DELETE" ]]; then
         printf_blue "Deleting all files in $CDD_CWD_DIR"
         sleep 3
