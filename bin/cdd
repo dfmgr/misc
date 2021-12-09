@@ -235,7 +235,7 @@ EOF
       printf_blue "Deleting all files in $BASE_CDD_DIR"
       sleep 3
       for file in "$BASE_CDD_DIR"/.* "$BASE_CDD_DIR"/*; do
-        [[ -e "$file" ]] && rm -Rf "${file}" 2>/dev/null
+        [[ -e "$file" ]] && printf_yellow "Deleting $file" && rm -Rf "${file}" 2>/dev/null
       done
       exitCode=0
     else
