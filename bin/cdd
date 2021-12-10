@@ -237,7 +237,13 @@ EOF
         printf_blue "Deleting all files in $CDD_CWD_DIR"
         sleep 3
         for file in ${FILES_TO_DELETE}; do
-          [[ -e "$file" ]] && printf_yellow "Deleting $file" && rm -Rf "${file}" 2>/dev/null
+          if [[ -d "$file" ]]; then
+            printf_yellow "Deleting folder: $file" && rm -Rf "${file}" 2>/dev/null
+          elif [[ -f "$file" ]]; then
+            printf_yellow "Deleting file: $file" && rm -Rf "${file}" 2>/dev/null
+          elif [[ -e "$file" ]]; then
+            printf_yellow "Deleting: $file" && rm -Rf "${file}" 2>/dev/null
+          fi
         done
         exitCode=0
       else
