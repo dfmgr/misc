@@ -1,0 +1,187 @@
+#!/usr/bin/env bash
+SETUP_DENO_main() {
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  PROG="$(basename "$0")"
+  VERSION="202107281513-git"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  #set opts
+  trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_DENO_TEMP_FILE" ] && rm -Rf "$SETUP_DENO_TEMP_FILE" &>/dev/null' EXIT
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  ##@Version       : 202107281513-git
+  # @Author        : jason
+  # @Contact       : jason
+  # @License       : LICENSE.md
+  # @ReadME        : SETUP_DENO --help
+  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, Casjays Developments
+  # @Created       : Wednesday, Jul 28, 2021 20:29 EDT
+  # @File          : SETUP_DENO
+  # @Description   :
+  # @TODO          :
+  # @Other         :
+  # @Resource      :
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper functions - See https://github.com/dfmgr/misc/blob/main/bin/functions.bash
+  __version() { app_version; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __help() {
+    app_help "4" "Usage: SETUP_DENO  " \
+      "-c, --config           -  create config file" \
+      "-v, --version          -  display version" \
+      "-h, --help             -  display help" \
+      "--options              -  used by completions"
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE"
+    [ -d "$SETUP_DENO_CONFIG_DIR" ] || mkdir -p "$SETUP_DENO_CONFIG_DIR"
+    [ -d "$SETUP_DENO_CONFIG_BACKUP_DIR" ] || mkdir -p "$SETUP_DENO_CONFIG_BACKUP_DIR"
+    [ -f "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE" ] &&
+      cp -Rf "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE" "$SETUP_DENO_CONFIG_BACKUP_DIR/$SETUP_DENO_CONFIG_FILE.$$"
+    cat <<EOF >"$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE"
+# Settings for SETUP_DENO
+SETUP_DENO_NOTIFY_ENABLED="yes"
+SETUP_DENO_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+SETUP_DENO_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_DENO_NOTIFY_CLIENT_ICON}"
+SETUP_DENO_INSTALL_SCRIPT="${SETUP_DENO_INSTALL_SCRIPT:-https://deno.land/x/install/install.sh}"
+
+EOF
+    if [ -f "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE" ]; then
+      printf_green "Your config file for SETUP_DENO has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __deno_install() {
+    sudo true
+    bash -c "$(curl -q -fLSs "$SETUP_DENO_INSTALL_SCRIPT" &>/dev/null)" &&
+      if type -P deno &>/dev/null; then
+        printf_green "deno has been installed"
+        return 0
+      else
+        printf_red "Failed to install deno"
+        return 1
+      fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode=""
+  local SETUP_DENO_CONFIG_FILE="settings.conf"
+  local SETUP_DENO_CONFIG_DIR="$HOME/.config/misc/SETUP_DENO"
+  local SETUP_DENO_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/SETUP_DENO/backups"
+  local SETUP_DENO_OPTIONS_DIR="$HOME/.local/share/misc/SETUP_DENO/options"
+  local SETUP_DENO_TEMP_FILE="${TMPDIR:-/tmp}/SETUP_DENO"
+  local SETUP_DENO_NOTIFY_ENABLED="yes"
+  local SETUP_DENO_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+  local SETUP_DENO_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_DENO_NOTIFY_CLIENT_ICON}"
+  local SETUP_DENO_INSTALL_SCRIPT="${SETUP_DENO_INSTALL_SCRIPT:-https://deno.land/x/install/install.sh}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="$*"
+  local SHORTOPTS="c,v,h,i"
+  local LONGOPTS="options,config,version,help,install"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate Files
+  [ -f "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE" ] || __gen_config &>/dev/null
+  [ -f "$SETUP_DENO_OPTIONS_DIR/options" ] || __list_options "$SETUP_DENO_OPTIONS_DIR" &>/dev/null
+  [ -f "$SETUP_DENO_OPTIONS_DIR/array" ] || __list_array "$SETUP_DENO_OPTIONS_DIR" "$ARRAY" &>/dev/null
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  if [ -f "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE" ]; then
+    . "$SETUP_DENO_CONFIG_DIR/$_CONFIG_FILE"
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -a -n "$PROG" -- "$@" 2>/dev/null)
+  eval set -- "${setopts}" 2>/dev/null
+  while :; do
+    case $1 in
+    --options)
+      shift 1
+      __list_array "$SETUP_DENO_OPTIONS_DIR" "$ARRAY"
+      __list_options "$SETUP_DENO_OPTIONS_DIR"
+      exit $?
+      ;;
+    -v | --version)
+      shift 1
+      __version
+      exit $?
+      ;;
+    -h | --help)
+      shift 1
+      __help
+      exit $?
+      ;;
+    -c | --config)
+      shift 1
+      __gen_config
+      exit $?
+      ;;
+    -i | --install)
+      shift 1
+      __deno_install
+      exit $?
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+      #*) break ;;
+    esac
+  done
+  #set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Actions based on env
+  export NOTIFY_CLIENT_NAME="${SETUP_DENO_NOTIFY_CLIENT_NAME}"
+  export NOTIFY_CLIENT_ICON="${SETUP_DENO_NOTIFY_CLIENT_ICON}"
+  if [ "$SETUP_DENO_NOTIFY_ENABLED" = "yes" ]; then
+    __notifications() {
+      notifications "$*" || return 1
+    }
+  else
+    __notifications() { false; }
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications/Network check
+  cmd_exists --error bash || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # APP Variables
+  DENO_INSTALL="${DENO_INSTALL:-$HOME/.local/share/deno}"
+  PATH="$DENO_INSTALL/bin:$PATH"
+  export DENO_INSTALL PATH
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  cmd_exists deno || __deno_install || exit 1
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # lets exit with code
+  return ${exitCode:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+SETUP_DENO_main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lets exit with code
+exit ${exitCode:-$?}

@@ -286,6 +286,11 @@ if [[ -f "$(builtin command -v node 2>/dev/null)" ]]; then
 fi
 export NPM_PACKAGES NODE_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Deno
+DENO_INSTALL="$HOME/.local/share/deno"
+TMP_BIN_PATH="$DENO_INSTALL/bin:$TMP_BIN_PATH"
+export DENO_INSTALL
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 if [[ -f "$(builtin command -v fnm 2>/dev/null)" ]]; then
   FNM_BIN="$HOME/.local/bin"
