@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SETUP_DENO_main() {
+setup_deno_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   PROG="$(basename "$0")"
   VERSION="202107281513-git"
@@ -15,10 +15,10 @@ SETUP_DENO_main() {
   # @Author        : jason
   # @Contact       : jason
   # @License       : LICENSE.md
-  # @ReadME        : SETUP_DENO --help
+  # @ReadME        : setup_deno --help
   # @Copyright     : Copyright: (c) 2021 Jason Hempstead, Casjays Developments
   # @Created       : Wednesday, Jul 28, 2021 20:29 EDT
-  # @File          : SETUP_DENO
+  # @File          : setup_deno
   # @Description   :
   # @TODO          :
   # @Other         :
@@ -73,8 +73,12 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __deno_install() {
-    sudo true
-    bash -c "$(curl -q -fLSs "$SETUP_DENO_INSTALL_SCRIPT" &>/dev/null)" &&
+    if [[ "$1" != "-f" ]] && cmd_exists deno; then
+      printf_green "deno is already installed "
+      printf_blue "run $PROG --install tup updated"
+      return 0
+    else
+      curl -q -LSs "$SETUP_DENO_INSTALL_SCRIPT" | bash &>/dev/null
       if type -P deno &>/dev/null; then
         printf_green "deno has been installed"
         return 0
@@ -82,6 +86,7 @@ EOF
         printf_red "Failed to install deno"
         return 1
       fi
+    fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
@@ -109,7 +114,7 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Import config
   if [ -f "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE" ]; then
-    . "$SETUP_DENO_CONFIG_DIR/$_CONFIG_FILE"
+    . "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE"
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
@@ -140,7 +145,7 @@ EOF
       ;;
     -i | --install)
       shift 1
-      __deno_install
+      __deno_install -f
       exit $?
       ;;
     --)
@@ -172,14 +177,14 @@ EOF
   export DENO_INSTALL PATH
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  cmd_exists deno || __deno_install || exit 1
+  __deno_install || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
   return ${exitCode:-$?}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function
-SETUP_DENO_main "$@"
+setup_deno_main "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # End application
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
