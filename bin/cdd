@@ -72,6 +72,7 @@ EOF
       false
     fi
   }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gen_alias() {
     if [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]]; then
       local cdd_update=true
@@ -146,8 +147,7 @@ EOF
   quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit &>/dev/null; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_goto() {
-    clear
-    local dir folder message message_add
+    local dir folder message message_add name exitCode
     [[ "$CDD_STATUS" = "running" ]] && [[ "$1" = ./* ]] && cd "$1" && return
     [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] || __gen_config "$@"
     [[ -z "$CDD_STATUS" ]] || printf_exit "cdd already appears to be active "
@@ -160,16 +160,18 @@ EOF
       folder="$(list_aliases alias "$1")"
       message="entering into $dir"
     elif [[ -z "$dir" ]]; then
-      dir="${1:-$CDD_OPTIONS_PROJECT_DIR/$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
+      name="${1:-$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
+      dir="$CDD_OPTIONS_PROJECT_DIR/$name"
       folder="$(basename "$dir/")"
-      message="Entering the default folder"
+      message="Entering the dir for $name"
       message_add="see $PROG -l or $PROG -a name directory"
     fi
-    printf '\n'
     local exitCode=0
     local STATUS="running"
     local SHELL="${SHELL:-bash}"
     local PS1_ADD_CDD="$PS1_ADD cdd: ${folder:-$dir}"
+    clear
+    printf '\n'
     [[ -d "$dir" ]] || mkdir -p "$dir"
     [[ -d "$dir" ]] && builtin cd "$dir" || printf_exit "Failed to enter $dir"
     [[ -n "$message" ]] && printf_green "$message using $(basename "$SHELL" 2>/dev/null)"
