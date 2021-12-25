@@ -150,7 +150,7 @@ EOF
     local dir folder message message_add name exitCode
     [[ "$CDD_STATUS" = "running" ]] && [[ "$1" = ./* ]] && cd "$1" && return
     [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] || __gen_config "$@"
-    [[ -z "$CDD_STATUS" ]] || printf_exit "cdd already appears to be active "
+    [[ -z "$CDD_STATUS" ]] || printf_return "cdd already appears to be active "
     if [[ "$CDD_STATUS" != "running" ]] && { [[ "$1" = "current_project" ]] || [[ "$1" = "." ]]; }; then
       dir="$PWD"
       folder="$(basename $(dirname $PWD/.))"
@@ -163,7 +163,7 @@ EOF
       name="${1:-$CDD_OPTIONS_DEFAULT_PROJECT_NAME}"
       dir="$CDD_OPTIONS_PROJECT_DIR/$name"
       folder="$(basename "$dir/")"
-      message="Entering the dir for $name"
+      message="Entering $name"
       message_add="see $PROG -l or $PROG -a name directory"
     fi
     local exitCode=0
