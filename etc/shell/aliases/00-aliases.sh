@@ -14,4 +14,3 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Aliases for all OSes
-[[ -f "$(builtin type -P minikube 2>/dev/null)" ]] && alias kubectl='minikube kubectl'

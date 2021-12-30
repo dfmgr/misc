@@ -110,6 +110,7 @@ if [ -n "$(builtin type -P code-oss 2>/dev/null)" ]; then
 elif [ -n "$(builtin type -P code-insiders 2>/dev/null)" ]; then
   alias code='code-insiders'
 fi
+builtin type -t code &>/dev/null && alias codew='code -w'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Powershell
 [ -f "$(builtin type -P pwsh-preview 2>/dev/null)" ] && alias pwsh='pwsh-preview '
@@ -133,6 +134,7 @@ fi
 #Set docker
 [ -n "$(builtin type -P docker 2>/dev/null)" ] && alias docker='sudo docker '
 [ -n "$(builtin type -P docker 2>/dev/null)" ] && alias drun='docker run --rm -it -v "${PWD}":/app -w /app '
+[[ -f "$(builtin type -P minikube 2>/dev/null)" ]] && alias kubectl='minikube kubectl'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
 [ -n "$(builtin type -P trash 2>/dev/null)" ] && alias empty-trash='trash empty ' ||
