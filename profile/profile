@@ -27,13 +27,14 @@ if [ -n "$SH_VERSION" ]; then
 elif [ -n "$BASH_VERSION" ]; then
   SHELL="$(which bash 2>/dev/null)"
   BASH_SILENCE_DEPRECATION_WARNING="1"
-  HISTFILE="$HOME/.config/bash/bash_history"
+  HISTFILE="$HOME/.bash_history"
   OSH="$HOME/.local/share/bash/oh-my-bash"
   BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
   if [ -n "$(which direnv 2>/dev/null)" ]; then
     direnv hook bash >/dev/null 2>&1
   fi
-  if [ -f "$HOME/.bash_history" ]; then
+  if [ -f "$HOME/.bash_history" ] && [ -d "$HOME/.config/bash" ]; then
+    HISTFILE="$HOME/.config/bash/bash_history"
     mv -f "$HOME/.bash_history" "$HISTFILE"
     history -r
   fi
