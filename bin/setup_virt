@@ -1,0 +1,263 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202108030333-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : setup_virt --help
+# @Copyright     : Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @Created       : Monday, Jan 10, 2022 23:15 EST
+# @File          : setup_virt
+# @Description   : Enable kvm/qemu
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+setup_virt_main() {
+  PROG="$(basename "$0" 2>/dev/null)"
+  VERSION="202108030333-git"
+  RUN_USER="${SUDO_USER:-${USER}}"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Set bash options
+  if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    local FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    local FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from ${FUNCTIONS_DIR:-$SRC_DIR}"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  __version() { app_version; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __help() {
+    app_help "4" "Usage: setup_virt  " \
+      "--options                              -  Show all options" \
+      "-c, --config                           -  Create config file" \
+      "-v, --version                          -  Display version" \
+      "-h, --help                             -  Display help"
+
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __list_options() {
+    printf_custom "$1" "$2: $(echo ${3:-$ARRAY} | __sed 's|:||g;s|'$4'| '$5'|g')" 2>/dev/null
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE"
+    [ -d "$SETUP_VIRT_CONFIG_DIR" ] || mkdir -p "$SETUP_VIRT_CONFIG_DIR"
+    [ -d "$SETUP_VIRT_CONFIG_BACKUP_DIR" ] || mkdir -p "$SETUP_VIRT_CONFIG_BACKUP_DIR"
+    [ -f "$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE" ] &&
+      cp -Rf "$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE" "$SETUP_VIRT_CONFIG_BACKUP_DIR/$SETUP_VIRT_CONFIG_FILE.$$"
+    cat <<EOF >"$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE"
+# Settings for setup_virt
+
+# Notification settings
+SETUP_VIRT_GOOD_MESSAGE="${SETUP_VIRT_GOOD_MESSAGE:-Everything Went OK}"
+SETUP_VIRT_ERROR_MESSAGE="${SETUP_VIRT_ERROR_MESSAGE:-Well something seems to have gone wrong}"
+SETUP_VIRT_NOTIFY_ENABLED="${SETUP_VIRT_NOTIFY_ENABLED:-yes}"
+SETUP_VIRT_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+SETUP_VIRT_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_VIRT_NOTIFY_CLIENT_ICON}"
+
+# Colorization settings
+SETUP_VIRT_OUTPUT_COLOR="${SETUP_VIRT_OUTPUT_COLOR:-5}"
+SETUP_VIRT_OUTPUT_COLOR_GOOD="${SETUP_VIRT_OUTPUT_COLOR_GOOD:-2}"
+SETUP_VIRT_OUTPUT_COLOR_ERROR="${SETUP_VIRT_OUTPUT_COLOR_ERROR:-1}"
+
+EOF
+    if [ -f "$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE" ]; then
+      [[ "$INIT_CONFIG" = "TRUE" ]] || printf_green "Your config file for $APPNAME has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Additional functions
+  __64bit_check() { grep -q -o -w 'lm' /proc/cpuinfo && true || false; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __virt_ok() {
+    if grep -sq -o -E '(vmx|svm)' /proc/cpuinfo; then
+      return 0
+    elif grep -sq hvm "/sys/hypervisor/properties/capabilities"; then
+      return 0
+    else
+      return 1
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __install_virt() {
+    local exitCode=0
+    [[ -z "$SETUP_VIRT_FORCE" ]] && cmd_exists qemu-img virt-manager && return $exitCode
+    if [ "$(command -v pacman 2>/dev/null)" ]; then # ARCH
+      sudo pacman -S qemu libvirt dnsmasq virt-manager bridge-utils flex bison iptables-nft edk2-ovmf --noconfirm --needed &>/dev/null || exitCode=1
+    elif [ "$(command -v apt 2>/dev/null)" ]; then # UBUNTU DEBIAN
+      sudo apt install qemu qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager libguestfs-tools -yy &>/dev/null || exitCode=1
+    elif [ "$(command -v dfn 2>/dev/null)" ]; then # FEDORA
+      sudo dnf install libvirt qemu-kvm virt-manager bridge-utils -y &>/dev/null || exitCode=1
+    elif [ "$(command -v yum 2>/dev/null)" ]; then # CENTOS RHEL
+      sudo yum install libvirt qemu-kvm virt-manager bridge-utils -y &>/dev/null || exitCode=1
+    fi
+    if [ "$exitCode" -eq 0 ]; then
+      printf_green "Installed the virtualization packages"
+      return 0
+    else
+      printf_red "Failed to install the virtualization packages"
+      return 1
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __enable_services() {
+    sudo systemctl enable --now libvirtd &>/dev/null
+    sudo systemctl enable --now virtlogd &>/dev/null
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __modprobe_kvm() {
+    echo 1 | sudo tee /sys/module/kvm/parameters/ignore_msrs
+    sudo modprobe kvm
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode=
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Application Folders
+  local SETUP_VIRT_LOG_DIR="${SETUP_VIRT_LOG_DIR:-$HOME/.local/log/setup_virt}"
+  local SETUP_VIRT_CACHE_DIR="${SETUP_VIRT_CACHE_DIR:-$HOME/.cache/setup_virt}"
+  local SETUP_VIRT_CONFIG_DIR="${SETUP_VIRT_CONFIG_DIR:-$HOME/.config/misc/settings/setup_virt}"
+  local SETUP_VIRT_OPTIONS_DIR="${SETUP_VIRT_OPTIONS_DIR:-$HOME/.local/share/misc/setup_virt/options}"
+  local SETUP_VIRT_CONFIG_BACKUP_DIR="${SETUP_VIRT_CONFIG_BACKUP_DIR:-$HOME/.local/share/misc/setup_virt/backups}"
+  local SETUP_VIRT_TEMP_DIR="${SETUP_VIRT_TEMP_DIR:-$HOME/.local/tmp/system_scripts/setup_virt}"
+  local SETUP_VIRT_CONFIG_FILE="${SETUP_VIRT_CONFIG_FILE:-settings.conf}"
+  local SETUP_VIRT_GOOD_MESSAGE="${SETUP_VIRT_GOOD_MESSAGE:-Everything Went OK}"
+  local SETUP_VIRT_ERROR_MESSAGE="${SETUP_VIRT_ERROR_MESSAGE:-Well something seems to have gone wrong}"
+  local SETUP_VIRT_NOTIFY_ENABLED="${SETUP_VIRT_NOTIFY_ENABLED:-yes}"
+  local SETUP_VIRT_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$APPNAME}"
+  local SETUP_VIRT_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_VIRT_NOTIFY_CLIENT_ICON}"
+  local SETUP_VIRT_OUTPUT_COLOR="${SETUP_VIRT_OUTPUT_COLOR:-5}"
+  local SETUP_VIRT_OUTPUT_COLOR_GOOD="${SETUP_VIRT_OUTPUT_COLOR_GOOD:-2}"
+  local SETUP_VIRT_OUTPUT_COLOR_ERROR="${SETUP_VIRT_OUTPUT_COLOR_ERROR:-1}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Enviroment overrides
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate config files
+  [ -f "$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE" ] || [[ "$*" = *config ]] || INIT_CONFIG="${INIT_CONFIG:-TRUE}" __gen_config ${SETARGS:-$@}
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  [ -f "$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE" ] && . "$SETUP_VIRT_CONFIG_DIR/$SETUP_VIRT_CONFIG_FILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Ensure Directories exist
+  [ -d "$SETUP_VIRT_LOG_DIR" ] || mkdir -p "$SETUP_VIRT_LOG_DIR" &>/dev/null
+  [ -d "$SETUP_VIRT_TEMP_DIR" ] || mkdir -p "$SETUP_VIRT_TEMP_DIR" &>/dev/null
+  [ -d "$SETUP_VIRT_CACHE_DIR" ] || mkdir -p "$SETUP_VIRT_CACHE_DIR" &>/dev/null
+  local SETUP_VIRT_TEMP_FILE="${SETUP_VIRT_TEMP_FILE:-$(mktemp $SETUP_VIRT_TEMP_DIR/XXXXXX 2>/dev/null)}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Setup trap to remove temp file
+  trap 'exitCode=${exitCode:-$?};[ -n "$SETUP_VIRT_TEMP_FILE" ] && [ -f "$SETUP_VIRT_TEMP_FILE" ] && rm -Rf "$SETUP_VIRT_TEMP_FILE" &>/dev/null' EXIT
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Setup notification function
+  if [ "$SETUP_VIRT_NOTIFY_ENABLED" = "yes" ]; then
+    __notifications() {
+      export NOTIFY_GOOD_MESSAGE="${SETUP_VIRT_GOOD_MESSAGE}"
+      export NOTIFY_ERROR_MESSAGE="${SETUP_VIRT_ERROR_MESSAGE}"
+      export NOTIFY_CLIENT_NAME="${SETUP_VIRT_NOTIFY_CLIENT_NAME}"
+      export NOTIFY_CLIENT_ICON="${SETUP_VIRT_NOTIFY_CLIENT_ICON}"
+      notifications "$@" && exitCode=0 || exitCode=1
+      unset NOTIFY_CLIENT_NAME NOTIFY_CLIENT_ICON NOTIFY_GOOD_MESSAGE NOTIFY_ERROR_MESSAGE
+      return ${exitCode:-$?}
+    }
+  else
+    __notifications() { false; }
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Show warn message if variables are missing
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="$*"
+  local SHORTOPTS="f"
+  local LONGOPTS="options,config,version,help,dir:,force"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Setup application options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -a -n "$(basename "$0" 2>/dev/null)" -- "$@" 2>/dev/null)
+  eval set -- "${setopts[@]}" 2>/dev/null
+  while :; do
+    case "$1" in
+    --options)
+      shift 1
+      [ -n "$1" ] || printf_blue "Current options for ${PROG:-$APPNAME}"
+      [ -z "$SHORTOPTS" ] || __list_options "5" "Short Options" "-$SHORTOPTS" ',' '-'
+      [ -z "$LONGOPTS" ] || __list_options "5" "Long Options" "--$LONGOPTS" ',' '--'
+      [ -z "$ARRAY" ] || __list_options "5" "Base Options" "$ARRAY" ',' ''
+      exit $?
+      ;;
+    --version)
+      shift 1
+      __version
+      exit $?
+      ;;
+    --help)
+      shift 1
+      __help
+      exit $?
+      ;;
+    --config)
+      shift 1
+      __gen_config
+      exit $?
+      ;;
+    --dir)
+      SETUP_VIRT_CWD="$2"
+      shift 2
+      ;;
+    -f | --force)
+      SETUP_VIRT_FORCE="yes"
+      shift 1
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+    esac
+  done
+  #set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Actions based on env
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications/Network check
+  cmd_exists --error bash || exit 1 # exit 1 if not found
+  #am_i_online --error || exit 1     # exit 1 if no internet
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # APP Variables overrides
+  __64bit_check && __virt_ok || printf_exit "64-bit OS required and virtualization must be enabled"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  __install_virt "$@"
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # lets exit with code
+  return ${exitCode:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+setup_virt_main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lets exit with code
+exit ${exitCode:-$?}
