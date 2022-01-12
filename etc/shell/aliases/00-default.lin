@@ -179,6 +179,7 @@ fi
 [ -n "$(builtin type -P mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other
+[ -z "$(builtin type -P pipx 2>/dev/null)" ] && alias='pip install -U pipx && alias="pipx"'
 [ -n "$(builtin type -P anime-cli 2>/dev/null)" ] && alias='anime-cli -d -p "$HOME/Downloads/anime"'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
