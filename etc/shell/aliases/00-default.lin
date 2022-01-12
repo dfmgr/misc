@@ -178,6 +178,9 @@ fi
 [ -n "$(builtin type -P youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer '
 [ -n "$(builtin type -P mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Other
+[ -n "$(builtin type -P anime-cli 2>/dev/null)" ] && alias='anime-cli -d -p "$HOME/Downloads/anime"'
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
 alias list-my-functions='typeset -F | less '
 alias list-my-aliases='alias | less '
