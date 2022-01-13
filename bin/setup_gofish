@@ -72,12 +72,12 @@ EOF
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gofish_init() { gofish init &>/dev/null && gofish update &>/dev/null && return 0 || return 1; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gofish_install() {
     sudo true
-    bash -c "$(curl -q -LSs "$SETUP_GOFISH_INSTALL_SCRIPT" &>/dev/null)" &&
-      gofish init &>/dev/null && true || false
-    if type -P gofish &>/dev/null; then
-      gofish update &>/dev/null
+    bash -c "$(curl -q -LSsf "$SETUP_GOFISH_INSTALL_SCRIPT")" &>/dev/null
+    if cmd_exists gofish && __gofish_init; then
       printf_green "gofish has been installed"
       return 0
     else
