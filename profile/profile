@@ -251,7 +251,7 @@ TMP_BIN_PATH="$HOME/.local/share/misc/plugins/basher/bin:$TMP_BIN_PATH"
 export BASHER_ROOT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure gofish - https://gofi.sh
-GOFISH_HOME="/usr/local/gofish"
+GOFISH_HOME="$HOME/.local/share/gofish"
 GOFISH_RIGS="$GOFISH_HOME/Rigs"
 GOFISH_CACHE="$HOME/cache/.gofish"
 GOFISH_BARREL="$GOFISH_HOME/Barrel"
