@@ -53,6 +53,7 @@ __config_gen() {
   cat <<EOF >"$CONFDIR/$CONFFILE"
 SETVER_FILE="$SETVER_FILE"
 SETVER_FORMAT="$SETVER_FORMAT"
+SETVER_DNSVER="$SETVER_DNSVER"
 EOF
   if [ -f "$CONFDIR/$CONFFILE" ]; then
     printf_green "Your config file for $PROG has been created"
@@ -63,11 +64,13 @@ EOF
 # Main function
 main() {
   local OPTS SHORTOPTS LONGOPTS setopts SETVER_FORMAT SETVER_TYPE CUSTOM_DIR CUSTOM_FILE
-  local SHORTOPTS="c,v,h,f,s"
   local LONGOPTS="config,version,help,file,show"
+  local SHORTOPTS="c,v,h,f,s"
+  local ARRAY="show dns create"
+  local SETVER_DNSVER="${SETVER_DNSVER:-%Y%m%d%H%M}"
   local SETVER_FORMAT="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
   local SETVER_FILE="version.txt"
-  local ARGS="$@"
+  local ARGS="$*"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   datecmd() { date +"${SETVER_FORMAT}${SETVER_TYPE}"; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -79,18 +82,14 @@ main() {
   local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "setver" -- "$@" 2>/dev/null)
   eval set -- "$setopts" 2>/dev/null
   while :; do
-    case $1 in
+    case "$1" in
     -v | --version) __version ;;
     -h | --help) __help ;;
     -c | --config) __config_gen ;;
-    -d | --dir)
-      CUSTOM_DIR="$2"
-      shift
-      ;;
     -f | --file) OPTS="create" ;;
     -s | --show) OPTS="show" ;;
+    -d | --dir) CUSTOM_DIR="$2" && shift 2 ;;
     --) break ;;
-    *) break ;;
     esac
     shift
   done
@@ -101,12 +100,20 @@ main() {
   cmd_exists --error bash || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  case $OPTS in
+  case ${OPTS:-$1} in
   show)
     if [ -f "$FULLFILE" ]; then
       printf_green "$FULLFILE: $(<$FULLFILE)"
     else
       printf_red "$FULLFILE doesn't exist"
+    fi
+    ;;
+  dns)
+    shift 1
+    if [ -n "$1" ]; then
+      printf_blue "$SETVER_DNSVER$2"
+    else
+      printf_green "$SETVER_DNSVER01"
     fi
     ;;
   create) # Always want version in the top dir of git repo
