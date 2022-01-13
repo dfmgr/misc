@@ -74,6 +74,11 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gofish_init() { gofish init &>/dev/null && gofish update &>/dev/null && return 0 || return 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gofish_search() {
+    cmd_exists gofish || return
+    gofish search 2>/dev/null | grep -v NAME | awk '{print $1}' | grep '^'
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gofish_install() {
     sudo true
     bash -c "$(curl -q -LSsf "$SETUP_GOFISH_INSTALL_SCRIPT")" &>/dev/null
@@ -114,7 +119,7 @@ EOF
   local SETARGS="$*"
   local SHORTOPTS="c,v,h,i"
   local LONGOPTS="options,config,version,help,install"
-  local ARRAY="$(gofish search | grep -v NAME | awk '{print $1}' | grep '^')"
+  local ARRAY="$(__gofish_search)"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
   [ -f "$SETUP_GOFISH_CONFIG_DIR/$SETUP_GOFISH_CONFIG_FILE" ] || __gen_config &>/dev/null
