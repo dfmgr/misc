@@ -52,9 +52,9 @@ elif [ -n "$ZSH_VERSION" ]; then
   ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
   ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
   HISTFILE="$HOME/.config/zsh/zsh_history"
-  if [ -n "$(which direnv 2>/dev/null)" ]; then
-    direnv hook zsh >/dev/null 2>&1
-  fi
+  autoload -Uz compinit && compinit -i
+  autoload -U +X bashcompinit && bashcompinit
+  [ -n "$(which direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
   export ZDOTDIR ZSH_CACHEDIR ZSH ZSH_CUSTOM ZSH_DISABLE_COMPFIX HISTFILE
 fi
 export SHELL
