@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
-PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
-export PATH
+BINDIR="$HOME/.local/bin"
+PATH="$BINDIR:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
+export BINDIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
-# PS1="$USER@$(hostname -s 2>/dev/null):$(basename "$SHELL") # "
+# PS1="$USER@$(hostname -f 2>/dev/null):$(basename "$SHELL") # "
 # export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-NODE_MANAGER="fnm"
+NODE_MANAGER="${NODE_MANAGER:-fnm}"
 export NODE_MANAGER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
@@ -297,7 +298,7 @@ export DENO_INSTALL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 if [[ -f "$(builtin command -v fnm 2>/dev/null)" ]]; then
-  FNM_BIN="$HOME/.local/bin"
+  FNM_BIN="$BINDIR"
   FNM_DIR="$HOME/.local/share/nodejs/fnm"
   eval "$(FNM_BIN="$FNM_BIN" FNM_DIR="$FNM_DIR" PATH="$TMP_BIN_PATH:$PATH" FNM_MULTISHELL_PATH="$FNM_MULTISHELL_PATH" fnm env 2>/dev/null)"
   export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
@@ -306,7 +307,7 @@ fi
 # node version manager
 if [[ -f "$(builtin command -v nvm 2>/dev/null)" ]]; then
   NVM_DIR="$HOME/.local/share/nodejs/nvm"
-  NVM_BIN="$HOME/.local/bin"
+  NVM_BIN="$BINDIR"
   NO_UPDATE_NOTIFIER="true"
   NODE_REPL_HISTORY_SIZE=2000
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -654,7 +655,7 @@ if [ "$(uname -s)" = Darwin ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
-mkdir -p "$HOME/.local/bin"
+mkdir -p "$BINDIR"
 mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
 mkdir -p "$HOME/.config/local"
@@ -690,7 +691,7 @@ mkdir -p "$TMPDIR"
 [ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-SET_PATH="$(echo "$PATH" | tr ':' '\n' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | tr '\n' ':' | sed 's|:.:|:.|g;s|:$|:.|g')"
+SET_PATH="$(echo "$PATH" | tr ':' '\n' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | sort -u | tr '\n' ':' | sed 's|:.:|:.|g;s|:$|:.|g')"
 SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | tr '\n' ':' | sed 's|:.:|:.|g;s|:$||g')"
 export PATH="$SET_TMP_PATH:$SET_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
