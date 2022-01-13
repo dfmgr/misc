@@ -250,14 +250,6 @@ BASHER_ROOT="$HOME/.local/share/misc/plugins/basher"
 TMP_BIN_PATH="$HOME/.local/share/misc/plugins/basher/bin:$TMP_BIN_PATH"
 export BASHER_ROOT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# configure gofish - https://gofi.sh
-GOFISH_HOME="$HOME/.local/share/gofish"
-GOFISH_RIGS="$GOFISH_HOME/Rigs"
-GOFISH_CACHE="$HOME/cache/.gofish"
-GOFISH_BARREL="$GOFISH_HOME/Barrel"
-GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
-export GOFISH_HOME GOFISH_RIGS GOFISH_CACHE GOFISH_BARREL GOFISH_DEFAULT_RIG
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
 GOPATH="$HOME/.local/share/go"
 GODIR="$GOPATH"
@@ -265,6 +257,19 @@ GOBIN="$GOPATH/bin"
 GOCACHE="$HOME/.cache/go-build"
 TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
 export GOPATH GODIR GOBIN GOCACHE
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# GO version Manager - https://github.com/moovweb/gvm
+GVM_ROOT="${GVM_ROOT:-$HOME/.local/share/gvm}"
+export GVM_ROOT
+[[ -f "$GVM_ROOT/scripts/gvm-default" ]] && source "$GVM_ROOT/scripts/gvm-default"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# configure gofish - https://gofi.sh
+GOFISH_HOME="$HOME/.local/share/gofish"
+GOFISH_RIGS="$GOFISH_HOME/Rigs"
+GOFISH_CACHE="$HOME/cache/.gofish"
+GOFISH_BARREL="$GOFISH_HOME/Barrel"
+GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
+export GOFISH_HOME GOFISH_RIGS GOFISH_CACHE GOFISH_BARREL GOFISH_DEFAULT_RIG
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
 if [ -d "HOME/.local/share/gem" ]; then

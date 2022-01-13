@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="setup_gvm"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 031520211424-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : setup_gvm --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Monday, Mar 15, 2021 14:24 EDT
+# @File          : setup_gvm
+# @Description   : GO Version Manager installer
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function file
+if [ -f "$SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
+else
+  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+  return 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# helper function
+__version() { app_version; }
+__help() {
+  app_help "Usage: setup_gvm  -  setup_gvm --version" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+installcmd() {
+  curl -q -fsSL "https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer" |
+    bash -s -- master "$GVM_ROOT" &>/dev/null && return 0 || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # options
+  case $1 in
+  -v | --version) __version ;;
+  -h | --help) __help ;;
+  esac
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Required app check
+  cmd_exists --error bash curl git || exit 1
+  am_i_online --error || return 1
+  if [ -n "$NODE_MANAGER" ]; then
+    [ "$NODE_MANAGER" != "gvm" ] && exit 0
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  exitCode=0
+  GVM_ROOT="${GVM_ROOT:-$HOME/.local/share/gvm}"
+  export GVM_ROOT
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  if [[ "$*" == "--remove" ]]; then
+    printf_red "Removing GVM from your system"
+    [[ -d "$GVM_ROOT" ]] && rm -Rf "$GVM_ROOT"
+    if [ ! -d "$GVM_ROOT/.git" ] && [ -z "$(command -v gvm 2>/dev/null)" ]; then
+      printf_green "GVM Has been removed"
+    fi
+    exit $?
+  fi
+
+  printf_red "installing GVM to $GVM_ROOT"
+  mkdir -p "$GVM_ROOT"
+  if [ -d "$GVM_ROOT/.git" ]; then
+    printf_blue "Updating GVM"
+    git -C $GVM_ROOT pull -q &>/dev/null
+  else
+    printf_blue "Running the GVM script"
+    installcmd || printf_exit "Failed to install GVM"
+  fi
+  if [ -n "$(command -v gvm 2>/dev/null)" ]; then
+    printf_blue "Setting up GVM"
+    gvm install "$GVM_NODE_VERSION" &>/dev/null
+    gvm ls | grep -q "$GVM_NODE_VERSION" && gvm use "$GVM_NODE_VERSION" &>/dev/null
+  fi
+  if [ -n "$(command -v gvm 2>/dev/null)" ]; then
+    printf_green "GVM has been installed"
+  else
+    printf_red "GVM Failed to install"
+    exitcode=1
+  fi
+  return "${exitCode:-$?}"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end
