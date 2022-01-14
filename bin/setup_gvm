@@ -58,6 +58,7 @@ setup_gvm_main() {
       cp -Rf "$SETUP_GVM_CONFIG_DIR/$SETUP_GVM_CONFIG_FILE" "$SETUP_GVM_CONFIG_BACKUP_DIR/$SETUP_GVM_CONFIG_FILE.$$"
     cat <<EOF >"$SETUP_GVM_CONFIG_DIR/$SETUP_GVM_CONFIG_FILE"
 # Settings for SETUP_GVM
+SETUP_GVM_ROOT="${SETUP_GVM_ROOT:-$HOME/.local/share/gvm}"
 SETUP_GVM_INSTALL_SCRIPT="${SETUP_GVM_INSTALL_SCRIPT:-https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer}"
 
 # Notification settings for GVM
@@ -74,19 +75,26 @@ EOF
       false
     fi
   }
+  __gvm_install_script() {
+    curl -q -LSs "$SETUP_GVM_INSTALL_SCRIPT" | bash -s -- master "$SETUP_GVM_ROOT" 2>&1 | grep 'ERROR' | head -n1 | grep '^' && return 1 || return 0
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gvm_install() {
-    if [[ "$1" != "-f" ]] && cmd_exists gvm; then
+    local PATH="$SETUP_GVM_ROOT/gvm/bin:$PATH"
+    if [[ "$FORCE" != "true" ]] && cmd_exists gvm; then
       printf_green "gvm is already installed "
-      printf_blue "run $PROG --install to updated"
+      printf_blue "run $PROG --force to updated"
       return 0
     else
-      curl -q -LSs "$SETUP_GVM_INSTALL_SCRIPT" | bash &>/dev/null
-      if type -P gvm &>/dev/null; then
+      [[ -d "$GVM_ROOT" ]] && rm -Rf "$GVM_ROOT" &>/dev/null
+      [[ -d "$HOME/.gvm" ]] && rm -Rf "$HOME/.gvm" &>/dev/null
+      results="$(__gvm_install_script)"
+      if [[ -f "$SETUP_GVM_ROOT/gvm/scripts/gvm-default" ]] && type -P gvm &>/dev/null; then
+        source "$SETUP_GVM_ROOT/gvm/scripts/gvm-default"
         printf_green "gvm has been installed"
         return 0
       else
-        printf_red "Failed to install gvm"
+        [[ -n "$results" ]] && printf_red "$results" || printf_red "Failed to install gvm"
         return 1
       fi
     fi
@@ -103,6 +111,7 @@ EOF
   local SETUP_GVM_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
   local SETUP_GVM_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_GVM_NOTIFY_CLIENT_ICON}"
   local SETUP_GVM_INSTALL_SCRIPT="${SETUP_GVM_INSTALL_SCRIPT:-https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer}"
+  local SETUP_GVM_ROOT="${SETUP_GVM_ROOT:-$HOME/.local/share}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="$*"
@@ -148,8 +157,7 @@ EOF
       ;;
     -f | --force)
       shift 1
-      __gvm_install -f
-      exit $?
+      FORCE="true"
       ;;
     --)
       shift 1
@@ -175,9 +183,7 @@ EOF
   cmd_exists --error bash || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # APP Variables
-  GVM_ROOT="${GVM_ROOT:-$HOME/.local/share/gvm}"
-  PATH="$GVM_ROOT/bin:$PATH"
-  export GVM_ROOT PATH
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   __gvm_install || exit 1
