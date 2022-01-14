@@ -36,15 +36,26 @@ main() {
     printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
     return 1
   fi
+  __search() {
+    if [[ -n "$filter" ]]; then
+      ls -la "$search" 2>/dev/null | grep "$filter" | awk '{print $11}' | grep -v '^$' | grep '^'
+    else
+      ls -la "$search" 2>/dev/null | awk '{print $11}' | grep -v '^$' | grep '^'
+    fi
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
+  case "$1" in
   -v | --version) __version ;;
   -h | --help) __help ;;
   --raw) shift 1 && RAW="true" ;;
+  -f | -s | --search)
+    filter="$2"
+    shift 2
+    ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   search="${*:-.}"
-  files="$(ls -la "$search" 2>/dev/null | awk '{print $11}' | grep -v '^$' | grep '^')"
+  files="$(__search)"
   if [[ -n "$files" ]]; then
     if [[ -n "$RAW" ]]; then
       printf "%s\n" "$files"
