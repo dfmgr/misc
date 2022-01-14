@@ -99,9 +99,11 @@ EOF
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __is_installed() { cmd_exists qemu-img virt-manager && return 0 || return 1; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __install_virt() {
     local exitCode=0
-    [[ -z "$SETUP_VIRT_FORCE" ]] && cmd_exists qemu-img virt-manager && return $exitCode
+    [[ -z "$SETUP_VIRT_FORCE" ]] && __is_installed && return $exitCode
     printf_green "Installing virtualization packages"
     if [ "$(command -v pacman 2>/dev/null)" ]; then # ARCH
       sudo pacman -S qemu libvirt dnsmasq virt-manager bridge-utils flex bison iptables-nft edk2-ovmf --noconfirm --needed &>/dev/null || exitCode=1
@@ -112,6 +114,7 @@ EOF
     elif [ "$(command -v yum 2>/dev/null)" ]; then # CENTOS RHEL
       sudo yum install libvirt qemu-kvm virt-manager bridge-utils -y &>/dev/null || exitCode=1
     fi
+    __is_installed
     if [ "$exitCode" -eq 0 ]; then
       __modprobe_kvm
       printf_green "Installed the virtualization packages"
