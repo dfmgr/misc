@@ -9,7 +9,7 @@ setup_gvm_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #set opts
   trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_GVM_TEMP_FILE" ] && rm -Rf "$SETUP_GVM_TEMP_FILE" &>/dev/null' EXIT
-
+  set -x
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ##@Version       : 202107281513-git
   # @Author        : jason
