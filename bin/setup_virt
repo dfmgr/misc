@@ -102,6 +102,7 @@ EOF
   __install_virt() {
     local exitCode=0
     [[ -z "$SETUP_VIRT_FORCE" ]] && cmd_exists qemu-img virt-manager && return $exitCode
+    printf_green "Installing virtualization packages"
     if [ "$(command -v pacman 2>/dev/null)" ]; then # ARCH
       sudo pacman -S qemu libvirt dnsmasq virt-manager bridge-utils flex bison iptables-nft edk2-ovmf --noconfirm --needed &>/dev/null || exitCode=1
     elif [ "$(command -v apt 2>/dev/null)" ]; then # UBUNTU DEBIAN
@@ -112,6 +113,7 @@ EOF
       sudo yum install libvirt qemu-kvm virt-manager bridge-utils -y &>/dev/null || exitCode=1
     fi
     if [ "$exitCode" -eq 0 ]; then
+      __modprobe_kvm
       printf_green "Installed the virtualization packages"
       return 0
     else
@@ -130,9 +132,18 @@ EOF
     echo 1 | sudo tee /sys/module/kvm/parameters/ignore_msrs
     sudo modprobe kvm
     if [[ "$CPU" =~ [aA]md ]]; then
-      grep -sq 'kvm_amd' /etc/modprobe.d/kvm.conf || echo 'modprobe kvm_amd nested=1' | sudo tee -a /etc/modprobe.d/kvm.conf
+      printf_green "Enabled nested virtualization for AMD"
+      grep -sq 'nested=' /etc/modprobe.d/kvm.conf || echo 'modprobe kvm_amd nested=1' | sudo tee -a /etc/modprobe.d/kvm.conf
     elif [[ "$CPU" =~ [iI]ntel ]]; then
-      grep -sq 'kvm_intel' /etc/modprobe.d/kvm.conf || echo 'modprobe kvm_intel nested=1' | sudo tee -a /etc/modprobe.d/kvm.conf
+      printf_green "Enabled nested virtualization for Intel"
+      grep -sq 'nested=' /etc/modprobe.d/kvm.conf || echo 'modprobe kvm_intel nested=1' | sudo tee -a /etc/modprobe.d/kvm.conf
+    fi
+    if grep -qs 'nested=1' '/etc/modprobe.d/kvm.conf'; then
+      printf_green "Enabled nested virtualization"
+      return 0
+    else
+      printf_red "Failed to enable nested virtualization"
+      return 1
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
