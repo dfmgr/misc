@@ -90,12 +90,12 @@ if [ -n "$DISPLAY" ]; then
     DISPLAY_LOW_DENSITY="$DISPLAY"
   fi
   if [ -n "$(which xrandr 2>/dev/null)" ]; then
-    RESOLUTION="$(xrandr --current 2>/dev/null | grep '*' | uniq | awk '{print $1}')"
+    RESOLUTION="$(xrandr --current 2>/dev/null | grep '\*' | uniq | awk '{print $1}')"
   fi
 else
   RESOLUTION="${RESOLUTION:-}"
 fi
-export DISPLAY RESOLUTION
+export DISPLAY_LOW_DENSITY DISPLAY RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
 if [ -n "$DISPLAY" ] && [ -n "$(which xset 2>/dev/null)" ]; then
@@ -259,7 +259,7 @@ TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
 export GOPATH GODIR GOBIN GOCACHE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # GO version Manager - https://github.com/moovweb/gvm
-GVM_ROOT="${GVM_ROOT:-$HOME/.local/share/gvm}"
+GVM_ROOT="$HOME/.local/share/gvm"
 export GVM_ROOT
 [[ -f "$GVM_ROOT/scripts/gvm-default" ]] && source "$GVM_ROOT/scripts/gvm-default"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -272,53 +272,52 @@ GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
 export GOFISH_HOME GOFISH_RIGS GOFISH_CACHE GOFISH_BARREL GOFISH_DEFAULT_RIG
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
-if [ -d "HOME/.local/share/gem" ]; then
-  GEM_HOME="$HOME/.local/share/gem"
-  GEM_PATH="$HOME/.local/share/gem"
-  TMP_BIN_PATH="$GEM_HOME/bin:$TMP_BIN_PATH"
-  export GEM_HOME GEM_PATH
-fi
+GEM_HOME="$HOME/.local/share/gem"
+GEM_PATH="$HOME/.local/share/gem"
+TMP_BIN_PATH="$GEM_HOME/bin:$TMP_BIN_PATH"
+export GEM_HOME GEM_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-if [ -f "$HOME/.local/share/rvm/scripts/rvm" ]; then
-  export rvm_path="$HOME/.local/share/rvm"
+rvm_path="$HOME/.local/share/rvm"
+if [ -f "$rvm_path/scripts/rvm" ]; then
   . "$rvm_path/scripts/rvm"
   . "$rvm_path/scripts/completion"
   TMP_BIN_PATH="$rvm_path/bin:$TMP_BIN_PATH"
 fi
+export rvm_path
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Node
+NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
+NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 if [[ -f "$(builtin command -v node 2>/dev/null)" ]]; then
-  NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
-  NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
   TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
   npm config set prefix "$NPM_PACKAGES"
 fi
 export NPM_PACKAGES NODE_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Deno
-DENO_INSTALL="$HOME/.local/share/deno"
-TMP_BIN_PATH="$DENO_INSTALL/bin:$TMP_BIN_PATH"
-export DENO_INSTALL
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
+FNM_BIN="$BINDIR"
+FNM_DIR="$HOME/.local/share/nodejs/fnm"
 if [[ -f "$(builtin command -v fnm 2>/dev/null)" ]]; then
-  FNM_BIN="$BINDIR"
-  FNM_DIR="$HOME/.local/share/nodejs/fnm"
   eval "$(FNM_BIN="$FNM_BIN" FNM_DIR="$FNM_DIR" PATH="$TMP_BIN_PATH:$PATH" FNM_MULTISHELL_PATH="$FNM_MULTISHELL_PATH" fnm env 2>/dev/null)"
-  export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
 fi
+export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
+NVM_DIR="$HOME/.local/share/nodejs/nvm"
+NVM_BIN="$BINDIR"
 if [[ -f "$(builtin command -v nvm 2>/dev/null)" ]]; then
-  NVM_DIR="$HOME/.local/share/nodejs/nvm"
-  NVM_BIN="$BINDIR"
   NO_UPDATE_NOTIFIER="true"
   NODE_REPL_HISTORY_SIZE=2000
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
-  export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
 fi
+export NVM_DIR NVM_BIN NO_UPDATE_NOTIFIER NODE_REPL_HISTORY_SIZE
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Deno
+DENO_INSTALL="$HOME/.local/share/deno"
+TMP_BIN_PATH="$DENO_INSTALL/bin:$TMP_BIN_PATH"
+export DENO_INSTALL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python setV
 SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/setvenv/"
@@ -452,12 +451,12 @@ fi
 export FILEMANAGER="$MYFILEMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
-if [ -n "$(which VirtualBox 2>/dev/null)" ]; then
-  MYVMMANAGER="VirtualBox"
+if [ -n "$(which virt-manager 2>/dev/null)" ]; then
+  MYVMMANAGER="virt-manager"
 elif [ -n "$(which VMWare 2>/dev/null)" ]; then
   MYVMMANAGER="VMWare"
-elif [ -n "$(which virt-manager 2>/dev/null)" ]; then
-  MYVMMANAGER="virt-manager"
+elif [ -n "$(which VirtualBox 2>/dev/null)" ]; then
+  MYVMMANAGER="VirtualBox"
 elif [ -n "$(which kubectl 2>/dev/null)" ]; then
   MYVMMANAGER="kubectl"
 elif [ -n "$(which docker 2>/dev/null)" ]; then
@@ -617,10 +616,6 @@ export CHTSH_HOME="$HOME/.config/cheatsh"
 export TASKRC="$HOME/.taskrc"
 export TASKDATA="$HOME/.local/share/taskwarrior"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# cursor
-echo -e -n "\x1b[\x35 q" 2>/dev/null
-echo -e -n "\e]12;cyan\a" 2>/dev/null
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # multi_clipboard
 if [ -n "$(which multi_clipboard 2>/dev/null)" ]; then
   export SCREENEXCHANGE="$HOME/.screen-exchange"
@@ -659,14 +654,18 @@ if [ "$(uname -s)" = Darwin ]; then
   export HOMEBREW_INSTALL_BADGE HOMEBREW_CASK_OPTS
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# cursor
+echo -e -n "\x1b[\x35 q" 2>/dev/null
+echo -e -n "\e]12;cyan\a" 2>/dev/null
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
+mkdir -p "$TMPDIR"
 mkdir -p "$BINDIR"
 mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
 mkdir -p "$HOME/.config/local"
 mkdir -p "$HOME/.config/secure"
 mkdir -p "$HOME/.local/share/wallpapers"
-mkdir -p "$TMPDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
 [ -f "$HOME/.config/shell/functions/global.sh" ] && . "$HOME/.config/shell/functions/global.sh"
@@ -704,9 +703,10 @@ export PATH="$SET_TMP_PATH:$SET_PATH"
 PROFILERCSRC="$HOME/.profile"
 export PROFILERCSRC
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Autolanch application on ssh connection
-if [ -n "$SSH_CONNECTION" ] && [ -f "$HOME/.config/misc/shell/other/ssh" ]; then
-  . "$HOME/.config/misc/shell/other/ssh"
+# Autolaunch application on ssh connection
+if [ -n "$SSH_CONNECTION" ]; then
+  [ -f "$HOME/.config/misc/shell/other/ssh" ] && . "$HOME/.config/misc/shell/other/ssh"
+  [ -f "$HOME/.config/local/ssh.launch" ] && . "$HOME/.config/local/ssh.launch"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
