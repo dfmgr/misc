@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202107281513-git
+# @Author        : jason
+# @Contact       : jason
+# @License       : LICENSE.md
+# @ReadME        : setup_gvm --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, Casjays Developments
+# @Created       : Wednesday, Jul 28, 2021 20:29 EDT
+# @File          : setup_gvm
+# @Description   :
+# @TODO          :
+# @Other         :
+# @Resource      :
 setup_gvm_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   PROG="$(basename "$0")"
@@ -9,20 +22,8 @@ setup_gvm_main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   #set opts
   trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_GVM_TEMP_FILE" ] && rm -Rf "$SETUP_GVM_TEMP_FILE" &>/dev/null' EXIT
-  set -x
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202107281513-git
-  # @Author        : jason
-  # @Contact       : jason
-  # @License       : LICENSE.md
-  # @ReadME        : setup_gvm --help
-  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, Casjays Developments
-  # @Created       : Wednesday, Jul 28, 2021 20:29 EDT
-  # @File          : setup_gvm
-  # @Description   :
-  # @TODO          :
-  # @Other         :
-  # @Resource      :
+  if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Main function file
   if [ -f "$SRC_DIR/functions.bash" ]; then
