@@ -142,7 +142,7 @@ EOF
       printf_green "Enabled nested virtualization"
       return 0
     else
-      printf_red "Failed to enable nested virtualization"
+      printf_red "nested virtualization is not enabled"
       return 1
     fi
   }
