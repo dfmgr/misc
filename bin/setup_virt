@@ -126,8 +126,14 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __modprobe_kvm() {
+    CPU=$(grep -o -E 'model name.*:.*' /proc/cpuinfo | head -n 1 | sed 's/model name.*: //g')
     echo 1 | sudo tee /sys/module/kvm/parameters/ignore_msrs
     sudo modprobe kvm
+    if [[ "$CPU" =~ [aA]md ]]; then
+      grep -sq 'kvm_amd' /etc/modprobe.d/kvm.conf || echo 'modprobe kvm_amd nested=1' | sudo tee -a /etc/modprobe.d/kvm.conf
+    elif [[ "$CPU" =~ [iI]ntel ]]; then
+      grep -sq 'kvm_intel' /etc/modprobe.d/kvm.conf || echo 'modprobe kvm_intel nested=1' | sudo tee -a /etc/modprobe.d/kvm.conf
+    fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
