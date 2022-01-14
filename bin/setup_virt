@@ -129,8 +129,8 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __modprobe_kvm() {
     CPU=$(grep -o -E 'model name.*:.*' /proc/cpuinfo | head -n 1 | sed 's/model name.*: //g')
-    echo 1 | sudo tee /sys/module/kvm/parameters/ignore_msrs
-    sudo modprobe kvm
+    sudo modprobe kvm &>/dev/null
+    echo 1 | sudo tee /sys/module/kvm/parameters/ignore_msrs &>/dev/null
     if [[ "$CPU" =~ [aA]md ]]; then
       printf_green "Enabled nested virtualization for AMD"
       grep -sq 'nested=' /etc/modprobe.d/kvm.conf || echo 'modprobe kvm_amd nested=1' | sudo tee -a /etc/modprobe.d/kvm.conf
