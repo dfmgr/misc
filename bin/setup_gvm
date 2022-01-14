@@ -60,7 +60,7 @@ setup_gvm_main() {
 SETUP_GVM_NOTIFY_ENABLED="yes"
 SETUP_GVM_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
 SETUP_GVM_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_GVM_NOTIFY_CLIENT_ICON}"
-SETUP_GVM_INSTALL_SCRIPT="${SETUP_GVM_INSTALL_SCRIPT:-https://deno.land/x/install/install.sh}"
+SETUP_GVM_INSTALL_SCRIPT="${SETUP_GVM_INSTALL_SCRIPT:-https://gvm.land/x/install/install.sh}"
 
 EOF
     if [ -f "$SETUP_GVM_CONFIG_DIR/$SETUP_GVM_CONFIG_FILE" ]; then
@@ -72,18 +72,18 @@ EOF
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __deno_install() {
-    if [[ "$1" != "-f" ]] && cmd_exists deno; then
-      printf_green "deno is already installed "
+  __gvm_install() {
+    if [[ "$1" != "-f" ]] && cmd_exists gvm; then
+      printf_green "gvm is already installed "
       printf_blue "run $PROG --install to updated"
       return 0
     else
       curl -q -LSs "$SETUP_GVM_INSTALL_SCRIPT" | bash &>/dev/null
-      if type -P deno &>/dev/null; then
-        printf_green "deno has been installed"
+      if type -P gvm &>/dev/null; then
+        printf_green "gvm has been installed"
         return 0
       else
-        printf_red "Failed to install deno"
+        printf_red "Failed to install gvm"
         return 1
       fi
     fi
@@ -145,7 +145,7 @@ EOF
       ;;
     -f | --force)
       shift 1
-      __deno_install -f
+      __gvm_install -f
       exit $?
       ;;
     --)
@@ -177,7 +177,7 @@ EOF
   export GVM_ROOT PATH
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  __deno_install || exit 1
+  __gvm_install || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
   return ${exitCode:-$?}
