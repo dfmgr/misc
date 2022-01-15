@@ -74,7 +74,7 @@ EOF
   __apt_install() {
     sudo true
     if [ "$1" = vim ] || [ "$1" = all ]; then
-      export APT_OPTS="-o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confold""
+      export APT_OPTS="-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'"
       local VIMPKGLIST="libncurses5-dev libgnome-dev libgnomeui-dev libgtk2.0-dev libatk1.0-dev "
       local VIMPKGLIST+="libbonoboui2-dev libcairo2-dev libx11-dev libxpm-dev libxt-dev "
       local VIMPKGLIST+="python-dev python3-dev ruby-dev lua5.1 lua5.1-dev libperl-dev git "
@@ -110,7 +110,7 @@ EOF
   local SETARGS="$*"
   local SHORTOPTS="c,v,h,i"
   local LONGOPTS="options,config,version,help,install"
-  local ARRAY="$(asdf plugin-list-all)"
+  local ARRAY="$(asdf plugin-list-all | awk '{print $1}' | grep -v '^$' | grep '^')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
   [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ] || __gen_config &>/dev/null
@@ -196,11 +196,7 @@ EOF
       asdf install $pkg latest
     done
   else
-    if [ -f "$SETUP_ASDF_OPTIONS_DIR/array" ]; then
-      cat "$SETUP_ASDF_OPTIONS_DIR/array" | printf_column
-    else
-      asdf plugin-list-all | awk '{print $1}' | printf_column
-    fi
+    printf '%s' "$ARRAY" | column
     printf '\n'
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
