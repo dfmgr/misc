@@ -665,6 +665,7 @@ mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
 mkdir -p "$HOME/.config/local"
 mkdir -p "$HOME/.config/secure"
+mkdir -p "$SETV_VIRTUAL_DIR_PATH"
 mkdir -p "$HOME/.local/share/wallpapers"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
