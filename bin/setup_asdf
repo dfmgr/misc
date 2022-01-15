@@ -95,6 +95,27 @@ EOF
     return
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __asdf_install() {
+    ASDF_DIR="${ASDF_DIR:-$HOME/.local/share/misc/plugins/asdf}"
+    if [[ -d "$ASDF_DIR" ]]; then
+      printf_green "Updating asdf"
+      git -C "$ASDF_DIR" pull &>/dev/null &&
+        printf_green "Updated $ASDF_DIR" ||
+        printf_red "Failed to update $ASDF_DIR"
+      return 0
+    else
+      printf_green "Installing ASDF to $ASDF_DIR"
+      git clone -q "https://github.com/asdf-vm/asdf" "$ASDF_DIR" &>/dev/null && {
+        printf_green "Successfully installed ASDF"
+        return 0
+      } || {
+        printf_red "Failed to install ASDF"
+        return 1
+      }
+      return $?
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=""
   local SETUP_ASDF_CONFIG_FILE="settings.conf"
@@ -159,6 +180,7 @@ EOF
       elif cmd_exists brew; then
         __brew_install all
       fi
+      __asdf_install
       exit $?
       ;;
     --)
@@ -196,8 +218,7 @@ EOF
       asdf install $pkg latest
     done
   else
-    printf '%s' "$ARRAY" | column
-    printf '\n'
+    printf '%s' "$ARRAY" | printf_column '5'
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
