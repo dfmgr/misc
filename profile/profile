@@ -324,9 +324,9 @@ SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/python/setvenv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup pipx
-PIPX_DIR="$HOME/.local/share/python/pipx"
-PIPX_BIN="$BINDIR"
-export PIPX_DIR PIPX_BIN
+PIPX_BIN_DIR="$BINDIR"
+PIPX_HOME="$HOME/.local/share/python/pipx"
+export PIPX_HOME PIPX_BIN_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python virtualenvwrapper
 VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD="yes"
