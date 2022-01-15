@@ -320,20 +320,19 @@ TMP_BIN_PATH="$DENO_INSTALL/bin:$TMP_BIN_PATH"
 export DENO_INSTALL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python setV
-SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/setvenv/"
+SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/python/setvenv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup pipx
-PIPX_DIR="$HOME/.local/share/pipx"
+PIPX_DIR="$HOME/.local/share/python/pipx"
 PIPX_BIN="$BINDIR"
 export PIPX_DIR PIPX_BIN
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python virtualenvwrapper
 VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD="yes"
-VIRTUALENVWRAPPER_VIRTUALENV="$(which virtualenv 2>/dev/null)"
-VIRTUALENVWRAPPER_VIRTUALENV_HOME="$HOME/.local/share/virtualenvwrapper"
 VIRTUALENVWRAPPER_PIP="$(which pip3 2>/dev/null || which pip 2>/dev/null)"
-export VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD VIRTUALENVWRAPPER_VIRTUALENV VIRTUALENVWRAPPER_VIRTUALENV_HOME VIRTUALENVWRAPPER_PIP
+VIRTUALENVWRAPPER_VIRTUALENV="$(which venv 2>/dev/null || which virtualenv 2>/dev/null)"
+export VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD VIRTUALENVWRAPPER_VIRTUALENV VIRTUALENVWRAPPER_PIP
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
 RUST_HOME="$HOME/.local/share/rust"
