@@ -131,12 +131,14 @@ EOF
       local REPO_UPDATED
       local CD_INTO_DIR="${1:-$CDD_CWD_DIR}"
       local CD_INTO_CUR="$CDD_CWD_DIR/${CD_INTO_DIR//$CDD_CWD_DIR/}"
+      local TOP_DIR="$(__git_top_dir "$PWD")"
       export -f cd
       [[ -n "$OLDPATH" ]] || OLDPATH="$PATH"
-      [[ -f "$CDD_CWD_DIR/.env" ]] && . "$CDD_CWD_DIR/.env"
-      [[ -d "$CDD_CWD_DIR/node_modules/.bin" ]] && PATH="$CDD_CWD_DIR/node_modules/.bin:$OLDPATH" || PATH="$OLDPATH"
-      if [[ -d "$CD_INTO_DIR/.git" && -z "$REPO_UPDATED" ]]; then
-        printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull && REPO_UPDATED="yes"
+      [[ -f "$TOP_DIR/.env" ]] && . "$TOP_DIR/.env"
+      [[ -d "$TOP_DIR/node_modules/.bin" ]] && PATH="$TOP_DIR/node_modules/.bin:$OLDPATH" || PATH="$OLDPATH"
+      if [[ -d "$TOP_DIR/.git" && -z "$REPO_UPDATED" ]]; then
+        { printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull; } &
+        REPO_UPDATED="yes"
       fi
       if [[ $# == 0 ]] || [[ "$CD_INTO_DIR" = "/" ]]; then
         builtin cd "$CDD_CWD_DIR" &>/dev/null || printf_return "cd into $CDD_CWD_DIR failed"

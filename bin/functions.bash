@@ -418,7 +418,7 @@ ask_confirm() {
 if [ -f "$(command -v zenity 2>/dev/null)" ] && [ -n "$DESKTOP_SESSION" ]; then
   execute() {
     local CMD="$1" && shift $#
-    $CMD | zenity --progress --no-cancel --pulsate --auto-close --title="Attempting install" --text="Trying to install" --height=200 --width=400 || printf_readline "5"
+    eval $CMD | zenity --progress --no-cancel --pulsate --auto-close --title="${title:-Attempting install}" --text="${text:-Trying to install}" --height=200 --width=400 || printf_readline "5"
   }
 else
   execute() {
@@ -461,7 +461,7 @@ else
       printf_execute_error_stream <"$TMP_FILE"
     fi
     rm -rf "$TMP_FILE"
-    return $exitCode
+    return ${exitCode:-$?}
   }
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
