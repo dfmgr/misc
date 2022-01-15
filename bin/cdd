@@ -123,23 +123,26 @@ EOF
   } && complete -F _cd cd
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd_cdd() {
-    cd() { cd_cdd "$@"; }
-    export -f cd
-    [[ -n "$CDD_CWD_DIR" ]] || builtin cd "$@" || return 1
-    printf_return() { printf_red "$*" && return 1; }
-    local REPO_UPDATED
-    local CD_INTO_DIR="${1:-$CDD_CWD_DIR}"
-    local CD_INTO_CUR="$CDD_CWD_DIR/$CD_INTO_DIR"
-    [[ -n "$OLDPATH" ]] || OLDPATH="$PATH"
-    [[ -f "$CDD_CWD_DIR/.env" ]] && . "$CDD_CWD_DIR/.env"
-    [[ -d "$CDD_CWD_DIR/node_modules/.bin" ]] && PATH="$CDD_CWD_DIR/node_modules/.bin:$OLDPATH" || PATH="$OLDPATH"
-    if [[ -d "$CD_INTO_DIR/.git" && -z "$REPO_UPDATED" ]]; then
-      printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull && REPO_UPDATED="yes"
-    fi
-    if [[ $# == 0 ]] || [[ "$CD_INTO_DIR" = "/" ]]; then
-      builtin cd "$CDD_CWD_DIR" &>/dev/null || printf_return "cd into $CDD_CWD_DIR failed"
+    if [[ -z "$CDD_CWD_DIR" ]]; then
+      builtin cd "$1" || return 1
     else
-      builtin cd "$CD_INTO_CUR" &>/dev/null || printf_return "cd into $CD_INTO_CUR failed"
+      cd() { cd_cdd "$@"; }
+      printf_return() { printf_red "$*" && return 1; }
+      local REPO_UPDATED
+      local CD_INTO_DIR="${1:-$CDD_CWD_DIR}"
+      local CD_INTO_CUR="$CDD_CWD_DIR/${CD_INTO_DIR//$CDD_CWD_DIR/}"
+      export -f cd
+      [[ -n "$OLDPATH" ]] || OLDPATH="$PATH"
+      [[ -f "$CDD_CWD_DIR/.env" ]] && . "$CDD_CWD_DIR/.env"
+      [[ -d "$CDD_CWD_DIR/node_modules/.bin" ]] && PATH="$CDD_CWD_DIR/node_modules/.bin:$OLDPATH" || PATH="$OLDPATH"
+      if [[ -d "$CD_INTO_DIR/.git" && -z "$REPO_UPDATED" ]]; then
+        printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull && REPO_UPDATED="yes"
+      fi
+      if [[ $# == 0 ]] || [[ "$CD_INTO_DIR" = "/" ]]; then
+        builtin cd "$CDD_CWD_DIR" &>/dev/null || printf_return "cd into $CDD_CWD_DIR failed"
+      else
+        builtin cd "$CD_INTO_CUR" &>/dev/null || printf_return "cd into $CD_INTO_CUR failed"
+      fi
     fi
     exitCode=$?
     return $exitCode
@@ -150,8 +153,8 @@ EOF
     [[ "$CDD_STATUS" = "running" ]] && [[ "$1" = ./* ]] && cd "$1" && return
     [[ -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" ]] || __gen_config "$@"
     if [[ -n "$CDD_STATUS" ]]; then
-      printf_return "cdd already appears to be active "
-      sleep 3
+      printf_pause "cdd already appears to be active "
+      return 1
     fi
     if [[ "$CDD_STATUS" != "running" ]] && { [[ "$1" = "current_project" ]] || [[ "$1" = "." ]]; }; then
       dir="$PWD"
