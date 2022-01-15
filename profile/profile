@@ -323,6 +323,18 @@ export DENO_INSTALL
 SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/setvenv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# setup pipx
+PIPX_DIR="$HOME/.local/share/pipx"
+PIPX_BIN="$BINDIR"
+export PIPX_DIR PIPX_BIN
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# setup python virtualenvwrapper
+VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD="yes"
+VIRTUALENVWRAPPER_VIRTUALENV="$(which virtualenv 2>/dev/null)"
+VIRTUALENVWRAPPER_VIRTUALENV_HOME="$HOME/.local/share/virtualenvwrapper"
+VIRTUALENVWRAPPER_PIP="$(which pip3 2>/dev/null || which pip 2>/dev/null)"
+export VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD VIRTUALENVWRAPPER_VIRTUALENV VIRTUALENVWRAPPER_VIRTUALENV_HOME VIRTUALENVWRAPPER_PIP
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
 RUST_HOME="$HOME/.local/share/rust"
 CARGO_HOME="$HOME/.local/share/cargo"
