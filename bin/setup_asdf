@@ -107,6 +107,7 @@ EOF
     else
       printf_blue "Plugin $pkg is already enabled"
     fi
+    asdf global $pkg latest &>/dev/null
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __asdf_install() {
