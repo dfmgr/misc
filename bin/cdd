@@ -122,26 +122,26 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   cd() {
+    printf_return() { printf_red "$*" && return 1; }
     _cd && complete -F _cd cd
     local REPO_UPDATED
-    local CD_INTO_DIR="$1"
-    [[ -f "$PWD/.env" ]] && . "$PWD/.env"
-    if [[ -d "$CD_INTO_DIR/.git" ]]; then
-      [[ -n "$REPO_UPDATED" ]] || printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull && REPO_UPDATED="yes"
+    local CD_INTO_DIR="${1:-$CDD_CWD_DIR}"
+    local SET_CD_INTO_CUR="${CDD_CWD_DIR//$CDD_CWD_DIR$CDD_CWD_DIR/}/$CD_INTO_DIR"
+    export CD_INTO_CUR="${SET_CD_INTO_CUR}"
+    [[ -n "$OLDPATH" ]] || OLDPATH="$PATH"
+    [[ -f "$CDD_CWD_DIR/.env" ]] && . "$CDD_CWD_DIR/.env"
+    [[ -d "$CDD_CWD_DIR/node_modules/.bin" ]] && PATH="$CDD_CWD_DIR/node_modules/.bin:$OLDPATH" || PATH="$OLDPATH"
+    if [[ -d "$CD_INTO_DIR/.git" && -z "$REPO_UPDATED" ]]; then
+      printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull && REPO_UPDATED="yes"
     fi
-    #   if [[ "$CD_INTO_DIR" = "" ]] && [[ "$CD_INTO_DIR" = "/" ]]; then
-    #     builtin cd "$CDD_CWD_DIR" &>/dev/null || printf_red "cd into $CDD_CWD_DIR failed"
-    #   elif [[ "$CD_INTO_DIR" =~ "$CDD_CWD_DIR/$CD_INTO_DIR"** ]]; then
-    #     builtin cd "$CDD_CWD_DIR" &>/dev/null || printf_red "cd into $CDD_CWD_DIR failed"
-    #   elif [[ -e "$CDD_CWD_DIR/$CD_INTO_DIR" ]]; then
-    #     builtin cd "$CDD_CWD_DIR/$CD_INTO_DIR" &>/dev/null || printf_red "cd into $CDD_CWD_DIR/$CD_INTO_DIR failed"
-    #   elif [[ "$CD_INTO_DIR" = ..* ]]; then
-    #     builtin cd "$CDD_CWD_DIR/$CD_INTO_DIR" &>/dev/null || printf_red "cd into $CDD_CWD_DIR/$CD_INTO_DIR failed"
-    #   else
-    #     printf_red "cd out of /home/jason/.local/share/cdd/projects/default is disabled"
-    #     return 1
-    #   fi
-    export CD_INTO_CUR="$CDD_CWD_DIR/$CD_INTO_DIR"
+    if [[ $# == 0 ]] || [[ "$CD_INTO_DIR" = "/" ]]; then
+      builtin cd "$CDD_CWD_DIR" &>/dev/null || printf_return "cd into $CDD_CWD_DIR failed"
+    else
+      builtin cd "$CD_INTO_CUR" &>/dev/null || printf_return "cd into $CD_INTO_CUR failed"
+    fi
+    exitCode=$?
+    unset CD_INTO_DIR
+    return $exitCode
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   quit() { printf_red "Exiting the cdd enviroment" && sleep 3 && builtin exit &>/dev/null; }
@@ -179,7 +179,7 @@ EOF
     printf_cyan "Type quit to return to your previous directory/shell"
     printf_red "cd out of $dir is not recommended while using cdd"
     CDD_CWD_DIR="$PWD" PS1_ADD="$PS1_ADD_CDD" CDD_STATUS="$STATUS"
-    export -f quit _cd
+    export -f quit _cd cd
     export CDD_CWD_DIR PS1_ADD CDD_STATUS
     $SHELL -l
     exitCode=$?
