@@ -185,7 +185,7 @@ EOF
     [[ -n "$message_add" ]] && printf_blue "$message_add"
     printf_cyan "Type quit to return to your previous directory/shell"
     printf_red "cd out of $dir is not recommended while using cdd"
-    export -f quit _cd cd_cdd
+    export -f quit _cd cd_cdd __git_top_dir
     export CDD_CWD_DIR="$PWD" PS1_ADD="$PS1_ADD_CDD" CDD_STATUS="$STATUS"
     $SHELL -l
     exitCode=$?
