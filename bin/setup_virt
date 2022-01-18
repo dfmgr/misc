@@ -90,6 +90,16 @@ EOF
   __64bit_check() { grep -q -o -w 'lm' /proc/cpuinfo && true || false; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __virt_ok() {
+    if __virt_check; then
+      printf_green "Virtualization is enabled"
+      ask_yes_no_question "Do you want to rerun the install script it?" true && SETUP_VIRT_FORCE="true" ||
+        return 1
+    else
+      return 1
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __virt_check() {
     if grep -sq -o -E '(vmx|svm)' /proc/cpuinfo; then
       return 0
     elif grep -sq hvm "/sys/hypervisor/properties/capabilities"; then

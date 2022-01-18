@@ -49,12 +49,14 @@ alias cp_rpf='cp --parents -Rfv '
 alias less='less -r '
 alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent upgrade && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system"'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# multiplexers
+# TMUX
+[ -f "$HOME/.config/tmux/singlerc.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-single='tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
 [ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
-[ -f "$HOME/.config/screen/other/socialrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-social='screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='screen -t social '
+# Screen
+[ -f "$HOME/.config/screen/singlerc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-single='screen -c $HOME/.config/screen/singlerc ' || alias screen-custom='screen -t single '
 [ -f "$HOME/.config/screen/dev/sshrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-ssh='screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='screen -t ssh '
 [ -f "$HOME/.config/screen/dev/noderc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-node='screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='screen -t node '
-[ -f "$HOME/.config/screen/dev/singlerc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-custom='screen -c $HOME/.config/screen/dev/singlerc ' || alias screen-custom='screen -t single '
+[ -f "$HOME/.config/screen/other/socialrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-social='screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='screen -t social '
 [ -f "$HOME/.config/screen/dev/developmentrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-dev='screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='screen -t dev '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
