@@ -89,9 +89,8 @@ main() {
     -f | --file) OPTS="create" ;;
     -s | --show) OPTS="show" ;;
     -d | --dir) CUSTOM_DIR="$2" && shift 2 ;;
-    --) break ;;
+    --) shift && break ;;
     esac
-    shift
   done
   FULLDIR="$(__git_top_dir $(dirname "${CUSTOM_FILE:-$FILE}" 2>/dev/null))"
   FULLFILE="$FULLDIR/$(basename "${CUSTOM_FILE:-$FILE}" 2>/dev/null)"
@@ -110,10 +109,11 @@ main() {
     ;;
   dns)
     shift 1
+    SETVER_DNSVER="$(date +"${SETVER_DNSVER}")"
     if [ -n "$1" ]; then
-      printf_blue "$SETVER_DNSVER$2"
+      printf_blue "${SETVER_DNSVER}${1}"
     else
-      printf_green "$SETVER_DNSVER01"
+      printf_green "${SETVER_DNSVER}01"
     fi
     ;;
   create) # Always want version in the top dir of git repo
