@@ -1,0 +1,165 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202201182317-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : gen-dockermgr --help
+# @Copyright     : Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @Created       : Tuesday, Jan 18, 2022 23:17 EST
+# @File          : gen-dockermgr
+# @Description   :
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+APPNAME="$(basename "$0")"
+VERSION="202201182317-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set bash options
+if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
+trap 'exitCode=${exitCode:-$?};[ -n "$GEN_DOCKER_CONFIG_TEMP_FILE" ] && [ -f "$GEN_DOCKER_CONFIG_TEMP_FILE" ] && rm -Rf "$GEN_DOCKER_CONFIG_TEMP_FILE" &>/dev/null' EXIT
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# create proxy config
+proxy_config() {
+  cat <<EOF | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g'
+#Reverse Proxy for REPLACE_APPNAME
+
+server {
+  listen REPLACE_NGINX_HTTPS ssl http2;
+  listen [::]:REPLACE_NGINX_HTTPS ssl http2;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:D$
+  ssl_prefer_server_ciphers off;
+  server_name REPLACE_SERVER_HOST *.REPLACE_SERVER_HOST;
+  access_log /var/log/nginx/access.log;
+  error_log  /var/log/nginx/error.log info;
+  keepalive_timeout 75 75;
+  ssl_certificate /etc/letsencrypt/live/domain/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/domain/privkey.pem;
+  add_header Strict-Transport-Security "max-age=7200";
+
+  location / {
+    proxy_redirect          http:// https://;
+    proxy_pass              http://REPLACE_SERVER_LISTEN:REPLACE_SERVER_PORT;
+    send_timeout            3600;
+    client_max_body_size    1024M;
+    proxy_connect_timeout   3600;
+    proxy_send_timeout      3600;
+    proxy_read_timeout      3600;
+    proxy_http_version      1.1;
+    proxy_request_buffering off;
+    proxy_buffering         off;
+    proxy_set_header        Host \$host;
+    proxy_set_header        X-Real-IP \$remote_addr;
+    proxy_set_header        X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header        X-Forwarded-Proto $scheme;
+    proxy_set_header        Upgrade \$http_upgrade;
+    proxy_set_header        Connection \$connection_upgrade;
+    }
+
+    include /etc/nginx/global.d/nginx-defaults.conf;
+    include /etc/nginx/global.d/apache-defaults.conf;
+    include /etc/nginx/global.d/cgi-bin.conf;
+    include /etc/nginx/global.d/munin.conf;
+    include /etc/nginx/global.d/vnstats.conf;
+    include /etc/nginx/global.d/others.conf;
+}
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+gen_readme() {
+  echo '
+# Welcome to REPLACE_APPNAME installer 👋
+  
+## Description
+  
+### Requires scripts to be installed
+
+```shell
+ sudo bash -c "$(curl -LSs <https://github.com/dockermgr/installer/raw/main/install.sh>)"
+ dockermgr --config && dockermgr install scripts  
+```
+
+#### Automatic install/update  
+
+```shell
+dockermgr install REPLACE_APPNAME
+```
+
+
+#### Manual install
+
+```shell
+git clone https://github.com/dockermgr/REPLACE_APPNAME "$HOME/.local/share/CasjaysDev/dockermgr/REPLACE_APPNAME"
+bash -c "$HOME/.local/share/CasjaysDev/dockermgr/REPLACE_APPNAME/install.sh"
+```
+  
+#### Just run it
+
+```shell
+git clone <https://github.com/dockermgr/REPLACE_APPNAME> "$HOME/.local/share/CasjaysDev/dockermgr/REPLACE_APPNAME"
+
+sudo docker run -d \
+--name="REPLACE_APPNAME" \
+--hostname "REPLACE_APPNAME" \
+--restart=always \
+--privileged \
+-e TZ="${TZ:-${TIMEZONE:-America/New_York}}" \
+-p 8082:8082 \
+casjay/REPLACE_APPNAME 1>/dev/null
+```
+
+## Author  
+
+👤 **Jason Hempstead**  
+' | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g'
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+gen_gitigore() {
+  cat <<EOF | sed 's|REPLACE_DATE_TIME|'$REPLACE_DATE_TIME'|g'
+# gitignore created on REPLACE_DATE_TIME
+# Disable reminder in prompt
+ignoredirmessage
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Other
+.installed
+
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+mkdir -p ./build/bin
+mkdir -p ./build/files{confif,data}
+mkdir -p ./dataDir/{config,data}
+mkdir -p ./nginx
+touch ./build/Dockerfile
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+REPLACE_APPNAME="$(basename $(realpath "${SRC_DIR}") | tr '[:upper:]' '[:lower:]')"
+REPLACE_DATE_TIME="$(date +'%Y-%m-%d at %H-%M')"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+gen_readme >./README.md
+proxy_config >./nginx/template
+gen_gitigore >./.gitignore
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+gen-script installers dockermgr.sh ./install.sh "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [[ -f "./install.sh" ]]; then
+  return 0
+else
+  return 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# exit
