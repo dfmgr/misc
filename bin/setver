@@ -94,6 +94,7 @@ main() {
   done
   FULLDIR="$(__git_top_dir $(dirname "${CUSTOM_FILE:-$FILE}" 2>/dev/null))"
   FULLFILE="$FULLDIR/$(basename "${CUSTOM_FILE:-$FILE}" 2>/dev/null)"
+  SETVER_DNSVER="$(date +"${SETVER_DNSVER}")"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Required app check
   cmd_exists --error bash || exit 1
@@ -109,7 +110,6 @@ main() {
     ;;
   dns)
     shift 1
-    SETVER_DNSVER="$(date +"${SETVER_DNSVER}")"
     if [ -n "$1" ]; then
       printf_blue "${SETVER_DNSVER}${1}"
     else
@@ -117,13 +117,18 @@ main() {
     fi
     ;;
   create) # Always want version in the top dir of git repo
-    if __git_porcelain $FULLFILE; then
+    if __git_porcelain "$FULLFILE"; then
       FULLFILE="$(__git_top_dir "$FULLFILE")"
     fi
     datecmd >"$FULLFILE"
-    printf_blue "Version set to "$(<$FULLFILE)" in $FULLFILE"
+    printf_blue "Version set to $(<$FULLFILE) in $FULLFILE"
     ;;
-  *) datecmd | printf_readline 6 ;;
+  *)
+    echo ''
+    printf_purple "DNS:    $(date +${SETVER_DNSVER})"
+    printf_blue "Date:   $(datecmd)"
+    echo ''
+    ;;
   esac
   # lets exit with code
   return "${exitCode:-$?}"
