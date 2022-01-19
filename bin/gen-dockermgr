@@ -26,7 +26,7 @@ trap 'exitCode=${exitCode:-$?};[ -n "$GEN_DOCKER_CONFIG_TEMP_FILE" ] && [ -f "$G
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create proxy config
 proxy_config() {
-  cat <<EOF | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g'
+  cat <<EOF | tee
 #Reverse Proxy for REPLACE_APPNAME
 
 server {
@@ -75,17 +75,17 @@ EOF
 gen_readme() {
   echo '
 # Welcome to REPLACE_APPNAME installer 👋
-  
+
 ## Description
-  
+
 ### Requires scripts to be installed
 
 ```shell
- sudo bash -c "$(curl -LSs <https://github.com/dockermgr/installer/raw/main/install.sh>)"
- dockermgr --config && dockermgr install scripts  
+sudo bash -c "$(curl -LSs <https://github.com/dockermgr/installer/raw/main/install.sh>)"
+dockermgr --config && dockermgr install scripts
 ```
 
-#### Automatic install/update  
+#### Automatic install/update
 
 ```shell
 dockermgr install REPLACE_APPNAME
@@ -98,7 +98,7 @@ dockermgr install REPLACE_APPNAME
 git clone https://github.com/dockermgr/REPLACE_APPNAME "$HOME/.local/share/CasjaysDev/dockermgr/REPLACE_APPNAME"
 bash -c "$HOME/.local/share/CasjaysDev/dockermgr/REPLACE_APPNAME/install.sh"
 ```
-  
+
 #### Just run it
 
 ```shell
@@ -114,15 +114,15 @@ sudo docker run -d \
 casjay/REPLACE_APPNAME 1>/dev/null
 ```
 
-## Author  
+## Author
 
-👤 **Jason Hempstead**  
-' | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g'
+👤 **Jason Hempstead**
+' | tee
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 gen_gitigore() {
-  cat <<EOF | sed 's|REPLACE_DATE_TIME|'$REPLACE_DATE_TIME'|g'
-# gitignore created on REPLACE_DATE_TIME
+  cat <<EOF | tee
+# gitignore created on $REPLACE_DATE_TIME
 # Disable reminder in prompt
 ignoredirmessage
 
@@ -141,25 +141,27 @@ Thumbs.db
 EOF
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-mkdir -p ./build/bin
-mkdir -p ./build/files{confif,data}
-mkdir -p ./dataDir/{config,data}
-mkdir -p ./nginx
-touch ./build/Dockerfile
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-REPLACE_APPNAME="$(basename $(realpath "${SRC_DIR}") | tr '[:upper:]' '[:lower:]')"
+[[ -d "$1" ]] && GEN_DOCKERMGR_DIR="$1" && shift 1 || GEN_DOCKERMGR_DIR="$PWD"
+REPLACE_APPNAME="$(basename $(realpath "${GEN_DOCKERMGR_DIR}") | tr '[:upper:]' '[:lower:]')"
 REPLACE_DATE_TIME="$(date +'%Y-%m-%d at %H-%M')"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-gen_readme >./README.md
-proxy_config >./nginx/template
-gen_gitigore >./.gitignore
+git -C "$GEN_DOCKERMGR_DIR" init &>/dev/null
+mkdir -p "$GEN_DOCKERMGR_DIR/build/files"/{confif,data}
+mkdir -p "$GEN_DOCKERMGR_DIR/dataDir"/{config,data}
+mkdir -p "$GEN_DOCKERMGR_DIR/build/bin"
+mkdir -p "$GEN_DOCKERMGR_DIR/nginx"
+touch "$GEN_DOCKERMGR_DIR/build/Dockerfile"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-gen-script installers dockermgr.sh ./install.sh "$@"
+proxy_config | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g' >"$GEN_DOCKERMGR_DIR/nginx/template"
+gen_readme | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g' >"$GEN_DOCKERMGR_DIR/README.md"
+gen_gitigore >"$GEN_DOCKERMGR_DIR/.gitignore"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if [[ -f "./install.sh" ]]; then
-  return 0
+gen-script installers dockermgr.sh "$GEN_DOCKERMGR_DIR/install.sh" "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if [[ -f "$GEN_DOCKERMGR_DIR/install.sh" ]]; then
+  exit 0
 else
-  return 1
+  exit 1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # exit
