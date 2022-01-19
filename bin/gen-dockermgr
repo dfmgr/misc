@@ -142,8 +142,11 @@ EOF
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [[ -d "$1" ]] && GEN_DOCKERMGR_DIR="$1" && shift 1 || GEN_DOCKERMGR_DIR="$PWD"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REPLACE_APPNAME="$(basename $(realpath "${GEN_DOCKERMGR_DIR}") | tr '[:upper:]' '[:lower:]')"
 REPLACE_DATE_TIME="$(date +'%Y-%m-%d at %H-%M')"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[[ -f "$GEN_DOCKERMGR_DIR/install.sh" ]] && printf_exit "$GEN_DOCKERMGR_DIR/install.sh exists"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 git -C "$GEN_DOCKERMGR_DIR" init &>/dev/null
 mkdir -p "$GEN_DOCKERMGR_DIR/build/files"/{confif,data}
