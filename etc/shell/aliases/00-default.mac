@@ -39,7 +39,9 @@ alias grep='grep --color=auto'
 alias egrep='grep -E --color=auto'
 alias fgrep='grep -F --color=auto'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -n "$DISPLAY" ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
+# ssh aliases
+[ -n "$DISPLAY" ] && alias ssh='ssh -X' || alias ssh='ssh '
+[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -f "$(command -v gls 2>/dev/null)" ] && alias ll='gls -l --color=auto'
 [ -f "$(command -v gls 2>/dev/null)" ] && alias l.='gls -LA --color=auto'

@@ -70,7 +70,9 @@ alias profilerc='source ~/.profile'
 [ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias inputrc='bind -f ~/.inputrc'
 [ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias bashrc='clear && source ~/.bashrc'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -n "$DISPLAY" ] && alias ssh='ssh -qX' || alias ssh='ssh -q'
+# ssh aliases
+[ -n "$DISPLAY" ] && alias ssh='ssh -X' || alias ssh='ssh '
+[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
 alias sudo='sudo --preserve-env=PATH '

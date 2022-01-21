@@ -37,7 +37,10 @@ alias wget='wget -c'
 alias df='df -H'
 alias du='du -ch'
 alias setverfile='setver --file'
-alias ssh='ssh -qX'
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# ssh aliases
+alias ssh='ssh -X'
+alias sshq='ssh -qX'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -f "$(command -v vim 2>/dev/null)" ] && alias vim='winpty vim.exe'
 [ -f "/c/Progra~1/ActivePython2/python.exe" ] && alias python='winpty /c/Progra~1/ActivePython2/python.exe'
