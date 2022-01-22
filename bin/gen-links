@@ -88,9 +88,9 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Additional functions
   __make_html() {
-    local from="$(basename "$1" 2>/dev/null)"
-    local to="$(basename "$2" 2>/dev/null)"
-    cat <<EOF | tee "$1" &>/dev/null
+    local from="$(basename "$FILE" 2>/dev/null)"
+    local to="$(basename "$LINKS" 2>/dev/null)"
+    cat <<EOF | tee "$LINKS" &>/dev/null
 <!DOCTYPE html>
 <html lang="en-US">
   <head>
@@ -167,7 +167,7 @@ EOF
       else
         echo '<a href="'$line'" target="_blank">'$line'</a></br />'
       fi
-    done < <(grep -v '^ *#' <"$FILE") | __make_html "$LINKS"
+    done < <(grep -v '^ *#' <"$FILE") | __make_html
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
