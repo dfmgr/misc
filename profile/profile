@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
+OLDPATH="$PATH"
 BINDIR="$HOME/.local/bin"
 PATH="$BINDIR:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 export BINDIR
@@ -714,8 +715,10 @@ mkdir -p "$HOME/.local/share/wallpapers"
 [ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | sort -u | tr '\n' ':' | sed 's|:$||g')"
-SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\.||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
+SET_UPATH="$(echo "$OLDPATH" | tr ':' '\n' | grep -v "$TMP_BIN_PATH" | grep "$HOME/" | sort -u | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
+SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
+[ -n "$SET_UPATH" ] && SET_UPATH="$SET_UPATH:" || SET_UPATH=""
+SET_TMP_PATH="$(echo "${SET_UPATH}${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\.||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
 export PATH="$SET_TMP_PATH:$SET_PATH:."
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
