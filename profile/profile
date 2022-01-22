@@ -349,8 +349,8 @@ fi
 # Setup vagrant
 VAGRANT_HOME="$HOME/.local/share/vagrant"
 TMP_BIN_PATH="$TMP_BIN_PATH:$VAGRANT_HOME/bin"
-VAGRANT_DEFUALT_PROVIDER="libvirt"
-export VAGRANT_HOME VAGRANT_DEFUALT_PROVIDER
+VAGRANT_DEFAULT_PROVIDER="libvirt"
+export VAGRANT_HOME VAGRANT_DEFAULT_PROVIDER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$(which garcon-url-handler 2>/dev/null)" ]; then
