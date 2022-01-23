@@ -2,3 +2,6 @@
 ignoredirmessage
 !*/README*
 !inc/main.bash
+
+# ignore commit message
+.gitcommit
