@@ -2,9 +2,10 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
 OLDPATH="$PATH"
-BINDIR="$HOME/.local/bin"
-PATH="$BINDIR:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
-export BINDIR
+SYSBINDIR="/usr/local/bin"
+USRBINDIR="$HOME/.local/bin"
+PATH="$USRBINDIR:$SYSBINDIR:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
+export BINDIR="$USRBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
 # PS1="$USER@$(hostname -f 2>/dev/null):$(basename "$SHELL") # "
@@ -297,7 +298,7 @@ fi
 export NPM_PACKAGES NODE_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
-FNM_BIN="$BINDIR"
+FNM_BIN="$USRBINDIR"
 FNM_DIR="$HOME/.local/share/nodejs/fnm"
 if [[ -n "$(which fnm 2>/dev/null)" ]]; then
   eval "$(FNM_BIN="$FNM_BIN" FNM_DIR="$FNM_DIR" PATH="$TMP_BIN_PATH:$PATH" FNM_MULTISHELL_PATH="$FNM_MULTISHELL_PATH" fnm env 2>/dev/null)"
@@ -306,7 +307,7 @@ export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
 NVM_DIR="$HOME/.local/share/nodejs/nvm"
-NVM_BIN="$BINDIR"
+NVM_BIN="$USRBINDIR"
 if [[ -n "$(which nvm 2>/dev/null)" ]]; then
   NO_UPDATE_NOTIFIER="true"
   NODE_REPL_HISTORY_SIZE=2000
@@ -325,7 +326,7 @@ SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/python/setvenv/"
 export SETV_VIRTUAL_DIR_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup pipx
-PIPX_BIN_DIR="$BINDIR"
+PIPX_BIN_DIR="$USRBINDIR"
 PIPX_HOME="$HOME/.local/share/python/pipx"
 export PIPX_HOME PIPX_BIN_DIR
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -745,13 +746,17 @@ echo -e -n "\e]12;cyan\a" 2>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
 mkdir -p "$TMPDIR"
-mkdir -p "$BINDIR"
+mkdir -p "$USRBINDIR"
 mkdir -p "$HOME/.local/log"
 mkdir -p "$HOME/.local/tmp"
 mkdir -p "$HOME/.config/local"
 mkdir -p "$HOME/.config/secure"
 mkdir -p "$SETV_VIRTUAL_DIR_PATH"
 mkdir -p "$HOME/.local/share/wallpapers"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# cursor
+echo -e -n "\x1b[\x35 q" 2>/dev/null
+echo -e -n "\e]12;cyan\a" 2>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
 [ -f "$HOME/.config/shell/functions/global.sh" ] && . "$HOME/.config/shell/functions/global.sh"
@@ -774,16 +779,24 @@ mkdir -p "$HOME/.local/share/wallpapers"
 # store API keys here
 [ -f "$HOME/.config/secure/apikeys.txt" ] && . "$HOME/.config/secure/apikeys.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# import local profile
+# create env vars from shell files
+if [ $(find -L "$HOME/.config/secure" -type f -name '*.sh' 2>/dev/null | grep '^' || false) ]; then
+  cat "$HOME/.config/secure"/*.sh 2>/dev/null >"$HOME/.config/secure/env"
+  [ -f "$HOME/.config/secure/env" ] && . "$HOME/.config/secure/env"
+else
+  rm -Rf "$HOME/.config/secure/env" &>/dev/null
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# import local profile - override all other settings
 [ -f "$HOME/.config/local/profile.local" ] && . "$HOME/.config/local/profile.local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import specific profiles for systems
 [ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -v "$HOME" | tr '\n' ':' | sed 's|:$||g')"
-SET_TMP_PATH="$(echo "${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$BINDIR" | tr '\n' ':' | sed 's|:$||g')"
-export PATH="$SET_TMP_PATH:$BINDIR:$SET_PATH:."
+SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -v "$HOME" | grep -v "$SYSBINDIR" | tr '\n' ':' | sed 's|:$||g')"
+SET_TMP_PATH="$(echo "${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$USRBINDIR" | tr '\n' ':' | sed 's|:$||g')"
+export PATH="$SET_TMP_PATH:$USRBINDIR:$SYSBINDIR:$SET_PATH:."
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
 PROFILERCSRC="$HOME/.profile"
