@@ -22,7 +22,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__setcursor() { echo -e -n "\x1b[\x35 q" "\e]12;cyan\a" 2>/dev/null; }
+__setcursor() { echo -e -n "\x1b[\x35 q" && echo -e -n "\e]12;cyan\a" 2>/dev/null; }
 __tar_create() { tar cfvz "$@"; }
 __tar_extract() { tar xfvz "$@"; }
 __while_loop() { while :; do "${@}" && sleep .3; done; }
