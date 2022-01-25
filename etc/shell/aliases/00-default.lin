@@ -53,6 +53,9 @@ alias update-system='printf_blue "Updating your system. This may take a while...
 [ -f "$HOME/.config/tmux/singlerc.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-single='tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
 [ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Screen
+[ -f "$(builtin type -P myscreen 2>/dev/null)" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen='myscreen single ' || alias screen='screen -t default '
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
 alias profilerc='source ~/.profile'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
