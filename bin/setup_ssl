@@ -148,7 +148,7 @@ EOF
   # Argument/Option settings
   local SETARGS="$*"
   local SHORTOPTS=""
-  local LONGOPTS="options,config,version,help,dir:"
+  local LONGOPTS="options,config,version,help,dir:,force"
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Setup application options
@@ -183,6 +183,10 @@ EOF
       SETUP_SSL_CWD="$2"
       shift 2
       ;;
+    --force)
+      shift 1
+      FORCE_INST="yes"
+      ;;
     --)
       shift 1
       break
@@ -202,10 +206,10 @@ EOF
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  if [[ $(find -L "/etc/letsencrypt/live/domain" -type f 2>/dev/null | wc -l) -eq 0 ]]; then
+  if [ -n "$FORCE" ] || [[ $(find -L "/etc/letsencrypt/live/domain" -type f 2>/dev/null | wc -l) -eq 0 ]]; then
     mkdir -p /etc/letsencrypt/live/domain
-    ln -sf /etc/ssl/CA/CasjaysDev/certs/ca.crt /etc/letsencrypt/live/domain/cert.pem
-    ln -sf /etc/ssl/CA/CasjaysDev/certs/localhost.crt /etc/letsencrypt/live/domain/fullchain.pem
+    cat /etc/ssl/CA/CasjaysDev/certs/* >/etc/letsencrypt/live/domain/fullchain.pem
+    ln -sf /etc/ssl/CA/CasjaysDev/certs/localhost.crt /etc/letsencrypt/live/domain/cert.pem
     ln -sf /etc/ssl/CA/CasjaysDev/private/localhost.key /etc/letsencrypt/live/domain/privkey.pem
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
