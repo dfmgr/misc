@@ -1,0 +1,223 @@
+#!/usr/bin/env bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202201210409-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : LICENSE.md
+# @ReadME        : buildx --help
+# @Copyright     : Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @Created       : Thursday, Feb 03, 2022 14:07 EST
+# @File          : buildx
+# @Description   : Docker buildx wrapper
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+buildx_main() {
+  PROG="$(basename "$0" 2>/dev/null)"
+  VERSION="202201210409-git"
+  RUN_USER="${SUDO_USER:-${USER}}"
+  USER="${SUDO_USER:-${USER}}"
+  HOME="${USER_HOME:-${HOME}}"
+  SRC_DIR="${BASH_SOURCE%/*}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Set bash options
+  if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Main function file
+  if [ -f "$SRC_DIR/functions.bash" ]; then
+    local FUNCTIONS_DIR="$SRC_DIR"
+    . "$FUNCTIONS_DIR/functions.bash"
+  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+    local FUNCTIONS_DIR="$HOME/.local/bin"
+    . "$FUNCTIONS_DIR/functions.bash"
+  else
+    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from ${FUNCTIONS_DIR:-$SRC_DIR}"
+    return 1
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
+  __version() { app_version; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __help() {
+    app_help "4" "Usage: buildx  " \
+      "--options                              -  Show all options" \
+      "-c, --config                           -  Create config file" \
+      "-v, --version                          -  Display version" \
+      "-h, --help                             -  Display help"
+
+    exit $?
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __list_options() {
+    printf_custom "$1" "$2: $(echo ${3:-$ARRAY} | __sed 's|:||g;s|'$4'| '$5'|g')" 2>/dev/null
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __gen_config() {
+    printf_green "Generating the config file in"
+    printf_green "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE"
+    [ -d "$BUILDX_CONFIG_DIR" ] || mkdir -p "$BUILDX_CONFIG_DIR"
+    [ -d "$BUILDX_CONFIG_BACKUP_DIR" ] || mkdir -p "$BUILDX_CONFIG_BACKUP_DIR"
+    [ -f "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" ] &&
+      cp -Rf "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" "$BUILDX_CONFIG_BACKUP_DIR/$BUILDX_CONFIG_FILE.$$"
+    cat <<EOF >"$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE"
+# Settings for buildx
+
+# Notification settings
+BUILDX_GOOD_MESSAGE="${BUILDX_GOOD_MESSAGE:-Everything Went OK}"
+BUILDX_ERROR_MESSAGE="${BUILDX_ERROR_MESSAGE:-Well something seems to have gone wrong}"
+BUILDX_NOTIFY_ENABLED="${BUILDX_NOTIFY_ENABLED:-yes}"
+BUILDX_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
+BUILDX_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$BUILDX_NOTIFY_CLIENT_ICON}"
+
+# Colorization settings
+BUILDX_OUTPUT_COLOR="${BUILDX_OUTPUT_COLOR:-5}"
+BUILDX_OUTPUT_COLOR_GOOD="${BUILDX_OUTPUT_COLOR_GOOD:-2}"
+BUILDX_OUTPUT_COLOR_ERROR="${BUILDX_OUTPUT_COLOR_ERROR:-1}"
+
+EOF
+    if [ -f "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" ]; then
+      [[ "$INIT_CONFIG" = "TRUE" ]] || printf_green "Your config file for $APPNAME has been created"
+      true
+    else
+      printf_red "Failed to create the config file"
+      false
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Additional functions
+  __buildx() {
+    docker buildx | grep 'Usage' | head -n1 | grep -q 'docker buildx' || printf_exit "The module 'docker buildx' is not installed"
+    docker buildx create --use --name mybuild node-amd64 &>/dev/null &&
+      docker buildx create --append --name mybuild node-arm64 &>/dev/null &&
+      docker buildx build --rm --platform linux/amd64,linux/arm64 "$@"
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Defaults
+  local exitCode=
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Application Folders
+  local BUILDX_LOG_DIR="${BUILDX_LOG_DIR:-$HOME/.local/log/buildx}"
+  local BUILDX_CACHE_DIR="${BUILDX_CACHE_DIR:-$HOME/.cache/buildx}"
+  local BUILDX_CONFIG_DIR="${BUILDX_CONFIG_DIR:-$HOME/.config/misc/settings/buildx}"
+  local BUILDX_OPTIONS_DIR="${BUILDX_OPTIONS_DIR:-$HOME/.local/share/misc/buildx/options}"
+  local BUILDX_CONFIG_BACKUP_DIR="${BUILDX_CONFIG_BACKUP_DIR:-$HOME/.local/share/misc/buildx/backups}"
+  local BUILDX_TEMP_DIR="${BUILDX_TEMP_DIR:-$HOME/.local/tmp/system_scripts/buildx}"
+  local BUILDX_CONFIG_FILE="${BUILDX_CONFIG_FILE:-settings.conf}"
+  local BUILDX_GOOD_MESSAGE="${BUILDX_GOOD_MESSAGE:-Everything Went OK}"
+  local BUILDX_ERROR_MESSAGE="${BUILDX_ERROR_MESSAGE:-Well something seems to have gone wrong}"
+  local BUILDX_NOTIFY_ENABLED="${BUILDX_NOTIFY_ENABLED:-yes}"
+  local BUILDX_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$APPNAME}"
+  local BUILDX_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$BUILDX_NOTIFY_CLIENT_ICON}"
+  local BUILDX_OUTPUT_COLOR="${BUILDX_OUTPUT_COLOR:-5}"
+  local BUILDX_OUTPUT_COLOR_GOOD="${BUILDX_OUTPUT_COLOR_GOOD:-2}"
+  local BUILDX_OUTPUT_COLOR_ERROR="${BUILDX_OUTPUT_COLOR_ERROR:-1}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Enviroment overrides
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Generate config files
+  [ -f "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" ] || [[ "$*" = *config ]] || INIT_CONFIG="${INIT_CONFIG:-TRUE}" __gen_config ${SETARGS:-$@}
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Import config
+  [ -f "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" ] && . "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Ensure Directories exist
+  [ -d "$BUILDX_LOG_DIR" ] || mkdir -p "$BUILDX_LOG_DIR" &>/dev/null
+  [ -d "$BUILDX_TEMP_DIR" ] || mkdir -p "$BUILDX_TEMP_DIR" &>/dev/null
+  [ -d "$BUILDX_CACHE_DIR" ] || mkdir -p "$BUILDX_CACHE_DIR" &>/dev/null
+  local BUILDX_TEMP_FILE="${BUILDX_TEMP_FILE:-$(mktemp $BUILDX_TEMP_DIR/XXXXXX 2>/dev/null)}"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Setup trap to remove temp file
+  trap 'exitCode=${exitCode:-$?};[ -n "$BUILDX_TEMP_FILE" ] && [ -f "$BUILDX_TEMP_FILE" ] && rm -Rf "$BUILDX_TEMP_FILE" &>/dev/null' EXIT
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Setup notification function
+  if [ "$BUILDX_NOTIFY_ENABLED" = "yes" ]; then
+    __notifications() {
+      export NOTIFY_GOOD_MESSAGE="${BUILDX_GOOD_MESSAGE}"
+      export NOTIFY_ERROR_MESSAGE="${BUILDX_ERROR_MESSAGE}"
+      export NOTIFY_CLIENT_NAME="${BUILDX_NOTIFY_CLIENT_NAME}"
+      export NOTIFY_CLIENT_ICON="${BUILDX_NOTIFY_CLIENT_ICON}"
+      notifications "$@" && exitCode=0 || exitCode=1
+      unset NOTIFY_CLIENT_NAME NOTIFY_CLIENT_ICON NOTIFY_GOOD_MESSAGE NOTIFY_ERROR_MESSAGE
+      return ${exitCode:-$?}
+    }
+  else
+    __notifications() { false; }
+  fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Show warn message if variables are missing
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="$*"
+  local SHORTOPTS=""
+  local LONGOPTS="options,config,version,help,dir:"
+  local ARRAY=""
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Setup application options
+  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -a -n "$(basename "$0" 2>/dev/null)" -- "$@" 2>/dev/null)
+  eval set -- "${setopts[@]}" 2>/dev/null
+  while :; do
+    case "$1" in
+    --options)
+      shift 1
+      [ -n "$1" ] || printf_blue "Current options for ${PROG:-$APPNAME}"
+      [ -z "$SHORTOPTS" ] || __list_options "5" "Short Options" "-$SHORTOPTS" ',' '-'
+      [ -z "$LONGOPTS" ] || __list_options "5" "Long Options" "--$LONGOPTS" ',' '--'
+      [ -z "$ARRAY" ] || __list_options "5" "Base Options" "$ARRAY" ',' ''
+      exit $?
+      ;;
+    --version)
+      shift 1
+      __version
+      exit $?
+      ;;
+    --help)
+      shift 1
+      __help
+      exit $?
+      ;;
+    --config)
+      shift 1
+      __gen_config
+      exit $?
+      ;;
+    --dir)
+      BUILDX_CWD="$2"
+      shift 2
+      ;;
+    --)
+      shift 1
+      break
+      ;;
+    esac
+  done
+  #set -- "$SETARGS"
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Actions based on env
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Check for required applications/Network check
+  cmd_exists --error bash || exit 1 # exit 1 if not found
+  #am_i_online --error || exit 1     # exit 1 if no internet
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # APP Variables overrides
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # begin main app
+  __buildx "$SETARGS"
+
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # lets exit with code
+  return ${exitCode:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# execute function
+buildx_main "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lets exit with code
+exit ${exitCode:-$?}
