@@ -105,14 +105,19 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_exec() {
-    export DOCKER_PLATFORMS="${DOCKER_PLATFORMS:-linux/amd64,linux/arm64}"
-    docker buildx build \
-      --rm \
-      --platform "${DOCKER_PLATFORMS// /,}" \
-      --push \
-      --progress plain \
-      "$@" \
-      .
+    if [ $# -eq 0 ]; then
+      printf_exit 1 2 "Usage: $PROG: name tag" 1>&2
+    else
+      export DOCKER_PLATFORMS="${DOCKER_PLATFORMS:-linux/amd64,linux/arm64}"
+      [ $# -eq 2 ] && local name="$1:$2" && shift 2 || local name="$1:latest" && shift 1
+      docker buildx build \
+        --rm \
+        --platform "${DOCKER_PLATFORMS// /,}" \
+        --push \
+        --output=type=registry \
+        --progress plain \
+        -t "casjaysdev/$name" "${@:-$PWD}"
+    fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
@@ -240,7 +245,7 @@ EOF
     ;;
   *)
     if [[ $# -ne 0 ]]; then
-      __buildx_init && __buildx_exec "$SETARGS"
+      __buildx_init && __buildx_exec "$@"
     else
       __buildx_init
     fi
