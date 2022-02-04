@@ -116,7 +116,9 @@ EOF
         --push \
         --output=type=registry \
         --progress plain \
-        -t "casjaysdev/$name" "${@:-$PWD}"
+        -t "casjaysdev/$name" "${@:-$PWD}" 2>&1 | grep -v '^$' &&
+        printf_green "Successfully built $name" ||
+        printf_red "Failed to build $name" 1>&2
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
