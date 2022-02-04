@@ -300,7 +300,7 @@ export NPM_PACKAGES NODE_PATH
 # Fast Node Manager
 FNM_BIN="$USRBINDIR"
 FNM_DIR="$HOME/.local/share/nodejs/fnm"
-if [[ -n "$(which fnm 2>/dev/null)" ]]; then
+if [[ -f "/home/jason/.local/bin/fnm" ]]; then
   eval "$(FNM_BIN="$FNM_BIN" FNM_DIR="$FNM_DIR" PATH="$TMP_BIN_PATH:$PATH" FNM_MULTISHELL_PATH="$FNM_MULTISHELL_PATH" fnm env 2>/dev/null)"
 fi
 export FNM_DIR FNM_BIN FNM_MULTISHELL_PATH
