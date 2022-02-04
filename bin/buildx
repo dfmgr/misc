@@ -63,6 +63,9 @@ buildx_main() {
       cp -Rf "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" "$BUILDX_CONFIG_BACKUP_DIR/$BUILDX_CONFIG_FILE.$$"
     cat <<EOF >"$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE"
 # Settings for buildx
+BUILDX_DEFAULT_REPO="${BUILDX_DEFAULT_REPO:-casjaysdev}"
+BUILDX_DEFAULT_HUB="${BUILDX_DEFAULT_HUB:-docker.io}"
+BUILDX_DEFAULT_TAG="${BUILDX_DEFAULT_TAG:-latest}"
 
 # Notification settings
 BUILDX_GOOD_MESSAGE="${BUILDX_GOOD_MESSAGE:-Everything Went OK}"
@@ -110,6 +113,8 @@ EOF
     else
       export DOCKER_PLATFORMS="${DOCKER_PLATFORMS:-linux/amd64,linux/arm64}"
       [ $# -eq 2 ] && local name="$1:$2" && shift 2 || local name="$1:latest" && shift 1
+      [ "$BUILDX_DEFAULT_HUB" = "docker.io" ] && local hub="" || local hub="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO"
+      local tag_name=$BUILDX_DEFAULT_REPO/$name
       docker buildx build \
         --rm \
         --platform "${DOCKER_PLATFORMS// /,}" \
@@ -143,6 +148,9 @@ EOF
   local BUILDX_OUTPUT_COLOR_ERROR="${BUILDX_OUTPUT_COLOR_ERROR:-1}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Enviroment overrides
+  local BUILDX_DEFAULT_REPO="${BUILDX_DEFAULT_REPO:-casjaysdev}"
+  local BUILDX_DEFAULT_HUB="${BUILDX_DEFAULT_HUB:-docker.io}"
+  local BUILDX_DEFAULT_TAG="${BUILDX_DEFAULT_TAG:-latest}"
   export DOCKER_CLI_EXPERIMENTAL=enabled
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate config files
