@@ -87,11 +87,32 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Additional functions
-  __buildx() {
+  __buildx_init() {
     docker buildx | grep 'Usage' | head -n1 | grep -q 'docker buildx' || printf_exit "The module 'docker buildx' is not installed"
-    docker buildx create --use --name mybuild node-amd64 &>/dev/null
-    docker buildx create --append --name mybuild node-arm64 &>/dev/null
-    docker buildx build --rm --platform linux/amd64,linux/arm64 "$@"
+    docker images | grep -q 'qemu' || printf_yellow "Setting up the qemu image - multiarch/qemu-user-static"
+    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes &>/dev/null
+    docker buildx create --name mybuilder &>/dev/null
+    docker buildx use mybuilder &>/dev/null
+    docker buildx inspect --bootstrap &>/dev/null
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __buildx_status() {
+    local c="$(timeout 1 docker buildx inspect 2>&1)"
+    local r="$(docker buildx ls 2>&1 | grep -q 'running' && echo 'running' || false)"
+    local s="$(echo "$c" | grep 'Status:' | grep -q 'running' && echo 'Running' || false)"
+    [ $# = 0 ] || { [[ -n "$s" ]] && printf '%s\n' "$c"; }
+    [[ -n "$s" ]] && return 0 || printf_red "Buildx is not running" 1>&2
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __buildx_exec() {
+    export DOCKER_PLATFORMS="${DOCKER_PLATFORMS:-linux/amd64,linux/arm64}"
+    docker buildx build \
+      --rm \
+      --platform "${DOCKER_PLATFORMS// /,}" \
+      --push \
+      --progress plain \
+      "$@" \
+      .
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
@@ -115,7 +136,7 @@ EOF
   local BUILDX_OUTPUT_COLOR_ERROR="${BUILDX_OUTPUT_COLOR_ERROR:-1}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Enviroment overrides
-
+  export DOCKER_CLI_EXPERIMENTAL=enabled
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate config files
   [ -f "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" ] || [[ "$*" = *config ]] || INIT_CONFIG="${INIT_CONFIG:-TRUE}" __gen_config ${SETARGS:-$@}
@@ -207,8 +228,24 @@ EOF
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  __buildx "$SETARGS"
-
+  case $1 in
+  status)
+    shift 1
+    if [[ $# -eq 0 ]]; then
+      __buildx_status && printf_blue "BuildX is running"
+    else
+      __buildx_status "$@" | printf_readline 4
+    fi
+    exit $?
+    ;;
+  *)
+    if [[ $# -ne 0 ]]; then
+      __buildx_init && __buildx_exec "$SETARGS"
+    else
+      __buildx_init
+    fi
+    ;;
+  esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
   return ${exitCode:-$?}
