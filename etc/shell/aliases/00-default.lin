@@ -82,6 +82,16 @@ alias systemctl='sudo systemctl '
 alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
 alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# systemctl
+alias systemctl-start='sudo systemctl start '
+alias systemctl-stop='sudo systemctl stop '
+alias systemctl-restart='sudo systemctl restart '
+alias systemctl-reload='sudo systemctl reload '
+alias systemctl-status='sudo systemctl status '
+alias systemctl-enable='sudo systemctl enable '
+alias systemctl-disable='sudo systemctl disable '
+alias systemctl-list-units='sudo systemctl list-units |sed "s|                                                 ||g"|grep -E "\.service|\.socket"|grep "active" '
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt 2>/dev/null)" ] && alias apt='sudo apt '
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt-get 2>/dev/null)" ] && alias apt-get='sudo apt-get '
