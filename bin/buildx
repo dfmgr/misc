@@ -66,6 +66,7 @@ buildx_main() {
 BUILDX_DEFAULT_REPO="${BUILDX_DEFAULT_REPO:-casjaysdev}"
 BUILDX_DEFAULT_HUB="${BUILDX_DEFAULT_HUB:-docker.io}"
 BUILDX_DEFAULT_TAG="${BUILDX_DEFAULT_TAG:-latest}"
+BUILDX_REMOVE_BUILD="${BUILDX_REMOVE_BUILD:-}"
 
 # Notification settings
 BUILDX_GOOD_MESSAGE="${BUILDX_GOOD_MESSAGE:-Everything Went OK}"
@@ -90,6 +91,10 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Additional functions
+  __usage() {
+    printf_exit 1 2 "Usage: $PROG: name tag" 1>&2
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_init() {
     docker buildx | grep 'Usage' | head -n1 | grep -q 'docker buildx' || printf_exit "The module 'docker buildx' is not installed"
     docker images | grep -q 'qemu' || printf_yellow "Setting up the qemu image - multiarch/qemu-user-static"
@@ -109,19 +114,28 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_exec() {
     if [ $# -eq 0 ]; then
-      printf_exit 1 2 "Usage: $PROG: name tag" 1>&2
+      __usage
     else
+      echo "$*" | grep -q ':' && __usage
       export DOCKER_PLATFORMS="${DOCKER_PLATFORMS:-linux/amd64,linux/arm64}"
-      [ $# -eq 2 ] && local name="$1:$2" && shift 2 || local name="$1:latest" && shift 1
-      [ "$BUILDX_DEFAULT_HUB" = "docker.io" ] && local hub="" || local hub="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO"
-      local tag_name=$BUILDX_DEFAULT_REPO/$name
-      docker buildx build \
-        --rm \
+      if [ $# -eq 2 ]; then
+        local name="${1:-$name}:${2:-$tag}"
+        shift 2
+      else
+        local name="$1:latest"
+        shift 1
+      fi
+      if [ "$BUILDX_DEFAULT_HUB" = "docker.io" ]; then
+        local tagged_name="$BUILDX_DEFAULT_REPO/$name"
+      else
+        local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
+      fi
+      docker buildx build ${BUILDX_REMOVE_BUILD:-} \
         --platform "${DOCKER_PLATFORMS// /,}" \
         --push \
         --output=type=registry \
         --progress plain \
-        -t "casjaysdev/$name" "${@:-$PWD}" 2>&1 | grep -v '^$' &&
+        -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$' &&
         printf_green "Successfully built $name" ||
         printf_red "Failed to build $name" 1>&2
     fi
@@ -151,7 +165,8 @@ EOF
   local BUILDX_DEFAULT_REPO="${BUILDX_DEFAULT_REPO:-casjaysdev}"
   local BUILDX_DEFAULT_HUB="${BUILDX_DEFAULT_HUB:-docker.io}"
   local BUILDX_DEFAULT_TAG="${BUILDX_DEFAULT_TAG:-latest}"
-  export DOCKER_CLI_EXPERIMENTAL=enabled
+  local BUILDX_REMOVE_BUILD="${BUILDX_REMOVE_BUILD:-}"
+  export DOCKER_CLI_EXPERIMENTAL="${DOCKER_CLI_EXPERIMENTAL:-enabled}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate config files
   [ -f "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" ] || [[ "$*" = *config ]] || INIT_CONFIG="${INIT_CONFIG:-TRUE}" __gen_config ${SETARGS:-$@}
