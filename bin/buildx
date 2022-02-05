@@ -130,12 +130,15 @@ EOF
       else
         local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
       fi
-      docker buildx build ${BUILDX_REMOVE_BUILD:-} \
-        --platform "${DOCKER_PLATFORMS// /,}" \
-        --push \
-        --output=type=registry \
-        --progress plain \
-        -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$' &&
+      (
+        set -o pipefail
+        docker buildx build ${BUILDX_REMOVE_BUILD:-} \
+          --platform "${DOCKER_PLATFORMS// /,}" \
+          --push \
+          --output=type=registry \
+          --progress plain \
+          -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$'
+      ) &&
         printf_green "Successfully built $name" ||
         printf_red "Failed to build $name" 1>&2
     fi
