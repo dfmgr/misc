@@ -116,13 +116,18 @@ EOF
     if [ $# -eq 0 ]; then
       __usage
     else
+      if [ -f "$1" ]; then
+        name="$(basename "$(dirname "$(realpath "$1")")")"
+      elif [ -d "$1" ]; then
+        name="$(basename "$(realpath "$1")")"
+      fi
       echo "$*" | grep -q ':' && __usage
       export DOCKER_PLATFORMS="${DOCKER_PLATFORMS:-linux/amd64,linux/arm64}"
       if [ $# -eq 2 ]; then
-        local name="${1:-$name}:${2:-$tag}"
+        local name="${name:-$1}:${2:-$tag}"
         shift 2
       else
-        local name="$1:latest"
+        local name="${name:-$1}:latest"
         shift 1
       fi
       if [ "$BUILDX_DEFAULT_HUB" = "docker.io" ]; then
@@ -131,13 +136,14 @@ EOF
         local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
       fi
       (
-        set -o pipefail
+        set -e -o pipefail
         docker buildx build ${BUILDX_REMOVE_BUILD:-} \
           --platform "${DOCKER_PLATFORMS// /,}" \
           --push \
           --output=type=registry \
           --progress plain \
           -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$'
+        return $?
       ) &&
         printf_green "Successfully built $name" ||
         printf_red "Failed to build $name" 1>&2
@@ -261,7 +267,7 @@ EOF
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  case $1 in
+  case "$1" in
   status)
     shift 1
     if [[ $# -eq 0 ]]; then
