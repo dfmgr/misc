@@ -95,18 +95,20 @@ EOF
     printf_exit 1 2 "Usage: $PROG: name tag" 1>&2
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __docker() { sudo docker "$@"; }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_init() {
-    docker buildx | grep 'Usage' | head -n1 | grep -q 'docker buildx' || printf_exit "The module 'docker buildx' is not installed"
-    docker images | grep -q 'qemu' || printf_yellow "Setting up the qemu image - multiarch/qemu-user-static"
-    docker run --rm --privileged multiarch/qemu-user-static --reset -p yes &>/dev/null
-    docker buildx create --name mybuilder &>/dev/null
-    docker buildx use mybuilder &>/dev/null
-    docker buildx inspect --bootstrap &>/dev/null
+    __docker buildx | grep 'Usage' | head -n1 | grep -q 'docker buildx' || printf_exit "The module 'docker buildx' is not installed"
+    __docker images | grep -q 'qemu' || printf_yellow "Setting up the qemu image - multiarch/qemu-user-static"
+    __docker run --rm --privileged multiarch/qemu-user-static --reset -p yes &>/dev/null
+    __docker buildx create --name mybuilder &>/dev/null
+    __docker buildx use mybuilder &>/dev/null
+    __docker buildx inspect --bootstrap &>/dev/null
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_status() {
-    local c="$(timeout 1 docker buildx inspect 2>&1)"
-    local r="$(docker buildx ls 2>&1 | grep -q 'running' && echo 'running' || false)"
+    local c="$(timeout 1 __docker buildx inspect 2>&1)"
+    local r="$(__docker buildx ls 2>&1 | grep -q 'running' && echo 'running' || false)"
     local s="$(echo "$c" | grep 'Status:' | grep -q 'running' && echo 'Running' || false)"
     [ $# = 0 ] || { [[ -n "$s" ]] && printf '%s\n' "$c"; }
     [[ -n "$s" ]] && return 0 || printf_red "Buildx is not running" 1>&2
@@ -138,7 +140,7 @@ EOF
       printf_cyan "Building $tagged_name"
       (
         set -e -o pipefail
-        docker buildx build ${BUILDX_REMOVE_BUILD:-} \
+        __docker buildx build ${BUILDX_REMOVE_BUILD:-} \
           --platform "${DOCKER_PLATFORMS// /,}" \
           --push \
           --output=type=registry \
