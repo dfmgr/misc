@@ -278,11 +278,18 @@ EOF
     fi
     exit $?
     ;;
+  init)
+    shift
+    printf_blue "Setting up docker build"
+    __buildx_init
+    exit $?
+    ;;
   *)
     if [[ $# -ne 0 ]]; then
       __buildx_init && __buildx_exec "$@"
     else
-      __buildx_init
+      __usage
+      exit
     fi
     ;;
   esac
