@@ -135,6 +135,7 @@ EOF
       else
         local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
       fi
+      printf_cyan "Building $tagged_name"
       (
         set -e -o pipefail
         docker buildx build ${BUILDX_REMOVE_BUILD:-} \
