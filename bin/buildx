@@ -154,8 +154,13 @@ EOF
           -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$'
         return $?
       ) &&
-        printf_green "Successfully built $name" ||
+        {
+          __notifications "Successfully built $name"
+          printf_green "Successfully built $name"
+        } || {
+        __notifications "Failed to build $name"
         printf_red "Failed to build $name" 1>&2
+      }
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
