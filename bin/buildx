@@ -115,53 +115,56 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_exec() {
-    if [ $# -eq 0 ]; then
-      __usage
-    else
-      if [ -f "$1" ]; then
-        OPTS="-f $1"
-        name="$(basename "$(dirname "$(realpath "$1")")")"
-        shift 1
-      elif [ -d "$1" ]; then
-        name="$(basename "$(realpath "$1")")"
-        shift 1
-      fi
-      echo "$*" | grep -q '.*.:.*.' && __usage
-      if [ $# -eq 2 ]; then
-        local name="${1:-$name}:${2:-$tag}"
-        shift 2
-      else
-        local name="${1:-$name}:latest"
-        shift 1
-      fi
-      if [ "$BUILDX_DEFAULT_HUB" = "docker.io" ]; then
-        local tagged_name="$BUILDX_DEFAULT_REPO/$name"
-      else
-        local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
-      fi
-      if [ -n "$OPTS" ]; then
-        printf_cyan "Using $OPTS to build $tagged_name"
-      else
-        printf_cyan "Building $tagged_name"
-      fi
-      (
-        set -e -o pipefail
-        __docker buildx build ${OPTS:-} ${BUILDX_REMOVE_BUILD:-} \
-          --platform "${DOCKER_PLATFORMS// /,}" \
-          --push \
-          --output=type=registry \
-          --progress plain \
-          -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$'
-        return $?
-      ) &&
-        {
-          __notifications "Successfully built $name"
-          printf_green "Successfully built $name"
-        } || {
-        __notifications "Failed to build $name"
-        printf_red "Failed to build $name" 1>&2
-      }
+    echo "$*" | grep -q '.*.:.*.' && __usage
+    [ $# -ne 0 ] || __usage
+    if [ -f "$PWD/$1" ] || [ -f "$1" ]; then
+      Dockerfile="${1//$PWD\//}"
+      dirname="$(basename "$(dirname "$(realpath "$Dockerfile")")")"
+      shift 1
+    elif [ -d "$1" ]; then
+      REALPATH="$(dirname "$(realpath "$1")")"
+      dirname="$(basename "$REALPATH")"
+      shift 1
     fi
+    if [ $# -eq 1 ]; then
+      local name="${1:-$dirname}:latest"
+      shift 1
+    elif [ $# -eq 2 ]; then
+      local name="${1:-$dirname}:${2:-$tag}"
+      shift 2
+    else
+      REALPATH="$(dirname "$(realpath "$PWD/Dockerfile")")"
+      local name="$(basename "$REALPATH")"
+    fi
+    if [ "$BUILDX_DEFAULT_HUB" = "docker.io" ]; then
+      local tagged_name="$BUILDX_DEFAULT_REPO/$name"
+    else
+      local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
+    fi
+    printf_exit "$*"
+    if [ -n "$Dockerfile" ]; then
+      printf_cyan "Using $Dockerfile to build $tagged_name"
+    else
+      printf_cyan "Building $tagged_name"
+    fi
+    (
+      set -e -o pipefail
+      __docker buildx build ${BUILDX_REMOVE_BUILD:-} \
+        --platform "${DOCKER_PLATFORMS// /,}" \
+        --push \
+        --output=type=registry \
+        --progress plain \
+        -f ${Dockerfile:-Dockerfile} \
+        -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$'
+      return $?
+    ) &&
+      {
+        __notifications "Successfully built $name"
+        printf_green "Successfully built $name"
+      } || {
+      __notifications "Failed to build $name"
+      printf_red "Failed to build $name" 1>&2
+    }
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
