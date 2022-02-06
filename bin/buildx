@@ -138,7 +138,11 @@ EOF
       else
         local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
       fi
-      printf_cyan "Building $tagged_name"
+      if [ -n "$OPTS" ]; then
+        printf_cyan "Using $OPTS to build $tagged_name"
+      else
+        printf_cyan "Building $tagged_name"
+      fi
       (
         set -e -o pipefail
         __docker buildx build ${OPTS:-} ${BUILDX_REMOVE_BUILD:-} \
