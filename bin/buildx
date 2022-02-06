@@ -92,7 +92,7 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Additional functions
   __usage() {
-    printf_exit 1 2 "Usage: $PROG: name tag" 1>&2
+    printf_exit 1 2 "Usage: $PROG: [Dockerfile] [name] [tag] [.]" 1>&2
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __docker() { sudo docker "$@"; }
@@ -128,10 +128,10 @@ EOF
       fi
       echo "$*" | grep -q '.*.:.*.' && __usage
       if [ $# -eq 2 ]; then
-        local name="${name:-$1}:${2:-$tag}"
+        local name="${1:-$name}:${2:-$tag}"
         shift 2
       else
-        local name="${name:-$1}:latest"
+        local name="${1:-$name}:latest"
         shift 1
       fi
       if [ "$BUILDX_DEFAULT_HUB" = "docker.io" ]; then
