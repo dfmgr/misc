@@ -98,11 +98,17 @@ EOF
   __docker() { sudo docker "$@"; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_init() {
+    name="${1:-mybuilder}"
     __docker buildx | grep 'Usage' | head -n1 | grep -q 'docker buildx' || printf_exit "The module 'docker buildx' is not installed"
-    __docker images | grep -q 'qemu' || printf_yellow "Setting up the qemu image - multiarch/qemu-user-static"
-    __docker run --rm --privileged multiarch/qemu-user-static --reset -p yes &>/dev/null
-    __docker buildx create --name mybuilder &>/dev/null
-    __docker buildx use mybuilder &>/dev/null
+    if ! __docker images | grep -q 'qemu' && ! __docker images | grep -q 'binfmt'; then
+      printf_yellow "Setting up the qemu image - multiarch/qemu-user-static"
+      __docker run --rm --privileged multiarch/qemu-user-static --reset -p yes &>/dev/null
+      printf_yellow "Setting up the binfmt image"
+      __docker run --rm --privileged tonistiigi/binfmt --install all &>/dev/null
+    fi
+    printf_blue "Setting up docker build to use buildx"
+    __docker buildx create --use &>/dev/null
+    __docker buildx create --append &>/dev/null
     __docker buildx inspect --bootstrap &>/dev/null
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -296,13 +302,12 @@ EOF
     ;;
   init)
     shift
-    printf_blue "Setting up docker build"
-    __buildx_init
+    __buildx_init "$@"
     exit $?
     ;;
   *)
     if [[ $# -ne 0 ]]; then
-      __buildx_init && __buildx_exec "$@"
+      __buildx_init &>/dev/null && __buildx_exec "$@"
     else
       __usage
       exit
