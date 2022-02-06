@@ -107,8 +107,8 @@ EOF
       __docker run --rm --privileged tonistiigi/binfmt --install all &>/dev/null
     fi
     printf_blue "Setting up docker build to use buildx"
-    __docker buildx create --use &>/dev/null
-    __docker buildx create --append &>/dev/null
+    __docker buildx create --name $name --use &>/dev/null
+    __docker buildx use $name &>/dev/null
     __docker buildx inspect --bootstrap &>/dev/null
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
