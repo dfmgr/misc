@@ -141,7 +141,6 @@ EOF
     else
       local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
     fi
-    printf_exit "$*"
     if [ -n "$Dockerfile" ]; then
       printf_cyan "Using $Dockerfile to build $tagged_name"
     else
