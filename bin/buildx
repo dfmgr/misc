@@ -119,6 +119,7 @@ EOF
       __usage
     else
       if [ -f "$1" ]; then
+        OPTS="-f $1"
         name="$(basename "$(dirname "$(realpath "$1")")")"
       elif [ -d "$1" ]; then
         name="$(basename "$(realpath "$1")")"
@@ -140,7 +141,7 @@ EOF
       printf_cyan "Building $tagged_name"
       (
         set -e -o pipefail
-        __docker buildx build ${BUILDX_REMOVE_BUILD:-} \
+        __docker buildx build ${OPTS:-} ${BUILDX_REMOVE_BUILD:-} \
           --platform "${DOCKER_PLATFORMS// /,}" \
           --push \
           --output=type=registry \
