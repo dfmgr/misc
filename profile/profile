@@ -315,6 +315,9 @@ export TMP_BIN_PATH="$TMP_BIN_PATH:$VAGRANT_HOME/bin"
 export VAGRANT_DEFAULT_PROVIDER="libvirt"
 [ -d "$VAGRANT_HOME/bin" ] || mkdir -p "$VAGRANT_HOME/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup dockerstarter
+export DOCKERCONFDIR="${DOCKERCONFDIR:-$HOME/.config/dockstarter}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
   if [ -n "$(which lynx 2>/dev/null)" ]; then
