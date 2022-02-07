@@ -64,7 +64,7 @@ SETUP_DENO_INSTALL_SCRIPT="${SETUP_DENO_INSTALL_SCRIPT:-https://deno.land/x/inst
 
 EOF
     if [ -f "$SETUP_DENO_CONFIG_DIR/$SETUP_DENO_CONFIG_FILE" ]; then
-      printf_green "Your config file for SETUP_DENO has been created"
+      printf_green "Your config file for deno has been created"
       true
     else
       printf_red "Failed to create the config file"
@@ -73,11 +73,12 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __deno_install() {
-    if [[ "$1" != "-f" ]] && cmd_exists deno; then
+    if [[ "$1" != "-f" ]] && [[ "$FORCE_INST" != "true" ]] && cmd_exists deno; then
       printf_green "deno is already installed "
       printf_blue "run $PROG --install to updated"
       return 0
     else
+      printf_green "Attempting to install deno"
       curl -q -LSs "$SETUP_DENO_INSTALL_SCRIPT" | bash &>/dev/null
       if type -P deno &>/dev/null; then
         printf_green "deno has been installed"
@@ -104,7 +105,7 @@ EOF
   # Argument/Option settings
   local SETARGS="$*"
   local SHORTOPTS="c,v,h,i,f"
-  local LONGOPTS="options,config,version,help,force"
+  local LONGOPTS="options,config,version,help,force,install"
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
@@ -143,8 +144,9 @@ EOF
       __gen_config
       exit $?
       ;;
-    -f | --force)
+    -f | --force | --install)
       shift 1
+      FORCE_INST="true"
       __deno_install -f
       exit $?
       ;;
@@ -177,7 +179,7 @@ EOF
   export DENO_INSTALL PATH
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  __deno_install || exit 1
+  __deno_install "$@" || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
   return ${exitCode:-$?}
