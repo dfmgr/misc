@@ -318,6 +318,9 @@ export VAGRANT_DEFAULT_PROVIDER="libvirt"
 # Setup dockerstarter
 export DOCKERCONFDIR="${DOCKERCONFDIR:-$HOME/.config/dockstarter}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# DockerMGR settings
+export DOCKERMGR_HOME="${DOCKERMGR_HOME:-$HOME/.local/share/srv/docker}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
   if [ -n "$(which lynx 2>/dev/null)" ]; then
