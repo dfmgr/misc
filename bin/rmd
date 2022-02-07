@@ -42,7 +42,16 @@ main() {
   -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __rm_file() { rm -Rf "${1:-$file}" &>/dev/null && exitCode+=0 || exitCode+=1; }
+  __rm_file() {
+    local exitCode=0
+    if [ -w "${1:-$file}" ]; then
+      rm -Rf "${1:-$file}" &>/dev/null || exitCode+=1
+    else
+      printf_red "You don't have permission to remove ${1:-$file}"
+      exitCode+=1
+    fi
+    return $exitCode
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local files delete_dir delete_file delete_error_file exitCode
   if [ $# -ne 0 ]; then
