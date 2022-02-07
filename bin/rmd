@@ -65,6 +65,7 @@ main() {
           local exitCode=1
         fi
       fi
+      [ -e "$file" ] && exitCode+=1 || true
     done
   else
     printf_red "Must provide path to file or folder for deletion"
