@@ -58,6 +58,8 @@ setup_asdf_main() {
       cp -Rf "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" "$SETUP_ASDF_CONFIG_BACKUP_DIR/$SETUP_ASDF_CONFIG_FILE.$$"
     cat <<EOF >"$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE"
 # Settings for setup_asdf
+SETUP_ASDF_DIR="${ASDF_DIR=$HOME/.local/share/misc/plugins/asdf}"
+SETUP_ASDF_DATA_DIR="${ASDF_DATA_DIR:-$ASDF_DIR}"
 SETUP_ASDF_NOTIFY_ENABLED="yes"
 SETUP_ASDF_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
 SETUP_ASDF_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_ASDF_NOTIFY_CLIENT_ICON}"
@@ -96,6 +98,13 @@ EOF
     return
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  __asdf_init() {
+    if [ ! -d "$ASDF_DATA_DIR/repository" ]; then
+      printf_green "Initializing ASDF data directory"
+      asdf plugin-list-all &>/dev/null
+    fi
+  }
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __asdf_plugin() {
     pkg="$1"
     if asdf list 2>&1 | grep "$pkg" -A 1 | grep -q 'No versions'; then
@@ -111,16 +120,17 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __asdf_install() {
-    ASDF_DIR="${ASDF_DIR:-$HOME/.local/share/misc/plugins/asdf}"
-    if [[ -d "$ASDF_DIR" ]]; then
+    export ASDF_DIR="${SETUP_ASDF_DIR:-}"
+    export ASDF_DATA_DIR="$ASDF_DIR"
+    if [[ -d "$SETUP_ASDF_DIR" ]]; then
       printf_green "Updating asdf"
-      git -C "$ASDF_DIR" pull &>/dev/null &&
-        printf_green "Updated $ASDF_DIR" ||
-        printf_red "Failed to update $ASDF_DIR"
+      git -C "$SETUP_ASDF_DIR" pull &>/dev/null &&
+        printf_green "Updated $SETUP_ASDF_DIR" ||
+        printf_red "Failed to update $SETUP_ASDF_DIR"
       return 0
     else
-      printf_green "Installing ASDF to $ASDF_DIR"
-      git clone -q "https://github.com/asdf-vm/asdf" "$ASDF_DIR" &>/dev/null && {
+      printf_green "Installing ASDF to $SETUP_ASDF_DIR"
+      git clone -q "https://github.com/asdf-vm/asdf" "$SETUP_ASDF_DIR" &>/dev/null && {
         printf_green "Successfully installed ASDF"
         return 0
       } || {
@@ -141,12 +151,9 @@ EOF
   local SETUP_ASDF_NOTIFY_ENABLED="yes"
   local SETUP_ASDF_NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$PROG}"
   local SETUP_ASDF_NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_ASDF_NOTIFY_CLIENT_ICON}"
+  local SETUP_ASDF_DIR="${ASDF_DIR=$HOME/.local/share/misc/plugins/asdf}"
+  local SETUP_ASDF_DATA_DIR="${ASDF_DATA_DIR:-$SETUP_ASDF_DIR}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Argument/Option settings
-  local SETARGS="$*"
-  local SHORTOPTS="c,v,h,i"
-  local LONGOPTS="options,config,version,help,install"
-  local ARRAY="$(asdf plugin-list-all | awk '{print $1}' | grep -v '^$' | grep '^')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate Files
   [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ] || __gen_config &>/dev/null
@@ -157,6 +164,16 @@ EOF
   if [ -f "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE" ]; then
     . "$SETUP_ASDF_CONFIG_DIR/$SETUP_ASDF_CONFIG_FILE"
   fi
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # asdf init
+  type asdf &>/dev/null || __asdf_install
+  __asdf_init
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  # Argument/Option settings
+  local SETARGS="$*"
+  local SHORTOPTS="c,v,h,i"
+  local LONGOPTS="options,config,version,help,install"
+  local ARRAY="$(asdf plugin-list-all | awk '{print $1}' | grep -v '^$' | grep '^')"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # options
   local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -a -n "$PROG" -- "$@" 2>/dev/null)
@@ -222,14 +239,14 @@ EOF
   cmd_exists --error bash asdf || exit 1
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # APP Variables
-  export ASDF_DIR="${ASDF_DIR:-$HOME/.local/share/misc/plugins/asdf}"
-
+  export ASDF_DIR="${SETUP_ASDF_DIR:-}"
+  export ASDF_DATA_DIR="${ASDF_DATA_DIR:-$ASDF_DIR}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   if [[ "$1" = "enable-all" ]]; then
     shift 1
-    [[ -f "$ASDF_DIR/asdf.sh" ]] && . "$ASDF_DIR/asdf.sh"
-    PLUGINS=$(asdf plugin-list-all | awk '{print $1}' | grep -v '^$' | grep '^')
+    [[ -f "$SETUP_ASDF_DIR/asdf.sh" ]] && . "$SETUP_ASDF_DIR/asdf.sh"
+    PLUGINS="$(asdf plugin-list-all | awk '{print $1}' | grep -v '^$' | grep '^')"
     for pkg in ${PLUGINS}; do
       __asdf_plugin "$pkg"
     done
@@ -240,7 +257,7 @@ EOF
       __asdf_plugin "$pkg"
     done
   else
-    printf '%s' "$ARRAY" | printf_column '5'
+    asdf plugin-list-all | awk '{print $1}' | grep -v '^$' | grep '^' | printf_column '5'
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
