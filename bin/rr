@@ -7,6 +7,7 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
 trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_GVM_TEMP_FILE" ] && rm -Rf "$SETUP_GVM_TEMP_FILE" &>/dev/null' EXIT
+trap 'reset; exit' SIGINT
 if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -47,7 +48,7 @@ main() {
   if am_i_online; then
     rr="$(curl -q --fail -LSs https://raw.githubusercontent.com/keroserene/rickrollrc/master/roll.sh 2>/dev/null || return 1)"
     if [ -n "$rr" ]; then
-      $rr 2>/dev/null
+      eval "$rr" 2>/dev/null
     else
       printf_red "An error has occurred while fetching the script"
       return 1
