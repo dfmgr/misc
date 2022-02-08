@@ -6,6 +6,8 @@ HOME="${USER_HOME:-${HOME}}"
 SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #set opts
+trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_GVM_TEMP_FILE" ] && rm -Rf "$SETUP_GVM_TEMP_FILE" &>/dev/null' EXIT
+if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version       : 031120211717-git
