@@ -202,8 +202,12 @@ EOF
       gofish install $pkg
     done
   else
-    gofish search | grep -v NAME | awk '{print $1}' | grep '^' | column
-    printf '\n'
+    r="$(gofish search | grep -v NAME | awk '{print $1}' | grep '^')"
+    if [ -n "$r" ]; then
+      printf '%s\n' "$r" | column
+    else
+      gofish init
+    fi
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
