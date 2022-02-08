@@ -269,7 +269,7 @@ fi
 # Fast Node Manager
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
-if [ -f "/home/jason/.local/bin/fnm" ]; then
+if [ -n "$(builtin type fnm 2>/dev/null)" ]; then
   eval "$(FNM_BIN="$FNM_BIN" FNM_DIR="$FNM_DIR" PATH="$TMP_BIN_PATH:$PATH" FNM_MULTISHELL_PATH="$FNM_MULTISHELL_PATH" fnm env 2>/dev/null)"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
