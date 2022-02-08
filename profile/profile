@@ -220,6 +220,7 @@ TMP_BIN_PATH="$LUAROCKS_BIN"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure asdf - https://asdf-vm.com
 export ASDF_DIR="$HOME/.local/share/misc/plugins/asdf"
+export ASDF_DATA_DIR="$HOME/.local/share/misc/plugins/asdf"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure basher - https://www.basher.it
 export BASHER_ROOT="$HOME/.local/share/misc/plugins/basher"
