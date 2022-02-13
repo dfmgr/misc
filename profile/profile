@@ -212,6 +212,9 @@ else
   export BANNER="echo -e"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup neovim
+export NVIM_LISTEN_ADDRESS="${TMP:-/tmp}/nvim.${USER}.sock"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua - https://github.com/DhavalKapil/luaver
 export LUAVER_HOME="$HOME/.local/share/misc/plugins/luaver"
 export LUAROCKS_BIN="$HOME/.local/share/lua/luarocks/bin"
