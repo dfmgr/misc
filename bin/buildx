@@ -127,12 +127,12 @@ EOF
       Dockerfile="${1//$PWD\//}"
       REALPATH="$(dirname "$(realpath "$1")")"
       dirname="$(basename "$(dirname "$(realpath "$Dockerfile")")")"
-      cd "$REALPATH" || exit 15
+      buildin cd "$REALPATH" || exit 15
       shift 1
     elif [ -d "$1" ]; then
       REALPATH="$(dirname "$(realpath "$1")")"
       dirname="$(basename "$REALPATH")"
-      cd "$REALPATH" || exit 15
+      buildin cd "$REALPATH" || exit 15
       shift 1
     fi
     if [ $# -eq 1 ]; then
@@ -144,6 +144,7 @@ EOF
     else
       REALPATH="$(dirname "$(realpath "$PWD/Dockerfile")")"
       local name="$(basename "$REALPATH")"
+      buildin cd "$REALPATH" || exit 15
     fi
     if [ "$BUILDX_DEFAULT_HUB" = "docker.io" ]; then
       local tagged_name="$BUILDX_DEFAULT_REPO/$name"
