@@ -125,11 +125,14 @@ EOF
     [ $# -ne 0 ] || __usage
     if [ -f "$PWD/$1" ] || [ -f "$1" ]; then
       Dockerfile="${1//$PWD\//}"
+      REALPATH="$(dirname "$(realpath "$1")")"
       dirname="$(basename "$(dirname "$(realpath "$Dockerfile")")")"
+      cd "$REALPATH" || exit 15
       shift 1
     elif [ -d "$1" ]; then
       REALPATH="$(dirname "$(realpath "$1")")"
       dirname="$(basename "$REALPATH")"
+      cd "$REALPATH" || exit 15
       shift 1
     fi
     if [ $# -eq 1 ]; then
