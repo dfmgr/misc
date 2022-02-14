@@ -132,7 +132,7 @@ EOF
     elif [ -d "$1" ]; then
       REALPATH="$(dirname "$(realpath "$1")")"
       dirname="$(basename "$REALPATH")"
-      builtin cd "$REALPATH" || exit 15
+      builtin cd "$1" || exit 15
       shift 1
     fi
     if [ $# -eq 1 ]; then
@@ -144,7 +144,6 @@ EOF
     else
       REALPATH="$(dirname "$(realpath "$PWD/Dockerfile")")"
       local name="$(basename "$REALPATH")"
-      builtin cd "$REALPATH" || exit 15
     fi
     if [ "$BUILDX_DEFAULT_HUB" = "docker.io" ]; then
       local tagged_name="$BUILDX_DEFAULT_REPO/$name"
