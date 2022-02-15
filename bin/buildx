@@ -170,16 +170,19 @@ EOF
       {
         __notifications "Successfully built $name"
         printf_green "Successfully built $name"
+
+        __notifications "Pulling the updated image"
+        printf_green "Pulling the updated image"
+        docker pull "$tagged_name" &>/dev/null &&
+          {
+            __notifications "Successfully pulled $tagged_name"
+          } || {
+          __notifications "Failed to pull $tagged_name"
+          exitCode+=1
+        }
       } || {
       __notifications "Failed to build $name"
       printf_red "Failed to build $name" 1>&2
-      exitCode+=1
-    }
-    docker pull "$tagged_name" &>/dev/null &&
-      {
-        __notifications "Successfully pulled $tagged_name"
-      } || {
-      __notifications "Failed to pull $tagged_name"
       exitCode+=1
     }
     return ${exitCode:-$?}
