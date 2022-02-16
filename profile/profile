@@ -763,7 +763,7 @@ fi
 # fix PATH
 SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -v "$HOME" | grep -v "$SYSBINDIR" | tr '\n' ':' | sed 's|:$||g')"
 SET_TMP_PATH="$(echo "${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$USRBINDIR" | tr '\n' ':' | sed 's|:$||g')"
-export PATH="$SET_TMP_PATH:$USRBINDIR:$SYSBINDIR:$SET_PATH:."
+export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
 export PROFILERCSRC="$HOME/.profile"
