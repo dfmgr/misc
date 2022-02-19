@@ -156,6 +156,7 @@ EOF
     else
       printf_cyan "Building $tagged_name"
     fi
+    printf_blue "Logging to $BUILDX_LOG_DIR/build.log"
     (
       set -e -o pipefail
       printf '###############################################################################\n'
@@ -166,9 +167,9 @@ EOF
         --progress plain \
         -f ${Dockerfile:-Dockerfile} \
         -t "$tagged_name" "${@:-$PWD}" 2>&1 |& grep -v '^$'
-      printf '###############################################################################\n'
+      printf '###############################################################################\n\n'
       return $?
-    ) &>"$BUILDX_LOG_DIR/build.log" &&
+    ) &>>"$BUILDX_LOG_DIR/build.log" &&
       {
         __notifications "Successfully built $name"
         printf_green "Successfully built $name"
@@ -178,8 +179,10 @@ EOF
         docker pull "$tagged_name" &>/dev/null &&
           {
             __notifications "Successfully pulled $tagged_name"
+            printf_green "Successfully pulled $tagged_name"
           } || {
           __notifications "Failed to pull $tagged_name"
+          printf_red "Failed to pull $tagged_name"
           exitCode+=1
         }
       } || {
