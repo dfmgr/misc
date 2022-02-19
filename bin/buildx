@@ -159,7 +159,7 @@ EOF
     printf_blue "Logging to $BUILDX_LOG_DIR/build.log"
     (
       set -e -o pipefail
-      printf '###############################################################################\n'
+      printf '%s\n' "Building $tagged_name on : $(date +%Y-%m-%d at %H:%M)"
       __docker buildx build ${BUILDX_REMOVE_BUILD:-} \
         --platform "${DOCKER_PLATFORMS// /,}" \
         --push \
@@ -190,6 +190,7 @@ EOF
       printf_red "Failed to build $name" 1>&2
       exitCode+=1
     }
+    echo ''
     return ${exitCode:-$?}
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
