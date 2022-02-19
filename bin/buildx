@@ -158,15 +158,17 @@ EOF
     fi
     (
       set -e -o pipefail
+      printf '###############################################################################\n'
       __docker buildx build ${BUILDX_REMOVE_BUILD:-} \
         --platform "${DOCKER_PLATFORMS// /,}" \
         --push \
         --output=type=registry \
         --progress plain \
         -f ${Dockerfile:-Dockerfile} \
-        -t "$tagged_name" "${@:-$PWD}" 2>&1 | grep -v '^$'
+        -t "$tagged_name" "${@:-$PWD}" 2>&1 |& grep -v '^$'
+      printf '###############################################################################\n'
       return $?
-    ) &&
+    ) &>"$BUILDX_LOG_DIR/build.log" &&
       {
         __notifications "Successfully built $name"
         printf_green "Successfully built $name"
