@@ -151,12 +151,12 @@ EOF
     else
       local tagged_name="$BUILDX_DEFAULT_HUB/$BUILDX_DEFAULT_REPO/$name"
     fi
+    printf_blue "Logging to $BUILDX_LOG_DIR/build.log"
     if [ -n "$Dockerfile" ]; then
       printf_cyan "Using $Dockerfile to build $tagged_name"
     else
       printf_cyan "Building $tagged_name"
     fi
-    printf_blue "Logging to $BUILDX_LOG_DIR/build.log"
     (
       set -e -o pipefail
       printf '%s\n' "Building $tagged_name on : $(date +'%Y-%m-%d at %H:%M')"
