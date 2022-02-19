@@ -159,7 +159,7 @@ EOF
     printf_blue "Logging to $BUILDX_LOG_DIR/build.log"
     (
       set -e -o pipefail
-      printf '%s\n' "Building $tagged_name on : $(date +%Y-%m-%d at %H:%M)"
+      printf '%s\n' "Building $tagged_name on : $(date +'%Y-%m-%d at %H:%M')"
       __docker buildx build ${BUILDX_REMOVE_BUILD:-} \
         --platform "${DOCKER_PLATFORMS// /,}" \
         --push \
