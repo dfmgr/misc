@@ -193,7 +193,7 @@ fi
 [ -z "$(builtin type -P pipx 2>/dev/null)" ] && alias='pip install -U pipx && alias pipx="pipx"'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other
-[ -n "$(builtin type -P anime-cli 2>/dev/null)" ] && alias='anime-cli -d -p "$HOME/Downloads/anime"'
+[ -n "$(builtin type -P anime-cli 2>/dev/null)" ] && alias anime-cli='anime-cli -d -p "$HOME/Downloads/anime"'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
 alias list-my-functions='typeset -F | less '
