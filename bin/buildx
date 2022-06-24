@@ -63,6 +63,7 @@ buildx_main() {
       cp -Rf "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" "$BUILDX_CONFIG_BACKUP_DIR/$BUILDX_CONFIG_FILE.$$"
     cat <<EOF >"$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE"
 # Settings for buildx
+BUILDX_BUILDER_NAME="${BUILDX_BUILDER_NAME:-mybuilder}"
 BUILDX_DEFAULT_REPO="${BUILDX_DEFAULT_REPO:-casjaysdev}"
 BUILDX_DEFAULT_HUB="${BUILDX_DEFAULT_HUB:-docker.io}"
 BUILDX_DEFAULT_TAG="${BUILDX_DEFAULT_TAG:-latest}"
@@ -96,7 +97,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __docker() {
-    sudo docker "$@" 2>/dev/null
+    sudo docker "$@" 2>/dev/null && true || false
     return $?
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,14 +117,16 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __buildx_status() {
+    local a="$*"
     local e=0
-    local c="$(timeout 1 __docker buildx inspect 2>&1 | grep "${1:-^}" || echo '')"
-    local r="$(__docker buildx ls 2>&1 | grep 'running' | grep -q '^' && echo 'running' || false)"
-    local s="$(echo "$c" | grep 'Status:' | grep 'running' | grep -q '^' && echo 'Running' || false)"
-    if [ $# = 0 ]; then
-      [[ -n "$s" ]] && printf '%s\n' "$c" && e=0 || e=1
+    local c="$(__docker buildx inspect ${1:-$BUILDX_BUILDER_NAME} || false)"
+    local r="$(__docker buildx ls | grep ${1:-$BUILDX_BUILDER_NAME} | grep -qi 'running' && echo 'running' || false)"
+    local s="$(echo "$c" | grep -i 'Status:' | grep -qi 'running' && echo 'Running' || false)"
+    if [ ${#a} = 0 ]; then
+      [[ -n "$s" ]] && e=0 || e=1
     else
       if [[ -n "$s" ]]; then
+        printf '%s\n' "$c"
         e=0
       else
         printf '%s\n' "buildx is not running"
@@ -233,8 +236,10 @@ EOF
   local BUILDX_DEFAULT_HUB="${BUILDX_DEFAULT_HUB:-docker.io}"
   local BUILDX_DEFAULT_TAG="${BUILDX_DEFAULT_TAG:-latest}"
   local BUILDX_REMOVE_BUILD="${BUILDX_REMOVE_BUILD:-}"
-  export DOCKER_CLI_EXPERIMENTAL="${DOCKER_CLI_EXPERIMENTAL:-enabled}"0
+  local BUILDX_BUILDER_NAME="${BUILDX_BUILDER_NAME:-mybuilder}"
+  export DOCKER_CLI_EXPERIMENTAL="${DOCKER_CLI_EXPERIMENTAL:-enabled}"
   export DOCKER_PLATFORMS="${DOCKER_PLATFORMS:-linux/amd64,linux/arm64}"
+
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate config files
   [ -f "$BUILDX_CONFIG_DIR/$BUILDX_CONFIG_FILE" ] || [[ "$*" = *config ]] || INIT_CONFIG="${INIT_CONFIG:-TRUE}" __gen_config ${SETARGS:-$@}
