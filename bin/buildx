@@ -172,6 +172,7 @@ EOF
     else
       printf_cyan "Building $tagged_name"
     fi
+    printf_blue "Log is being saved to $BUILDX_LOG_DIR/build.log"
     (
       local exitCodeS=1
       set -e -o pipefail
@@ -206,7 +207,6 @@ EOF
       printf_red "Failed to build $name" 1>&2
       exitCode+=1
     }
-    printf_blue "Log saved to $BUILDX_LOG_DIR/build.log"
     echo ''
     return ${exitCode:-$?}
   }
