@@ -157,6 +157,7 @@ EOF
       printf_cyan "Building $tagged_name"
     fi
     (
+      local exitCodeS=1
       set -e -o pipefail
       printf '%s\n' "Building $tagged_name on : $(date +'%Y-%m-%d at %H:%M')"
       __docker buildx build ${BUILDX_REMOVE_BUILD:-} \
@@ -165,9 +166,9 @@ EOF
         --output=type=registry \
         --progress plain \
         -f ${Dockerfile:-Dockerfile} \
-        -t "$tagged_name" "${@:-$PWD}" 2>&1 |& grep -v '^$'
+        -t "$tagged_name" "${@:-$PWD}" 2>&1 |& grep -v '^$' && exitCodeS=0 || exitCodeS=1
       printf '###############################################################################\n\n'
-      return $?
+      return ${exitCodeS:-$?}
     ) &>>"$BUILDX_LOG_DIR/build.log" &&
       {
         __notifications "Successfully built $name"
