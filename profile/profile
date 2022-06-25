@@ -243,13 +243,6 @@ export GOBIN="$GOPATH/bin"
 export GOCACHE="$HOME/.cache/go-build"
 export TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# configure gofish - https://gofi.sh
-export GOFISH_HOME="$HOME/.local/share/gofish"
-export GOFISH_RIGS="$GOFISH_HOME/Rigs"
-export GOFISH_CACHE="$HOME/cache/.gofish"
-export GOFISH_BARREL="$GOFISH_HOME/Barrel"
-export GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
 GEM_HOME="$HOME/.local/share/gem"
 GEM_PATH="$HOME/.local/share/gem"
@@ -263,6 +256,13 @@ if [ -f "$rvm_path/scripts/rvm" ]; then
   . "$rvm_path/scripts/completion"
   TMP_BIN_PATH="$rvm_path/bin:$TMP_BIN_PATH"
 fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# configure gofish - https://gofi.sh
+export GOFISH_HOME="$HOME/.local/share/gofish"
+export GOFISH_RIGS="$GOFISH_HOME/Rigs"
+export GOFISH_CACHE="$HOME/cache/.gofish"
+export GOFISH_BARREL="$GOFISH_HOME/Barrel"
+export GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Node
 export NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
