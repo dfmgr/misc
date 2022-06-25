@@ -765,6 +765,9 @@ SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -F
 SET_TMP_PATH="$(echo "${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$USRBINDIR" | tr '\n' ':' | sed 's|:$||g')"
 export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# bring in apps
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set profile as sourced
 export PROFILERCSRC="$HOME/.profile"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
