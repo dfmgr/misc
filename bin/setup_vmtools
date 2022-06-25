@@ -8,10 +8,10 @@
 # @Copyright     : Copyright: (c) 2022 Jason Hempstead, Casjays Developments
 # @Created       : Saturday, Jun 25, 2022 13:42 EDT
 # @File          : setup_vmtools
-# @Description   : 
-# @TODO          : 
-# @Other         : 
-# @Resource      : 
+# @Description   :
+# @TODO          :
+# @Other         :
+# @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 setup_vmtools_main() {
   PROG="$(basename "$0" 2>/dev/null)"
@@ -87,7 +87,14 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Additional functions
-
+  __init_vm() {
+    cmd_exists pacman || printf_exit "Only supported on arch based systems"
+    sudo pacman -S open-vm-tools
+    sudo pacman -Su xf86-input-vmmouse xf86-video-vmware mesa gtk2 gtkmm
+    echo needs_root_rights=yes | sudo tee -a /etc/X11/Xwrapper.config &>/dev/null
+    sudo systemctl enable --now vmtoolsd
+    sudo systemctl restart vmtoolsd
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=
@@ -202,7 +209,7 @@ EOF
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  printf_green "Version:$VERSION DIR=$SETUP_VMTOOLS_CONFIG_DIR"
+  __init_vm
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
