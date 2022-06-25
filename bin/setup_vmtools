@@ -89,11 +89,19 @@ EOF
   # Additional functions
   __init_vm() {
     cmd_exists pacman || printf_exit "Only supported on arch based systems"
-    sudo pacman -S open-vm-tools
-    sudo pacman -Su xf86-input-vmmouse xf86-video-vmware mesa gtk2 gtkmm
+    printf_green "Installing required packages"
+    sudo pacman -Syy open-vm-tools --noconfirm
+    sudo pacman -Syy xf86-input-vmmouse xf86-video-vmware mesa gtk2 gtkmm --noconfirm
+    printf_green "Writing system files"
     echo needs_root_rights=yes | sudo tee -a /etc/X11/Xwrapper.config &>/dev/null
-    sudo systemctl enable --now vmtoolsd
-    sudo systemctl restart vmtoolsd
+    printf_green "Enabling system services"
+    sudo systemctl enable --now vmtoolsd vmware-vmblock-fuse
+    sudo systemctl restart vmtoolsd vmware-vmblock-fuse
+    if cmd_exists vmware-user; then
+      printf_blue 'Installed open-vm-tools'
+    else
+      printf_exit 'Failed to install open-vm-tools'
+    fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
