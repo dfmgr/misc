@@ -275,8 +275,8 @@ fi
 # Fast Node Manager
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
-if [ -n "$(builtin type -P fnm 2>/dev/null)" ]; then
-  eval $(fnm env 2>/dev/null)
+if [ -n "$(which fnm 2>/dev/null)" ]; then
+  eval "$(fnm env 2>/dev/null)"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
