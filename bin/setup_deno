@@ -80,6 +80,10 @@ EOF
     else
       printf_green "Attempting to install deno"
       curl -q -LSs "$SETUP_DENO_INSTALL_SCRIPT" | bash &>/dev/null
+      if deno --help 2>&1 | grep -q 'execute binary file' &>/dev/null; then
+        prog="$(command -v deno 2>/dev/null)"
+        [[ -n "$prog" ]] && rm -Rf "$prog"
+      fi
       if type -P deno &>/dev/null; then
         printf_green "deno has been installed"
         return 0
