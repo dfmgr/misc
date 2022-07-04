@@ -1,7 +1,23 @@
+# gitignore created on 07/04/22 at 19:16
 # Disable reminder in prompt
 ignoredirmessage
-!*/README*
-!inc/main.bash
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Other
+.installed
 
 # ignore commit message
 .gitcommit
+
+# misc
+!*/README*
+!inc/main.bash
+
