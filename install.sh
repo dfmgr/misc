@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-APPNAME="misc"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version       : 020820212259-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
@@ -19,6 +12,13 @@ HOME="${USER_HOME:-${HOME}}"
 # @TODO          :
 # @Other         :
 # @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+APPNAME="misc"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import functions
 CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
@@ -157,17 +157,27 @@ fi
 run_postinst() {
   dfmgr_run_post
   for f in curlrc dircolors gntrc inputrc libao myclirc profile rpmmacros wgetrc Xresources xscreensaver; do
-    [ -L "$HOME/.$f" ] && rm_link "$HOME/.$f"
+    if [ -L "$HOME/.$f" ]; then
+      rm_link "$HOME/.$f"
+    fi
     cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
     replace "$HOME/.$f" "/home/jason" "$HOME"
   done
   for c in CasjaysDev dunst lynx xresources; do
-    [ -L "$HOME/.config/$c" ] && rm_link "$HOME/.config/$c"
-    [ -d "$HOME/.config/$c" ] || mkd "$HOME/.config/$c"
+    if [ -L "$HOME/.config/$c" ]; then
+      rm_link "$HOME/.config/$c"
+    fi
+    if [ ! -d "$HOME/.config/$c" ]; then
+      mkd "$HOME/.config/$c"
+    fi
     cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"
   done
-  if [ -d "$HOME/bin" ]; then cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"; fi
-  if [ -d "$HOME/.bin" ]; then cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"; fi
+  if [ -d "$HOME/bin" ]; then
+    cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"
+  fi
+  if [ -d "$HOME/.bin" ]; then
+    cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"
+  fi
   if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then
     ln_sf "$(builtin type -P powerline-go)" "/usr/local/bin/powerline"
   fi
