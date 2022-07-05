@@ -11,7 +11,7 @@ setup_deno_main() {
   trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_DENO_TEMP_FILE" ] && rm -Rf "$SETUP_DENO_TEMP_FILE" &>/dev/null' EXIT
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202107281513-git
+  ##@Version       : 202207042122-git
   # @Author        : jason
   # @Contact       : jason
   # @License       : LICENSE.md
