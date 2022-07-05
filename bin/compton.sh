@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-compton.sh_main() {
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="$(basename "$0")"
-  VERSION="202103231659-git"
-  USER="${SUDO_USER:-${USER}}"
-  HOME="${USER_HOME:-${HOME}}"
-  SRC_DIR="${BASH_SOURCE%/*}"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  #set opts
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202103231659-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : compton.sh --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Tuesday, Mar 23, 2021 16:59 EDT
+# @File          : compton.sh
+# @Description   : polybar compton/picom status script
+# @TODO          :
+# @Other         :
+# @Resource      : https://github.com/jaagr/polybar/wiki/User-contributed-modules
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="$(basename "$0")"
+VERSION="202103231659-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202103231659-git
-  # @Author        : Jason Hempstead
-  # @Contact       : jason@casjaysdev.com
-  # @License       : WTFPL
-  # @ReadME        : compton.sh --help
-  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-  # @Created       : Tuesday, Mar 23, 2021 16:59 EDT
-  # @File          : compton.sh
-  # @Description   : polybar compton/picom status script
-  # @TODO          :
-  # @Other         :
-  # @Resource      : https://github.com/jaagr/polybar/wiki/User-contributed-modules
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Main function file
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function file
+compton.sh_main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then
     FUNCTIONS_DIR="$SRC_DIR"
     . "$FUNCTIONS_DIR/functions.bash"
