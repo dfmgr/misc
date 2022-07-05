@@ -64,6 +64,7 @@ get_city_id_main() {
     cat <<EOF >"$GET_CITY_ID_CONFIG_DIR/$GET_CITY_ID_CONFIG_FILE"
 # Settings for get_city_id
 GET_CITY_ID_JSON="${GET_CITY_ID_JSON:-https://raw.githubusercontent.com/lkozyr/CityList/master/city.list.json}"
+GET_CITY_ID_CACHE_FILE="${GET_CITY_ID_CACHE_FILE:-$GET_CITY_ID_CACHE_DIR/city_ids.json}"
 
 # Notification settings
 GET_CITY_ID_GOOD_MESSAGE="${GET_CITY_ID_GOOD_MESSAGE:-Everything Went OK}"
@@ -88,7 +89,10 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Additional functions
-
+  __update_id_cache() {
+    curl -q -LSsf "$GET_CITY_ID_JSON" -o "$GET_CITY_ID_CACHE_FILE" 2>/dev/null
+    return $?
+  }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Defaults
   local exitCode=
@@ -112,7 +116,7 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Enviroment overrides
   GET_CITY_ID_JSON="${GET_CITY_ID_JSON:-https://raw.githubusercontent.com/lkozyr/CityList/master/city.list.json}"
-
+  GET_CITY_ID_CACHE_FILE="${GET_CITY_ID_CACHE_FILE:-$GET_CITY_ID_CACHE_DIR/city_ids.json}"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Generate config files
   [ -f "$GET_CITY_ID_CONFIG_DIR/$GET_CITY_ID_CONFIG_FILE" ] || [[ "$*" = *config ]] || INIT_CONFIG="${INIT_CONFIG:-TRUE}" __gen_config ${SETARGS:-$@}
@@ -149,8 +153,8 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Argument/Option settings
   local SETARGS="$*"
-  local SHORTOPTS=""
-  local LONGOPTS="options,config,version,help,dir:"
+  local SHORTOPTS="u"
+  local LONGOPTS="options,config,version,help,dir:,update"
   local ARRAY=""
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Setup application options
@@ -185,6 +189,11 @@ EOF
       GET_CITY_ID_CWD="$2"
       shift 2
       ;;
+    --update | -u)
+      shift 1
+      __update_id_cache
+      exit $?
+      ;;
     --)
       shift 1
       break
@@ -205,17 +214,23 @@ EOF
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  if [[ -f "$GET_CITY_ID_CACHE_DIR/city_ids.json" ]]; then
-    [[ $(find "$GET_CITY_ID_CACHE_DIR/city_ids.json" -mtime -13 -print) ]] || rm -Rf "$GET_CITY_ID_CACHE_DIR/city_ids.json"
+  if [[ -f "$GET_CITY_ID_CACHE_FILE" ]]; then
+    if [[ $(find "$GET_CITY_ID_CACHE_FILE" -mtime +13 -print) ]]; then
+      rm -Rf "$GET_CITY_ID_CACHE_FILE"
+      __update_id_cache
+    fi
   else
-    curl -q -LSsf "$GET_CITY_ID_JSON" -o "$GET_CITY_ID_CACHE_DIR/city_ids.json" 2>/dev/null
+    __update_id_cache
   fi
   if [ -z "$SEARCH_TERM" ]; then
     printf '\t\t%s\n' "Missing city"
     exitCode=1
-  else
-    cat "$GET_CITY_ID_CACHE_DIR/city_ids.json" | jq -rc '.[] | {name: .name, id: .id}' | grep -i "${SEARCH_TERM}"
+  elif [[ -f "$GET_CITY_ID_CACHE_FILE" ]]; then
+    cat "$GET_CITY_ID_CACHE_FILE" | jq -rc '.[] | {name: .name, id: .id}' | grep -i "${SEARCH_TERM}"
     exitCode=$?
+  else
+    printf_red "Well something went horribly wrong!"
+    exitCode=1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
