@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
-bonsai-tree_main() {
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="$(basename "$0")"
-  VERSION="202103230741-git"
-  USER="${SUDO_USER:-${USER}}"
-  HOME="${USER_HOME:-${HOME}}"
-  SRC_DIR="${BASH_SOURCE%/*}"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  #set opts
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202103230741-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.com
+# @License       : WTFPL
+# @ReadME        : bonsai-tree --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Tuesday, Mar 23, 2021 07:41 EDT
+# @File          : bonsai-tree
+# @Description   : bonsai.sh is a static and live bonsai tree generator, written in bash.
+# @TODO          :
+# @Other         : Author: John Allbritten: theSynAck.com
+# @Resource      : https://gitlab.com/jallbrit/bonsai.sh.git
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="$(basename "$0")"
+VERSION="202103230741-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
 
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202103230741-git
-  # @Author        : Jason Hempstead
-  # @Contact       : jason@casjaysdev.com
-  # @License       : WTFPL
-  # @ReadME        : bonsai-tree --help
-  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-  # @Created       : Tuesday, Mar 23, 2021 07:41 EDT
-  # @File          : bonsai-tree
-  # @Description   : bonsai.sh is a static and live bonsai tree generator, written in bash.
-  # @TODO          :
-  # @Other         : Author: John Allbritten: theSynAck.com
-  # @Resource      : https://gitlab.com/jallbrit/bonsai.sh.git
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Main function file
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function file
+bonsai-tree_main() {
   if [ -f "$SRC_DIR/functions.bash" ]; then
     FUNCTIONS_DIR="$SRC_DIR"
     . "$FUNCTIONS_DIR/functions.bash"
@@ -423,8 +423,8 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
           branch $x $y dying $life
 
         # re-branch if: not close to the base AND (pass a chance test OR be a trunk, not have too man shoots already, and not be about to die)
-        elif [[ $type = trunk && $life -lt $((lifeStart - 8)) && (\
-          $((RANDOM % (16 - multiplier))) -eq 0 || (\
+        elif [[ $type = trunk && $life -lt $((lifeStart - 8)) && (
+          $((RANDOM % (16 - multiplier))) -eq 0 || (
           $type = trunk && $((life % 5)) -eq 0 && $life -gt 5)) ]]; then
 
           # if a trunk is splitting and not about to die, chance to create another trunk
