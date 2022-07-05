@@ -1,15 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="setver"
-VERSION="031620211858-git"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042122-git
+##@Version       : 202207042253-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
@@ -21,6 +12,16 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @TODO          : Refactor code
 # @Other         :
 # @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="setver"
+VERSION="031620211858-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function file
 if [ -f "$SRC_DIR/functions.bash" ]; then
@@ -83,11 +84,11 @@ main() {
   eval set -- "$setopts" 2>/dev/null
   while :; do
     case "$1" in
-    -v | --version) __version ;;
-    -h | --help) __help ;;
-    -c | --config) __config_gen ;;
-    -f | --file) OPTS="create" ;;
-    -s | --show) OPTS="show" ;;
+    -v | --version) shift 1 && __version ;;
+    -h | --help) shift 1 && __help ;;
+    -c | --config) shift 1 && __config_gen ;;
+    -f | --file) shift 1 && OPTS="create" ;;
+    -s | --show) shift 1 && OPTS="show" ;;
     -d | --dir) CUSTOM_DIR="$2" && shift 2 ;;
     --) shift && break ;;
     esac
@@ -119,6 +120,8 @@ main() {
   create) # Always want version in the top dir of git repo
     if __git_porcelain "$FULLFILE"; then
       FULLFILE="$(__git_top_dir "$FULLFILE")"
+    else
+      FULLFILE="$PWD/version.txt"
     fi
     datecmd >"$FULLFILE"
     printf_blue "Version set to $(<$FULLFILE) in $FULLFILE"
