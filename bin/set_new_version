@@ -50,7 +50,7 @@ main() {
   if [ -e "$search_dir" ]; then
     local setver="$(date +"$GIT_VERSION_FORMAT")"
     printf_green "Changing the version to $setver in $search_dir"
-    find -L "$search_dir" -type f,l -not -path '*/.git/*' -exec sed -i --follow-symlinks '0,/##@Version.*.:/s//##@Version       : $setver/'  {} \; 2>/dev/null
+    find -L "$search_dir" -type f,l -not -path '*/.git/*' -exec sed -i --follow-symlinks '0,/##@Version.*.:*/s//##@Version       : '$setver'/' {} \; 2>/dev/null
   else
     printf_red "$search_dir doesn't exist"
     exitCode=1
