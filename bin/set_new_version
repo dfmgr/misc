@@ -10,7 +10,7 @@ trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_GVM_TEMP_FILE" ] && rm -Rf "$SETUP_G
 if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042122-git
+##@Version       : 202207042253-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
@@ -47,8 +47,12 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   GIT_VERSION_FORMAT="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
   local search_dir="${1:-$PWD}"
-  if [ -e "$search_dir" ]; then
+  if [[ -f "$PWD/version.txt" ]]; then
+    local setver="$(<"$PWD/version.txt")"
+  else
     local setver="$(date +"$GIT_VERSION_FORMAT")"
+  fi
+  if [ -e "$search_dir" ]; then
     printf_green "Changing the version to $setver in $search_dir"
     find -L "$search_dir" -type f,l -not -path '*/.git/*' -exec sed -i --follow-symlinks '0,/##@Version.*.:*/s//##@Version       : '$setver'/' {} \; 2>/dev/null
   else
