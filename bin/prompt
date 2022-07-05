@@ -1,13 +1,5 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="prompt"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version       : 031120211216-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
@@ -20,6 +12,14 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @TODO          :
 # @Other         :
 # @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PROG="prompt"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+SRC_DIR="${BASH_SOURCE%/*}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#set opts
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # main function
 __version() { app_version; }
@@ -99,10 +99,10 @@ main() {
     exit $?
     ;;
   -f | --file)
+    shift 1
     name="${1/ /_}"
     filename="${2/$CONFDIR\//$filename}"
     file="$CONFDIR/$filename"
-    shift 2
     ;;
   *)
     name="${1/ /_}"
