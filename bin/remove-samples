@@ -10,7 +10,7 @@ remove-samples() {
   #set opts
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202103182152-git
+  ##@Version       : 202207042122-git
   # @Author        : Jason
   # @Contact       : jason@casjaysdev.com
   # @License       : WTFPL
