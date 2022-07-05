@@ -10,7 +10,7 @@ trap 'exitCode=${exitCode:-$?};[ -f "$SETUP_GVM_TEMP_FILE" ] && rm -Rf "$SETUP_G
 if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 031120211717-git
+##@Version       : 202207042122-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : WTFPL
@@ -50,7 +50,7 @@ main() {
   if [ -e "$search_dir" ]; then
     local setver="$(date +"$GIT_VERSION_FORMAT")"
     printf_green "Changing the version to $setver in $search_dir"
-    find -L "$search_dir" -type f,l -exec sed -i --follow-symlinks 's/^##@Version.*/##@Version       : '$setver'/g' {} \; 2>/dev/null
+    find -L "$search_dir" -type f,l -not -path '*/.git/*' -exec sed -i --follow-symlinks '0,/##@Version.*.:/s//##@Version       : $setver/'  {} \; 2>/dev/null
   else
     printf_red "$search_dir doesn't exist"
     exitCode=1
