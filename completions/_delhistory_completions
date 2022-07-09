@@ -30,7 +30,7 @@ _delhistory() {
   local LONGOPTS="$(grep -sEv '#|^$' "$OPTSDIR/options" || echo "$DEFAULTOPTS" | tr ' ' '\n' | grep '\--')"
   local SHORTOPTS="$(grep -sEv '#|^$' "$OPTSDIR/options" || echo $DEFAULTOPTS | tr ' ' '\n' | grep -v '\--')"
   local OPTS="$DEFAULTOPTS"
-  local ARRAY="$(history | awk '{print $1}' | head -n 100)"
+  local ARRAY="all line search"
   local SHOW_COMP_OPTS=""
   local FILEDIR=""
 
@@ -58,6 +58,7 @@ _delhistory() {
       elif [[ -n "$ARRAY" ]]; then
         #[ $COMP_CWORD -eq 3 ] && \
         COMPREPLY=($(compgen -W '${ARRAY}' -- "${cur}"))
+        compopt -o nospace
       elif [[ -n "$OPTS" ]]; then
         #[ $COMP_CWORD -gt 3 ] && \
         COMPREPLY=($(compgen -W '${OPTS}' -- "${cur}"))
