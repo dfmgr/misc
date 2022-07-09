@@ -23,134 +23,133 @@ SRC_DIR="${BASH_SOURCE%/*}"
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Main function file
-delhistory_main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then
-    FUNCTIONS_DIR="$SRC_DIR"
-    . "$FUNCTIONS_DIR/functions.bash"
-  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-    FUNCTIONS_DIR="$HOME/.local/bin"
-    . "$FUNCTIONS_DIR/functions.bash"
-  else
-    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
-  __version() { app_version; }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __help() {
-    app_help "4" "Usage: delhistory 10 " \
-      "-c, --config           -  create config file" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help" \
-      "--options              -  used by completions"
-    exit $?
-  }
-  __delete_history() {
-    typeset opt id n=1
-    OPTIND=1 #reset index
-    while getopts "n:" opt; do
-      case $opt in
-      n) n=$OPTARG ;;
-      \?) exit 1 ;;
-      :)
-        printf_red "Option -$OPTARG requires number of history last entries to remove as an argument" >&2
-        return 1
-        ;;
-      esac
-    done
-    return $?
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __gen_config() {
-    printf_green "Generating the config file in"
-    printf_green "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
-    [ -d "$DELHISTORY_CONFIG_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_DIR"
-    [ -d "$DELHISTORY_CONFIG_BACKUP_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_BACKUP_DIR"
-    [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] &&
-      cp -Rf "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" "$DELHISTORY_CONFIG_BACKUP_DIR/$DELHISTORY_CONFIG_FILE.$$"
-    cat <<EOF >"$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
+if [ -f "$SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
+else
+  printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+  return 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# helper functions - See github.com/dfmgr/misc/bin/functions.bash
+__version() { app_version; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__help() {
+  app_help "4" "Usage: delhistory [ids]" \
+    "-c, --config           -  create config file" \
+    "-v, --version          -  display version" \
+    "-h, --help             -  display help" \
+    "--options              -  used by completions"
+  exit $?
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__gen_config() {
+  printf_green "Generating the config file in"
+  printf_green "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
+  [ -d "$DELHISTORY_CONFIG_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_DIR"
+  [ -d "$DELHISTORY_CONFIG_BACKUP_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_BACKUP_DIR"
+  [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] &&
+    cp -Rf "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" "$DELHISTORY_CONFIG_BACKUP_DIR/$DELHISTORY_CONFIG_FILE.$$"
+  cat <<EOF >"$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
 # Settings for delhistory
 
 EOF
-    if [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ]; then
-      printf_green "Your config file for delhistory has been created"
-      true
-    else
-      printf_red "Failed to create the config file"
-      false
-    fi
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Defaults
-  local exitCode=""
-  local DELHISTORY_CONFIG_FILE="settings.conf"
-  local DELHISTORY_CONFIG_DIR="$HOME/.config/misc/settings/delhistory"
-  local DELHISTORY_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/delhistory/backups"
-  local DELHISTORY_OPTIONS_DIR="$HOME/.local/share/misc/delhistory/options"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Argument/Option settings
-  local SETARGS="${*}"
-  local SHORTOPTS="c,v,h"
-  local LONGOPTS="options,config,version,help"
-  local ARRAY=""
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Generate Files
-  [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] || __gen_config &>/dev/null
-  [ -f "$DELHISTORY_OPTIONS_DIR/options" ] || __list_options "$DELHISTORY_OPTIONS_DIR" &>/dev/null
-  [ -f "$DELHISTORY_OPTIONS_DIR/array" ] || __list_array "$DELHISTORY_OPTIONS_DIR" "$ARRAY" &>/dev/null
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Import config
-  [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] && . "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # options
-  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
-  eval set -- "$setopts" 2>/dev/null
-  while :; do
-    case $1 in
-    --options)
-      __list_options "$DELHISTORY_OPTIONS_DIR"
-      __list_array "$DELHISTORY_OPTIONS_DIR" "$ARRAY"
-      exit $?
-      ;;
-    -v | --version)
-      __version
-      exit $?
-      ;;
-    -h | --help)
-      __help
-      exit $?
-      ;;
-    -c | --config)
-      __gen_config
-      exit $?
-      ;;
-    --)
-      shift 1
-      break
-      ;;
-      #*) break ;;
-    esac
-    shift
-  done
-  set -- "$SETARGS"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Check for required applications
-  cmd_exists --error bash || exit 1
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # begin main app
-  __delete_history "$@"
-  ((++n))
-  id=$(history | tail -n $n | head -n1 | awk '{print $1}')
-  while ((n-- > 0)); do history -d "$id"; done
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # lets exit with code
-  return "${exitCode:-$?}"
+  if [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ]; then
+    printf_green "Your config file for delhistory has been created"
+    true
+  else
+    printf_red "Failed to create the config file"
+    false
+  fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-delhistory_main "$@"
+# Defaults
+exitCode=""
+DELHISTORY_CONFIG_FILE="settings.conf"
+DELHISTORY_CONFIG_DIR="$HOME/.config/misc/settings/delhistory"
+DELHISTORY_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/delhistory/backups"
+DELHISTORY_OPTIONS_DIR="$HOME/.local/share/misc/delhistory/options"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Argument/Option settings
+SETARGS="${*}"
+SHORTOPTS="c,v,h"
+LONGOPTS="options,config,version,help"
+ARRAY=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Generate Files
+[ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] || __gen_config &>/dev/null
+[ -f "$DELHISTORY_OPTIONS_DIR/options" ] || __list_options "$DELHISTORY_OPTIONS_DIR" &>/dev/null
+[ -f "$DELHISTORY_OPTIONS_DIR/array" ] || __list_array "$DELHISTORY_OPTIONS_DIR" "$ARRAY" &>/dev/null
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Import config
+[ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] && . "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# options
+setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
+eval set -- "$setopts" 2>/dev/null
+while :; do
+  case $1 in
+  --options)
+    __list_options "$DELHISTORY_OPTIONS_DIR"
+    __list_array "$DELHISTORY_OPTIONS_DIR" "$ARRAY"
+    exit $?
+    ;;
+  -v | --version)
+    __version
+    exit $?
+    ;;
+  -h | --help)
+    __help
+    exit $?
+    ;;
+  -c | --config)
+    __gen_config
+    exit $?
+    ;;
+  --)
+    shift 1
+    break
+    ;;
+    #*) break ;;
+  esac
+  shift
+done
+set -- "$SETARGS"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Check for required applications
+cmd_exists --error bash || exit 1
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# begin main app
+if [[ "$1" = "search" ]]; then
+  shift 1
+  for line in "$@"; do
+    history | awk '{first = $1; $1=""; print $0}' | sed 's/^ //g' | awk '{printf("%01d %s\n", NR, $0)}' | grep "$line"
+  done
+elif [[ -n "$HISTFILE" ]] && [[ "$1" = "line" ]]; then
+  shift 1
+  for line in "$@"; do
+    grep --line-number "$line" "$HISTFILE" | awk -F: '{print $2}' >"${HISTFILE}.new"
+    mv -fv "${HISTFILE}.new" "${HISTFILE}"
+    history -r && history -w
+  done
+elif [[ -n "$HISTFILE" ]] && [[ $# -ne 0 ]]; then
+  for line in "$@"; do
+    cat "$HISTFILE" | grep -v "$line" >"${HISTFILE}.new"
+    mv -fv "${HISTFILE}.new" "${HISTFILE}"
+    history -r && history -w
+  done
+elif [[ "$1" = "all" ]]; then
+  history -c && history -w && history -r
+else
+  __help
+fi
+exitCode=$?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lets exit with code
+exit "${exitCode:-$?}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # End application
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
