@@ -76,18 +76,19 @@ EOF
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 REPLACE_APPNAME="$(basename $(realpath "${GEN_DOCKERMGR_DIR}") | tr '[:upper:]' '[:lower:]')"
 REPLACE_DATE_TIME="$(date +'%Y-%m-%d at %H-%M')"
+GEN_DOCKERMGR_DIR="${1:-$PWD}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [[ -f "$GEN_DOCKERMGR_DIR/install.sh" ]] && printf_exit "$GEN_DOCKERMGR_DIR/install.sh exists"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-mkdir -p "$GEN_DOCKERMGR_DIR/dataDir"/{config,data}
-mkdir -p "$GEN_DOCKERMGR_DIR/build/bin"
 mkdir -p "$GEN_DOCKERMGR_DIR/nginx"
-touch "$GEN_DOCKERMGR_DIR/build/Dockerfile"
+mkdir -p "$GEN_DOCKERMGR_DIR/dataDir/bin"
+mkdir -p "$GEN_DOCKERMGR_DIR/dataDir/config"
+mkdir -p "$GEN_DOCKERMGR_DIR/dataDir/data"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 proxy_config | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g' >"$GEN_DOCKERMGR_DIR/nginx/template"
 gen-readme "$GEN_DOCKERMGR_DIR" projects docker.md
 gen-license "$GEN_DOCKERMGR_DIR" wtfpl
-gen-gitignore "$GEN_DOCKERMGR_DIR" default
+gitignore "$GEN_DOCKERMGR_DIR" default
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 gen-script installers dockermgr.sh "$GEN_DOCKERMGR_DIR/install.sh" "$@"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
