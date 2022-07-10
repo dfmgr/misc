@@ -8,8 +8,8 @@ PATH="$USRBINDIR:$SYSBINDIR:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/g
 export BINDIR="$USRBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
-# PS1="$USER@$(hostname -f 2>/dev/null):$(basename "$SHELL") # "
-# export PS1
+PS1="$USER@$(hostname -f 2>/dev/null):$(basename "$SHELL"):$PWD# "
+export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export NODE_MANAGER="${NODE_MANAGER:-fnm}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -17,8 +17,8 @@ export NODE_MANAGER="${NODE_MANAGER:-fnm}"
 export HISTSIZE=1200
 export HISTFILESIZE=1200
 export SAVEHIST=4096
-export HISTCONTROL=ignoredups:erasedups
-export HISTIGNORE="[bf]g:exit:pwd:clear:q:!"
+export HISTCONTROL=ignoredups:erasedups:ignoreboth
+export HISTIGNORE="[bf]g:exit:pwd:clear:q:!:q!:quit"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
@@ -308,7 +308,8 @@ export VIRTUALENVWRAPPER_VIRTUALENV="$(which venv 2>/dev/null || which virtualen
 # Add Rust/Cargo to the path
 export RUST_HOME="$HOME/.local/share/rust"
 export CARGO_HOME="$HOME/.local/share/cargo"
-TMP_BIN_PATH="$TMP_BIN_PATH:$CARGO_HOME/bin:$RUST_HOME/bin"
+export RUSTUP_HOME="$HOME/.local/share/rustup"
+TMP_BIN_PATH="$TMP_BIN_PATH:$CARGO_HOME/bin:$RUST_HOME/bin:$RUSTUP_HOME/bin"
 [ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
