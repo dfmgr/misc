@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# fish specific
+[ -n "$FISH_VERSION" ] && return
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
 OLDPATH="$PATH"
 SYSBINDIR="/usr/local/bin"
@@ -8,7 +11,7 @@ PATH="$USRBINDIR:$SYSBINDIR:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/g
 export BINDIR="$USRBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
-PS1="$USER@$(hostname -f 2>/dev/null):$(basename "$SHELL"):$PWD# "
+PS1="$(basename "$SHELL"): $USER@$(hostname -f 2>/dev/null): $PWD :"
 export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export NODE_MANAGER="${NODE_MANAGER:-fnm}"
@@ -313,9 +316,7 @@ TMP_BIN_PATH="$TMP_BIN_PATH:$CARGO_HOME/bin:$RUST_HOME/bin:$RUSTUP_HOME/bin"
 [ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
-if [ -n "$(which hub 2>/dev/null)" ]; then
-  eval "$(hub alias -s >/dev/null 2>&1)"
-fi
+[ -n "$(which hub 2>/dev/null)" ] && eval "$(hub alias -s >/dev/null 2>/dev/null)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup vagrant
 export VAGRANT_HOME="$HOME/.local/share/vagrant"
@@ -411,9 +412,9 @@ else
     MYTERMINAL="uxterm"
   elif [ -n "$(which garcon-terminal-handler 2>/dev/null)" ]; then
     MYTERMINAL="garcon-terminal-handler"
-  elif cmd_exists tmux; then
+  elif [ -n "$(which tmux 2>/dev/null)" ]; then
     MYTERMINAL="tmux new"
-  elif cmd_exists screen; then
+  elif [ -n "$(which screen 2>/dev/null)" ]; then
     MYTERMINAL="screen"
   else
     MYTERMINAL="$SHELL -c"
@@ -600,8 +601,6 @@ else
     MYEDITOR="brackets"
   elif [ -n "$(which mousepad 2>/dev/null)" ]; then
     MYEDITOR="mousepad"
-  elif [ -n "$(which emacs 2>/dev/null)" ]; then
-    MYEDITOR="emacs"
   elif [ -n "$(which vim 2>/dev/null)" ]; then
     MYEDITOR="vim"
   elif [ -n "$(which nvim 2>/dev/null)" ]; then
@@ -636,9 +635,7 @@ export GREP_COLORS='mt=38;5;220;1'
 [ -f "$HOME/.config/misc/shell/other/grep" ] && . "$HOME/.config/misc/shell/other/grep"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-if [ -n "$(which lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ]; then
-  . "$HOME/.config/misc/shell/other/lf"
-fi
+[ -n "$(which lf 2>/dev/null)" ] && [ -f "$HOME/.config/misc/shell/other/lf" ] && . "$HOME/.config/misc/shell/other/lf"
 export LF_ICONS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
@@ -716,16 +713,6 @@ fi
 echo -e -n "\x1b[\x35 q" 2>/dev/null
 echo -e -n "\e]12;cyan\a" 2>/dev/null
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Create directories
-mkdir -p "$TMPDIR"
-mkdir -p "$USRBINDIR"
-mkdir -p "$HOME/.local/log"
-mkdir -p "$HOME/.local/tmp"
-mkdir -p "$HOME/.config/local"
-mkdir -p "$HOME/.config/secure"
-mkdir -p "$SETV_VIRTUAL_DIR_PATH"
-mkdir -p "$HOME/.local/share/wallpapers"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
 [ -f "$HOME/.config/shell/functions/global.sh" ] && . "$HOME/.config/shell/functions/global.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -748,11 +735,11 @@ mkdir -p "$HOME/.local/share/wallpapers"
 [ -f "$HOME/.config/secure/apikeys.txt" ] && . "$HOME/.config/secure/apikeys.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create env vars from shell files
-if [ $(find -L "$HOME/.config/secure" -type f -name '*.sh' 2>/dev/null | grep '^' || false) ]; then
-  cat "$HOME/.config/secure"/*.sh 2>/dev/null >"$HOME/.config/secure/env"
-  [ -f "$HOME/.config/secure/env" ] && . "$HOME/.config/secure/env"
+if [ $(find -L "$HOME/.config/secure/inc" -type f -name '*.sh' 2>/dev/null | grep '^' || false) ]; then
+  cat "$HOME/.config/secure/inc"/*.sh 2>/dev/null >"$HOME/.config/secure/env"
+  [ -f "$HOME/.config/secure/env.sh" ] && . "$HOME/.config/secure/env.sh"
 else
-  rm -Rf "$HOME/.config/secure/env" &>/dev/null
+  rm -Rf "$HOME/.config/secure/env.sh" &>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import local profile - override all other settings
@@ -765,6 +752,17 @@ fi
 SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -v "$HOME" | grep -v "$SYSBINDIR" | tr '\n' ':' | sed 's|:$||g')"
 SET_TMP_PATH="$(echo "${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$USRBINDIR" | tr '\n' ':' | sed 's|:$||g')"
 export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Create directories
+mkdir -p "$TMPDIR"
+mkdir -p "$USRBINDIR"
+mkdir -p "$HOME/.local/log"
+mkdir -p "$HOME/.local/tmp"
+mkdir -p "$HOME/.config/local"
+mkdir -p "$HOME/.config/secure"
+mkdir -p "$HOME/.config/secure/inc"
+mkdir -p "$SETV_VIRTUAL_DIR_PATH"
+mkdir -p "$HOME/.local/share/wallpapers"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bring in apps
 
