@@ -73,6 +73,7 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __deno_install() {
+    [ "$(uname -m)" = x86_64 ] || printf_exit "Only x86_64 is supported"
     if [[ "$1" != "-f" ]] && [[ "$FORCE_INST" != "true" ]] && cmd_exists deno; then
       printf_green "deno is already installed "
       printf_blue "run $PROG --install to updated"
