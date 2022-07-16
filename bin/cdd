@@ -215,7 +215,7 @@ add_alias() {
   if ! list_aliases alias "$1" | grep -qx "$1"; then
     printf_green "Adding the alias $1 to config"
     grep -v '^$' "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE" >"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
-    printf "%s\n\n" ''$1' = "'$2'"' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
+    printf "%s = %s\n\n" "$1" "$2" >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
     mv -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
   else
     [ -n "$AUTO" ] || printf_red "It appears that $1 has already been added"
@@ -388,8 +388,33 @@ while getopts ":*" opt; do
 done
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # begin main app
-cd_goto "$1"
+case "$1" in
+list)
+  shift 1
+  list_aliases alias '*'
+  ;;
 
+add)
+  shift 1
+  add_alias "$1" "$2"
+  ;;
+
+remove)
+  shift 1
+  rm_alias "$@"
+  ;;
+
+modify)
+  shift 1
+  [[ -z "$1" ]] && [[ -z "$2" ]] && [[ -n "$EDITOR" ]] &&
+    $EDITOR "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
+  add_alias "$1" "$2"
+  ;;
+
+*)
+  cd_goto "$1"
+  ;;
+esac
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lets exit with code
 exit "${exitCode:-$?}"
