@@ -192,6 +192,7 @@ cd_goto() {
   GREP_COLORS="$CDD_GREP_COLORS"
   clear
   printf '\n'
+  AUTO="true" add_alias "${name:-$folder}" "$dir"
   [[ -d "$dir" ]] || mkdir -p "$dir"
   [[ -d "$dir" ]] && builtin cd "$dir" || printf_exit "Failed to enter $dir"
   [[ -n "$message" ]] && printf_green "$message using $(basename "$SHELL" 2>/dev/null)"
@@ -217,15 +218,15 @@ add_alias() {
     printf "%s\n\n" ''$1' = "'$2'"' >>"$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp"
     mv -f "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE.tmp" "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
   else
-    printf_red "It appears that $1 has already been added"
+    [ -n "$AUTO" ] || printf_red "It appears that $1 has already been added"
   fi
-  __list_array "$CDD_OPTIONS_DIR" "$ARRAY"
+  [ -n "$AUTO" ] || __list_array "$CDD_OPTIONS_DIR" "$ARRAY"
   return $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 rm_alias() {
-  folder
-  [[ $# = 1 ]] || printf_exit "Usage: $PROG add delete"
+  local folder
+  [[ $# = 1 ]] || printf_exit "Usage: $PROG delete alias"
   folder="$(list_aliases alias "$1")"
   if list_aliases alias '*' | grep -qx "$folder"; then
     printf_green "Removing the alias $folder from config"
@@ -254,7 +255,7 @@ list_aliases() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 delete() {
   if [[ -n "$CDD_CWD_DIR" ]] && [[ "$CDD_STATUS" = "running" ]]; then
-    FILES_TO_DELETE="$(find "$CDD_CWD_DIR/" -maxdepth 1 2>/dev/null | grep -v "^$CDD_CWD_DIR/$")"
+    FILES_TO_DELETE="$(find "$CDD_CWD_DIR/" -maxdepth 1 2>/dev/null | grep -v "^$CDD_CWD_DIR/$1")"
     if [[ -n "$FILES_TO_DELETE" ]]; then
       printf_blue "Deleting all files in $CDD_CWD_DIR"
       for file in ${FILES_TO_DELETE}; do
@@ -293,8 +294,8 @@ CDD_OPTIONS_TMP_DIR="${CDD_OPTIONS_TMP_DIR:-$HOME/.local/tmp/cdd}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Argument/Option settings
 SETARGS="${*}"
-SHORTOPTS="c,v,h,m::,r:,l,s:,a::,d"
-LONGOPTS="options,config,version,help,modify::,remove,list,shell:,add::,delete"
+SHORTOPTS="c,v,h,m::,r:,l,s:,a::,d:"
+LONGOPTS="options,config,version,help,modify::,remove:,list,shell:,add::,delete:"
 ARRAY="$(list_aliases '*' | awk '{print $1}')"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Generate Files
@@ -317,35 +318,39 @@ while :; do
   --options)
     __list_array "$CDD_OPTIONS_DIR" "$ARRAY"
     __list_options "$CDD_OPTIONS_DIR"
+    shift 1
     exit $?
     ;;
   -v | --version)
     __version
+    shift 1
     exit $?
     ;;
   -h | --help)
     __help
+    shift 1
     exit $?
     ;;
   -c | --config)
     __gen_config
     __gen_alias
+    shift 1
     exit $?
     ;;
   -a | --add)
-    shift 2
     add_alias "$2" "$3"
+    shift 3
     exit $?
     ;;
   -m | --modify)
-    shift 2
     [[ -z "$2" ]] && [[ -z "$3" ]] && [[ -n "$EDITOR" ]] && $EDITOR "$CDD_CONFIG_DIR/$CDD_ALIAS_FILE"
     add_alias "$2" "$3"
+    shift 2
     exit $?
     ;;
   -r | --remove)
     rm_alias "$2"
-    shift 1
+    shift 2
     exit $?
     ;;
   -l | --list)
@@ -362,12 +367,12 @@ while :; do
     shift 1
     ;;
   -d | --delete)
-    shift 1
-    delete || false
+    delete "$2" || false
+    shift 2
     exit $?
     ;;
   --)
-    shift
+    shift 1
     break
     ;;
   esac
