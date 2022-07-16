@@ -129,15 +129,15 @@ cd_cdd() {
     printf_return() { printf_red "$*" && return 1; }
     local exitCode=0
     local ORIG_PATH="$PATH"
-    REPO_UPDATED
+    local REPO_UPDATED="${REPO_UPDATED:-}"
     CD_INTO_DIR="${1:-$CDD_CWD_DIR}"
     CD_INTO_CUR="$CDD_CWD_DIR/${CD_INTO_DIR//$CDD_CWD_DIR/}"
-    TOP_DIR="$(__git_top_dir "$PWD")"
+    TOP_DIR="$(__git_top_dir "${CD_INTO_CUR:-$PWD}")"
     [[ -f "$TOP_DIR/.env" ]] && . "$TOP_DIR/.env"
     [[ -n "$OLDPATH" ]] && PATH="${OLDPATH//::/:}" || OLDPATH="${PATH//::/:}"
     [[ -d "$TOP_DIR/bin" ]] && PATH="$TOP_DIR/bin:${OLDPATH:$PATH}" || OLDPATH="$PATH"
     [[ -d "$TOP_DIR/node_modules/.bin" ]] && PATH="$TOP_DIR/node_modules/.bin:${OLDPATH:$PATH}" || PATH="$OLDPATH"
-    if [[ -d "$TOP_DIR/.git" && -z "$REPO_UPDATED" ]]; then
+    if [[ -d "$TOP_DIR/.git" ]] && [[ -z "$REPO_UPDATED" ]]; then
       { printf_green "Updating Repo" && git -C "$CD_INTO_DIR" pull -q; } &&
         REPO_UPDATED="yes"
     fi
