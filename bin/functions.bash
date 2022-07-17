@@ -82,8 +82,8 @@ cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # colorize
 if [ "$SHOW_RAW" = "true" ]; then
-  unset -f __printf_color
-  printf_color() { printf '%s\n' "$1" | tr -d '\t\t' | sed '/^%b$/d;s,\x1B\[[0-9;]*[a-zA-Z],,g'; }
+  unset -f printf_color
+  printf_color() { echo -e "$1" | tr -d '\t\t' | sed 's|\\t\\t||g;s|\\n$||g' | sed '/^%b$/d;s,\x1B\[[0-9;]*[a-zA-Z],,g'; }
   __printf_color() { printf_color "$1"; }
 else
   __printf_color() { printf_color "$@"; }
