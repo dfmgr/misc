@@ -82,11 +82,10 @@ cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # colorize
 if [ "$SHOW_RAW" = "true" ]; then
-  unset -f printf_color
-  printf_color() { echo -e "$1" | tr -d '\t\t' | sed 's|\\t\\t||g;s|\\n$||g' | sed '/^%b$/d;s,\x1B\[[0-9;]*[a-zA-Z],,g'; }
+  printf_color() { printf '%b' "$1" | tr -d '\t\t'; }
   __printf_color() { printf_color "$1"; }
 else
-  __printf_color() { printf_color "$@"; }
+  __printf_color() { printf_color "$1" "$2"; }
   printf_color() {
     printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"
   }
@@ -473,21 +472,6 @@ else
     return ${exitCode:-$?}
   }
 fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__list_array() {
-  local OPTSDIR="${1:-$HOME/.local/share/misc/${PROG:-$APPNAME}/options}"
-  mkdir -p "$OPTSDIR"
-  echo "${2:-$ARRAY}" >"$OPTSDIR/array"
-  return
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__list_options() {
-  local OPTSDIR="${1:-$HOME/.local/share/misc/${PROG:-$APPNAME}/options}"
-  mkdir -p "$OPTSDIR"
-  echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' >"$OPTSDIR/options"
-  echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' >>"$OPTSDIR/options"
-  return
-}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __dirname() { cd "$1" 2>/dev/null && pwd || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
