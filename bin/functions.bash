@@ -58,7 +58,7 @@ SET_TIME="$(date +'%H:%M')"
 SET_DATE="$(date +'%Y-%m-%d')"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # dont output
-devnull() { "$@" >/dev/null 2>&1; }
+devnull() { tee &>/dev/null; }
 devnull2() { "$@" 2>/dev/null; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo
@@ -81,7 +81,16 @@ ln_sf() {
 cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # colorize
-printf_color() { printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"; }
+if [ "$SHOW_RAW" = "true" ]; then
+  unset -f __printf_color
+  printf_color() { printf '%s\n' "$1" | tr -d '\t\t' | sed '/^%b$/d;s,\x1B\[[0-9;]*[a-zA-Z],,g'; }
+  __printf_color() { printf_color "$1"; }
+else
+  __printf_color() { printf_color "$@"; }
+  printf_color() {
+    printf "%b" "$(tput setaf "$2" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"
+  }
+fi
 printf_normal() { printf_color "\t\t$1\n" "$2"; }
 printf_green() { printf_color "\t\t$1\n" 2; }
 printf_red() { printf_color "\t\t$1\n" 1; }
