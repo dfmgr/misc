@@ -87,25 +87,25 @@ EOF
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Additional functions
-  __64bit_check() { grep -q -o -w 'lm' /proc/cpuinfo && true || false; }
+  __64bit_check() { grep -q -o -w 'lm' /proc/cpuinfo &>/dev/null && true || return 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __virt_ok() {
     if __virt_check; then
       printf_green "Virtualization is enabled"
       ask_yes_no_question "Do you want to rerun the install script it?" true && SETUP_VIRT_FORCE="true" ||
-        return 1
+        printf_exit "User cancelled installation"
     else
-      printf_exit "User cancelled installation"
+      printf_exit "This system does not have virtualization support"
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __virt_check() {
-    if grep -sq -o -E '(vmx|svm)' /proc/cpuinfo; then
+    if grep -sq -o -E '(vmx|svm)' /proc/cpuinfo &>/dev/null; then
       return 0
-    elif grep -sq hvm "/sys/hypervisor/properties/capabilities"; then
+    elif grep -sq hvm "/sys/hypervisor/properties/capabilities" &>/dev/null; then
       return 0
     else
-      printf_exit "This system does not have virtualization support"
+      return 1
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -116,13 +116,21 @@ EOF
     [[ -z "$SETUP_VIRT_FORCE" ]] && __is_installed && return $exitCode
     printf_green "Installing virtualization packages"
     if [ "$(command -v pacman 2>/dev/null)" ]; then # ARCH
-      sudo pacman -Syyu qemu libvirt dnsmasq virt-manager bridge-utils flex bison iptables-nft edk2-ovmf --noconfirm --needed &>/dev/null || exitCode=1
+       local pkgs="qemu libvirt dnsmasq virt-manager "
+       local pkgs+="bridge-utils flex bison edk2-ovmf "
+       #local pkgs+="iptables-nft "
+       #sudo pacman -R --noconfirm iptables &>/dev/null||true
+       sudo pacman -Syyu $pkgs --noconfirm --needed &>/dev/null || exitCode=1
     elif [ "$(command -v apt 2>/dev/null)" ]; then # UBUNTU DEBIAN
-      sudo apt install qemu qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager libguestfs-tools -yy &>/dev/null || exitCode=1
+       local pkgs="qemu qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils "
+       local pkgs+="virt-manager libguestfs-tools "
+       sudo apt install $pkgs -yy &>/dev/null || exitCode=1
     elif [ "$(command -v dfn 2>/dev/null)" ]; then # FEDORA
-      sudo dnf install libvirt qemu-kvm virt-manager bridge-utils -y &>/dev/null || exitCode=1
+       local pkgs="libvirt qemu-kvm virt-manager bridge-utils "
+       sudo dnf install -y $pkgs &>/dev/null || exitCode=1
     elif [ "$(command -v yum 2>/dev/null)" ]; then # CENTOS RHEL
-      sudo yum install libvirt qemu-kvm virt-manager bridge-utils -y &>/dev/null || exitCode=1
+       pkgs="libvirt qemu-kvm virt-manager bridge-utils "
+       sudo yum install -y $pkgs &>/dev/null || exitCode=1
     fi
     __is_installed
     if [ "$exitCode" -eq 0 ]; then
@@ -131,7 +139,8 @@ EOF
       return 0
     else
       printf_red "Failed to install the virtualization packages"
-      return 1
+      printf_blue "$pkgs"
+      exit 1
     fi
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -290,7 +299,6 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   __install_virt "$@"
-
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # lets exit with code
   return ${exitCode:-$?}
