@@ -1,3 +1,14 @@
+#### Changelog: 2022-07-20 at 07:59:07  
+#### 🗃️ Committing everything that changed 🗃️  
+  
+etc/shell/aliases/00-default.lin      🚀  
+etc/shell/aliases/00-default.mac      🚀  
+etc/shell/aliases/00-default.win      🚀  
+  
+#### End of changes for 202207171211-git - 2022-07-20 at 07:59:07  
+  
+----  
+  
 #### Changelog: 2022-07-17 at 12:11:36  
 #### 🗃️ Committing everything that changed 🗃️  
   

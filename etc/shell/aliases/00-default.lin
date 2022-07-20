@@ -108,12 +108,12 @@ alias lla='ls -lA --color=auto '
 alias dir='ls -D --color=auto'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # CD Aliases
-alias ~='cd '
-alias ..='cd .. '
-alias ...='cd ../.. '
-alias ....='cd ../../.. '
-alias .....='cd ../../../.. '
-alias cd..='cd .. '
+alias ~='builtin cd '
+alias ..='builtin cd .. '
+alias ...='builtin cd ../.. '
+alias ....='builtin cd ../../.. '
+alias .....='builtin cd ../../../.. '
+alias cd..='builtin cd .. '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # VisualStudio code
 if [ -n "$(builtin type -P code-oss 2>/dev/null)" ]; then
