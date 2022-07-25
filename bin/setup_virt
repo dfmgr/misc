@@ -116,21 +116,21 @@ EOF
     [[ -z "$SETUP_VIRT_FORCE" ]] && __is_installed && return $exitCode
     printf_green "Installing virtualization packages"
     if [ "$(command -v pacman 2>/dev/null)" ]; then # ARCH
-       local pkgs="qemu libvirt dnsmasq virt-manager "
-       local pkgs+="bridge-utils flex bison edk2-ovmf "
-       #local pkgs+="iptables-nft "
-       #sudo pacman -R --noconfirm iptables &>/dev/null||true
-       sudo pacman -Syyu $pkgs --noconfirm --needed &>/dev/null || exitCode=1
+      local pkgs="qemu libvirt dnsmasq virt-manager "
+      local pkgs+="bridge-utils flex bison edk2-ovmf "
+      #local pkgs+="iptables-nft "
+      #sudo pacman -R --noconfirm iptables &>/dev/null||true
+      sudo pacman -Syyu $pkgs --noconfirm --needed &>/dev/null || exitCode=1
     elif [ "$(command -v apt 2>/dev/null)" ]; then # UBUNTU DEBIAN
-       local pkgs="qemu qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils "
-       local pkgs+="virt-manager libguestfs-tools "
-       sudo apt install $pkgs -yy &>/dev/null || exitCode=1
+      local pkgs="qemu qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils "
+      local pkgs+="virt-manager libguestfs-tools "
+      sudo apt install $pkgs -yy &>/dev/null || exitCode=1
     elif [ "$(command -v dfn 2>/dev/null)" ]; then # FEDORA
-       local pkgs="libvirt qemu-kvm virt-manager bridge-utils "
-       sudo dnf install -y $pkgs &>/dev/null || exitCode=1
+      local pkgs="libvirt qemu-kvm virt-manager bridge-utils "
+      sudo dnf install -y $pkgs &>/dev/null || exitCode=1
     elif [ "$(command -v yum 2>/dev/null)" ]; then # CENTOS RHEL
-       pkgs="libvirt qemu-kvm virt-manager bridge-utils "
-       sudo yum install -y $pkgs &>/dev/null || exitCode=1
+      pkgs="libvirt qemu-kvm virt-manager bridge-utils "
+      sudo yum install -y $pkgs &>/dev/null || exitCode=1
     fi
     __is_installed
     if [ "$exitCode" -eq 0 ]; then

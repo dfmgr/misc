@@ -55,8 +55,8 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   local files delete_dir delete_file delete_error_file exitCode
   if [ $# -ne 0 ]; then
-    local files="$*"
-    for file in $files; do
+    local -a files=("$@")
+    for file in "${files[@]}"; do
       if [[ "$file" = -* ]]; then
         if [ ! -e "$file" ]; then
           file="" && shift 1
