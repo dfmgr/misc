@@ -100,12 +100,12 @@ alias systemctl-list-units='sudo systemctl list-units |sed "s|                  
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P pacman 2>/dev/null)" ] && alias pacman='sudo pacman '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
-alias l.='ls -A | grep -E --color=auto '\''^\.'\'''
-alias ls='ls --color=auto '
-alias la='ls -A --color=auto'
-alias ll='ls -l --color=auto '
-alias lla='ls -lA --color=auto '
-alias dir='ls -D --color=auto'
+alias l.='ls -hA | grep -E --color=auto '\''^\.'\'''
+alias ls='ls -h --color=auto '
+alias la='ls -hA --color=auto'
+alias ll='ls -hl --color=auto '
+alias lla='ls -hlA --color=auto '
+alias dir='ls -hD --color=auto'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # CD Aliases
 alias ~='builtin cd '
