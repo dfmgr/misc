@@ -37,3 +37,15 @@ __cp_rf() { if [ -e "$1" ]; then cp -Rf "$1" "$2" || return 0; fi; }
 __rm_rf() { if [ -e "$1" ]; then rm -Rf "$@" || return 0; fi; }
 __ln_rm() { if [ -e "$1" ]; then find -L $1 -mindepth 1 -maxdepth 1 -type l -exec rm -f {} \;; fi; }
 __broken_symlinks() { find -L "$@" -type l -exec rm -f {} \;; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+git_update() { 
+  [ -d "${1:-$PWD}" ] && printf '%s' "Updating repo in ${1:-$PWD}: " && git -C "${1:-$PWD}" pull -q 2>/dev/null && \
+    printf '\n' || return $?
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+git_clone() { 
+  printf '%s' "Cloning repo to $2: " && git clone "$1" "${2:-$(basename "$1" 2>/dev/null)}" -q 2>/dev/null && \
+    printf '\n' || return $?
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
