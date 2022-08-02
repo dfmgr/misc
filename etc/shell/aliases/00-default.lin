@@ -143,9 +143,9 @@ elif [ -n "$(builtin type -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/nvim/in
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
-[ -n "$(builtin type -P docker 2>/dev/null)" ] && alias docker='sudo docker '
+[ -n "$(builtin type -P docker 2>/dev/null)" ] && alias docker='docker '
 [ -n "$(builtin type -P docker 2>/dev/null)" ] && alias drun='docker run --rm -it -v "${PWD}":/app -w /app '
-[[ -f "$(builtin type -P minikube 2>/dev/null)" ]] && alias kubectl='minikube kubectl'
+[ -f "$(builtin type -P minikube 2>/dev/null)" ] && alias kubectl='minikube kubectl'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
 [ -n "$(builtin type -P trash 2>/dev/null)" ] && alias empty-trash='trash empty ' ||
