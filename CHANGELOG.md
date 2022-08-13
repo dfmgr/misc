@@ -1,3 +1,11 @@
+#### Changelog: 2022-08-12 at 21:00:29  
+  
+bin/rmd      🚀  
+  
+#### End of changes for 202207301637-git - 2022-08-12 at 21:00:29  
+  
+----  
+  
 #### Changelog: 2022-08-02 at 08:19:43  
   
 etc/shell/aliases/00-default.lin      🚀  
