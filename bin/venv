@@ -270,6 +270,9 @@ __if_venv() {
   else
     return 1
   fi
+  if [ ! -L "$PWD/.venv" ] && [ "$PWD/.venv" != "$VENV_VIRTUAL_DIR" ]; then
+    ln -sf "$VENV_VIRTUAL_DIR" "$PWD/.venv"
+  fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 activate() {
