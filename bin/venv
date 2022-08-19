@@ -272,6 +272,20 @@ __if_venv() {
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+activate() {
+  [ -n "$VIRTUAL_ENV" ] && return 0
+  if [ -n "$1" ] && [ -d "$1" ] && [ -f "$1/bin/activate" ]; then
+    VENV_VIRTUAL_NAME="$(basename "$1")"
+    VENV_VIRTUAL_DIR="$1"
+    . "$1/bin/activate"
+  elif __if_venv; then
+    [ -f "$VENV_VIRTUAL_FILE" ] && . "$VENV_VIRTUAL_FILE"
+  else
+    printf_red "Could not find $VENV_VIRTUAL_DIR/bin/activate"
+    return 1
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # User defined variables/import external variables
 VENV_VIRTUAL_DIR="$SETV_VIRTUAL_DIR_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -484,21 +498,20 @@ VENV_VIRTUAL_DIR="${VENV_VIRTUAL_DIR//\/\///}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # begin main app
 case "$1" in
+list)
+  [ -n "$VENV_VIRTUAL_DIR" ] || printf_exit "Please set the VENV_VIRTUAL_DIR in the config file"
+  if [ $# -eq 0 ]; then
+    ls -Ad "$VENV_VIRTUAL_DIR"
+  elif setv -l | grep -vE 'List of virtual environments|^$' | grep -q "$1"; then
+    setv -l | grep "$1"
+  else
+    printf_exit "You don't seem to have any virtual environments"
+  fi
+  ;;
+
 activate)
   shift 1
-  [ -n "$VIRTUAL_ENV" ] && exit 0
-  if [ -n "$1" ] && [ -d "$1" ] && [ -f "$1/bin/activate" ]; then
-    VENV_VIRTUAL_NAME="$(basename "$1")"
-    VENV_VIRTUAL_DIR="$1"
-    . "$1/bin/activate"
-  elif __if_venv; then
-    [ -f "$VENV_VIRTUAL_FILE" ] && . "$VENV_VIRTUAL_FILE"
-  else
-    printf_exit "Could not find $VENV_VIRTUAL_DIR/bin/activate"
-  fi
-  echo "VENV_VIRTUAL_FILE:$VENV_VIRTUAL_FILE"
-  echo "VENV_VIRTUAL_DIR:$VENV_VIRTUAL_DIR"
-  exec bash
+  activate "$@" && exec bash
   ;;
 
 deativate)
@@ -540,14 +553,7 @@ create)
   ;;
 
 *)
-  [ -n "$VENV_VIRTUAL_DIR" ] || printf_exit "Please set the VENV_VIRTUAL_DIR in the config file"
-  if [ $# -eq 0 ]; then
-    ls -Ad "$VENV_VIRTUAL_DIR"
-  elif setv -l | grep -vE 'List of virtual environments|^$' | grep -q "$1"; then
-    setv -l | grep "$1"
-  else
-    printf_exit "You don't seem to have any virtual environments"
-  fi
+  activate
   ;;
 
 esac
