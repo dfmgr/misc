@@ -1,3 +1,11 @@
+#### Changelog: 2022-08-22 at 02:29:23  
+
+install.sh : Fixed - Add shinit to install script 🚀  
+  
+#### End of changes for 202208191502-git - 2022-08-22 at 02:29:23  
+  
+----  
+  
 #### Changelog: 2022-08-22 at 02:22:56  
 
 profile/shinit : Added - dash init script 🚀  

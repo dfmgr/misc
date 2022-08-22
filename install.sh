@@ -157,7 +157,7 @@ fi
 # run post install scripts
 run_postinst() {
   dfmgr_run_post
-  for f in curlrc dircolors gntrc inputrc libao myclirc profile rpmmacros wgetrc Xresources xscreensaver; do
+  for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc Xresources xscreensaver; do
     if [ -L "$HOME/.$f" ]; then
       rm_link "$HOME/.$f"
     fi
