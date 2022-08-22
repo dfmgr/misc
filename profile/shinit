@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version           :  202208191502-git
+# @@Author           :  jason
+# @@Contact          :  jason@jasons-netbook
+# @@License          :  LICENSE.md
+# @@ReadME           :  man sh
+# @@Copyright        :  Copyright: (c) 2022 jason, 
+# @@Created          :  Monday, Aug 22, 2022 02:11 EDT
+# @@File             :  .shinit
+# @@Description      :  sh init script
+# @@Changelog        :  newScript
+# @@TODO             :  Refactor code
+# @@Other            :  
+# @@Resource         :  
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  template
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+PS1="$(basename "$SHELL_NAME"): $USER@$(hostname -f 2>/dev/null): $PWD :"
+export PS1
+
