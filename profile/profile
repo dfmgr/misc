@@ -10,10 +10,6 @@ USRBINDIR="$HOME/.local/bin"
 PATH="$USRBINDIR:$SYSBINDIR:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
 export BINDIR="$USRBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# set default prompt
-PS1="$(basename "$SHELL"): $USER@$(hostname -f 2>/dev/null): $PWD :"
-export PS1
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export NODE_MANAGER="${NODE_MANAGER:-fnm}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
@@ -28,7 +24,7 @@ if [ -n "$SH_VERSION" ]; then
   export SHELL="$(which sh 2>/dev/null)"
 # bash specific
 elif [ -n "$BASH_VERSION" ]; then
-  export SHELL="$(which bash 2>/dev/null)"
+  SHELL="$(which bash 2>/dev/null)"
   export BASH_SILENCE_DEPRECATION_WARNING="1"
   export OSH="$HOME/.local/share/bash/oh-my-bash"
   export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
@@ -49,7 +45,7 @@ elif [ -n "$BASH_VERSION" ]; then
   printf "\e]12;cyan\a" 2>/dev/null
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
-  export SHELL="$(which zsh 2>/dev/null)"
+  SHELL="$(which zsh 2>/dev/null)"
   export ZDOTDIR="$HOME/.config/zsh"
   export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
   export ZSH="$HOME/.local/share/zsh/oh-my-zsh"
@@ -60,6 +56,12 @@ elif [ -n "$ZSH_VERSION" ]; then
   autoload -U +X bashcompinit && bashcompinit
   [ -n "$(which direnv 2>/dev/null)" ] && direnv hook zsh >/dev/null 2>&1
 fi
+SHELL_NAME="$(basename "$SHELL")"
+export SHELL SHELL_NAME
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# set default prompt
+PS1="$(basename "$SHELL_NAME"): $USER@$(hostname -f 2>/dev/null): $PWD :"
+export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
 #umask 022
@@ -246,11 +248,12 @@ export GOBIN="$GOPATH/bin"
 export GOCACHE="$HOME/.cache/go-build"
 export TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Setup ruby
-GEM_HOME="$HOME/.local/share/gem"
-GEM_PATH="$HOME/.local/share/gem"
-TMP_BIN_PATH="$GEM_HOME/bin:$TMP_BIN_PATH"
-export GEM_HOME GEM_PATH
+# configure gofish - https://gofi.sh
+export GOFISH_HOME="$HOME/.local/share/gofish"
+export GOFISH_RIGS="$GOFISH_HOME/Rigs"
+export GOFISH_CACHE="$HOME/cache/.gofish"
+export GOFISH_BARREL="$GOFISH_HOME/Barrel"
+export GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
 export rvm_path="$HOME/.local/share/rvm"
@@ -260,26 +263,21 @@ if [ -f "$rvm_path/scripts/rvm" ]; then
   TMP_BIN_PATH="$rvm_path/bin:$TMP_BIN_PATH"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# configure gofish - https://gofi.sh
-export GOFISH_HOME="$HOME/.local/share/gofish"
-export GOFISH_RIGS="$GOFISH_HOME/Rigs"
-export GOFISH_CACHE="$HOME/cache/.gofish"
-export GOFISH_BARREL="$GOFISH_HOME/Barrel"
-export GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Node
-export NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
-export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
-if [ -n "$(which node 2>/dev/null)" ]; then
-  TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
-  npm config set prefix "$NPM_PACKAGES"
-fi
+# Setup ruby
+GEM_HOME="$HOME/.local/share/gem"
+GEM_PATH="$HOME/.local/share/gem"
+TMP_BIN_PATH="$GEM_HOME/bin:$TMP_BIN_PATH"
+export GEM_HOME GEM_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
+export TMP_BIN_PATH="$FNM_DIR/aliases/default/bin"
 if [ -n "$(which fnm 2>/dev/null)" ]; then
-  eval "$(fnm env 2>/dev/null)"
+  eval "$(fnm env --version-file-strategy recursive --shell "$SHELL_NAME" 2>/dev/null)"
+  if [ -d "$TMP_BIN_PATH" ]; then
+    ln -sf "$TMP_BIN_PATH"/* "$USRBINDIR/" 2>/dev/null
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
@@ -290,6 +288,14 @@ if [ -n "$(which nvm 2>/dev/null)" ]; then
   export NODE_REPL_HISTORY_SIZE=2000
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Node
+export NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
+export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
+if [ -n "$(which node 2>/dev/null)" ]; then
+  TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
+  npm config set prefix "$NPM_PACKAGES" &>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Deno
@@ -653,7 +659,7 @@ export FONT_DIR="$HOME/.local/share/fonts"
 # set term type
 export TERM="screen-256color"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# logging
+# logging 
 export DEFAULT_LOG="apps"
 export LOGDIR="$HOME/.local/log"
 export DEFAULT_LOG_DIR="$LOGDIR"
@@ -668,15 +674,15 @@ export ASCIINEMA_API_URL="https://asciinema.org"
 export CHTSH_HOME="$HOME/.config/cheatsh"
 [ -d "$CHTSH_HOME" ] || mkdir -p "$CHTSH_HOME"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# task warrior settings
-export TASKRC="$HOME/.taskrc"
-export TASKDATA="$HOME/.local/share/taskwarrior"
+# task warrior settings - I no lnonger use
+#export TASKRC="$HOME/.taskrc"
+#export TASKDATA="$HOME/.local/share/taskwarrior"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # multi_clipboard
 if [ -n "$(which multi_clipboard 2>/dev/null)" ]; then
   export SCREENEXCHANGE="$HOME/.screen-exchange"
   export SCREEN_MSGMINWAIT="1"
-  export CLIPBOARD="$HOME/.clipboard"
+  export CLIPBOARD="$HOME/.cache/.clipboard"
   export CLMAXHIST="20"
   export CLSEP='\x07'
   if [ "$(uname -s)" = Linux ]; then
@@ -754,15 +760,16 @@ SET_TMP_PATH="$(echo "${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\:.$||g' | grep -v
 export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
-mkdir -p "$TMPDIR"
-mkdir -p "$USRBINDIR"
-mkdir -p "$HOME/.local/log"
-mkdir -p "$HOME/.local/tmp"
-mkdir -p "$HOME/.config/local"
-mkdir -p "$HOME/.config/secure"
-mkdir -p "$HOME/.config/secure/inc"
-mkdir -p "$SETV_VIRTUAL_DIR_PATH"
-mkdir -p "$HOME/.local/share/wallpapers"
+[ -d "$TMPDIR" ] || mkdir -p "$TMPDIR"
+[ -d "$LOGDIR" ] || mkdir -p "$LOGDIR"
+[ -d "$ICON_DIR" ] || mkdir -p "$ICON_DIR"
+[ -d "$FONT_DIR" ] || mkdir -p "$FONT_DIR"
+[ -d "$THEME_DIR" ] || mkdir -p "$THEME_DIR"
+[ -d "$USRBINDIR" ] || mkdir -p "$USRBINDIR"
+[ -d "$WALLPAPER_DIR" ] || mkdir -p "$WALLPAPER_DIR"
+[ -d "$HOME/.config/local" ] || mkdir -p "$HOME/.config/local"
+[ -d "$SETV_VIRTUAL_DIR_PATH" ] || mkdir -p "$SETV_VIRTUAL_DIR_PATH"
+[ -d "$HOME/.config/secure/inc" ] || mkdir -p "$HOME/.config/secure/inc"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bring in apps
 
