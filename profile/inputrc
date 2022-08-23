@@ -7,14 +7,18 @@
 
 $if mode=emacs
 # Readline specific functions
-"\e[1~": beginning-of-line       # CTRL + A
-"\e[4~": end-of-line             # CTRL + E
-"\e[5C": forward-word            # Control + Right
-"\e[5D": backward-word           # Control + Left
-"\e[3~": delete-char             # Delete
-"\e[2~": quoted-insert           # CTRL + v
-"\e[5~": history-search-backward # Page Up
-"\e[6~": history-search-forward  # Page Down
+"\e[1~": beginning-of-line            # CTRL + A
+"\e[4~": end-of-line                  # CTRL + E
+"\e[5C": forward-word                 # Control + Right
+"\e[5D": backward-word                # Control + Left
+"\e[3~": delete-char                  # Delete
+"\e[2~": quoted-insert                # CTRL + v
+"\e[5~": history-search-backward      # Page Up
+"\e[6~": history-search-forward       # Page Down
+"\e[1;5A": history-search-backward    # control + up
+"\e[1;5B": history-search-forward     $ control + down
+"\e[1;5C": forward-word
+"\e[1;5D": backward-word
 
 # mappings for Ctrl-left-arrow and Ctrl-right-arrow for word moving
 "\e[1;5C" #  forward-word

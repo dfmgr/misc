@@ -1,3 +1,11 @@
+#### Changelog: 2022-08-23 at 18:11:07  
+
+profile/inputrc : 🗃️ Added control+ for arrow keys 🗃️ 🚀  
+  
+#### End of changes for 202208191502-git - 2022-08-23 at 18:11:07  
+  
+----  
+  
 #### Changelog: 2022-08-22 at 02:29:23  
 
 install.sh : Fixed - Add shinit to install script 🚀  
