@@ -1,3 +1,13 @@
+#### Changelog: 2022-08-27 at 18:49:38  
+
+bin/venv : 🗃️ Removed unused aliases and files 🗃️ 🚀  
+etc/shell/aliases/00-default.lin : 🗃️ Removed unused aliases and files 🗃️ 🚀  
+etc/shell/aliases/00-default.mac : 🗃️ Removed unused aliases and files 🗃️ 🚀  
+  
+#### End of changes for 202208231811-git - 2022-08-27 at 18:49:38  
+  
+----  
+  
 #### Changelog: 2022-08-27 at 15:05:42  
 
 bin/__mailsync : Deleted - Removing unused scripts 🚀  
