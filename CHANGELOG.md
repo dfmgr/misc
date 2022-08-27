@@ -1,3 +1,14 @@
+#### Changelog: 2022-08-27 at 15:05:42  
+
+bin/__mailsync : Deleted - Removing unused scripts 🚀  
+bin/__muttsync : Deleted - Removing unused scripts 🚀  
+completions/___mailsync_completions : Deleted - Removing unused scripts 🚀  
+completions/___muttsync_completions : Deleted - Removing unused scripts 🚀  
+  
+#### End of changes for 202208231811-git - 2022-08-27 at 15:05:42  
+  
+----  
+  
 #### Changelog: 2022-08-23 at 18:11:07  
 
 profile/inputrc : 🗃️ Added control+ for arrow keys 🗃️ 🚀  
