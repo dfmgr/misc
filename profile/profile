@@ -269,6 +269,9 @@ GEM_PATH="$HOME/.local/share/gem"
 TMP_BIN_PATH="$GEM_HOME/bin:$TMP_BIN_PATH"
 export GEM_HOME GEM_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# PNPM 
+export PNPM_HOME="$HOME/.local/share/nodejs/pnpm"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
