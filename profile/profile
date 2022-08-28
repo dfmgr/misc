@@ -1,5 +1,22 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version           :  202208281859-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  git-admin@casjaysdev.com
+# @@License          :  WTFPL
+# @@ReadME           :  This script is sourced by some shells (bash, zsh)
+# @@Copyright        :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @@Created          :  Sunday, Aug 28, 2022 19:11 EDT
+# @@File             :  .profile
+# @@Description      :  user profile script
+# @@Changelog        :  Added pnpm
+# @@TODO             :  Refactor code
+# @@Other            :  
+# @@Resource         :  
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  N/A
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fish specific
 [ -n "$FISH_VERSION" ] && return
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -271,7 +288,9 @@ export GEM_HOME GEM_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # PNPM 
 export PNPM_HOME="$HOME/.local/share/nodejs/pnpm"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+export TMP_BIN_PATH="$PNPM_HOME:$TMP_BIN_PATH="
+[ -d "$PNPM_HOME" ] || mkdir -p "$PNPM_HOME"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
@@ -629,13 +648,13 @@ export VERSION_DATE_FORMAT="%Y%m%d%H%M-git"
 export TODO_DIR="$HOME/.local/share/editors/todos"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export todo.sh config
-export TODOSH_DIR="$HOME/.local/share/todo.sh"
-export TODOTXT_CFG_FILE="$TODOSH_DIR/config"
-export TODOTXT_FILE="$TODOSH_DIR/todo.txt"
-export TODOTXT_DONE_FILE="$TODOSH_DIR/done.txt"
-export TODOTXT_REPORT_FILE="$TODOSH_DIR/report.txt"
-[ -d "$TODOSH_DIR" ] || mkdir -p "$TODOSH_DIR"
-[ -f "$TODOTXT_CFG_FILE" ] || touch "$TODOTXT_CFG_FILE"
+#export TODOSH_DIR="$HOME/.local/share/todo.sh"
+#export TODOTXT_CFG_FILE="$TODOSH_DIR/config"
+#export TODOTXT_FILE="$TODOSH_DIR/todo.txt"
+#export TODOTXT_DONE_FILE="$TODOSH_DIR/done.txt"
+#export TODOTXT_REPORT_FILE="$TODOSH_DIR/report.txt"
+#[ -d "$TODOSH_DIR" ] || mkdir -p "$TODOSH_DIR"
+#[ -f "$TODOTXT_CFG_FILE" ] || touch "$TODOTXT_CFG_FILE"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export color
 export CLICOLOR="1"
