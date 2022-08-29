@@ -11,8 +11,8 @@
 # @@Description      :  user profile script
 # @@Changelog        :  Added pnpm
 # @@TODO             :  Refactor code
-# @@Other            :  
-# @@Resource         :  
+# @@Other            :
+# @@Resource         :
 # @@Terminal App     :  no
 # @@sudo/root        :  no
 # @@Template         :  N/A
@@ -46,10 +46,11 @@ elif [ -n "$BASH_VERSION" ]; then
   export OSH="$HOME/.local/share/bash/oh-my-bash"
   export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
   if [ -d "$HOME/.config/bash" ]; then
+    history -r
     export HISTFILE="$HOME/.config/bash/bash_history"
-    if [ -f "$HOME/.bash_history" ]; then
+    if [ -f "$HOME/.bash_history" ] && [ "$HISTFILE" != "$HOME/.bash_history" ]; then
       mv -f "$HOME/.bash_history" "$HISTFILE"
-      history -r && history -a
+      history -a
     fi
   else
     export HISTFILE="$HOME/.bash_history"
@@ -110,11 +111,10 @@ if [ -n "$DISPLAY" ]; then
     export DISPLAY_LOW_DENSITY="$DISPLAY"
   fi
   if [ -n "$(which xrandr 2>/dev/null)" ]; then
-    export RESOLUTION="$(xrandr --current 2>/dev/null | grep '\*' | uniq | awk '{print $1}')"
+    RESOLUTION="$(xrandr --current 2>/dev/null | grep '\*' | uniq | awk '{print $1}')"
   fi
-else
-  export RESOLUTION="${RESOLUTION:-}"
 fi
+export RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
 if [ -n "$DISPLAY" ] && [ -n "$(which xset 2>/dev/null)" ]; then
@@ -125,24 +125,26 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enable control alt backspace
 if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
-  export XKBOPTIONS="terminate:ctrl_alt_bksp"
+  XKBOPTIONS="terminate:ctrl_alt_bksp"
   if [ -n "$(which setxkbmap 2>/dev/null)" ]; then
     setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" 2>/dev/null
   fi
 fi
+export XKBOPTIONS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup modifiers
 if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ]; then
   if [ -n "$(which ibus 2>/dev/null)" ]; then
-    export XMODIFIERS=@im=ibus
-    export GTK_IM_MODULE=ibus
-    export QT_IM_MODULE=ibus
+    XMODIFIERS=@im=ibus
+    GTK_IM_MODULE="ibus"
+    QT_IM_MODULE="ibus"
   elif [ -n "$(which fcitx 2>/dev/null)" ]; then
-    export XMODIFIERS=@im=fcitx
-    export GTK_IM_MODULE=fcitx
-    export QT_IM_MODULE=fcitx
+    XMODIFIERS=@im=fcitx
+    GTK_IM_MODULE="fcitx"
+    QT_IM_MODULE="fcitx"
   fi
 fi
+export XMODIFIERS GTK_IM_MODULE QT_IM_MODULE
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # xserver settings
 if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
@@ -155,13 +157,15 @@ if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XDG Settings
-export LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
-export STATE_DIRECTORY="$HOME/.local/lib"
-export CACHE_DIRECTORY="$HOME/.cache"
-export RUNTIME_DIRECTORY="${XDG_RUNTIME_DIR:-/run/user/$UID}"
-export CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
-export XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
+LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
+STATE_DIRECTORY="$HOME/.local/lib"
+CACHE_DIRECTORY="$HOME/.cache"
+RUNTIME_DIRECTORY="${XDG_RUNTIME_DIR:-/run/user/$UID}"
+CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
+XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$CONFIGURATION_DIRECTORY}"
+export LOGS_DIRECTORY STATE_DIRECTORY CACHE_DIRECTORY RUNTIME_DIRECTORY
+export CONFIGURATION_DIRECTORY XDG_RUNTIME_DIR XDG_CONFIG_HOME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
 if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
@@ -169,17 +173,19 @@ if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
-export SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
+SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
+export SUDO_PROMPT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-export GPG_TTY="$(tty)"
-export SSH_AUTH_SOCK="/run/user/$(id -u)/gnupg/S.gpg-agent.ssh"
+GPG_TTY="$(tty)"
+SSH_AUTH_SOCK="$RUNTIME_DIRECTORY/gnupg/S.gpg-agent.ssh"
 if [ -n "$(which gpg-agent 2>/dev/null)" ]; then
   gpg-agent --enable-ssh-support --daemon -q &>/dev/null
 fi
+export GPG_TTY SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
-export SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
+SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
 if [ -d "$HOME/.ssh" ] && ls "$HOME/.ssh"/id_* &>/dev/null; then
   for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
     ssh-add -q "$f" &>/dev/null
@@ -194,6 +200,7 @@ if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   fi
 fi
 [ -d "$HOME/.ssh/known_hosts.d" ] || mkdir -p "$HOME/.ssh/known_hosts.d"
+export SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
 export LESS_TERMCAP_mb=$'\e[1;32m'
@@ -238,13 +245,13 @@ else
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup neovim
-export NVIM_LISTEN_ADDRESS="${TMP:-/tmp}/nvim.${USER}.sock"
+export NVIM_LISTEN_ADDRESS="$RUNTIME_DIRECTORY/nvim.${USER}.sock"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua - https://github.com/DhavalKapil/luaver
 export LUAVER_HOME="$HOME/.local/share/misc/plugins/luaver"
 export LUAROCKS_BIN="$HOME/.local/share/lua/luarocks/bin"
 export LUAROCKS_PREFIX="$HOME/.local/share/lua/luarocks"
-TMP_BIN_PATH="$LUAROCKS_BIN"
+TMP_BIN_PATH="$LUAROCKS_BIN:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure asdf - https://asdf-vm.com
 export ASDF_DIR="$HOME/.local/share/misc/plugins/asdf"
@@ -259,16 +266,16 @@ export GVM_ROOT="$HOME/.local/share/gvm"
 [ -f "$GVM_ROOT/scripts/gvm-default" ] && . "$GVM_ROOT/scripts/gvm-default"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure GO
-export GOPATH="$HOME/.local/share/go"
-export GODIR="$GOPATH"
-export GOBIN="$GOPATH/bin"
-export GOCACHE="$HOME/.cache/go-build"
+export GODIR="$HOME/.local/share/go"
+export GOPATH="$GODIR"
+export GOBIN="$GODIR/bin"
+export GOCACHE="$GODIR/build"
 export TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure gofish - https://gofi.sh
+export GOFISH_CACHE="$HOME/cache/.gofish"
 export GOFISH_HOME="$HOME/.local/share/gofish"
 export GOFISH_RIGS="$GOFISH_HOME/Rigs"
-export GOFISH_CACHE="$HOME/cache/.gofish"
 export GOFISH_BARREL="$GOFISH_HOME/Barrel"
 export GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -282,23 +289,24 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
 GEM_HOME="$HOME/.local/share/gem"
-GEM_PATH="$HOME/.local/share/gem"
+GEM_PATH="$GEM_HOME"
 TMP_BIN_PATH="$GEM_HOME/bin:$TMP_BIN_PATH"
 export GEM_HOME GEM_PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# PNPM 
+# PNPM
 export PNPM_HOME="$HOME/.local/share/nodejs/pnpm"
-export TMP_BIN_PATH="$PNPM_HOME:$TMP_BIN_PATH="
+export TMP_BIN_PATH="$PNPM_HOME:$TMP_BIN_PATH"
 [ -d "$PNPM_HOME" ] || mkdir -p "$PNPM_HOME"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
-export TMP_BIN_PATH="$FNM_DIR/aliases/default/bin"
+export FNM_DEFAULT="$FNM_DIR/aliases/default/bin"
+export TMP_BIN_PATH="$FNM_BIN:$TMP_BIN_PATH"
 if [ -n "$(which fnm 2>/dev/null)" ]; then
   eval "$(fnm env --version-file-strategy recursive --shell "$SHELL_NAME" 2>/dev/null)"
-  if [ -d "$TMP_BIN_PATH" ]; then
-    ln -sf "$TMP_BIN_PATH"/* "$USRBINDIR/" 2>/dev/null
+  if [ -d "$FNM_DEFAULT" ]; then
+    ln -sf "$FNM_DEFAULT"/* "$USRBINDIR/" 2>/dev/null
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -356,7 +364,7 @@ export VAGRANT_DEFAULT_PROVIDER="libvirt"
 export DOCKERCONFDIR="${DOCKERCONFDIR:-$HOME/.config/dockstarter}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # DockerMGR settings
-export DOCKERMGR_HOME="${DOCKERMGR_HOME:-$HOME/.local/share/srv/docker}"
+export DOCKERMGR_HOME="${DOCKERMGR_HOME:-$HOME/.local/share/docker}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
@@ -408,10 +416,12 @@ export BROWSER="$MYBROWSER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if [ -n "$(which screen 2>/dev/null)" ]; then
-    MYTERMINAL="screen"
+  if [ -n "$(which tmux-new 2>/dev/null)" ]; then
+    MYTERMINAL="tmux-new"
   elif [ -n "$(which tmux 2>/dev/null)" ]; then
-    MYTERMINAL="tmux new"
+    MYTERMINAL="tmux"
+  elif [ -n "$(which screen 2>/dev/null)" ]; then
+    MYTERMINAL="screen"
   fi
 else
   if [ -n "$(which termite 2>/dev/null)" ]; then
@@ -441,7 +451,7 @@ else
   elif [ -n "$(which garcon-terminal-handler 2>/dev/null)" ]; then
     MYTERMINAL="garcon-terminal-handler"
   elif [ -n "$(which tmux 2>/dev/null)" ]; then
-    MYTERMINAL="tmux new"
+    MYTERMINAL="tmux"
   elif [ -n "$(which screen 2>/dev/null)" ]; then
     MYTERMINAL="screen"
   else
@@ -601,11 +611,11 @@ export EMAIL="$MYEMAIL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if [ -n "$(which vim 2>/dev/null)" ]; then
-    MYEDITOR="vim"
-  elif [ -n "$(which nvim 2>/dev/null)" ]; then
+  if [ -n "$(which nvim 2>/dev/null)" ]; then
     MYEDITOR="nvim"
-  elif [ -n "$(which emananocs 2>/dev/null)" ]; then
+  elif [ -n "$(which vim 2>/dev/null)" ]; then
+    MYEDITOR="vim"
+  elif [ -n "$(which nano 2>/dev/null)" ]; then
     MYEDITOR="nano"
   elif [ -n "$(which emacs 2>/dev/null)" ]; then
     MYEDITOR="emacs"
@@ -681,13 +691,19 @@ export FONT_DIR="$HOME/.local/share/fonts"
 # set term type
 export TERM="screen-256color"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# logging 
+# logging
 export DEFAULT_LOG="apps"
 export LOGDIR="$HOME/.local/log"
 export DEFAULT_LOG_DIR="$LOGDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set scripts path if installed manually
-[ -d "$HOME/.local/share/scripts/bin" ] && TMP_BIN_PATH="$HOME/.local/share/scripts/bin:$TMP_BIN_PATH"
+if [ -d "$HOME/.local/share/scripts/bin" ] && [ -d "$HOME/.local/share/scripts/functions" ]; then
+  CASJAYSDEVDIR="$HOME/.local/share/scripts"
+  TMP_BIN_PATH="$CASJAYSDEVDIR:$TMP_BIN_PATH"
+elif [ -d "$HOME/.local/share/CasjaysDev/scripts/bin" ] && [ -d "$HOME/.local/share/CasjaysDev/scripts/functions" ]; then
+  CASJAYSDEVDIR="$HOME/.local/share/CasjaysDev/scripts"
+  TMP_BIN_PATH="$CASJAYSDEVDIR:$TMP_BIN_PATH"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #asciinema settings
 export ASCIINEMA_API_URL="https://asciinema.org"
@@ -774,12 +790,19 @@ fi
 [ -f "$HOME/.config/local/profile.local" ] && . "$HOME/.config/local/profile.local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import specific profiles for systems
-[ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
+if [ -n "$(which hostname 2>/dev/null)" ]; then
+  [ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
+  [ -f "$HOME/.config/local/servers/$(hostname -f).local" ] && . "$HOME/.config/local/servers/$(hostname -f).local"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
 SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -v "$HOME" | grep -v "$SYSBINDIR" | tr '\n' ':' | sed 's|:$||g')"
-SET_TMP_PATH="$(echo "${TMP_BIN_PATH}" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$USRBINDIR" | tr '\n' ':' | sed 's|:$||g')"
-export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$USRBINDIR" | grep -v "$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
+if [ -n "$FNM_MULTISHELL_PATH" ]; then
+  export PATH="$FNM_MULTISHELL_PATH:$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+else
+  export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
 [ -d "$TMPDIR" ] || mkdir -p "$TMPDIR"
