@@ -356,8 +356,8 @@ TMP_BIN_PATH="$TMP_BIN_PATH:$CARGO_HOME/bin:$RUST_HOME/bin:$RUSTUP_HOME/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup vagrant
 export VAGRANT_HOME="$HOME/.local/share/vagrant"
-export TMP_BIN_PATH="$TMP_BIN_PATH:$VAGRANT_HOME/bin"
 export VAGRANT_DEFAULT_PROVIDER="libvirt"
+TMP_BIN_PATH="$TMP_BIN_PATH:$VAGRANT_HOME/bin"
 [ -d "$VAGRANT_HOME/bin" ] || mkdir -p "$VAGRANT_HOME/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup dockerstarter
@@ -796,10 +796,10 @@ if [ -n "$(which hostname 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -v "$HOME" | grep -v "$SYSBINDIR" | tr '\n' ':' | sed 's|:$||g')"
-SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -v "$USRBINDIR" | grep -v "$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
+SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -vE "$HOME|$SYSBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
+SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
 if [ -n "$FNM_MULTISHELL_PATH" ]; then
-  export PATH="$FNM_MULTISHELL_PATH:$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+  export PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
 else
   export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
 fi
