@@ -21,10 +21,9 @@
 [ -n "$FISH_VERSION" ] && return
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
-OLDPATH="$PATH"
-SYSBINDIR="/usr/local/bin"
 USRBINDIR="$HOME/.local/bin"
-PATH="$USRBINDIR:$SYSBINDIR:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
+SYSBINDIR="/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/share/games:/usr/games"
+export PATH="$USRBINDIR:$SYSBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export NODE_MANAGER="${NODE_MANAGER:-fnm}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -33,7 +32,7 @@ export HISTSIZE=1200
 export HISTFILESIZE=1200
 export SAVEHIST=4096
 export HISTCONTROL=ignoredups:erasedups:ignoreboth
-export HISTIGNORE="[bf]g:exit:pwd:clear:q:!:q!:quit"
+export HISTIGNORE="[bf]g:exit:pwd:clear:q:q!:quit"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
@@ -819,12 +818,12 @@ if [ -n "$SSH_CONNECTION" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -vE "$HOME|$SYSBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g' | grep '^' || echo "$PATH")"
-SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
-if [ -n "$FNM_MULTISHELL_PATH" ]; then
-  export PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+if [ -z "$FNM_MULTISHELL_PATH" ]; then
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -Fv '..' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR" | tr '\n' ':' | sed 's|:$||g')"
+  export PATH="$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
 else
-  export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -Fv '..' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
+  export PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
