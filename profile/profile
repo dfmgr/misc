@@ -819,12 +819,13 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
 if [ -z "$FNM_MULTISHELL_PATH" ]; then
-  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -Fv '..' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR" | tr '\n' ':' | sed 's|:$||g')"
-  export PATH="$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -Fv '..' | grep "$HOME" | grep -vE "\.|$USRBINDIR" | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
+  PATH="$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
 else
-  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -Fv '..' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
-  export PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -Fv '..' | grep "$HOME" | grep -vE "\.|$USRBINDIR|$FNM_MULTISHELL_PATH" | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
+  PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
 fi
+export PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
 unset SET_PATH SET_TMP_PATH TMP_BIN_PATH
