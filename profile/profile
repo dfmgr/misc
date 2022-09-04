@@ -25,7 +25,6 @@ OLDPATH="$PATH"
 SYSBINDIR="/usr/local/bin"
 USRBINDIR="$HOME/.local/bin"
 PATH="$USRBINDIR:$SYSBINDIR:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/games"
-export BINDIR="$USRBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export NODE_MANAGER="${NODE_MANAGER:-fnm}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -795,15 +794,6 @@ if [ -n "$(which hostname 2>/dev/null)" ]; then
   [ -f "$HOME/.config/local/servers/$(hostname -f).local" ] && . "$HOME/.config/local/servers/$(hostname -f).local"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fix PATH
-SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -vE "$HOME|$SYSBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
-SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
-if [ -n "$FNM_MULTISHELL_PATH" ]; then
-  export PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
-else
-  export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
 [ -d "$TMPDIR" ] || mkdir -p "$TMPDIR"
 [ -d "$LOGDIR" ] || mkdir -p "$LOGDIR"
@@ -826,6 +816,15 @@ export PROFILERCSRC="$HOME/.profile"
 if [ -n "$SSH_CONNECTION" ]; then
   [ -f "$HOME/.config/misc/shell/other/ssh" ] && . "$HOME/.config/misc/shell/other/ssh"
   [ -f "$HOME/.config/local/ssh.launch" ] && . "$HOME/.config/local/ssh.launch"
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# fix PATH
+SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -vE "$HOME|$SYSBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g' | grep '^' || echo "$PATH")"
+SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
+if [ -n "$FNM_MULTISHELL_PATH" ]; then
+  export PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
+else
+  export PATH="$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # unset unneeded vars
