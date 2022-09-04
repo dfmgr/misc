@@ -155,9 +155,9 @@ if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XDG Settings
-LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
-STATE_DIRECTORY="$HOME/.local/lib"
 CACHE_DIRECTORY="$HOME/.cache"
+STATE_DIRECTORY="$HOME/.local/lib"
+LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
 RUNTIME_DIRECTORY="${XDG_RUNTIME_DIR:-/run/user/$UID}"
 CONFIGURATION_DIRECTORY="${CONFIGURATION_DIRECTORY:-$HOME/.config}"
 XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$RUNTIME_DIRECTORY}"
@@ -166,13 +166,24 @@ export LOGS_DIRECTORY STATE_DIRECTORY CACHE_DIRECTORY RUNTIME_DIRECTORY
 export CONFIGURATION_DIRECTORY XDG_RUNTIME_DIR XDG_CONFIG_HOME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
-if [ -f ~/.config/local/gitconfig.local ] && [ ! -f ~/.gitconfig ]; then
+if [ -f "$HOME/.config/local/gitconfig.local" ] && [ ! -f "$HOME/.gitconfig" ]; then
   cp -f "$HOME/.config/local/gitconfig.local" "$HOME/.gitconfig"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
 SUDO_PROMPT="$(printf "\t\t\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(printf "\033[1;32m")%p: $(printf "\033[0m")"
 export SUDO_PROMPT
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# create a banner
+if [ -n "$(which figlet 2>/dev/null)" ]; then
+  export BANNER="figlet -f banner"
+elif [ -n "$(which toilet 2>/dev/null)" ]; then
+  export BANNER="toilet -f mono9.tlf"
+elif [ -n "$(which banner 2>/dev/null)" ]; then
+  export BANNER="banner"
+else
+  export BANNER="echo -e"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
 GPG_TTY="$(tty)"
@@ -183,6 +194,7 @@ fi
 export GPG_TTY SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
+[ -d "$HOME/.ssh" ] || mkdir -p "$HOME/.ssh"
 SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
 if [ -d "$HOME/.ssh" ] && ls "$HOME/.ssh"/id_* &>/dev/null; then
   for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
@@ -218,29 +230,18 @@ if [ -d "$HOME/.emacs.d/bin" ]; then
   TMP_BIN_PATH="$HOME/.emacs.d/bin:$TMP_BIN_PATH"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# rpm devel
+# rpm development
 export QA_RPATHS="$((0x0001 | 0x0010))"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mpd server
 export MPDSERVER="$(hostname -s 2>/dev/null)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set hostname
-export HOSTNAME="$(hostname -f 2>/dev/null)"
+export HOSTNAME="$(hostname -f 2>/dev/null || echo "$HOSTNAME")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # notes settings
-export NOTES_SERVER_NAME="development"
 export NOTES_DIRECTORY="$HOME/.local/share/editors/notes"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# create a banner
-if [ -n "$(which figlet 2>/dev/null)" ]; then
-  export BANNER="figlet -f banner"
-elif [ -n "$(which toilet 2>/dev/null)" ]; then
-  export BANNER="toilet -f mono9.tlf"
-elif [ -n "$(which banner 2>/dev/null)" ]; then
-  export BANNER="banner"
-else
-  export BANNER="echo -e"
-fi
+export NOTES_SERVER_NAME="${NOTES_SERVER_NAME:-development}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup neovim
 export NVIM_LISTEN_ADDRESS="$RUNTIME_DIRECTORY/nvim.${USER}.sock"
@@ -691,8 +692,8 @@ export TERM="screen-256color"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # logging
 export DEFAULT_LOG="apps"
-export LOGDIR="$HOME/.local/log"
-export DEFAULT_LOG_DIR="$LOGDIR"
+export LOGDIR="$LOGS_DIRECTORY"
+export DEFAULT_LOG_DIR="$LOGS_DIRECTORY"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set scripts path if installed manually
 if [ -d "$HOME/.local/share/scripts/bin" ] && [ -d "$HOME/.local/share/scripts/functions" ]; then
