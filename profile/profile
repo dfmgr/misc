@@ -819,7 +819,7 @@ if [ -n "$SSH_CONNECTION" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
-SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -vE "$HOME|$SYSBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g' | grep '^' || echo "${PATH//.:/.}")"
+SET_PATH="$(echo "$PATH" | tr ':' '\n' | sed 's|\.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | sort -u | grep -v '^$' | grep -vE "$HOME|$SYSBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g' | grep '^' || echo "$PATH")"
 SET_TMP_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | sed 's|\:.$||g' | grep -v '^$' | grep -Fv '..' | awk '!seen[$0]++' | grep -v '^$' | grep "$HOME" | grep -vE "$USRBINDIR|$FNM_MULTISHELL_PATH" | tr '\n' ':' | sed 's|:$||g')"
 if [ -n "$FNM_MULTISHELL_PATH" ]; then
   export PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_TMP_PATH:$SYSBINDIR:$SET_PATH:."
