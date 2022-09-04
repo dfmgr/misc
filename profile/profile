@@ -821,10 +821,10 @@ fi
 # fix PATH
 if [ -z "$FNM_MULTISHELL_PATH" ]; then
   SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
-  PATH="$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
+  PATH="$SET_USR_PATH:$USRBINDIR:$SYSBINDIR:."
 else
   SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR|$FNM_MULTISHELL_PATH" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
-  PATH="$FNM_MULTISHELL_PATH/bin:$USRBINDIR:$SET_USR_PATH:$SYSBINDIR:."
+  PATH="$FNM_MULTISHELL_PATH/bin:$SET_USR_PATH:$SET_USR_PATH:$SYSBINDIR:."
 fi
 export PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
