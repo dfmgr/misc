@@ -824,7 +824,7 @@ if [ -z "$FNM_MULTISHELL_PATH" ]; then
   PATH="$SET_USR_PATH:$USRBINDIR:$SYSBINDIR:."
 else
   SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR|$FNM_MULTISHELL_PATH" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
-  PATH="$FNM_MULTISHELL_PATH/bin:$SET_USR_PATH:$SET_USR_PATH:$SYSBINDIR:."
+  PATH="$FNM_MULTISHELL_PATH/bin:$SET_USR_PATH:$USRBINDIR:$SYSBINDIR:."
 fi
 export PATH
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
