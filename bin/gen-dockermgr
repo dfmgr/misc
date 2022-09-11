@@ -291,20 +291,24 @@ EOF
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __initialize_app() {
-  [ -d "$GEN_DOCKERMGR_DIR/nginx" ] || mkdir -p "$GEN_DOCKERMGR_DIR/nginx"
-  [ -d "$GEN_DOCKERMGR_DIR/dataDir/bin" ] || mkdir -p "$GEN_DOCKERMGR_DIR/dataDir/bin"
-  [ -d "$GEN_DOCKERMGR_DIR/dataDir/data" ] || mkdir -p "$GEN_DOCKERMGR_DIR/dataDir/data"
-  [ -d "$GEN_DOCKERMGR_DIR/dataDir/config" ] || mkdir -p "$GEN_DOCKERMGR_DIR/dataDir/config"
+  [ -d "$GEN_DOCKERMGR_CWD/nginx" ] || mkdir -p "$GEN_DOCKERMGR_CWD/nginx"
+  [ -d "$GEN_DOCKERMGR_CWD/dataDir/bin" ] || mkdir -p "$GEN_DOCKERMGR_CWD/dataDir/bin"
+  [ -d "$GEN_DOCKERMGR_CWD/dataDir/data" ] || mkdir -p "$GEN_DOCKERMGR_CWD/dataDir/data"
+  [ -d "$GEN_DOCKERMGR_CWD/dataDir/config" ] || mkdir -p "$GEN_DOCKERMGR_CWD/dataDir/config"
+  [ -f "$GEN_DOCKERMGR_CWD/nginx/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/nginx/.gitkeep"
+  [ -f "$GEN_DOCKERMGR_CWD/dataDir/bin/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/dataDir/bin/.gitkeep"
+  [ -f "$GEN_DOCKERMGR_CWD/dataDir/data/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/dataDir/data/.gitkeep"
+  [ -f "$GEN_DOCKERMGR_CWD/dataDir/config/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/dataDir/config/.gitkeep"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __execute_gen_dockermgr() {
-  __proxy_config | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g' >"$GEN_DOCKERMGR_DIR/nginx/template"
-  gen-readme "$GEN_DOCKERMGR_DIR" projects docker.md
-  gen-license "$GEN_DOCKERMGR_DIR" wtfpl
-  gitignore "$GEN_DOCKERMGR_DIR" default
-  gen-script installers dockermgr.sh "$GEN_DOCKERMGR_DIR/install.sh" "$@"
-  if [ -f "$GEN_DOCKERMGR_DIR/install.sh" ]; then
-    gitadmin "$GEN_DOCKERMGR_DIR" setup "https://github.com/dockermgr/$REPLACE_APPNAME"
+  __proxy_config | sed 's|REPLACE_APPNAME|'$REPLACE_APPNAME'|g' >"$GEN_DOCKERMGR_CWD/nginx/template"
+  gen-readme "$GEN_DOCKERMGR_CWD" projects docker.md
+  gen-license "$GEN_DOCKERMGR_CWD" wtfpl
+  gitignore "$GEN_DOCKERMGR_CWD" default
+  gen-script installers dockermgr.sh "$GEN_DOCKERMGR_CWD/install.sh" "$@"
+  if [ -f "$GEN_DOCKERMGR_CWD/install.sh" ]; then
+    gitadmin "$GEN_DOCKERMGR_CWD" setup "https://github.com/dockermgr/$REPLACE_APPNAME"
     exitCode=$?
   else
     exitCode=1
@@ -511,10 +515,10 @@ cmd_exists --error --ask bash || exit 3 # exit 3 if not found
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # APP Variables overrides
 REPLACE_DATE_TIME="$(date +'%Y-%m-%d at %H-%M')"
-REPLACE_APPNAME="$(basename $(realpath "${GEN_DOCKERMGR_DIR}") | tr '[:upper:]' '[:lower:]')"
+REPLACE_APPNAME="$(basename $(realpath "${GEN_DOCKERMGR_CWD}") | tr '[:upper:]' '[:lower:]')"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Actions based on env
-[ -f "$GEN_DOCKERMGR_DIR/install.sh" ] && printf_exit "$GEN_DOCKERMGR_DIR/install.sh exists"
+[ -f "$GEN_DOCKERMGR_CWD/install.sh" ] && printf_exit "$GEN_DOCKERMGR_CWD/install.sh exists"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # begin main app
 __initialize_app
