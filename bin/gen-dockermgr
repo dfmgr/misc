@@ -307,8 +307,8 @@ __execute_gen_dockermgr() {
   gen-license "$GEN_DOCKERMGR_CWD" wtfpl
   gitignore "$GEN_DOCKERMGR_CWD" default
   gen-script installers dockermgr.sh "$GEN_DOCKERMGR_CWD/install.sh" "$@"
-  if [ -f "$GEN_DOCKERMGR_CWD/install.sh" ]; then
-    gitadmin "$GEN_DOCKERMGR_CWD" setup "https://github.com/dockermgr/$REPLACE_APPNAME"
+  if [ -f "$GEN_DOCKERMGR_CWD/install.sh" ] && [ ! -d "$GEN_DOCKERMGR_CWD/.git" ]; then
+    gitadmin setup "$GEN_DOCKERMGR_CWD" "https://github.com/dockermgr/$REPLACE_APPNAME"
     exitCode=$?
   else
     exitCode=1
