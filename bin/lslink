@@ -63,7 +63,7 @@ main() {
       printf "%s\n" "$files" | printf_readline 5
     fi
   else
-    printf_red "No symlinks exist in $1"
+    printf_red "No symlinks exist in ${1:-$PWD}"
     exitCode=1
   fi
   return ${exitCode:-$?}

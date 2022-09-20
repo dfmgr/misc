@@ -1,3 +1,11 @@
+#### Changelog: 2022-09-20 at 13:48:43  
+
+bin/lslink : Modified 🚀  
+  
+#### End of changes for 202209111158-git - 2022-09-20 at 13:48:43  
+  
+----  
+  
 #### Changelog: 2022-09-11 at 11:58:21  
 
 bin/gen-dockermgr : 🗃️ Committing everything that changed 🗃️ 🚀  
