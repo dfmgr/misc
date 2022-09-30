@@ -177,8 +177,7 @@ fi
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-opus='ytda opus '
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-vorbis='ytda vorbis '
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-wav='ytda wav '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytda='ytda ytda '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytdv='ytda ytdv '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytdv='ytda video '
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Media
