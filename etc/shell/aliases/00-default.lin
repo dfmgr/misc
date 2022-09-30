@@ -165,20 +165,20 @@ fi
 # Open command
 [ "$(uname -s)" = Linux ] && alias open='xdg-open '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#youtube-dl
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorea='youtube-dl --extract-audio --audio-format mp3 --embed-thumbnail --add-metadata --audio-quality 320k --config-location $HOME/.config/youtube-dl/nightcorea '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorev='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/nightcorev '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytv-best='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-aac='youtube-dl --extract-audio --audio-format aac --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-best='youtube-dl --extract-audio --audio-format best --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-flac='youtube-dl --extract-audio --audio-format flac --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-m4a='youtube-dl --extract-audio --audio-format m4a --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-mp3='youtube-dl --audio-quality 320k --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-opus='youtube-dl --extract-audio --audio-format opus --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-vorbis='youtube-dl --extract-audio --audio-format vorbis --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-wav='youtube-dl --extract-audio --audio-format wav --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytda='youtube-dl -f bestaudio --extract-audio --audio-format mp3 --config-location $HOME/.config/youtube-dl/music '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytdv='youtube-dl -f bestvideo+bestaudio --config-location $HOME/.config/youtube-dl/videos '
+# youtube-dl
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorea='ytda nightcorea '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorev='ytda nightcorev '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytv-best='ytda ytv '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-aac='ytda aac '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-best='ytda yta '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-flac='ytda flac '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-m4a='ytda m4a '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-mp3='ytda mp3 '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-opus='ytda opus '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-vorbis='ytda vorbis '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-wav='ytda wav '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytda='ytda ytda '
+[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytdv='ytda ytdv '
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Media
