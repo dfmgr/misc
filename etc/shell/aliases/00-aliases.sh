@@ -14,3 +14,4 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Aliases for all OSes
+alias copy-templates='gen-header --copy;echo;gen-html --copy;echo;gen-readme --copy;echo;gen-script --copy;echo'
