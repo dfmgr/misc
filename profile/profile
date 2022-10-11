@@ -363,7 +363,7 @@ TMP_BIN_PATH="$TMP_BIN_PATH:$VAGRANT_HOME/bin"
 export DOCKERCONFDIR="${DOCKERCONFDIR:-$HOME/.config/dockstarter}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # DockerMGR settings
-export DOCKERMGR_HOME="${DOCKERMGR_HOME:-$HOME/.local/share/docker}"
+export DOCKERMGR_HOME="${DOCKERMGR_HOME:-$HOME/.config/myscripts/dockermgr}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
