@@ -248,10 +248,10 @@ __proxy_config() {
 # Reverse Proxy for REPLACE_APPNAME
 
 server {
-  listen REPLACE_NGINX_HTTPS ssl http2;
-  listen [::]:REPLACE_NGINX_HTTPS ssl http2;
+  listen REPLACE_NGINX_PORT REPLACE_SERVER_LISTEN_OPTS;
+  listen [::]:REPLACE_NGINX_PORT REPLACE_SERVER_LISTEN_OPTS;
   ssl_protocols TLSv1.2 TLSv1.3;
-  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:D$
+  ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:D\$
   ssl_prefer_server_ciphers off;
   server_name REPLACE_SERVER_HOST *.REPLACE_SERVER_HOST;
   access_log /var/log/nginx/access.log;
@@ -263,7 +263,7 @@ server {
 
   location / {
     proxy_redirect          http:// https://;
-    proxy_pass              http://REPLACE_SERVER_LISTEN:REPLACE_SERVER_PORT;
+    proxy_pass              REPLACE_REVPROXY_PROTO://REPLACE_SERVER_LISTEN:REPLACE_SERVER_PORT;
     send_timeout            3600;
     client_max_body_size    1024M;
     proxy_connect_timeout   3600;
@@ -306,7 +306,7 @@ __execute_gen_dockermgr() {
   gen-readme "$GEN_DOCKERMGR_CWD" projects docker.md
   gen-license "$GEN_DOCKERMGR_CWD" wtfpl
   gitignore "$GEN_DOCKERMGR_CWD" default
-  gen-script installers dockermgr.sh "$GEN_DOCKERMGR_CWD/install.sh" "$@"
+  gen-script installers dockermgr.sh "$GEN_DOCKERMGR_CWD/install.sh" "install.sh"
   if [ -f "$GEN_DOCKERMGR_CWD/install.sh" ] && [ ! -d "$GEN_DOCKERMGR_CWD/.git" ]; then
     gitadmin setup "$GEN_DOCKERMGR_CWD" "https://github.com/dockermgr/$REPLACE_APPNAME"
     exitCode=$?
@@ -491,7 +491,7 @@ done
 # set -- "${SET_NEW_ARGS[@]}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set directory to first argument
-# [ -d "$1" ] && GEN_DOCKERMGR_CWD="$1" && shift 1 || GEN_DOCKERMGR_CWD="${GEN_DOCKERMGR_CWD:-$PWD}"
+[ -d "$1" ] && GEN_DOCKERMGR_CWD="$1" && shift 1 || GEN_DOCKERMGR_CWD="${GEN_DOCKERMGR_CWD:-$PWD}"
 GEN_DOCKERMGR_CWD="$(realpath "${GEN_DOCKERMGR_CWD:-$PWD}" 2>/dev/null)"
 # if [ -d "$GEN_DOCKERMGR_CWD" ] && cd "$GEN_DOCKERMGR_CWD"; then
 # if [ "$GEN_DOCKERMGR_SILENT" != "true" ] || [ "$CWD_SILENCE" != "true" ]; then
