@@ -9,7 +9,7 @@
 # @@Copyright        :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
 # @@Created          :  Tuesday, Aug 30, 2022 16:03 EDT
 # @@File             :  gen-dockermgr
-# @@Description      :
+# @@Description      :  Setup dockermgr repo
 # @@Changelog        :  New script
 # @@TODO             :  Better documentation
 # @@Other            :
@@ -296,7 +296,6 @@ __initialize_app() {
   [ -d "$GEN_DOCKERMGR_CWD/dataDir/data" ] || mkdir -p "$GEN_DOCKERMGR_CWD/dataDir/data"
   [ -d "$GEN_DOCKERMGR_CWD/dataDir/config" ] || mkdir -p "$GEN_DOCKERMGR_CWD/dataDir/config"
   [ -f "$GEN_DOCKERMGR_CWD/nginx/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/nginx/.gitkeep"
-  [ -f "$GEN_DOCKERMGR_CWD/dataDir/bin/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/dataDir/bin/.gitkeep"
   [ -f "$GEN_DOCKERMGR_CWD/dataDir/data/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/dataDir/data/.gitkeep"
   [ -f "$GEN_DOCKERMGR_CWD/dataDir/config/.gitkeep" ] || touch "$GEN_DOCKERMGR_CWD/dataDir/config/.gitkeep"
 }
