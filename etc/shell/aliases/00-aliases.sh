@@ -14,6 +14,9 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Aliases for all OSes
+alias shit='sudo '
+alias please='sudo '
+alias bork='echo 😂 🐕 '
 alias gcm="git -am '🗃️ Committing everything that changed 🗃️ '"
 alias copy-templates='gen-header --copy;gen-html --copy;gen-readme --copy;gen-script --copy;echo'
 alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent upgrade && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system"'

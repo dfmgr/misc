@@ -1,58 +1,70 @@
 #!/usr/bin/env sh
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # System Aliases
 [ -f "$(builtin type -P gdate 2>/dev/null)" ] && alias date='gdate '
-alias q='exit'
-alias :q='exit'
-alias :q!='exit'
-alias :w='history -a'
-alias c='clear'
-alias ch='history -c &>/dev/null && history -w &>/dev/null'
-alias g='git'
-alias m='man'
-alias map='xargs -n1'
-alias n='npm'
-alias path='printf "%b\n" "${PATH//:/\\n}"'
-alias t='tmux'
-alias bashrc='clear && source ~/.bashrc'
-alias inputrc='bind -f ~/.inputrc'
-alias tailf='tail -f'
-alias ipconfig='ifconfig'
-alias systemctl='sudo systemctl'
-alias mount='mount -l'
-alias h='history'
-alias j='jobs -l'
-alias nowtime='date +"%T"'
-alias nowdate='date +"%m-%d-%Y"'
-alias wget='wget -c'
-alias df='df -H'
-alias du='du -ch'
-alias setverfile='setver --file'
-alias userlist='cut -d: -f1 /etc/passwd'
-alias muttsync='mailsync'
-alias mutt='neomutt'
-alias sort='LC_ALL=C sort'
-alias uniq='LC_ALL=C uniq'
-alias lynx='lynx -cfg=$HOME/.config/lynx/lynx.cfg -lss=$HOME/.config/lynx/lynx.lss'
-alias grep='grep --color=auto'
-alias egrep='grep -E --color=auto'
-alias fgrep='grep -F --color=auto'
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+alias q='exit '
+alias :q='exit '
+alias :q!='exit '
+alias :w='history -a '
+alias c='clear '
+alias ch='history -c &>/dev/null && history -w &>/dev/null '
+alias g='git '
+alias m='man '
+alias map='xargs -n1 '
+alias n='npm '
+alias path='printf "%b\n" "${PATH//:/\\n}" '
+alias t='tmux '
+alias bashrc='clear && source ~/.bashrc '
+alias inputrc='bind -f ~/.inputrc '
+alias tailf='tail -f '
+alias ipconfig='ifconfig '
+alias systemctl='sudo systemctl '
+alias mount='mount -l '
+alias h='history '
+alias j='jobs -l '
+alias nowtime='date +"%T" '
+alias nowdate='date +"%m-%d-%Y" '
+alias wget='wget -c '
+alias df='df -H '
+alias du='du -ch '
+alias setverfile='setver --file '
+alias userlist='cut -d: -f1 /etc/passwd '
+alias muttsync='mailsync '
+alias mutt='neomutt '
+alias sort='LC_ALL=C sort '
+alias uniq='LC_ALL=C uniq '
+alias lynx='lynx -cfg=$HOME/.config/lynx/lynx.cfg -lss=$HOME/.config/lynx/lynx.lss '
+alias grep='grep --color=auto '
+alias egrep='grep -E --color=auto '
+alias fgrep='grep -F --color=auto '
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# sudo commands
+alias sudo='\sudo --preserve-env=PATH '
+alias svi='\sudo vim '
+alias adb='\sudo adb '
+alias npmg='\sudo npm -g '
+alias netstat='sudo netstat '
+alias fastboot='sudo fastboot '
+alias ipconfig='sudo ifconfig '
+alias systemctl='sudo systemctl '
+alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
+alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ssh aliases
 [ -n "$DISPLAY" ] && alias ssh='ssh -X' || alias ssh='ssh '
-[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q'
+[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias ll='gls -l --color=auto'
-[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias l.='gls -LA --color=auto'
-[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias ls='gls --color=auto'
-[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias la='gls -A --color=auto'
-[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias lla='gls -lA --color=auto '
-[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias dir='gls -D --color=auto '
-[ -f "$(builtin type -P greadlink 2>/dev/null)" ] && alias readlink='greadlink '
-[ -f "$(builtin type -P gbasename 2>/dev/null)" ] && alias basename='gbasename '
-[ -f "$(builtin type -P grealpath 2>/dev/null)" ] && alias realpath='grealpath '
-[ -f "$(builtin type -P gdircolors 2>/dev/null)" ] && alias dircolors='gdircolors '
+[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias ll='gls -l --color=auto '
+[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias l.='gls -LA --color=auto '
+[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias ls='gls --color=auto '
+[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias la='gls -A --color=auto '
+[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias lla='gls -lA --color=auto  '
+[ -f "$(builtin type -P gls 2>/dev/null)" ] && alias dir='gls -D --color=auto  '
+[ -f "$(builtin type -P greadlink 2>/dev/null)" ] && alias readlink='greadlink  '
+[ -f "$(builtin type -P gbasename 2>/dev/null)" ] && alias basename='gbasename  '
+[ -f "$(builtin type -P grealpath 2>/dev/null)" ] && alias realpath='grealpath  '
+[ -f "$(builtin type -P gdircolors 2>/dev/null)" ] && alias dircolors='gdircolors  '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # CD Aliases
 alias ~='builtin cd ~'
@@ -63,32 +75,32 @@ alias .....='builtin cd ../../../..'
 alias cd..='builtin cd ..'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
-[ -f "/usr/local/bin/vim" ] && alias vi='/usr/local/bin/vim'
-[ -f "/usr/local/bin/vim" ] && alias vim='/usr/local/bin/vim'
-[ -f "/usr/local/bin/vim" ] && alias vis='/usr/local/bin/vim +set si'
-[ -f "/usr/local/bin/vim" ] && alias svi='sudo /usr/local/bin/vim'
+[ -f "/usr/local/bin/vim" ] && alias vi='/usr/local/bin/vim '
+[ -f "/usr/local/bin/vim" ] && alias vim='/usr/local/bin/vim '
+[ -f "/usr/local/bin/vim" ] && alias vis='/usr/local/bin/vim +set si '
+[ -f "/usr/local/bin/vim" ] && alias svi='sudo /usr/local/bin/vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
-[ -f "/usr/local/bin/nvim" ] && alias nvim='/usr/local/bin/nvim -u $HOME/.config/neovim/init.vim'
+[ -f "/usr/local/bin/nvim" ] && alias nvim='/usr/local/bin/nvim -u $HOME/.config/neovim/init.vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
-[ -f "$(command -v docker)" ] && alias docker='sudo docker'
+[ -f "$(command -v docker)" ] && alias docker='sudo docker '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Empty trash.
-alias empty-trash='sudo rm -frv /Volumes/*/.Trashes; sudo rm -frv ~/.Trash; sudo rm -frv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* "delete from LSQuarantineEvent"'
+alias empty-trash='sudo rm -frv /Volumes/*/.Trashes; sudo rm -frv ~/.Trash; sudo rm -frv /private/var/log/asl/*.asl; sqlite3 ~/Library/Preferences/com.apple.LaunchServices.QuarantineEventsV* "delete from LSQuarantineEvent" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Hide/show icons.
-alias desktop-icons-show='defaults write com.apple.finder CreateDesktop -bool true && killall Finder'
-alias desktop-icons-hide='defaults write com.apple.finder CreateDesktop -bool false && killall Finder'
+alias desktop-icons-show='defaults write com.apple.finder CreateDesktop -bool true && killall Finder '
+alias desktop-icons-hide='defaults write com.apple.finder CreateDesktop -bool false && killall Finder '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Flush dns
-alias flushdns='dscacheutil -flushcache && killall -HUP mDNSResponder'
+alias flushdns='dscacheutil -flushcache && killall -HUP mDNSResponder '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Lock Screen
-alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
+alias afk='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Open command
-alias o='open'
+alias o='open '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # youtube-dl
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorea='ytda nightcorea '
@@ -106,30 +118,30 @@ alias o='open'
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Media
-[ -f "$(builtin type -P castero 2>/dev/null)" ] && alias podcasts='castero'
-[ -f "$(builtin type -P spotifyd 2>/dev/null)" ] && alias spotify='spotifyd'
-[ -f "$(builtin type -P pianobar 2>/dev/null)" ] && alias pandora='pianobar'
-[ -f "$(builtin type -P tizonia 2>/dev/null)" ] && alias cloudplayer='tizonia'
-[ -f "$(builtin type -P youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer'
+[ -f "$(builtin type -P castero 2>/dev/null)" ] && alias podcasts='castero '
+[ -f "$(builtin type -P spotifyd 2>/dev/null)" ] && alias spotify='spotifyd '
+[ -f "$(builtin type -P pianobar 2>/dev/null)" ] && alias pandora='pianobar '
+[ -f "$(builtin type -P tizonia 2>/dev/null)" ] && alias cloudplayer='tizonia '
+[ -f "$(builtin type -P youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer '
 [ -f "$(builtin type -P mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # android dev
-alias fastboot='sudo fastboot'
-alias adb='sudo adb'
+alias fastboot='sudo fastboot '
+alias adb='sudo adb '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # netstat aliases
-alias ports='sudo netstat -tau | grep LISTEN'
-alias netstat='sudo netstat'
+alias ports='sudo netstat -tau | grep LISTEN '
+alias netstat='sudo netstat '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
-alias list-my-functions='typeset -F | less'
-alias list-my-aliases='alias | less'
+alias list-my-functions='typeset -F | less '
+alias list-my-aliases='alias | less '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Fun alias
-alias tw='rainbowstream -iot'
-alias twitter='twitter'
-alias mylatlong='mylocation | grep -E "LAT | LON"'
-alias emj='emojis'
+alias tw='rainbowstream -iot '
+alias twitter='twitter '
+alias mylatlong='mylocation | grep -E "LAT | LON" '
+alias emj='emojis '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import global aliases
 [ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh"

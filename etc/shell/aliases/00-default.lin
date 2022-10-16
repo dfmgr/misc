@@ -48,6 +48,18 @@ alias fgrep='grep -F --color=auto '
 alias cp_rpf='cp --parents -Rfv '
 alias less='less -r '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# sudo commands
+alias sudo='\sudo --preserve-env=PATH '
+alias svi='\sudo vim '
+alias adb='\sudo adb '
+alias npmg='\sudo npm -g '
+alias netstat='sudo netstat '
+alias fastboot='sudo fastboot '
+alias ipconfig='sudo ifconfig '
+alias systemctl='sudo systemctl '
+alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
+alias flushdns='sudo systemd-resolve --flush-caches '
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # TMUX
 [ -f "$HOME/.config/tmux/singlerc.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-single='tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
 [ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
@@ -68,18 +80,6 @@ alias profilerc='source ~/.profile'
 # ssh aliases
 [ -n "$DISPLAY" ] && alias ssh='ssh -X' || alias ssh='ssh '
 [ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q'
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# sudo commands
-alias sudo='\sudo --preserve-env=PATH '
-alias svi='\sudo vim '
-alias adb='\sudo adb '
-alias npmg='\sudo npm -g '
-alias netstat='sudo netstat '
-alias fastboot='sudo fastboot '
-alias ipconfig='sudo ifconfig '
-alias systemctl='sudo systemctl '
-alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
-alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # systemctl
 alias systemctl-start='sudo systemctl start '
