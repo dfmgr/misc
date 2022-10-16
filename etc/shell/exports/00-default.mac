@@ -12,7 +12,7 @@ LESS_TERMCAP_us=$(printf "\e[1;32m")
 # Don't clear the screen after quitting a `man` page.
 MANPAGER="less -X"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#  browser
+# browser
 if [ -z "$BROWSER" ]; then
   if [ -f "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then
     BROWSER="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -21,7 +21,7 @@ if [ -z "$BROWSER" ]; then
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#  terminal
+# terminal
 if [ -z "$TERMINAL" ]; then
   if [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm)" ]; then
     TERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm"
@@ -30,14 +30,14 @@ if [ -z "$TERMINAL" ]; then
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#  torrent client
+# torrent client
 if [ -z "$TORRENT" ]; then
   if [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
     TORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#  editor
+# editor
 if [ -z "$EDITOR" ]; then
   if [ -n "$(command -v code 2>/dev/null)" ]; then
     EDITOR="$(command -v code 2>/dev/null)"
@@ -54,7 +54,7 @@ if [ -z "$EDITOR" ]; then
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#  color
+# color
 CLICOLOR=1
 GREP_COLORS="mt=37;45"
 if [ -f "$HOME/.dircolors" ]; then
