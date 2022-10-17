@@ -32,7 +32,7 @@ if [ -f "$SRC_DIR/functions.bash" ]; then DIR="$SRC_DIR"; else DIR="$HOME/.local
 if [[ -f "$DIR/functions.bash" ]]; then
   . "$DIR/functions.bash"
 else
-  printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+  printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
   exit 1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

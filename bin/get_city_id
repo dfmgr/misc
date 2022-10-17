@@ -33,7 +33,7 @@ get_city_id_main() {
     local FUNCTIONS_DIR="$HOME/.local/bin"
     . "$FUNCTIONS_DIR/functions.bash"
   else
-    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from ${FUNCTIONS_DIR:-$SRC_DIR}"
+    printf "\033[0;31m%s \033[0m\n" "Couldn't source the functions file from ${FUNCTIONS_DIR:-$SRC_DIR}"
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -223,7 +223,7 @@ EOF
     __update_id_cache
   fi
   if [ -z "$SEARCH_TERM" ]; then
-    printf '\t\t%s\n' "Missing city"
+    printf '%s\n' "Missing city"
     exitCode=1
   elif [[ -f "$GET_CITY_ID_CACHE_FILE" ]]; then
     cat "$GET_CITY_ID_CACHE_FILE" | jq -rc '.[] | {name: .name, id: .id}' | grep -i "${SEARCH_TERM}"

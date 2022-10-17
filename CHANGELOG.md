@@ -1,3 +1,65 @@
+#### Changelog: 2022-10-17 at 15:57:41  
+
+bin/bonsai-tree : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/checkup : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/compton.sh : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/compton-toggle.sh : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/copy : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/countdown : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/datauri : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/delhistory : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/dmenu_edit_conf : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/ex : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/functions.bash : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/get_city_id : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/gz : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/hrfs : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/linkhandler : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/lsd : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/lslink : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/lso : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/maimpick : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/mastodon : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/mkd : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/pasteit : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/pauseallmpv : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/pavolume.sh : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/ppi : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/printclip : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/prompt : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/pub-ip.sh : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/putclip : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/qh : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/qrcode : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/qt : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/remove-samples : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/renameFilesRecursively : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/retry : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/rr : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/set_new_version : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_asdf : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_deno : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_distrobox : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_gofish : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_gvm : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_ssl : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_vagrant : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_virt : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setup_vmtools : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/setver : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/showclip : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/show_wifi_clients : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/social_post : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/spotify1.sh : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/tempcores.sh : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/tweet : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/xephyr : 🗃️ Committing everything that changed 🗃️ 🚀  
+profile/profile : 🗃️ Committing everything that changed 🗃️ 🚀  
+  
+#### End of changes for 202210161632-git - 2022-10-17 at 15:57:41  
+  
+----  
+  
 #### Changelog: 2022-10-16 at 16:32:46  
 
 etc/shell/aliases/00-aliases.sh : 🗃️ Committing everything that changed 🗃️ 🚀  

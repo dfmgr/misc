@@ -31,7 +31,7 @@ bonsai-tree_main() {
     FUNCTIONS_DIR="$HOME/.local/bin"
     . "$FUNCTIONS_DIR/functions.bash"
   else
-    printf "\t\t\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
+    printf "\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

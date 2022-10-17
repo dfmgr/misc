@@ -33,7 +33,7 @@ main() {
   if [[ -f "$DIR/functions.bash" ]]; then
     source "$DIR/functions.bash"
   else
-    printf "\t\t\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
+    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
     return 1
   fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
