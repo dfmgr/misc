@@ -365,6 +365,13 @@ export DOCKERCONFDIR="${DOCKERCONFDIR:-$HOME/.config/dockstarter}"
 # DockerMGR settings
 export DOCKERMGR_HOME="${DOCKERMGR_HOME:-$HOME/.config/myscripts/dockermgr}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# distrobox
+DBX_SKIP_WORKDIR=0
+DBX_NON_INTERACTIVE=1
+DBX_CONTAINER_ALWAYS_PULL=1
+DBX_HOME="$HOME/.local/share/distrobox"
+TMP_BIN_PATH="$TMP_BIN_PATH:$DBX_HOME/bin"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
   if [ -n "$(which lynx 2>/dev/null)" ]; then

@@ -116,6 +116,7 @@ __gen_config() {
     cp -Rf "$SETUP_DISTROBOX_CONFIG_DIR/$SETUP_DISTROBOX_CONFIG_FILE" "$SETUP_DISTROBOX_CONFIG_BACKUP_DIR/$SETUP_DISTROBOX_CONFIG_FILE.$$"
   cat <<EOF >"$SETUP_DISTROBOX_CONFIG_DIR/$SETUP_DISTROBOX_CONFIG_FILE"
 # Settings for setup_distrobox
+SETUP_DISTROBOX_HOME="${SETUP_DISTROBOX_HOME:-}"
 SETUP_DISTROBOX_SCRIPT_URL="${SETUP_DISTROBOX_SCRIPT_URL:-}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Color Settings
@@ -247,8 +248,8 @@ __trap_exit() {
 # User defined functions
 __run_install() {
   curl -q -LSsf "$SETUP_DISTROBOX_SCRIPT_URL" -o "$SETUP_DISTROBOX_TEMP_DIR/distrobox" 2>"$SETUP_DISTROBOX_LOG_DIR/error.log" || return 1
-  sh -c "$SETUP_DISTROBOX_TEMP_DIR/distrobox" --prefix "$HOME/.local/share/distrobox" 2>>"$SETUP_DISTROBOX_LOG_DIR/error.log" 1>/dev/null
-  if [ -f "$HOME/.local/share/distrobox/bin/distrobox" ]; then
+  sh -c "$SETUP_DISTROBOX_TEMP_DIR/distrobox" --next --prefix "$SETUP_DISTROBOX_HOME" 2>>"$SETUP_DISTROBOX_LOG_DIR/error.log" 1>/dev/null
+  if [ -f "$SETUP_DISTROBOX_HOME/bin/distrobox-init" ]; then
     rm -Rf "$SETUP_DISTROBOX_TEMP_DIR/distrobox" "$SETUP_DISTROBOX_LOG_DIR/error.log"
     return 0
   else
@@ -257,7 +258,7 @@ __run_install() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # User defined variables/import external variables
-
+DBX_HOME="${DBX_HOME:-$HOME/.local/share/distrobox}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Application Folders
 SETUP_DISTROBOX_CONFIG_FILE="${SETUP_DISTROBOX_CONFIG_FILE:-settings.conf}"
@@ -285,6 +286,7 @@ SETUP_DISTROBOX_NOTIFY_CLIENT_ICON="${SETUP_DISTROBOX_NOTIFY_CLIENT_ICON:-notifi
 SETUP_DISTROBOX_NOTIFY_CLIENT_URGENCY="${SETUP_DISTROBOX_NOTIFY_CLIENT_URGENCY:-normal}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Additional Variables
+SETUP_DISTROBOX_HOME="${SETUP_DISTROBOX_HOME:-$DBX_HOME}"
 SETUP_DISTROBOX_SCRIPT_URL="${SETUP_DISTROBOX_SCRIPT_URL:-https://raw.githubusercontent.com/89luca89/distrobox/main/install}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Generate config files
@@ -460,14 +462,15 @@ cmd_exists --error --ask bash || exit 3 # exit 3 if not found
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # begin main app
-printf_cyan "Installing distrobox to $HOME/.local/share/distrobox"
+printf_cyan "Installing distrobox to $SETUP_DISTROBOX_HOME"
 if __run_install; then
-  for f in "$HOME/.local/share/distrobox/bin"/*; do
+  for f in "$SETUP_DISTROBOX_HOME"/*; do
     name="$(basename "$f")"
+    printf_cyan "Creating symlinks in ~/.loca/bin/$name to $f"
     ln -sf "$f" "$HOME/.local/bin/$name"
   done
   exitCode=0
-  printf_green "DistroBox has been installed to $HOME/.local/bin"
+  printf_green "DistroBox has been installed to $SETUP_DISTROBOX_HOME"
   [ -f "$SETUP_DISTROBOX_LOG_DIR/error.log" ] && rm -Rf "$SETUP_DISTROBOX_LOG_DIR/error.log"
 else
   printf_red "Failed to install DistroBox"
