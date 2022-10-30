@@ -464,10 +464,15 @@ cmd_exists --error --ask bash || exit 3 # exit 3 if not found
 # begin main app
 printf_cyan "Installing distrobox to $SETUP_DISTROBOX_HOME"
 if __run_install; then
-  for f in "$SETUP_DISTROBOX_HOME"/*; do
+  printf_purple "Creating symlinks in ~/.local/bin to ${SETUP_DISTROBOX_HOME//$HOME/~}/bin"
+  for f in "$SETUP_DISTROBOX_HOME/bin"/*; do
     name="$(basename "$f")"
-    printf_cyan "Creating symlinks in ~/.loca/bin/$name to $f"
     ln -sf "$f" "$HOME/.local/bin/$name"
+  done
+  printf_purple "Creating symlinks in ~/.local/share/bash-completion/completions to ${SETUP_DISTROBOX_HOME//$HOME/~}/share/bash-completion/completions"
+  for c in "$SETUP_DISTROBOX_HOME/share/bash-completion/completions"/*; do
+    name="$(basename "$c")"
+    ln -sf "$c" "$HOME/.local/share/bash-completion/completions/$name"
   done
   exitCode=0
   printf_green "DistroBox has been installed to $SETUP_DISTROBOX_HOME"
