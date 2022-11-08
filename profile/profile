@@ -372,6 +372,10 @@ DBX_CONTAINER_ALWAYS_PULL=1
 DBX_HOME="$HOME/.local/share/distrobox"
 TMP_BIN_PATH="$TMP_BIN_PATH:$DBX_HOME/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# dotnet
+export DOTNET_ROOT="$HOME/.local/share/dotnet"
+TMP_BIN_PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$TMP_BIN_PATH"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
   if [ -n "$(which lynx 2>/dev/null)" ]; then

@@ -1,0 +1,475 @@
+#!/usr/bin/env bash
+# shellcheck shell=bash
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version           :  202210300010-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  jason@casjaysdev.com
+# @@License          :  LICENSE.md
+# @@ReadME           :  setup_dotnet --help
+# @@Copyright        :  Copyright: (c) 2022 Jason Hempstead, Casjays Developments
+# @@Created          :  Monday, Nov 07, 2022 23:06 EST
+# @@File             :  setup_dotnet
+# @@Description      :
+# @@Changelog        :  New script
+# @@TODO             :  Better documentation
+# @@Other            :
+# @@Resource         :
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  bash/user
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+APPNAME="$(basename "$0" 2>/dev/null)"
+VERSION="202210300010-git"
+HOME="${USER_HOME:-$HOME}"
+USER="${SUDO_USER:-$USER}"
+RUN_USER="${SUDO_USER:-$USER}"
+SCRIPT_SRC_DIR="${BASH_SOURCE%/*}"
+SETUP_DOTNET_REQUIRE_SUDO="${SETUP_DOTNET_REQUIRE_SUDO:-no}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Reopen in a terminal
+#if [ ! -t 0 ] && { [ "$1" = --term ] || [ $# = 0 ]; }; then { [ "$1" = --term ] && shift 1 || true; } && TERMINAL_APP="TRUE" myterminal -e "$APPNAME $*" && exit || exit 1; fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Initial debugging
+[ "$1" = "--debug" ] && set -x && export SCRIPT_OPTS="--debug" && export _DEBUG="on"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Disables colorization
+[ "$1" = "--raw" ] && export SHOW_RAW="true"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# pipes fail
+set -o pipefail
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function file
+if [ -f "$SCRIPT_SRC_DIR/functions.bash" ]; then
+  FUNCTIONS_DIR="$SCRIPT_SRC_DIR"
+  . "$FUNCTIONS_DIR/functions.bash"
+elif [ -f "$HOME/.local/bin/functions.bash" ]; then
+  FUNCTIONS_DIR="$HOME/.local/bin"
+  . "$FUNCTIONS_DIR/functions.bash"
+else
+  printf "\033[0;31m%s \033[0m\n" "Couldn't source the functions file from ${FUNCTIONS_DIR:-$SCRIPT_SRC_DIR}"
+  exit 1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Send all output to /dev/null
+__devnull() {
+  tee &>/dev/null && SETUP_DOTNET_EXIT_STATUS=0 || SETUP_DOTNET_EXIT_STATUS=1
+  return ${SETUP_DOTNET_EXIT_STATUS:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+# Send errors to /dev/null
+__devnull2() {
+  [ -n "$1" ] && local cmd="$1" && shift 1 || return 1
+  eval $cmd "$*" 2>/dev/null && SETUP_DOTNET_EXIT_STATUS=0 || SETUP_DOTNET_EXIT_STATUS=1
+  return ${SETUP_DOTNET_EXIT_STATUS:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -'
+# See if the executable exists
+__cmd_exists() {
+  SETUP_DOTNET_EXIT_STATUS=0
+  [ -n "$1" ] && local SETUP_DOTNET_EXIT_STATUS="" || return 0
+  for cmd in "$@"; do
+    builtin command -v "$cmd" &>/dev/null && SETUP_DOTNET_EXIT_STATUS+=$(($SETUP_DOTNET_EXIT_STATUS + 0)) || SETUP_DOTNET_EXIT_STATUS+=$(($SETUP_DOTNET_EXIT_STATUS + 1))
+  done
+  [ $SETUP_DOTNET_EXIT_STATUS -eq 0 ] || SETUP_DOTNET_EXIT_STATUS=3
+  return ${SETUP_DOTNET_EXIT_STATUS:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Check for a valid internet connection
+__am_i_online() {
+  local SETUP_DOTNET_EXIT_STATUS=0
+  curl -q -LSsfI --max-time 1 --retry 0 "${1:-http://1.1.1.1}" 2>&1 | grep -qi 'server:.*cloudflare' || SETUP_DOTNET_EXIT_STATUS=4
+  return ${SETUP_DOTNET_EXIT_STATUS:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# colorization
+if [ "$SHOW_RAW" = "true" ]; then
+  printf_color() { printf '%b' "$1" | tr -d '\t' | sed '/^%b$/d;s,\x1B\[ 0-9;]*[a-zA-Z],,g'; }
+else
+  printf_color() { printf "%b" "$(tput setaf "${2:-7}" 2>/dev/null)" "$1" "$(tput sgr0 2>/dev/null)"; }
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Additional printf_ colors
+__printf_head() { printf_blue "$1"; }
+__printf_opts() { printf_purple "$1"; }
+__printf_line() { printf_cyan "$1"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# output version
+__version() { printf_cyan "$VERSION"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# list options
+__list_options() {
+  printf_color "$1: " "$5"
+  echo -ne "$2" | sed 's|:||g;s/'$3'/ '$4'/g'
+  printf_newline
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# create the config file
+__gen_config() {
+  local NOTIFY_CLIENT_NAME="$APPNAME"
+  if [ "$INIT_CONFIG" != "TRUE" ]; then
+    printf_blue "Generating the config file in"
+    printf_cyan "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE"
+  fi
+  [ -d "$SETUP_DOTNET_CONFIG_DIR" ] || mkdir -p "$SETUP_DOTNET_CONFIG_DIR"
+  [ -d "$SETUP_DOTNET_CONFIG_BACKUP_DIR" ] || mkdir -p "$SETUP_DOTNET_CONFIG_BACKUP_DIR"
+  [ -f "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE" ] &&
+    cp -Rf "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE" "$SETUP_DOTNET_CONFIG_BACKUP_DIR/$SETUP_DOTNET_CONFIG_FILE.$$"
+  cat <<EOF >"$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE"
+# Settings for setup_dotnet
+SETUP_DOTNET_SCRIPT_URL="${SETUP_DOTNET_SCRIPT_URL:-}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Color Settings
+SETUP_DOTNET_OUTPUT_COLOR_1="${SETUP_DOTNET_OUTPUT_COLOR_1:-}"
+SETUP_DOTNET_OUTPUT_COLOR_2="${SETUP_DOTNET_OUTPUT_COLOR_2:-}"
+SETUP_DOTNET_OUTPUT_COLOR_GOOD="${SETUP_DOTNET_OUTPUT_COLOR_GOOD:-}"
+SETUP_DOTNET_OUTPUT_COLOR_ERROR="${SETUP_DOTNET_OUTPUT_COLOR_ERROR:-}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Notification Settings
+SETUP_DOTNET_NOTIFY_ENABLED="${SETUP_DOTNET_NOTIFY_ENABLED:-}"
+SETUP_DOTNET_GOOD_NAME="${SETUP_DOTNET_GOOD_NAME:-}"
+SETUP_DOTNET_ERROR_NAME="${SETUP_DOTNET_ERROR_NAME:-}"
+SETUP_DOTNET_GOOD_MESSAGE="${SETUP_DOTNET_GOOD_MESSAGE:-}"
+SETUP_DOTNET_ERROR_MESSAGE="${SETUP_DOTNET_ERROR_MESSAGE:-}"
+SETUP_DOTNET_NOTIFY_CLIENT_NAME="${SETUP_DOTNET_NOTIFY_CLIENT_NAME:-}"
+SETUP_DOTNET_NOTIFY_CLIENT_ICON="${SETUP_DOTNET_NOTIFY_CLIENT_ICON:-}"
+SETUP_DOTNET_NOTIFY_CLIENT_URGENCY="${SETUP_DOTNET_NOTIFY_CLIENT_URGENCY:-}"
+
+EOF
+  if builtin type -t __gen_config_local | grep -q 'function'; then __gen_config_local; fi
+  if [ -f "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE" ]; then
+    [ "$INIT_CONFIG" = "TRUE" ] || printf_green "Your config file for $APPNAME has been created"
+    . "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE"
+    SETUP_DOTNET_EXIT_STATUS=0
+  else
+    printf_red "Failed to create the config file"
+    SETUP_DOTNET_EXIT_STATUS=1
+  fi
+  return ${SETUP_DOTNET_EXIT_STATUS:-$?}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Help function - Align to 50
+__help() {
+  __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  __printf_opts "setup_dotnet:  - $VERSION"
+  __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  __printf_line "Usage: setup_dotnet [options] [commands]"
+  __printf_line "*                               - Install dotnet"
+  __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  __printf_opts "Other Options"
+  __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+  __printf_line "--help                          - Shows this message"
+  __printf_line "--config                        - Generate user config file"
+  __printf_line "--version                       - Show script version"
+  __printf_line "--options                       - Shows all available options"
+  __printf_line "--debug                         - Enables script debugging"
+  __printf_line "--raw                           - Removes all formatting on output"
+  __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__grep() { grep "$@" 2>/dev/null; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Is current user root
+__user_is_root() {
+  { [ $(id -u) -eq 0 ] || [ $EUID -eq 0 ] || [ "$WHOAMI" = "root" ]; } && return 0 || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Is current user not root
+__user_is_not_root() {
+  { [ $(id -u) -eq 0 ] || [ $EUID -eq 0 ] || [ "$WHOAMI" = "root" ]; } && return 1 || return 0
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# # Get sudo password
+__sudoask() { ask_for_password sudo true && return 0 || return 1; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Check if user is a member of sudo
+__sudo_group() {
+  grep -s "${1:-$USER}" "/etc/group" | grep -Eq 'wheel|adm|sudo' || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Run sudo
+__sudorun() {
+  __sudoif && __cmd_exists sudo && sudo -HE "$@" || { __sudoif && eval "$@"; }
+  return $?
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Test if user has access to sudo
+__can_i_sudo() {
+  (sudo -vn && sudo -ln) 2>&1 | grep -vq 'may not' >/dev/null && return 0
+  __sudo_group "${1:-$USER}" || __sudoif || __sudo true &>/dev/null || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# User can run sudo
+__sudoif() {
+  __user_is_root && return 0
+  __can_i_sudo "${RUN_USER:-$USER}" && return 0
+  __user_is_not_root && __sudoask && return 0 || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Run command as root
+requiresudo() {
+  if [ "$SETUP_DOTNET_REQUIRE_SUDO" = "yes" ] && [ -z "$SETUP_DOTNET_REQUIRE_SUDO_RUN" ]; then
+    export SETUP_DOTNET_REQUIRE_SUDO="no"
+    export SETUP_DOTNET_REQUIRE_SUDO_RUN="true"
+    __sudo "$@"
+    exit $?
+  else
+    return 0
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute sudo
+__sudo() {
+  CMD="${1:-echo}" && shift 1
+  CMD_ARGS="${*:--e "${RUN_USER:-$USER}"}"
+  SUDO="$(builtin command -v sudo 2>/dev/null || echo 'eval')"
+  [ "$(basename "$SUDO" 2>/dev/null)" = "sudo" ] && OPTS="--preserve-env=PATH -HE"
+  if __sudoif; then
+    export PATH="$PATH"
+    $SUDO ${OPTS:-} $CMD $CMD_ARGS && true || false
+    SETUP_DOTNET_EXIT_STATUS=$?
+  else
+    printf '%s\n' "This requires root to run"
+    SETUP_DOTNET_EXIT_STATUS=1
+  fi
+  return ${SETUP_DOTNET_EXIT_STATUS:-1}
+}
+# End of sudo functions
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__trap_exit() {
+  SETUP_DOTNET_EXIT_STATUS=${SETUP_DOTNET_EXIT_STATUS:-$?}
+  [ -f "$SETUP_DOTNET_TEMP_FILE" ] && rm -Rf "$SETUP_DOTNET_TEMP_FILE" &>/dev/null
+  if builtin type -t __trap_exit_local | grep -q 'function'; then __trap_exit_local; fi
+  return $SETUP_DOTNET_EXIT_STATUS
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# User defined functions
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# User defined variables/import external variables
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Application Folders
+SETUP_DOTNET_EXIT_STATUS=0
+SETUP_DOTNET_CONFIG_FILE="${SETUP_DOTNET_CONFIG_FILE:-settings.conf}"
+SETUP_DOTNET_CONFIG_DIR="${SETUP_DOTNET_CONFIG_DIR:-$HOME/.config/misc/settings/setup_dotnet}"
+SETUP_DOTNET_CONFIG_BACKUP_DIR="${SETUP_DOTNET_CONFIG_BACKUP_DIR:-$HOME/.local/share/misc/settings/setup_dotnet/backups}"
+SETUP_DOTNET_RUN_DIR="${SETUP_DOTNET_RUN_DIR:-$HOME/.local/run/system_scripts/$SETUP_DOTNET_SCRIPTS_PREFIX}"
+SETUP_DOTNET_LOG_DIR="${SETUP_DOTNET_LOG_DIR:-$HOME/.local/log/setup_dotnet}"
+SETUP_DOTNET_TEMP_DIR="${SETUP_DOTNET_TEMP_DIR:-$HOME/.local/tmp/system_scripts/setup_dotnet}"
+SETUP_DOTNET_CACHE_DIR="${SETUP_DOTNET_CACHE_DIR:-$HOME/.cache/setup_dotnet}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Color Settings
+SETUP_DOTNET_OUTPUT_COLOR_1="${SETUP_DOTNET_OUTPUT_COLOR_1:-33}"
+SETUP_DOTNET_OUTPUT_COLOR_2="${SETUP_DOTNET_OUTPUT_COLOR_2:-5}"
+SETUP_DOTNET_OUTPUT_COLOR_GOOD="${SETUP_DOTNET_OUTPUT_COLOR_GOOD:-2}"
+SETUP_DOTNET_OUTPUT_COLOR_ERROR="${SETUP_DOTNET_OUTPUT_COLOR_ERROR:-1}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Notification Settings
+SETUP_DOTNET_NOTIFY_ENABLED="${SETUP_DOTNET_NOTIFY_ENABLED:-yes}"
+SETUP_DOTNET_GOOD_NAME="${SETUP_DOTNET_GOOD_NAME:-Great:}"
+SETUP_DOTNET_ERROR_NAME="${SETUP_DOTNET_ERROR_NAME:-Error:}"
+SETUP_DOTNET_GOOD_MESSAGE="${SETUP_DOTNET_GOOD_MESSAGE:-No errors reported}"
+SETUP_DOTNET_ERROR_MESSAGE="${SETUP_DOTNET_ERROR_MESSAGE:-Errors were reported}"
+SETUP_DOTNET_NOTIFY_CLIENT_NAME="${SETUP_DOTNET_NOTIFY_CLIENT_NAME:-$APPNAME}"
+SETUP_DOTNET_NOTIFY_CLIENT_ICON="${SETUP_DOTNET_NOTIFY_CLIENT_ICON:-notification-new}"
+SETUP_DOTNET_NOTIFY_CLIENT_URGENCY="${SETUP_DOTNET_NOTIFY_CLIENT_URGENCY:-normal}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Additional Variables
+SETUP_DOTNET_SCRIPT_URL="${SETUP_DOTNET_SCRIPT_URL:-https://dot.net/v1/dotnet-install.sh}"
+export DOTNET_ROOT="$HOME/.local/share/dotnet"
+export PATH="$PATH:$DOTNET_ROOT:$DOTNET_ROOT/tools"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Generate config files
+[ -f "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE" ] ||
+  [ "$*" = "--config" ] || INIT_CONFIG="${INIT_CONFIG:-TRUE}" __gen_config ${SETARGS:-$@}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Import config
+[ -f "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE" ] &&
+  . "$SETUP_DOTNET_CONFIG_DIR/$SETUP_DOTNET_CONFIG_FILE"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Ensure Directories exist
+[ -d "$SETUP_DOTNET_RUN_DIR" ] || mkdir -p "$SETUP_DOTNET_RUN_DIR" |& __devnull
+[ -d "$SETUP_DOTNET_LOG_DIR" ] || mkdir -p "$SETUP_DOTNET_LOG_DIR" |& __devnull
+[ -d "$SETUP_DOTNET_TEMP_DIR" ] || mkdir -p "$SETUP_DOTNET_TEMP_DIR" |& __devnull
+[ -d "$SETUP_DOTNET_CACHE_DIR" ] || mkdir -p "$SETUP_DOTNET_CACHE_DIR" |& __devnull
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SETUP_DOTNET_TEMP_FILE="${SETUP_DOTNET_TEMP_FILE:-$(mktemp $SETUP_DOTNET_TEMP_DIR/XXXXXX 2>/dev/null)}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup trap to remove temp file
+trap '__trap_exit' EXIT
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup notification function
+__notifications() {
+  __cmd_exists notifications || return
+  [ "$SETUP_DOTNET_NOTIFY_ENABLED" = "yes" ] || return
+  [ "$SEND_NOTIFICATION" = "no" ] && return
+  (
+    set +x
+    export SCRIPT_OPTS="" _DEBUG=""
+    export NOTIFY_GOOD_MESSAGE="${NOTIFY_GOOD_MESSAGE:-$SETUP_DOTNET_GOOD_MESSAGE}"
+    export NOTIFY_ERROR_MESSAGE="${NOTIFY_ERROR_MESSAGE:-$SETUP_DOTNET_ERROR_MESSAGE}"
+    export NOTIFY_CLIENT_ICON="${NOTIFY_CLIENT_ICON:-$SETUP_DOTNET_NOTIFY_CLIENT_ICON}"
+    export NOTIFY_CLIENT_NAME="${NOTIFY_CLIENT_NAME:-$SETUP_DOTNET_NOTIFY_CLIENT_NAME}"
+    export NOTIFY_CLIENT_URGENCY="${NOTIFY_CLIENT_URGENCY:-$SETUP_DOTNET_NOTIFY_CLIENT_URGENCY}"
+    notifications "$@"
+    retval=$?
+    return $retval
+  ) |& __devnull &
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set custom icons
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Argument/Option settings
+SETARGS=("$@")
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+SHORTOPTS=""
+SHORTOPTS+=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+LONGOPTS="completions:,config,debug,dir:,help,options,raw,version,silent"
+LONGOPTS+=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ARRAY=""
+ARRAY+=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+LIST=""
+LIST+=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup application options
+setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$APPNAME" -- "$@" 2>/dev/null)
+eval set -- "${setopts[@]}" 2>/dev/null
+while :; do
+  case "$1" in
+  --raw)
+    shift 1
+    export SHOW_RAW="true"
+    printf_column() { tee | grep '^'; }
+    printf_color() { printf '%b' "$1" | tr -d '\t' | sed '/^%b$/d;s,\x1B\[ 0-9;]*[a-zA-Z],,g'; }
+    ;;
+  --debug)
+    shift 1
+    set -xo pipefail
+    export SCRIPT_OPTS="--debug"
+    export _DEBUG="on"
+    __devnull() { tee || return 1; }
+    __devnull2() { eval "$@" |& tee || return 1; }
+    ;;
+  --completions)
+    if [ "$2" = "short" ]; then
+      printf '%s\n' "-$SHORTOPTS" | sed 's|"||g;s|:||g;s|,|,-|g' | tr ',' '\n'
+    elif [ "$2" = "long" ]; then
+      printf '%s\n' "--$LONGOPTS" | sed 's|"||g;s|:||g;s|,|,--|g' | tr ',' '\n'
+    elif [ "$2" = "array" ]; then
+      printf '%s\n' "$ARRAY" | sed 's|"||g;s|:||g' | tr ',' '\n'
+    elif [ "$2" = "list" ]; then
+      printf '%s\n' "$LIST" | sed 's|"||g;s|:||g' | tr ',' '\n'
+    else
+      exit 1
+    fi
+    shift 2
+    exit $?
+    ;;
+  --options)
+    shift 1
+    printf_blue "Current options for ${PROG:-$APPNAME}"
+    [ -z "$SHORTOPTS" ] || __list_options "Short Options" "-${SHORTOPTS}" ',' '-' 4
+    [ -z "$LONGOPTS" ] || __list_options "Long Options" "--${LONGOPTS}" ',' '--' 4
+    [ -z "$ARRAY" ] || __list_options "Base Options" "${ARRAY}" ',' '' 4
+    exit $?
+    ;;
+  --version)
+    shift 1
+    __version
+    exit $?
+    ;;
+  --help)
+    shift 1
+    __help
+    exit $?
+    ;;
+  --config)
+    shift 1
+    __gen_config
+    exit $?
+    ;;
+  --silent)
+    shift 1
+    SETUP_DOTNET_SILENT="true"
+    ;;
+  --dir)
+    CWD_IS_SET="TRUE"
+    SETUP_DOTNET_CWD="$2"
+    [ -d "$SETUP_DOTNET_CWD" ] || mkdir -p "$SETUP_DOTNET_CWD" |& __devnull
+    shift 2
+    ;;
+  --)
+    shift 1
+    break
+    ;;
+  esac
+done
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Get directory from args
+# set -- "$@"
+# for arg in "$@"; do
+# if [ -d "$arg" ]; then
+# SETUP_DOTNET_CWD="$arg" && shift 1 && SET_NEW_ARGS=("$@") && break
+# elif [ -f "$arg" ]; then
+# SETUP_DOTNET_CWD="$(dirname "$arg" 2>/dev/null)" && shift 1 && SET_NEW_ARGS=("$@") && break
+# else
+# SET_NEW_ARGS+=("$arg")
+# fi
+# done
+# set -- "${SET_NEW_ARGS[@]}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set directory to first argument
+# [ -d "$1" ] && SETUP_DOTNET_CWD="$1" && shift 1 || SETUP_DOTNET_CWD="${SETUP_DOTNET_CWD:-$PWD}"
+SETUP_DOTNET_CWD="$(realpath "${SETUP_DOTNET_CWD:-$PWD}" 2>/dev/null)"
+# if [ -d "$SETUP_DOTNET_CWD" ] && cd "$SETUP_DOTNET_CWD"; then
+# if [ "$SETUP_DOTNET_SILENT" != "true" ] && [ "$CWD_SILENCE" != "true" ]; then
+# printf_cyan "Setting working dir to $SETUP_DOTNET_CWD"
+# fi
+# else
+# printf_exit "💔 $SETUP_DOTNET_CWD does not exist 💔"
+# fi
+export SETUP_DOTNET_CWD
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set actions based on variables
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Redefine functions based on options
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Check for required applications/Network check
+#requiresudo "$0" "$@" || exit 2     # exit 2 if errors
+cmd_exists --error --ask bash || exit 3 # exit 3 if not found
+#am_i_online --error || exit 4           # exit 4 if no internet
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# APP Variables overrides
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Actions based on env
+[ -d "$DOTNET_ROOT" ] && rm -Rf "$DOTNET_ROOT"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# begin main app
+printf_cyan "Installing dotnet this may take a few minutes"
+bash -c "$(curl -q -LSsf "$SETUP_DOTNET_SCRIPT_URL")" &>/dev/null
+[ -d "$HOME/.dotnet" ] && mv -f "$HOME/.dotnet" "$DOTNET_ROOT"
+if __cmd_exists dotnet; then
+  printf_green "dotnet has been installed to $DOTNET_ROOT"
+  SETUP_DOTNET_EXIT_STATUS=0
+else
+  printf_red "Failed to install dotnet"
+  SETUP_DOTNET_EXIT_STATUS=1
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Set exit code
+SETUP_DOTNET_EXIT_STATUS="${SETUP_DOTNET_EXIT_STATUS:-$?}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# lets exit with code
+exit ${SETUP_DOTNET_EXIT_STATUS:-$?}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# End application
+# ex: ts=2 sw=2 et filetype=sh
