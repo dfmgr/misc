@@ -201,6 +201,7 @@ Options:
   if [ "${title+set}" != "set" ]; then
     title="$*"
   fi
+  title="$(basename "$title")"
 
   # set language from first filename
   if [ -n "$1" ] && [ "${language+set}" != "set" ]; then
@@ -217,7 +218,6 @@ Options:
   else
     paste=$(cat)
   fi
-
   printf "%s" "$paste" | pastebin
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
