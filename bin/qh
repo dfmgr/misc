@@ -48,7 +48,7 @@ main() {
   local LESS_TERMCAP_ue=$'\e[0m'
   local LESS_TERMCAP_us=$'\e[1;4;31m'
   local HISTFILE="${HISTFILE:-$HOME/.bash_history}"
-  local SEARCH="$(grep --color=always "$*" "$HISTFILE" | grep '^' || return 1)"
+  local SEARCH="$(grep --color=always "${*:-^}" "$HISTFILE" | grep '^' || echo '')"
   if [ -f "$HISTFILE" ] && [ -n "$SEARCH" ]; then
     echo "$SEARCH" | less -RX
   else

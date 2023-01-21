@@ -43,7 +43,7 @@ main() {
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   if am_i_online; then
-    local IP=$(curl -q -4 -LSs http://ifconfig.co/ip 2>/dev/null)
+    local IP=$(curl -q -4 -LSsf http://ifconfig.co/ip 2>/dev/null || echo '')
     if [ -n "$IP" ]; then
       if pgrep -x openvpn >/dev/null; then
         echo VPN: "$IP"

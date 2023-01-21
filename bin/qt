@@ -44,11 +44,12 @@ main() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   [ -d "$1" ] && local SEARCH_DIR="$1" && shift 1 || local SEARCH_DIR="$PWD"
   [ -d "$2" ] && local SEARCH_DIR="$2" && shift
-  local GREP_OPTS="-ir --color=always "$*""
+  [ $# -ne 0 ] || printf_exit "You provided nothing to search for"
+  local GREP_OPTS="-ir --color=always $*"
   local GREP_EXCLUDE="--exclude-dir="$SEARCH_DIR/.git" --exclude-dir="$SEARCH_DIR/node_modules""
-  local SEARCH="$(grep $GREP_OPTS $GREP_EXCLUDE "${SEARCH_DIR:-.}" 2>/dev/null || return 1)"
+  local SEARCH="$(grep $GREP_OPTS $GREP_EXCLUDE "${SEARCH_DIR:-.}" 2>/dev/null || echo '')"
   if [ -d "$SEARCH_DIR" ] && [ -n "$SEARCH" ]; then
-    echo "$SEARCH" | less -RX
+    echo "$SEARCH" | awk -F':' '{print $1" : "$2}' | less -RX
   else
     printf_red "Search returned no results"
     return 1

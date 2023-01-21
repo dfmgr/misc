@@ -87,7 +87,7 @@ main() {
   # App variables
   local CONFDIR="$HOME/.config/dmenu/prompts"
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ ! -d "$CONFDIR" ]; then mkdir -p "$CONFDIR" &>/dev/null; fi
+  [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR" &>/dev/null
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   case $1 in
   -v | --version) __version ;;
