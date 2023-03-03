@@ -79,8 +79,8 @@ show_optvars "$@"
 dfmgr_run_init
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end with a space
-if_os mac && APP="curl wget lynx links nano locate "
-if_os linux && APP="curl wget lynx pip3 xdotool links nano ibus mlocate "
+if_os mac && APP="curl wget lynx nano locate "
+if_os linux && APP="curl wget lynx pip3 nano mlocate "
 PERL=""
 PYTH="pip setuptools "
 PIPS="shodan ytmdl asciinema toot tootstream rainbowstream irc virtualenvwrapper powerline-status "

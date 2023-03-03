@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202103251632-git
+##@Version       : 202303022155-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.com
 # @License       : LICENSE.md
 # @ReadME        : README.md
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 25, 2021 16:36 EDT
+# @Copyright     : Copyright: (c) 2023 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 02, 2023 21:54 EDT
 # @File          : 00-default.lin
 # @Description   :
 # @TODO          :
@@ -49,10 +49,10 @@ alias cp_rpf='cp --parents -Rfv '
 alias less='less -r '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
-alias sudo='\sudo --preserve-env=PATH '
-alias svi='\sudo vim '
-alias adb='\sudo adb '
-alias npmg='\sudo npm -g '
+alias sudo='sudo -HE --preserve-env=PATH  '
+alias svi='sudo vim '
+alias adb='sudo adb '
+alias npmg='sudo npm -g '
 alias netstat='sudo netstat '
 alias fastboot='sudo fastboot '
 alias ipconfig='sudo ifconfig '
@@ -73,28 +73,18 @@ alias flushdns='sudo systemd-resolve --flush-caches '
 [ -f "$HOME/.config/screen/other/socialrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-social='\screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='\screen -t social '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
-alias profilerc='source ~/.profile'
+alias profilerc='source ~/.profile '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
-[ "$(basename "$SHELL" 2>/dev/null)" = "zsh" ] && alias zshrc='clear && source ~/.zshrc'
+[ "$(basename "$SHELL" 2>/dev/null)" = "zsh" ] && alias zshrc='clear && source ~/.zshrc '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bash specific
-[ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias inputrc='bind -f ~/.inputrc'
-[ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias bashrc='clear && source ~/.bashrc'
+[ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias inputrc='bind -f ~/.inputrc '
+[ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias bashrc='clear && source ~/.bashrc '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ssh aliases
 [ -n "$DISPLAY" ] && alias ssh='ssh -X' || alias ssh='ssh '
-[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q'
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# systemctl
-alias systemctl-start='sudo systemctl start '
-alias systemctl-stop='sudo systemctl stop '
-alias systemctl-restart='sudo systemctl restart '
-alias systemctl-reload='sudo systemctl reload '
-alias systemctl-status='sudo systemctl status '
-alias systemctl-enable='sudo systemctl enable '
-alias systemctl-disable='sudo systemctl disable '
-alias systemctl-list-units='sudo systemctl list-units |sed "s|                                                 ||g"|grep -E "\.service|\.socket"|grep "active" '
+[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
 [ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt 2>/dev/null)" ] && alias apt='sudo apt '
@@ -106,42 +96,49 @@ alias systemctl-list-units='sudo systemctl list-units |sed "s|                  
 # ls
 alias l.='ls -hA | grep -E --color=auto '\''^\.'\'' '
 alias ls='ls -h --color=auto '
-alias la='ls -hA --color=auto'
+alias la='ls -hA --color=auto '
 alias ll='ls -hl --color=auto '
 alias lla='ls -hlA --color=auto '
-alias dir='ls -hD --color=auto'
+alias dir='ls -hD --color=auto '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # CD Aliases
-alias ~='builtin cd ~'
-alias ..='builtin cd .. '
-alias ...='builtin cd ../.. '
-alias ....='builtin cd ../../.. '
-alias .....='builtin cd ../../../.. '
-alias cd..='builtin cd .. '
+alias ~='builtin cd ~/ '
+alias ..='builtin cd ../ '
+alias ...='builtin cd ../../ '
+alias ....='builtin cd ../../../ '
+alias .....='builtin cd ../../../../ '
+alias cd..='builtin cd ../ '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # VisualStudio code
 if [ -n "$(builtin type -P code-oss 2>/dev/null)" ]; then
-  alias code='code-oss'
+  alias code='code-oss '
   alias codew='code-oss -w '
+  alias code-np='code-oss --disable-extensions '
 elif [ -n "$(builtin type -P code-insiders 2>/dev/null)" ]; then
-  alias code='code-insiders'
+  alias code='code-insiders '
   alias codew='code-insiders -w '
+  alias code-np='code-insiders --disable-extensions '
 elif [ -n "$(builtin type -P code 2>/dev/null)" ]; then
-  alias code='code'
+  alias code='code '
   alias codew='code -w '
+  alias code-np='code --disable-extensions '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Powershell
-[ -f "$(builtin type -P pwsh-preview 2>/dev/null)" ] && alias pwsh='pwsh-preview '
+if [ -f "$(builtin type -P pwsh-preview 2>/dev/null)" ]; then
+  alias pwsh='pwsh-preview '
+elif [ -f "$(builtin type -P pwsh 2>/dev/null)" ]; then
+  alias pwsh='pwsh '
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geany
-[ -f "$(builtin type -P geany 2>/dev/null)" ] && alias='geany --socket-file=/tmp/geany.sock &>/dev/null '
+[ -f "$(builtin type -P geany 2>/dev/null)" ] && alias='geany --socket-file=/tmp/geany.sock &>/dev/null  '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
 alias vi='vim '
-alias vim='vim '
-alias vis='vim +set si '
-alias svim='sudo vim '
+alias vim='vim  '
+alias vis='vim +set si  '
+alias svim='sudo vim  '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
 if [ -n "$(builtin type -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/neovim/init.vim" ]; then
@@ -152,7 +149,7 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
 [ -n "$(builtin type -P docker 2>/dev/null)" ] && alias docker='docker '
-[ -n "$(builtin type -P docker 2>/dev/null)" ] && alias drun='docker run --rm -it -v "${PWD}":/app -w /app '
+[ -n "$(builtin type -P docker 2>/dev/null)" ] && alias dockrun='docker run --rm -it -v "${PWD}":/app -w /app '
 [ -f "$(builtin type -P minikube 2>/dev/null)" ] && alias kubectl='minikube kubectl '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
@@ -171,7 +168,7 @@ fi
 [ -n "$(builtin type -P xfce4-session-logout 2>/dev/null)" ] && alias logout='xfce4-session-logout '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Open command
-[ "$(uname -s)" = Linux ] && alias open='xdg-open '
+[ "$(uname -s)" = Linux ] && [ -n "$(type -P xdg-open)" ] && alias open='xdg-open '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # youtube-dl
 [ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorea='ytda nightcorea '
@@ -197,10 +194,10 @@ fi
 [ -n "$(builtin type -P mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Python
-[ -z "$(builtin type -P pipx 2>/dev/null)" ] && alias='pip install -U pipx && alias pipx="pipx"'
+[ -z "$(builtin type -P pipx 2>/dev/null)" ] && alias='pip install -U pipx && alias pipx="pipx" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other
-[ -n "$(builtin type -P anime-dl 2>/dev/null)" ] && alias anime-cli='anime-dl'
+[ -n "$(builtin type -P anime-dl 2>/dev/null)" ] && alias anime-cli='anime-dl '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
 alias list-my-functions='typeset -F | less '
@@ -216,6 +213,11 @@ alias emj='emojis '
 [ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # other
-
+alias bork='printf "😂 🐕\n\n" '
+alias please='printf "😂 Well shit 😂\n\n" '
+alias shit='echo -n "😠 Well that didnt work: " && sudo '
+alias gcm='git add . && git commit -am "🗃️ Committing everything that changed 🗃️ " '
+alias copy-templates='gen-header --copy;gen-html --copy;gen-readme --copy;gen-script --copy;echo '
+alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent upgrade && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
