@@ -38,14 +38,27 @@ __rm_rf() { if [ -e "$1" ]; then rm -Rf "$@" || return 0; fi; }
 __ln_rm() { if [ -e "$1" ]; then find -L $1 -mindepth 1 -maxdepth 1 -type l -exec rm -f {} \;; fi; }
 __broken_symlinks() { find -L "$@" -type l -exec rm -f {} \;; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-git_update() { 
-  [ -d "${1:-$PWD}" ] && printf '%s' "Updating repo in ${1:-$PWD}: " && git -C "${1:-$PWD}" pull -q 2>/dev/null && \
+__git_top_dir() {
+  git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null |
+    grep -v fatal && return 0 || echo "${1:-$PWD}"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__git_update() {
+  local gitDir="$(__git_top_dir "${CDD_INTO_CUR:-$PWD}")" remote_repo=""
+  local local_remote_repo="local repo"
+  local local_remote_icon="🤷"
+  local remote_icon="🚀"
+  if [ -d "${gitDir}" ]; then
+    remote_repo="$([ -f "${gitDir}/.git/config" ] && grep -s 'url = ' "${gitDir}/.git/config" | awk -F'= ' '{print $2}' | grep '^' || echo '')"
+    [ -z "$remote_repo" ] && remote_icon="$local_remote_icon" && remote_repo="$local_remote_repo" &&
+      printf_cyan "$remote_icon $remote_repo $remote_icon" ||
+      { printf_green "🎆 Updating the git repo from: $remote_repo $remote_icon" && git -C "$gitDir" pull -q &>/dev/null; }
+  fi
+  return 0
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__git_clone() {
+  printf '%s' "Cloning repo to $2: " && git clone "$1" "${2:-$(basename "$1" 2>/dev/null)}" -q 2>/dev/null &&
     printf '\n' || return $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-git_clone() { 
-  printf '%s' "Cloning repo to $2: " && git clone "$1" "${2:-$(basename "$1" 2>/dev/null)}" -q 2>/dev/null && \
-    printf '\n' || return $?
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
