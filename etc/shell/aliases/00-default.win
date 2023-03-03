@@ -70,10 +70,10 @@ alias weather='wttrin '
 alias weather2='wttrin2 '
 alias command-not-found='fuck '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Import global aliases
-[ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # other
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Import global aliases
+[ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

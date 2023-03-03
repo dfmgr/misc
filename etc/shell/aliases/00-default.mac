@@ -143,10 +143,10 @@ alias twitter='twitter '
 alias mylatlong='mylocation | grep -E "LAT | LON" '
 alias emj='emojis '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Import global aliases
-[ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # other
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Import global aliases
+[ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
