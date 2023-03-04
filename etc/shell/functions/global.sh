@@ -49,6 +49,7 @@ __git_update() {
   local local_remote_icon="🤷"
   local remote_icon="🚀"
   if [ -d "${gitDir}" ]; then
+    git status --porcelain -s 2>&1 | grep -q '^' && return 0
     remote_repo="$([ -f "${gitDir}/.git/config" ] && grep -s 'url = ' "${gitDir}/.git/config" | awk -F'= ' '{print $2}' | grep '^' || echo '')"
     [ -z "$remote_repo" ] && remote_icon="$local_remote_icon" && remote_repo="$local_remote_repo" &&
       printf_cyan "$remote_icon $remote_repo $remote_icon" ||
