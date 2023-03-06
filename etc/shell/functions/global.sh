@@ -45,16 +45,28 @@ __git_top_dir() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_update() {
   local gitDir="$(__git_top_dir "${CDD_INTO_CUR:-$PWD}")" remote_repo=""
+  local gitOldDir="${CDD_OLD_PWD:-$gitDir}"
+  local repo_status="${CDD_REPO_UPDATED:-no}"
   local local_remote_repo="local repo"
   local local_remote_icon="🤷"
   local remote_icon="🚀"
+  local git_message=""
   if [ -d "${gitDir}" ]; then
     git status --porcelain -s 2>&1 | grep -q '^' && return 0
     remote_repo="$([ -f "${gitDir}/.git/config" ] && grep -s 'url = ' "${gitDir}/.git/config" | awk -F'= ' '{print $2}' | grep '^' || echo '')"
-    [ -z "$remote_repo" ] && remote_icon="$local_remote_icon" && remote_repo="$local_remote_repo" &&
-      printf_cyan "$remote_icon $remote_repo $remote_icon" ||
-      { printf_green "🎆 Updating the git repo from: $remote_repo $remote_icon" && git -C "$gitDir" pull -q &>/dev/null; }
+    if [ -z "$remote_repo" ]; then
+      remote_icon="$local_remote_icon"
+      remote_repo="$local_remote_repo"
+      git_message="$remote_icon $remote_repo $remote_icon"
+    fi
+    if [ "$repo_status" = "yes" ] && [ "$gitDir" != "$CDD_OLD_PWD" ]; then
+      printf_green "${git_message:-🎆 Updating the git repo from: $remote_repo $remote_icon}"
+      git -C "$gitDir" pull -q &>/dev/null
+      CDD_REPO_UPDATED="yes"
+      CDD_OLD_PWD="$gitOldDir"
+    fi
   fi
+  export CDD_REPO_UPDATED CDD_OLD_PWD
   return 0
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
