@@ -25,6 +25,11 @@ USRBINDIR="$HOME/.local/bin"
 SYSBINDIR="/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/share/games:/usr/games"
 export PATH="$USRBINDIR:$SYSBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# get hostname info
+HOSTNAME_FULL="$(hostname_cli="$(which hostnamecli 2>/dev/null || which hostname 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
+HOSTNAME_SHORT="$(hostname_cli="$(which hostnamecli 2>/dev/null || which hostname 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
+export HOSTNAME="${HOSTNAME_FULL:-$HOSTNAME_SHORT}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export NODE_MANAGER="${NODE_MANAGER:-fnm}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
@@ -76,7 +81,7 @@ SHELL_NAME="$(basename "$SHELL")"
 export SHELL SHELL_NAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
-PS1="$(basename "$SHELL_NAME"): $USER@$(hostname -f 2>/dev/null): $PWD :"
+PS1="$(basename "$SHELL_NAME"): $USER@$HOSTNAME_FULL: $PWD :"
 export PS1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
@@ -234,10 +239,7 @@ fi
 export QA_RPATHS="$((0x0001 | 0x0010))"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mpd server
-export MPDSERVER="$(hostname -s 2>/dev/null)"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# set hostname
-export HOSTNAME="$(hostname -f 2>/dev/null || echo "$HOSTNAME")"
+export MPDSERVER="$HOSTNAME"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # notes settings
 export NOTES_DIRECTORY="$HOME/.local/share/editors/notes"
@@ -800,10 +802,8 @@ fi
 [ -f "$HOME/.config/local/profile.local" ] && . "$HOME/.config/local/profile.local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import specific profiles for systems
-if [ -n "$(which hostname 2>/dev/null)" ]; then
-  [ -f "$HOME/.config/local/servers/$(hostname -s).local" ] && . "$HOME/.config/local/servers/$(hostname -s).local"
-  [ -f "$HOME/.config/local/servers/$(hostname -f).local" ] && . "$HOME/.config/local/servers/$(hostname -f).local"
-fi
+[ -f "$HOME/.config/local/servers/$HOSTNAME_FULL.local" ] && . "$HOME/.config/local/servers/$HOSTNAME_FULL.local"
+[ -f "$HOME/.config/local/servers/$HOSTNAME_SHORT.local" ] && . "$HOME/.config/local/servers/$HOSTNAME_SHORT.local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
 [ -d "$TMPDIR" ] || mkdir -p "$TMPDIR"
