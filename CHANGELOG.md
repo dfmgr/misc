@@ -1,3 +1,38 @@
+#### Changelog: 2023-03-12 at 22:41:02  
+
+applications/dmenu_edit_conf.desktop : 🗃️ Committing everything that changed 🗃️ 🚀  
+applications/.gitkeep : 🗃️ Committing everything that changed 🗃️ 🚀  
+bin/dmenu_edit_conf : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/alacritty : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/awesome : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/bash : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/bspwm : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/doom.d/config.el : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/doom.d/init.el : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/dunst : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/dwm : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/emacs.d/init.el : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/i3 : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/neovim : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/notes : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/picom : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/polybar : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/qtile : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/sxhkd : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/termite : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/vifm : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/vim : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/vimb : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/xmobar : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/xmonad : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/xresources : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/dmenu_edit_conf/menus/zsh : 🗃️ Committing everything that changed 🗃️ 🚀  
+etc/settings/.gitkkep : 🗃️ Committing everything that changed 🗃️ 🚀  
+  
+#### End of changes for 202303081034-git - 2023-03-12 at 22:41:02  
+  
+----  
+  
 #### Changelog: 2023-03-08 at 10:34:01  
 
 profile/profile : 🗃️ Committing everything that changed 🗃️ 🚀  
