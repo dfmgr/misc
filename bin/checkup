@@ -168,7 +168,7 @@ EOF
   fi
   echo $packages
   # lets exit with code
-  return "${exitCode:-$?}"
+  return "${exitCode}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # execute function

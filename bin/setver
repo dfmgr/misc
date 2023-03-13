@@ -68,7 +68,7 @@ main() {
   local LONGOPTS="config,version,help,file,show"
   local SHORTOPTS="c,v,h,f,s"
   local ARRAY="show dns create"
-  local SETVER_DNSVER="${SETVER_DNSVER:-%Y%m%d%H%M}"
+  local SETVER_DNSVER="${SETVER_DNSVER:-%Y%m%d%S}"
   local SETVER_FORMAT="${VERSION_DATE_FORMAT:-%Y%m%d%H%M-git}"
   local SETVER_FILE="version.txt"
   local ARGS="$*"
