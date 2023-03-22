@@ -45,7 +45,7 @@ datauri_main() {
       "-v, --version          -  display version" \
       "-h, --help             -  display help" \
       "--options              -  used by completions"
-    exit $?
+    return $?
   }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   __gen_config() {
@@ -130,9 +130,9 @@ EOF
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
   typeset mimeType=""
-  local filename="${1:-file}"
+  local filename="$(realpath "${1:-file}" 2>/dev/null)"
   if [ -f "$filename" ]; then
-    mimeType=$(file -b --mime-type "$1")
+    mimeType=$(file -b --mime-type "$filename")
     if [[ $mimeType == text/* ]]; then
       mimeType="$mimeType;charset=utf-8"
     fi
