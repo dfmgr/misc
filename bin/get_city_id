@@ -207,27 +207,46 @@ EOF
   #am_i_online --error || exit 1     # exit 1 if no internet
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # APP Variables overrides
-  SEARCH_TERM="$1"
-
+  if [ $# -eq 0 ]; then
+    printf '%s\n' "Missing city"
+    exit 1
+  elif [ $# -eq 1 ]; then
+    SEARCH_TERM="$1"
+    shift 1
+  elif [ $# -eq 2 ]; then
+    SEARCH_TERM="${*}"
+    FILTER="${*: -1}"
+    SEARCH_TERM="${SEARCH_TERM// $FILTER/}"
+    shift $#
+  elif [ $# -gt 2 ]; then
+    SEARCH_TERM="${*}"
+    FILTER="${*: -1}"
+    SEARCH_TERM="${SEARCH_TERM// $FILTER/}"
+    shift $#
+  fi
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # Actions based on env
 
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   # begin main app
-  if [[ -f "$GET_CITY_ID_CACHE_FILE" ]]; then
-    if [[ $(find "$GET_CITY_ID_CACHE_FILE" -mtime +13 -print) ]]; then
+  if [ -f "$GET_CITY_ID_CACHE_FILE" ]; then
+    if [ $(find "$GET_CITY_ID_CACHE_FILE" -mtime +13 -print) ]; then
       rm -Rf "$GET_CITY_ID_CACHE_FILE"
       __update_id_cache
     fi
   else
     __update_id_cache
   fi
-  if [ -z "$SEARCH_TERM" ]; then
-    printf '%s\n' "Missing city"
-    exitCode=1
-  elif [[ -f "$GET_CITY_ID_CACHE_FILE" ]]; then
-    cat "$GET_CITY_ID_CACHE_FILE" | jq -rc '.[] | {name: .name, id: .id}' | grep -i "${SEARCH_TERM}"
-    exitCode=$?
+  if [ -f "$GET_CITY_ID_CACHE_FILE" ]; then
+    results="$(cat "$GET_CITY_ID_CACHE_FILE" | jq -rc '.[] | {name: .name,country: .country, latitude: .coord.lat,longitude: .coord.lon,id: .id}' | grep -i "${SEARCH_TERM}" | sort -u | grep -i "${FILTER:-^}" || echo '')"
+    if [ -n "$results" ]; then
+      printf '%s\n' "$results"
+      exitCode=0
+    else
+      [ -n "$FILTER" ] && SEARCH_TERM="$SEARCH_TERM $FILTER"
+      printf_red "Your search for $SEARCH_TERM produced no results"
+      exitCode=1
+    fi
   else
     printf_red "Well something went horribly wrong!"
     exitCode=1

@@ -61,7 +61,7 @@ main() {
   # filter url for printing (remove password)
   print_url() {
     local url="$1"
-    echo "$url" | sed -e 's;://[^@]*@;://;'
+    echo "$url" | sed -e 's;://[^@]*@;://' | grep '^'
   }
 
   # paste. take input from stdin

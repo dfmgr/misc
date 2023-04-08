@@ -42,12 +42,14 @@ main() {
   -h | --help) __help ;;
   esac
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  rawData=$(sensors -f | grep -m 1 Core | awk '{print substr($3, 2, length($3)-5)}')
+  rawData=$(sensors -f 2>/dev/null | grep -m 1 Core | awk '{print substr($3, 2, length($3)-5)}' || echo '')
   tempCore=($rawData)
   degree="°F"
   temperaturesValues=(140 150 160 170 180 190)
   temperaturesColors=("#6bff49" "#f4cb24" "#ff8819" "#ff3205" "#f40202" "#ef02db")
   temperaturesIcons=(     )
+  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  [ -n "$rawData" ] || { printf '%s\n' "No sensor data was found" && exit 1; }
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   for iCore in ${!tempCore[*]}; do
     for iTemp in ${!temperaturesValues[*]}; do
