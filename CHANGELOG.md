@@ -1,3 +1,12 @@
+#### Changelog: 2023-04-08 at 14:35:36  
+
+bin/get_city_id : 🗃️  Moved get_city_id to scripts 🗃️ 🚀  
+completions/_get_city_id_completions : 🗃️  Moved get_city_id to scripts 🗃️ 🚀  
+  
+#### End of changes for 202304081130-git - 2023-04-08 at 14:35:36  
+  
+----  
+  
 #### Changelog: 2023-04-08 at 11:30:19  
 
 bin/get_city_id : 🗃️  Committing everything that changed 🗃️ 🚀  
