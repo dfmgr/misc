@@ -250,9 +250,10 @@ export NVIM_LISTEN_ADDRESS="$RUNTIME_DIRECTORY/nvim.${USER}.sock"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua - https://github.com/DhavalKapil/luaver
 export LUAVER_HOME="$HOME/.local/share/misc/plugins/luaver"
-export LUAROCKS_BIN="$HOME/.local/share/lua/luarocks/bin"
 export LUAROCKS_PREFIX="$HOME/.local/share/lua/luarocks"
+export LUAROCKS_BIN="$LUAROCKS_PREFIX/bin"
 TMP_BIN_PATH="$LUAROCKS_BIN:$TMP_BIN_PATH"
+[ -d "$HOME/.config/luarocks" ] || mkdir -p "$HOME/.config/luarocks"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure asdf - https://asdf-vm.com
 export ASDF_DIR="$HOME/.local/share/misc/plugins/asdf"
