@@ -171,8 +171,12 @@ export LOGS_DIRECTORY STATE_DIRECTORY CACHE_DIRECTORY RUNTIME_DIRECTORY
 export CONFIGURATION_DIRECTORY XDG_RUNTIME_DIR XDG_CONFIG_HOME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ensure .gitconfig exists
-if [ -f "$HOME/.config/local/gitconfig.local" ] && [ ! -f "$HOME/.gitconfig" ]; then
-  cp -f "$HOME/.config/local/gitconfig.local" "$HOME/.gitconfig"
+if [ ! -f "$HOME/.gitconfig" ]; then
+  if [ -f "$HOME/.config/local/gitconfig.local" ]; then
+    cp -f "$HOME/.config/local/gitconfig.local" "$HOME/.gitconfig"
+  else
+    touch "$HOME/.gitconfig"
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Sudo prompt
@@ -236,7 +240,7 @@ if [ -d "$HOME/.emacs.d/bin" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # rpm development
-export QA_RPATHS="$((0x0001 | 0x0010))"
+export QA_RPATHS="\$((0x0001 | 0x0010))"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mpd server
 export MPDSERVER="$HOSTNAME"
