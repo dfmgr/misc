@@ -377,6 +377,22 @@ export VAGRANT_DEFAULT_PROVIDER="libvirt"
 TMP_BIN_PATH="$TMP_BIN_PATH:$VAGRANT_HOME/bin"
 [ -d "$VAGRANT_HOME/bin" ] || mkdir -p "$VAGRANT_HOME/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Docker
+if [ -S "/run/docker.sock" ]; then
+  DOCKER_SOCK="/run/docker.sock"
+elif [ -S "/run/docker/docker.sock" ]; then
+  DOCKER_SOCK="/run/docker/docker.sock"
+elif [ -S "${XDG_RUNTIME_DIR}/docker.sock" ]; then
+  DOCKER_SOCK="${XDG_RUNTIME_DIR}/docker.sock"
+fi
+DOCKER_SOCK="${DOCKER_SOCK:-/run/docker.sock}"
+DOCKER_HOST="${DOCKER_HOST:-$DOCKER_SOCK}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Kubernetes
+KUBECONFIG="$HOME/.config/kube/config"
+[ -n "$(type -p kubectl)" ] && eval "$(kubectl completion "$SHELL_NAME")"
+[ -n "$(type -p podman)" ] && KIND_EXPERIMENTAL_PROVIDER="podman" || KIND_EXPERIMENTAL_PROVIDER="docker"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup dockerstarter
 export DOCKERCONFDIR="${DOCKERCONFDIR:-$HOME/.config/dockstarter}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -543,10 +559,16 @@ export FILEMANAGER="$MYFILEMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if [ -n "$(which kubectl 2>/dev/null)" ]; then
+  if [ -n "$(which kind 2>/dev/null)" ]; then
+    MYVMMANAGER="kind"
+  elif [ -n "$(which minikube 2>/dev/null)" ]; then
+    MYVMMANAGER="minikube"
+  elif [ -n "$(which kubectl 2>/dev/null)" ]; then
     MYVMMANAGER="kubectl"
   elif [ -n "$(which docker 2>/dev/null)" ]; then
     MYVMMANAGER="docker"
+  elif [ -n "$(which podman 2>/dev/null)" ]; then
+    MYVMMANAGER="podman"
   fi
 else
   if [ -n "$(which virt-manager 2>/dev/null)" ]; then

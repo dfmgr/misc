@@ -132,7 +132,13 @@ elif [ -f "$(builtin type -P pwsh 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geany
-[ -f "$(builtin type -P geany 2>/dev/null)" ] && alias='geany --socket-file=/tmp/geany.sock &>/dev/null  '
+if [ -f "$(builtin type -P geany 2>/dev/null)" ]; then
+  __geany() {
+    command geany --socket-file=/tmp/geany.sock "$@" &>/dev/null &
+    disown
+  }
+  alias='__geany '
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
 alias vi='vim '
@@ -149,8 +155,7 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
 [ -n "$(builtin type -P docker 2>/dev/null)" ] && alias docker='docker '
-[ -n "$(builtin type -P docker 2>/dev/null)" ] && alias dockrun='docker run --rm -it -v "${PWD}":/app -w /app '
-[ -f "$(builtin type -P minikube 2>/dev/null)" ] && alias kubectl='minikube kubectl '
+[ -n "$(builtin type -P minikube 2>/dev/null)" ] && alias kubectl='minikube kubectl '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
 [ -n "$(builtin type -P trash 2>/dev/null)" ] && alias empty-trash='trash empty ' ||
@@ -194,7 +199,7 @@ fi
 [ -n "$(builtin type -P mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Python
-[ -z "$(builtin type -P pipx 2>/dev/null)" ] && alias='pip install -U pipx && alias pipx="pipx" '
+[ -n "$(builtin type -P pipx 2>/dev/null)" ] || alias='pip install -U pipx && alias pipx="pipx" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other
 [ -n "$(builtin type -P anime-dl 2>/dev/null)" ] && alias anime-cli='anime-dl '
@@ -212,9 +217,9 @@ alias emj='emojis '
 # other
 alias bork='printf "😂 🐕\n\n" '
 alias please='printf "😂 Well shit 😂\n\n" '
-alias shit='echo -n "😠 Well that didnt work: " && sudo '
+alias shit='echo -n "😠 Well that didnt work: " && sudo'
 alias gcm='git add . && git commit -am "🗃️ Committing everything that changed 🗃️ " '
-alias copy-templates='gen-header --copy;gen-html --copy;gen-readme --copy;gen-script --copy;echo '
+alias copy-templates='gen-header --copy;gen-html --copy;gen-license --copy;gen-readme --copy;gen-script --copy;echo '
 alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent upgrade && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import global aliases
