@@ -257,7 +257,7 @@ export LUAVER_HOME="$HOME/.local/share/misc/plugins/luaver"
 [ -f "$LUAVER_HOME/luaver" ] && ln -sf "$LUAVER_HOME/luaver" "$HOME/.local/bin/luaver"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup luarocks
-lua_ver="$(ls -A /usr/bin/lua* | grep 'lua[0-9].[0-9]' | sort -rV | sed 's|.*lua||g' | head -n1 | grep '^' || echo '5.4')"
+lua_ver="$(ls -A /usr/bin/lua* 2>/dev/null | grep 'lua[0-9].[0-9]' | sort -rV | sed 's|.*lua||g' | head -n1 | grep '^' || echo '5.4')"
 export LUAROCKS_PREFIX="$HOME/.local/share/lua/luarocks"
 export LUAROCKS_BIN="$LUAROCKS_PREFIX/bin"
 TMP_BIN_PATH="$LUAROCKS_BIN:$TMP_BIN_PATH"
