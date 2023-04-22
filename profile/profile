@@ -305,10 +305,11 @@ if [ -f "$rvm_path/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
-GEM_HOME="$HOME/.local/share/gem"
-GEM_PATH="$GEM_HOME"
-TMP_BIN_PATH="$GEM_HOME/bin:$TMP_BIN_PATH"
-export GEM_HOME GEM_PATH
+if [ -n "$(type -p ruby)" ]; then
+  export GEM_HOME="$HOME/.local/share/gem"
+  export GEM_PATH="$(ruby -e 'puts Gem.user_dir')/bin"
+  TMP_BIN_PATH="$GEM_PATH:$TMP_BIN_PATH"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # PNPM
 export PNPM_HOME="$HOME/.local/share/nodejs/pnpm"
