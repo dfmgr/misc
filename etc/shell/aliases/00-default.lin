@@ -219,7 +219,8 @@ alias bork='printf "😂 🐕\n\n" '
 alias please='printf "😂 Well shit 😂\n\n" '
 alias shit='echo -n "😠 Well that didnt work: " && sudo'
 alias gcm='git add . && git commit -am "🗃️ Committing everything that changed 🗃️ " '
-alias copy-templates='gen-header --copy;gen-html --copy;gen-license --copy;gen-readme --copy;gen-script --copy;echo '
+alias scripts_update='sudo -n true && sudo git -C /usr/local/share/CasjaysDev/scripts pull -q && printf_green "Scripts has been updated\n"'
+alias copy-templates='scripts_update;gen-header --copy;gen-dns --copy;gen-html --copy;gen-license --copy;gen-readme --copy;gen-script --copy;'
 alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent upgrade && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import global aliases
