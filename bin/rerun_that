@@ -491,9 +491,9 @@ fuck)
   printf '%s: %s\n' "😠 Well that didnt work" "$*" && __sudo "${@:-}"
   ;;
 *)
+  printf '%s: %s\n' "😠 Well that didnt work" "$*" && __sudo "${@:-}"
   __sudo "${@:-}"
   ;;
-
 esac
 RERUN_THAT_EXIT_STATUS=$?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
