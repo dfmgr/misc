@@ -215,9 +215,10 @@ alias mylatlong='mylocation | grep --color=none "LAT\|LON" '
 alias emj='emojis '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # other
-alias bork='printf "😂 🐕\n\n" '
-alias please='printf "😂 Well shit 😂\n\n" '
-alias shit='echo -n "😠 Well that didnt work: " '
+alias shit='rerun_that shit ${_}'
+alias bork='rerun_that bork ${_}'
+alias fuck='rerun_that fuck ${_}'
+alias please='rerun_that please ${_}'
 alias gcm='git add . && git commit -am "🗃️ Committing everything that changed 🗃️ " '
 alias scripts_update='sudo -n true && sudo git -C /usr/local/share/CasjaysDev/scripts pull -q && printf_green "Scripts has been updated\n"'
 alias copy-templates='scripts_update;gen-header --copy;gen-dns --copy;gen-html --copy;gen-license --copy;gen-readme --copy;gen-script --copy;'

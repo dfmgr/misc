@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
+# shellcheck disable=SC2001
+# shellcheck disable=SC2317
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version           :  202304231750-git
 # @@Author           :  Jason Hempstead
@@ -9,11 +11,11 @@
 # @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
 # @@Created          :  Sunday, Apr 23, 2023 17:56 EDT
 # @@File             :  rerun_that
-# @@Description      :  
+# @@Description      :
 # @@Changelog        :  New script
 # @@TODO             :  Better documentation
-# @@Other            :  
-# @@Resource         :  
+# @@Other            :
+# @@Resource         :
 # @@Terminal App     :  no
 # @@sudo/root        :  no
 # @@Template         :  bash/system
@@ -231,6 +233,7 @@ requiresudo() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Execute sudo
 __sudo() {
+  [ -n "$1" ] || return
   CMD="${1:-echo}" && shift 1
   CMD_ARGS="${*:--e "${RUN_USER:-$USER}"}"
   SUDO="$(builtin command -v sudo 2>/dev/null || echo 'eval')"
@@ -470,12 +473,28 @@ cmd_exists --error --ask bash || exit 3 # exit 3 if not found
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # begin main app
-printf_red "User ID: $UID"
-printf_green "User Name: $RUN_USER"
-printf_blue "Script Name: $APPNAME"
-printf_cyan "Version: $VERSION"
-printf_yellow "Config Dir: $RERUN_THAT_CONFIG_DIR"
-printf_purple "Current Working directory: $RERUN_THAT_CWD"
+case "$1" in
+bork)
+  shift 1
+  printf "😂 🐕\n\n" && __sudo "${@:-}"
+  ;;
+please)
+  shift 1
+  printf "😂 Well shit 😂\n\n" && __sudo "${@:-}"
+  ;;
+shit)
+  shift 1
+  printf '%s: %s\n' "😠 Well that didnt work" "$*" && __sudo "${@:-}"
+  ;;
+fuck)
+  shift 1
+  printf '%s: %s\n' "😠 Well that didnt work" "$*" && __sudo "${@:-}"
+  ;;
+*)
+  __sudo "${@:-}"
+  ;;
+
+esac
 RERUN_THAT_EXIT_STATUS=$?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set exit code
