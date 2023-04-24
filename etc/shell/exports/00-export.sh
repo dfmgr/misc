@@ -17,9 +17,3 @@
 # exports for all OSes
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# import
-case "$(uname -s)" in
-Linux) [ -f "$HOME/.config/misc/shell/exports/00-default.lin" ] && . "$HOME/.config/misc/shell/exports/00-default.lin" ;;
-Darwin) [ -f "$HOME/.config/misc/shell/exports/00-default.lin" ] && . "$HOME/.config/misc/shell/exports/00-default.mac" ;;
-Windows*) [ -f "$HOME/.config/misc/shell/exports/00-default.lin" ] && . "$HOME/.config/misc/shell/exports/00-default.win" ;;
-esac
