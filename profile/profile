@@ -44,7 +44,6 @@ if [ -n "$SH_VERSION" ]; then
   export SHELL="$(which sh 2>/dev/null)"
 # bash specific
 elif [ -n "$BASH_VERSION" ]; then
-  set -o history
   SHELL="$(which bash 2>/dev/null)"
   export BASH_SILENCE_DEPRECATION_WARNING="1"
   export OSH="$HOME/.local/share/bash/oh-my-bash"
