@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+# shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version           :  202208281859-git
 # @@Author           :  Jason Hempstead
@@ -25,13 +26,6 @@ USRBINDIR="$HOME/.local/bin"
 SYSBINDIR="/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/share/games:/usr/games"
 export PATH="$USRBINDIR:$SYSBINDIR"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# get hostname info
-HOSTNAME_FULL="$(hostname_cli="$(which hostnamecli 2>/dev/null || which hostname 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
-HOSTNAME_SHORT="$(hostname_cli="$(which hostnamecli 2>/dev/null || which hostname 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
-export HOSTNAME="${HOSTNAME_FULL:-$HOSTNAME_SHORT}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export NODE_MANAGER="${NODE_MANAGER:-fnm}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # History
 export HISTSIZE=1200
 export HISTFILESIZE=1200
@@ -41,7 +35,9 @@ export HISTIGNORE="[bf]g:exit:pwd:clear:q:q!:quit"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
-  export SHELL="$(which sh 2>/dev/null)"
+  SHELL="$(which "$SHELL" 2>/dev/null)"
+  ENV=$HOME/.shinit
+  export ENV
 # bash specific
 elif [ -n "$BASH_VERSION" ]; then
   SHELL="$(which bash 2>/dev/null)"
@@ -62,8 +58,6 @@ elif [ -n "$BASH_VERSION" ]; then
     direnv hook bash >/dev/null 2>&1
   fi
   # cursor
-  printf "\x1b[\x35 q" 2>/dev/null
-  printf "\e]12;cyan\a" 2>/dev/null
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
   SHELL="$(which zsh 2>/dev/null)"
@@ -79,6 +73,15 @@ elif [ -n "$ZSH_VERSION" ]; then
 fi
 SHELL_NAME="$(basename "$SHELL")"
 export SHELL SHELL_NAME
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# get hostname info
+HOSTNAME_FULL="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
+HOSTNAME_SHORT="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
+[ -n "$HOSTNAME_FULL" ] && HOSTNAME="$HOSTNAME_FULL" || HOSTNAME="$HOSTNAME_SHORT"
+export HOSTNAME
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ -n "$NODE_MANAGER" ] || NODE_MANAGER="fnm"
+export NODE_MANAGER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
 PS1="$(basename "$SHELL_NAME"): $USER@$HOSTNAME_FULL: $PWD :"
@@ -121,9 +124,9 @@ export RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
 if [ -n "$DISPLAY" ] && [ -n "$(which xset 2>/dev/null)" ]; then
-  xset s off &>/dev/null
-  xset -dpms &>/dev/null
-  xset s off -dpms &>/dev/null
+  xset s off >/dev/null 2>&1
+  xset -dpms >/dev/null 2>&1
+  xset s off -dpms >/dev/null 2>&1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # enable control alt backspace
@@ -160,6 +163,7 @@ if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XDG Settings
+[ -n "$UID" ] || UID="$(id -u)"
 CACHE_DIRECTORY="$HOME/.cache"
 STATE_DIRECTORY="$HOME/.local/lib"
 LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
@@ -198,38 +202,40 @@ fi
 GPG_TTY="$(tty)"
 SSH_AUTH_SOCK="$RUNTIME_DIRECTORY/gnupg/S.gpg-agent.ssh"
 if [ -n "$(which gpg-agent 2>/dev/null)" ]; then
-  gpg-agent --enable-ssh-support --daemon -q &>/dev/null
+  gpg-agent --enable-ssh-support --daemon -q >/dev/null 2>&1
 fi
 export GPG_TTY SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
 [ -d "$HOME/.ssh" ] || mkdir -p "$HOME/.ssh"
 SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
-if [ -d "$HOME/.ssh" ] && ls "$HOME/.ssh"/id_* &>/dev/null; then
+if
+  [ -d "$HOME/.ssh" ] && ls "$HOME/.ssh"/id_* >/dev/null 2>&1
+then
   for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
-    ssh-add -q "$f" &>/dev/null
+    ssh-add -q "$f" >/dev/null 2>&1
   done
 fi
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if [ -n "$(which ssh-agent 2>/dev/null)" ]; then
-    ssh-agent &>/dev/null
+    ssh-agent >/dev/null 2>&1
   fi
   if [ -n "$SSH_AUTH_SOCK" ]; then
-    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock" &>/dev/null
+    ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock" >/dev/null 2>&1
   fi
 fi
 [ -d "$HOME/.ssh/known_hosts.d" ] || mkdir -p "$HOME/.ssh/known_hosts.d"
 export SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
-export LESS_TERMCAP_mb=$'\e[1;32m'
-export LESS_TERMCAP_md=$'\e[1;32m'
-export LESS_TERMCAP_me=$'\e[0m'
-export LESS_TERMCAP_se=$'\e[0m'
-export LESS_TERMCAP_so=$'\e[01;33m'
-export LESS_TERMCAP_ue=$'\e[0m'
-export LESS_TERMCAP_us=$'\e[1;4;31m'
-#export LESS="-CQaix4"
+export LESS_TERMCAP_mb=$(printf '%b' '\e[1;32m')
+export LESS_TERMCAP_md=$(printf '%b' '\e[1;32m')
+export LESS_TERMCAP_me=$(printf '%b' '\e[0m')
+export LESS_TERMCAP_se=$(printf '%b' '\e[0m')
+export LESS_TERMCAP_so=$(printf '%b' '\e[01;33m')
+export LESS_TERMCAP_ue=$(printf '%b' '\e[0m')
+export LESS_TERMCAP_us=$(printf '%b' '\e[1;4;31m')
+export LESS="-CQaix4"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Don't clear the screen after quitting a `man` page.
 export MANPAGER="less -X"
@@ -305,7 +311,7 @@ if [ -f "$rvm_path/scripts/rvm" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
-if [ -n "$(type -p ruby)" ]; then
+if [ -n "$(which ruby 2>/dev/null)" ]; then
   export GEM_HOME="$HOME/.local/share/gem"
   export GEM_PATH="$(ruby -e 'puts Gem.user_dir')/bin"
   TMP_BIN_PATH="$GEM_PATH:$TMP_BIN_PATH"
@@ -343,7 +349,7 @@ export NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
 export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 if [ -n "$(which node 2>/dev/null)" ]; then
   TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
-  npm config set prefix "$NPM_PACKAGES" &>/dev/null
+  npm config set prefix "$NPM_PACKAGES" >/dev/null 2>&1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Deno
@@ -386,19 +392,18 @@ elif [ -S "/run/docker/docker.sock" ]; then
 elif [ -S "${XDG_RUNTIME_DIR}/docker.sock" ]; then
   DOCKER_SOCK="${XDG_RUNTIME_DIR}/docker.sock"
 fi
-DOCKER_SOCK="${DOCKER_SOCK:-/run/docker.sock}"
-DOCKER_HOST="${DOCKER_HOST:-$DOCKER_SOCK}"
+[ -n "$DOCKER_HOST" ] || DOCKER_HOST="$DOCKER_SOCK"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Kubernetes
 KUBECONFIG="$HOME/.config/kube/config"
-[ -n "$(type -p kubectl)" ] && eval "$(kubectl completion "$SHELL_NAME")"
-[ -n "$(type -p podman)" ] && KIND_EXPERIMENTAL_PROVIDER="podman" || KIND_EXPERIMENTAL_PROVIDER="docker"
+[ -n "$(which kubectl 2>/dev/null)" ] && eval "$(kubectl completion "$SHELL_NAME")"
+[ -n "$(which podman 2>/dev/null)" ] && KIND_EXPERIMENTAL_PROVIDER="podman" || KIND_EXPERIMENTAL_PROVIDER="docker"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup dockerstarter
-export DOCKERCONFDIR="${DOCKERCONFDIR:-$HOME/.config/dockstarter}"
+export DOCKERCONFDIR="$HOME/.config/dockstarter"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # DockerMGR settings
-export DOCKERMGR_HOME="${DOCKERMGR_HOME:-$HOME/.config/myscripts/dockermgr}"
+export DOCKERMGR_HOME="$HOME/.config/myscripts/dockermgr"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distrobox
 DBX_SKIP_WORKDIR=0
@@ -805,8 +810,10 @@ if [ "$(uname -s)" = Darwin ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cursor
-echo -e -n "\x1b[\x35 q" 2>/dev/null
-echo -e -n "\e]12;cyan\a" 2>/dev/null
+if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then
+  printf '%b' "\x1b[\x35 q" 2>/dev/null
+  printf '%b' "\e]12;cyan\a" 2>/dev/null
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
 [ -f "$HOME/.config/shell/functions/global.sh" ] && . "$HOME/.config/shell/functions/global.sh"
@@ -834,7 +841,7 @@ if [ $(find -L "$HOME/.config/secure/inc" -type f -name '*.sh' 2>/dev/null | gre
   cat "$HOME/.config/secure/inc"/*.sh 2>/dev/null >"$HOME/.config/secure/env"
   [ -f "$HOME/.config/secure/env.sh" ] && . "$HOME/.config/secure/env.sh"
 else
-  rm -Rf "$HOME/.config/secure/env.sh" &>/dev/null
+  rm -Rf "$HOME/.config/secure/env.sh" >/dev/null 2>&1
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import local profile - override all other settings

@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+# shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
 LESS_TERMCAP_mb=$(printf "\e[1;31m")

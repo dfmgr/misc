@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+# shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version       : 202303022155-git
 # @Author        : Jason Hempstead
@@ -61,16 +62,16 @@ alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
 alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # TMUX
-[ -f "$HOME/.config/tmux/singlerc.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-single='tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
-[ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && [ -f "$(builtin type -P tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
+[ -f "$HOME/.config/tmux/singlerc.conf" ] && [ -f "$(which tmux 2>/dev/null)" ] && alias tmux-single='tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
+[ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && [ -f "$(which tmux 2>/dev/null)" ] && alias tmux-ssh='tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # SCREEN
-[ -f "$HOME/.config/screen/dev/sshrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-ssh='\screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='\screen -t ssh '
-[ -f "$HOME/.config/screen/dev/noderc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-node='\screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='\screen -t node '
-[ -f "$HOME/.config/screen/singlerc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-single='\screen -c $HOME/.config/screen/singlerc ' || alias screen-single='\screen -t single '
-[ -f "$HOME/.config/screen/productivityrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-prod='\screen -c $HOME/.config/screen/productivityrc ' || alias screen-single='\screen -t prod '
-[ -f "$HOME/.config/screen/dev/developmentrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-dev='\screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='\screen -t dev '
-[ -f "$HOME/.config/screen/other/socialrc" ] && [ -f "$(builtin type -P screen 2>/dev/null)" ] && alias screen-social='\screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='\screen -t social '
+[ -f "$HOME/.config/screen/dev/sshrc" ] && [ -f "$(which screen 2>/dev/null)" ] && alias screen-ssh='\screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='\screen -t ssh '
+[ -f "$HOME/.config/screen/dev/noderc" ] && [ -f "$(which screen 2>/dev/null)" ] && alias screen-node='\screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='\screen -t node '
+[ -f "$HOME/.config/screen/singlerc" ] && [ -f "$(which screen 2>/dev/null)" ] && alias screen-single='\screen -c $HOME/.config/screen/singlerc ' || alias screen-single='\screen -t single '
+[ -f "$HOME/.config/screen/productivityrc" ] && [ -f "$(which screen 2>/dev/null)" ] && alias screen-prod='\screen -c $HOME/.config/screen/productivityrc ' || alias screen-single='\screen -t prod '
+[ -f "$HOME/.config/screen/dev/developmentrc" ] && [ -f "$(which screen 2>/dev/null)" ] && alias screen-dev='\screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='\screen -t dev '
+[ -f "$HOME/.config/screen/other/socialrc" ] && [ -f "$(which screen 2>/dev/null)" ] && alias screen-social='\screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='\screen -t social '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
 alias profilerc='source ~/.profile '
@@ -87,11 +88,11 @@ alias profilerc='source ~/.profile '
 [ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt 2>/dev/null)" ] && alias apt='sudo apt '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P apt-get 2>/dev/null)" ] && alias apt-get='sudo apt-get '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P dnf 2>/dev/null)" ] && alias dnf='sudo dnf '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P yum 2>/dev/null)" ] && alias yum='sudo yum '
-[ "$(uname -s)" = Linux ] && [ -n "$(builtin type -P pacman 2>/dev/null)" ] && alias pacman='sudo pacman '
+[ "$(uname -s)" = Linux ] && [ -n "$(which apt 2>/dev/null)" ] && alias apt='sudo apt '
+[ "$(uname -s)" = Linux ] && [ -n "$(which apt-get 2>/dev/null)" ] && alias apt-get='sudo apt-get '
+[ "$(uname -s)" = Linux ] && [ -n "$(which dnf 2>/dev/null)" ] && alias dnf='sudo dnf '
+[ "$(uname -s)" = Linux ] && [ -n "$(which yum 2>/dev/null)" ] && alias yum='sudo yum '
+[ "$(uname -s)" = Linux ] && [ -n "$(which pacman 2>/dev/null)" ] && alias pacman='sudo pacman '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
 alias l.='ls -hA | grep -E --color=auto '\''^\.'\'' '
@@ -110,34 +111,33 @@ alias .....='builtin cd ../../../../ '
 alias cd..='builtin cd ../ '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # VisualStudio code
-if [ -n "$(builtin type -P code-oss 2>/dev/null)" ]; then
+if [ -n "$(which code-oss 2>/dev/null)" ]; then
   alias code='code-oss '
   alias codew='code-oss -w '
   alias code-np='code-oss --disable-extensions '
-elif [ -n "$(builtin type -P code-insiders 2>/dev/null)" ]; then
+elif [ -n "$(which code-insiders 2>/dev/null)" ]; then
   alias code='code-insiders '
   alias codew='code-insiders -w '
   alias code-np='code-insiders --disable-extensions '
-elif [ -n "$(builtin type -P code 2>/dev/null)" ]; then
+elif [ -n "$(which code 2>/dev/null)" ]; then
   alias code='code '
   alias codew='code -w '
   alias code-np='code --disable-extensions '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Powershell
-if [ -f "$(builtin type -P pwsh-preview 2>/dev/null)" ]; then
+if [ -f "$(which pwsh-preview 2>/dev/null)" ]; then
   alias pwsh='pwsh-preview '
-elif [ -f "$(builtin type -P pwsh 2>/dev/null)" ]; then
+elif [ -f "$(which pwsh 2>/dev/null)" ]; then
   alias pwsh='pwsh '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geany
-if [ -f "$(builtin type -P geany 2>/dev/null)" ]; then
-  __geany() {
-    command geany --socket-file=/tmp/geany.sock "$@" &>/dev/null &
-    disown
+if [ -n "$(which geany 2>/dev/null)" ]; then
+  geany() {
+    $(which geany) --socket-file=/tmp/geany.sock "$@" >/dev/null 2>&1 &
   }
-  alias='__geany '
+  alias='geany '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
@@ -147,62 +147,62 @@ alias vis='vim +set si  '
 alias svim='sudo vim  '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
-if [ -n "$(builtin type -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/neovim/init.vim" ]; then
+if [ -n "$(which nvim 2>/dev/null)" ] && [ -f "$HOME/.config/neovim/init.vim" ]; then
   alias nvim='nvim -u $HOME/.config/neovim/init.vim '
-elif [ -n "$(builtin type -P nvim 2>/dev/null)" ] && [ -f "$HOME/.config/nvim/init.vim" ]; then
+elif [ -n "$(which nvim 2>/dev/null)" ] && [ -f "$HOME/.config/nvim/init.vim" ]; then
   alias nvim='nvim -u $HOME/.config/nvim/init.vim '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
-[ -n "$(builtin type -P docker 2>/dev/null)" ] && alias docker='docker '
-[ -n "$(builtin type -P minikube 2>/dev/null)" ] && alias kubectl='minikube kubectl '
+[ -n "$(which docker 2>/dev/null)" ] && alias docker='docker '
+[ -n "$(which minikube 2>/dev/null)" ] && alias kubectl='minikube kubectl '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
-[ -n "$(builtin type -P trash 2>/dev/null)" ] && alias empty-trash='trash empty ' ||
+[ -n "$(which trash 2>/dev/null)" ] && alias empty-trash='trash empty ' ||
   alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/* '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Hide/show icons.
-[ -n "$(builtin type -P gsettings 2>/dev/null)" ] && alias desktop-icons-hide='gsettings set org.gnome.desktop.background show-desktop-icons false '
-[ -n "$(builtin type -P gsettings 2>/dev/null)" ] && alias desktop-icons-show='gsettings set org.gnome.desktop.background show-desktop-icons true '
+[ -n "$(which gsettings 2>/dev/null)" ] && alias desktop-icons-hide='gsettings set org.gnome.desktop.background show-desktop-icons false '
+[ -n "$(which gsettings 2>/dev/null)" ] && alias desktop-icons-show='gsettings set org.gnome.desktop.background show-desktop-icons true '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Lock Screen
-[ -n "$(builtin type -P xflock4 2>/dev/null)" ] && alias afk='xflock4 '
-[ -n "$(builtin type -P gnome-screensaver-command 2>/dev/null)" ] && alias afk='gnome-screensaver-command --lock '
+[ -n "$(which xflock4 2>/dev/null)" ] && alias afk='xflock4 '
+[ -n "$(which gnome-screensaver-command 2>/dev/null)" ] && alias afk='gnome-screensaver-command --lock '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # logout
-[ -n "$(builtin type -P xfce4-session-logout 2>/dev/null)" ] && alias logout='xfce4-session-logout '
+[ -n "$(which xfce4-session-logout 2>/dev/null)" ] && alias logout='xfce4-session-logout '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Open command
-[ "$(uname -s)" = Linux ] && [ -n "$(type -P xdg-open)" ] && alias open='xdg-open '
+[ "$(uname -s)" = Linux ] && [ -n "$(which xdg-open 2>/dev/null)" ] && alias open='xdg-open '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # youtube-dl
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorea='ytda nightcorea '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias nightcorev='ytda nightcorev '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytv-best='ytda ytv '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-aac='ytda aac '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-best='ytda yta '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-flac='ytda flac '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-m4a='ytda m4a '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-mp3='ytda mp3 '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-opus='ytda opus '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-vorbis='ytda vorbis '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias yta-wav='ytda wav '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytdv='ytda video '
-[ -n "$(builtin type -P youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias nightcorea='ytda nightcorea '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias nightcorev='ytda nightcorev '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias ytv-best='ytda ytv '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-aac='ytda aac '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-best='ytda yta '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-flac='ytda flac '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-m4a='ytda m4a '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-mp3='ytda mp3 '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-opus='ytda opus '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-vorbis='ytda vorbis '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias yta-wav='ytda wav '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias ytdv='ytda video '
+[ -n "$(which youtube-dl 2>/dev/null)" ] && alias ytstream='ytstream '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Media
-[ -n "$(builtin type -P castero 2>/dev/null)" ] && alias podcasts='castero '
-[ -n "$(builtin type -P spotifyd 2>/dev/null)" ] && alias spotify='spotifyd '
-[ -n "$(builtin type -P pianobar 2>/dev/null)" ] && alias pandora='pianobar '
-[ -n "$(builtin type -P tizonia 2>/dev/null)" ] && alias cloudplayer='tizonia '
-[ -n "$(builtin type -P youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer '
-[ -n "$(builtin type -P mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
+[ -n "$(which castero 2>/dev/null)" ] && alias podcasts='castero '
+[ -n "$(which spotifyd 2>/dev/null)" ] && alias spotify='spotifyd '
+[ -n "$(which pianobar 2>/dev/null)" ] && alias pandora='pianobar '
+[ -n "$(which tizonia 2>/dev/null)" ] && alias cloudplayer='tizonia '
+[ -n "$(which youtube-viewer 2>/dev/null)" ] && alias youtube='youtube-viewer '
+[ -n "$(which mpc 2>/dev/null)" ] && [ -z "$MPDSERVER" ] && alias mpc='mpc ' || alias mpc='mpc -h "$MPDSERVER" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Python
-[ -n "$(builtin type -P pipx 2>/dev/null)" ] || alias='pip install -U pipx && alias pipx="pipx" '
+[ -n "$(which pipx 2>/dev/null)" ] || alias='pip install -U pipx && alias pipx="pipx" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Other
-[ -n "$(builtin type -P anime-dl 2>/dev/null)" ] && alias anime-cli='anime-dl '
+[ -n "$(which anime-dl 2>/dev/null)" ] && alias anime-cli='anime-dl '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # list functions
 alias list-my-functions='typeset -F | less '

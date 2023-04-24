@@ -1,56 +1,51 @@
-#!/usr/bin/env bash
+#!/usr/bin/env sh
+# shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-APPNAME="$(basename "$0")"
-VERSION="202104050844-git"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
+##@Version           :  202304232359-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  git-admin@casjaysdev.com
+# @@License          :  LICENSE.md
+# @@ReadME           :  global.sh --help
+# @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
+# @@Created          :  Monday, Apr 24, 2023 00:10 EDT
+# @@File             :  global.sh
+# @@Description      :  Global functions
+# @@Changelog        :  newScript
+# @@TODO             :  Refactor code
+# @@Other            :
+# @@Resource         :
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  shell/sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202104050844-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.com
-# @License       : LICENSE.md
-# @ReadME        : global.sh --help
-# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-# @Created       : Tuesday, Apr 06, 2021 04:09 EDT
-# @File          : global.sh
-# @Description   : Global functions
-# @TODO          :
-# @Other         :
-# @Resource      :
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__setcursor() { echo -e -n "\x1b[\x35 q" && echo -e -n "\e]12;cyan\a" 2>/dev/null; }
 __tar_create() { tar cfvz "$@"; }
 __tar_extract() { tar xfvz "$@"; }
-__while_loop() { while :; do "${@}" && sleep .3; done; }
-__for_each() { for item in ${1}; do ${2} ${item} && sleep .1; done; }
-__readline() { while read -r line; do echo "$line"; done <"$1"; }
 __count_lines() { wc -l "$1" | awk '${print $1}'; }
-__count_files() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type l,f | wc -l; }
-__count_dir() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type d | wc -l; }
-__symlink() { if [ -e "$1" ]; then __ln_sf "${1}" "${2}" || return 0; fi; }
+__while_loop() { while :; do "${@}" && sleep .3; done; }
+__broken_symlinks() { find -L "$@" -type l -exec rm -f {} \;; }
+__rm_rf() { if [ -e "$1" ]; then rm -Rf "$@" || return 0; fi; }
+__readline() { while read -r line; do echo "$line"; done <"$1"; }
 __mv_f() { if [ -e "$1" ]; then mv -f "$1" "$2" || return 0; fi; }
 __cp_rf() { if [ -e "$1" ]; then cp -Rf "$1" "$2" || return 0; fi; }
-__rm_rf() { if [ -e "$1" ]; then rm -Rf "$@" || return 0; fi; }
+__for_each() { for item in ${1}; do ${2} ${item} && sleep .1; done; }
+__symlink() { if [ -e "$1" ]; then __ln_sf "${1}" "${2}" || return 0; fi; }
+__setcursor() { printf '%b' "\x1b[\x35 q" && printf '%b' "\e]12;cyan\a" 2>/dev/null; }
 __ln_rm() { if [ -e "$1" ]; then find -L $1 -mindepth 1 -maxdepth 1 -type l -exec rm -f {} \;; fi; }
-__broken_symlinks() { find -L "$@" -type l -exec rm -f {} \;; }
+__count_dir() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type d | wc -l; }
+__count_files() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type l,f | wc -l; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__git_top_dir() {
-  git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null |
-    grep -v fatal && return 0 || echo "${1:-$PWD}"
-}
+__git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__git_clone() { printf '%s' "Cloning repo to $2: " && git clone "$1" "${2:-$(basename "$1" 2>/dev/null)}" -q 2>/dev/null && printf '\n' || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_update() {
-  local gitDir="$(__git_top_dir "${CDD_INTO_CUR:-$PWD}")" remote_repo=""
-  local gitOldDir="${CDD_OLD_PWD:-$gitDir}"
-  local repo_status="${CDD_REPO_UPDATED:-no}"
-  local local_remote_repo="local repo"
-  local local_remote_icon="🤷"
-  local remote_icon="🚀"
-  local git_message=""
+  gitDir="$(__git_top_dir "${CDD_INTO_CUR:-$PWD}")" remote_repo=""
+  gitOldDir="${CDD_OLD_PWD:-$gitDir}"
+  repo_status="${CDD_REPO_UPDATED:-no}"
+  local_remote_repo="local repo"
+  local_remote_icon="🤷"
+  remote_icon="🚀"
+  git_message=""
   if [ -d "${gitDir}" ]; then
     git status --porcelain -s 2>&1 | grep -q '^' && return 0
     remote_repo="$([ -f "${gitDir}/.git/config" ] && grep -s 'url = ' "${gitDir}/.git/config" | awk -F'= ' '{print $2}' | grep '^' || echo '')"
@@ -61,17 +56,12 @@ __git_update() {
     fi
     if [ "$repo_status" = "yes" ] && [ "$gitDir" != "$CDD_OLD_PWD" ]; then
       printf_green "${git_message:-🎆 Updating the git repo from: $remote_repo $remote_icon}"
-      git -C "$gitDir" pull -q &>/dev/null
+      git -C "$gitDir" pull -q >/dev/null 2>&1
       CDD_REPO_UPDATED="yes"
       CDD_OLD_PWD="$gitOldDir"
     fi
   fi
   export CDD_REPO_UPDATED CDD_OLD_PWD
   return 0
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__git_clone() {
-  printf '%s' "Cloning repo to $2: " && git clone "$1" "${2:-$(basename "$1" 2>/dev/null)}" -q 2>/dev/null &&
-    printf '\n' || return $?
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
