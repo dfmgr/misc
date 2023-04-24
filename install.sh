@@ -211,6 +211,8 @@ __run_prepost_install() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run after primary post install function
 __run_post_install() {
+  local pybin
+  pybin="$(basname "$(type -P python || type -P python3 || echo 'python3')")"
   for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc Xresources xscreensaver; do
     if [ -L "$HOME/.$f" ]; then
       rm_link "$HOME/.$f"
@@ -232,6 +234,11 @@ __run_post_install() {
   fi
   if [ -d "$HOME/.bin" ]; then
     cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"
+  fi
+  if [ ! -x "$HOME/.local/bin/vcprompt" ]; then
+    curl -q -LSsf "https://github.com/djl/vcprompt/raw/master/bin/vcprompt" -o "$HOME/.local/bin/vcprompt"
+    chmod 755 "$HOME/.local/bin/vcprompt"
+    replace "/bin/env python" "/bin/env $pybin" "$HOME/.local/bin/vcprompt"
   fi
   if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then
     ln_sf "$(builtin type -P powerline-go)" "/usr/local/bin/powerline"
