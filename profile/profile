@@ -44,6 +44,7 @@ if [ -n "$SH_VERSION" ]; then
   export SHELL="$(which sh 2>/dev/null)"
 # bash specific
 elif [ -n "$BASH_VERSION" ]; then
+  set -o history
   SHELL="$(which bash 2>/dev/null)"
   export BASH_SILENCE_DEPRECATION_WARNING="1"
   export OSH="$HOME/.local/share/bash/oh-my-bash"
@@ -53,7 +54,7 @@ elif [ -n "$BASH_VERSION" ]; then
     export HISTFILE="$HOME/.config/bash/bash_history"
     if [ -f "$HOME/.bash_history" ] && [ "$HISTFILE" != "$HOME/.bash_history" ]; then
       mv -f "$HOME/.bash_history" "$HISTFILE"
-      history -a
+      history -a && history -w && history -r
     fi
   else
     export HISTFILE="$HOME/.bash_history"

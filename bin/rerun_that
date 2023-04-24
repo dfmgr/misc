@@ -163,9 +163,11 @@ __help() {
   __printf_opts "rerun_that:  - $VERSION"
   __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
   __printf_line "Usage: rerun_that [options] [commands]"
-  __printf_line " - "
-  __printf_line " - "
-  __printf_line "--dir                           - Sets the working directory"
+  __printf_line "shit                            - "
+  __printf_line "bork                            - "
+  __printf_line "balls                           - "
+  __printf_line "please                          - "
+  __printf_line "fuckit                          - "
   __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
   __printf_opts "Other Options"
   __printf_head "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -"
@@ -258,7 +260,18 @@ __trap_exit() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # User defined functions
-
+__thefuck() {
+  TF_PYTHONIOENCODING=$PYTHONIOENCODING
+  export TF_SHELL=bash
+  export TF_ALIAS=fuck
+  export TF_SHELL_ALIASES=$(alias)
+  export TF_HISTORY=$(fc -ln -10)
+  export PYTHONIOENCODING=utf-8
+  TF_CMD=$(thefuck THEFUCK_ARGUMENT_PLACEHOLDER "$@") && eval "$TF_CMD"
+  unset TF_HISTORY
+  export PYTHONIOENCODING=$TF_PYTHONIOENCODING
+  history -s $TF_CMD
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # User defined variables/import external variables
 
@@ -467,7 +480,8 @@ cmd_exists --error --ask bash || exit 3 # exit 3 if not found
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Actions based on env
-
+RERUN_THAT_COLUMNS="${COLUMNS:-130}"
+RERUN_THAT_COLUMNS=$((RERUN_THAT_COLUMNS - 30))
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Export variables
 
@@ -475,24 +489,52 @@ cmd_exists --error --ask bash || exit 3 # exit 3 if not found
 # begin main app
 case "$1" in
 bork)
+  cmd=$1
   shift 1
-  printf "😂 🐕\n\n" && __sudo "${@:-}"
+  set_args="${*:-$cmd}"
+  printf_red "😂 ${*:0:$RERUN_THAT_COLUMNS} 🐕"
+  if [ $# -eq 0 ]; then
+    printf_exit "4" "1" '😂 Usage: '$APPNAME $cmd' !! 🐕'
+  fi
+  __sudorun bash -c "$*"
+  exit $?
   ;;
 please)
+  cmd=$1
   shift 1
-  printf "😂 Well shit 😂\n\n" && __sudo "${@:-}"
+  set_args="${*:-$cmd}"
+  printf_yellow "😂 Well shit: ${set_args:0:$RERUN_THAT_COLUMNS} 😂"
+  if [ $# -eq 0 ]; then
+    printf_exit "4" "1" '😂 Usage: '$APPNAME $cmd' !! 😂'
+  fi
+  __sudorun bash -c "$*"
+  exit $?
   ;;
-shit)
+shit | balls)
+  cmd=$1
   shift 1
-  printf '%s: %s\n' "😠 Well that didnt work" "$*" && __sudo "${@:-}"
+  set_args="${*:-$cmd}"
+  printf_red "😠 Well that didnt work: ${set_args:0:$RERUN_THAT_COLUMNS} 😠"
+  if [ $# -eq 0 ]; then
+    printf_exit "4" "1" '😠 Usage: '$APPNAME $cmd' !! 😠'
+  fi
+  __sudorun bash -c "$*"
+  exit $?
   ;;
-fuck)
+fuck | fucking)
+  cmd=$1
   shift 1
-  printf '%s: %s\n' "😠 Well that didnt work" "$*" && __sudo "${@:-}"
-  ;;
-*)
-  printf '%s: %s\n' "😠 Well that didnt work" "$*" && __sudo "${@:-}"
-  __sudo "${@:-}"
+  set_args="${*:-$cmd}"
+  if [ -z "$(type -p thefuck)" ]; then
+    printf_red "😠 No fucks given: ${set_args:0:$RERUN_THAT_COLUMNS} 😠"
+    if [ $# -eq 0 ]; then
+      printf_exit "4" "1" '😠 Usage: '$APPNAME $cmd' !! 😠'
+    fi
+    __sudorun bash -c "$*"
+    exit $?
+  else
+    __thefuck "${set_args}"
+  fi
   ;;
 esac
 RERUN_THAT_EXIT_STATUS=$?
