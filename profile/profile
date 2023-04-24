@@ -897,8 +897,8 @@ export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cursor
 if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then
-  printf '%s' '\x1b[\x35 q' 2>/dev/null
-  printf '%s' '\e]12;cyan\a' 2>/dev/null
+  printf '%b' '\x1b[\x35 q' 2>/dev/null
+  printf '%b' '\e]12;cyan\a' 2>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
