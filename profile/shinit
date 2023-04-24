@@ -17,13 +17,14 @@
 # @@sudo/root        :  no
 # @@Template         :  template
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ -f "$HOME/.profile" ] && . "$HOME/.profile"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # get hostname info
 HOSTNAME_FULL="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
 HOSTNAME_SHORT="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
 [ -n "$HOSTNAME_FULL" ] && HOSTNAME="$HOSTNAME_FULL" || HOSTNAME="$HOSTNAME_SHORT"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PS1="$(basename "$SHELL"): $USER@$HOSTNAME: $PWD : "
+PS1="$RED$SHELL_NAME:$GREEN$USER@$HOSTNAME$NC: $YELLOW$PWD$NC : $BLACK🐚$NC "
 export PS1 HOSTNAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$HOME/.profile" ] && . "$HOME/.profile"
-[ -f "" ] && . ""
+[ -f "$HOME/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/misc/shell/aliases/00-aliases.sh"
