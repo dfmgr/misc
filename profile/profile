@@ -32,76 +32,76 @@ RESET="$(tput sgr0 2>/dev/null)"
 BOLD="$(tput bold 2>/dev/null)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Regular Colors
-BLACK=$(printf "\033[0;30m")    # Black
-RED=$(printf "\033[0;31m")      # Red
-GREEN=$(printf "\033[0;32m")    # Green
-YELLOW=$(printf "\033[0;33m")   # Yellow
-BLUE=$(printf "\033[0;34m")     # Blue
-PURPLE=$(printf "\033[0;35m")   # Purple
-CYAN=$(printf "\033[0;36m")     # Cyan
-WHITE=$(printf "\033[0;37m")    # White
-ORANGE=$(printf "\033[0;33m")   # Orange
-LIGHTRED=$(printf '\033[1;31m') # Light Red
+BLACK="$(printf '%b' '\033[0;30m')"    # Black
+RED="$(printf '%b' '\033[0;31m')"      # Red
+GREEN="$(printf '%b' '\033[0;32m')"    # Green
+YELLOW="$(printf '%b' '\033[0;33m')"   # Yellow
+BLUE="$(printf '%b' '\033[0;34m')"     # Blue
+PURPLE="$(printf '%b' '\033[0;35m')"   # Purple
+CYAN="$(printf '%b' '\033[0;36m')"     # Cyan
+WHITE="$(printf '%b' '\033[0;37m')"    # White
+ORANGE="$(printf '%b' '\033[0;33m')"   # Orange
+LIGHTRED="$(printf '%b' '\033[1;31m')" # Light Red
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Bold
-BBLACK=$(printf "\033[1;30m")  # Black
-BRED=$(printf "\033[1;31m")    # Red
-BGREEN=$(printf "\033[1;32m")  # Green
-BYELLOW=$(printf "\033[1;33m") # Yellow
-BBLUE=$(printf "\033[1;34m")   # Blue
-BPURPLE=$(printf "\033[1;35m") # Purple
-BCYAN=$(printf "\033[1;36m")   # Cyan
-BWHITE=$(printf "\033[1;37m")  # White
+BBLACK="$(printf '%b' '\033[1;30m')"  # Black
+BRED="$(printf '%b' '\033[1;31m')"    # Red
+BGREEN="$(printf '%b' '\033[1;32m')"  # Green
+BYELLOW="$(printf '%b' '\033[1;33m')" # Yellow
+BBLUE="$(printf '%b' '\033[1;34m')"   # Blue
+BPURPLE="$(printf '%b' '\033[1;35m')" # Purple
+BCYAN="$(printf '%b' '\033[1;36m')"   # Cyan
+BWHITE="$(printf '%b' '\033[1;37m')"  # White
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Underline
-UBLACK=$(printf "\033[4;30m")  # Black
-URED=$(printf "\033[4;31m")    # Red
-UGREEN=$(printf "\033[4;32m")  # Green
-UYELLOW=$(printf "\033[4;33m") # Yellow
-UBLUE=$(printf "\033[4;34m")   # Blue
-UPURPLE=$(printf "\033[4;35m") # Purple
-UCYAN=$(printf "\033[4;36m")   # Cyan
-UWHITE=$(printf "\033[4;37m")  # White
+UBLACK="$(printf '%b' '\033[4;30m')"  # Black
+URED="$(printf '%b' '\033[4;31m')"    # Red
+UGREEN="$(printf '%b' '\033[4;32m')"  # Green
+UYELLOW="$(printf '%b' '\033[4;33m')" # Yellow
+UBLUE="$(printf '%b' '\033[4;34m')"   # Blue
+UPURPLE="$(printf '%b' '\033[4;35m')" # Purple
+UCYAN="$(printf '%b' '\033[4;36m')"   # Cyan
+UWHITE="$(printf '%b' '\033[4;37m')"  # White
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Background
-ON_BLACK=$(printf "\033[40m")  # Black
-ON_RED=$(printf "\033[41m")    # Red
-ON_GREEN=$(printf "\033[42m")  # Green
-ON_YELLOW=$(printf "\033[43m") # Yellow
-ON_BLUE=$(printf "\033[44m")   # Blue
-ON_PURPLE=$(printf "\033[45m") # Purple
-ON_CYAN=$(printf "\033[46m")   # Cyan
-ON_WHITE=$(printf "\033[47m")  # White
+ON_BLACK="$(printf '%b' '\033[40m')"  # Black
+ON_RED="$(printf '%b' '\033[41m')"    # Red
+ON_GREEN="$(printf '%b' '\033[42m')"  # Green
+ON_YELLOW="$(printf '%b' '\033[43m')" # Yellow
+ON_BLUE="$(printf '%b' '\033[44m')"   # Blue
+ON_PURPLE="$(printf '%b' '\033[45m')" # Purple
+ON_CYAN="$(printf '%b' '\033[46m')"   # Cyan
+ON_WHITE="$(printf '%b' '\033[47m')"  # White
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # High Intensity
-IBLACK=$(printf "\033[0;90m")  # Black
-IRED=$(printf "\033[0;91m")    # Red
-IGREEN=$(printf "\033[0;92m")  # Green
-IYELLOW=$(printf "\033[0;93m") # Yellow
-IBLUE=$(printf "\033[0;94m")   # Blue
-IPURPLE=$(printf "\033[0;95m") # Purple
-ICYAN=$(printf "\033[0;96m")   # Cyan
-IWHITE=$(printf "\033[0;97m")  # White
+IBLACK="$(printf '%b' '\033[0;90m')"  # Black
+IRED="$(printf '%b' '\033[0;91m')"    # Red
+IGREEN="$(printf '%b' '\033[0;92m')"  # Green
+IYELLOW="$(printf '%b' '\033[0;93m')" # Yellow
+IBLUE="$(printf '%b' '\033[0;94m')"   # Blue
+IPURPLE="$(printf '%b' '\033[0;95m')" # Purple
+ICYAN="$(printf '%b' '\033[0;96m')"   # Cyan
+IWHITE="$(printf '%b' '\033[0;97m')"  # White
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Bold High Intensity
-BIBLACK=$(printf "\033[1;90m")  # Black
-BIRED=$(printf "\033[1;91m")    # Red
-BIGREEN=$(printf "\033[1;92m")  # Green
-BIYELLOW=$(printf "\033[1;93m") # Yellow
-BIBLUE=$(printf "\033[1;94m")   # Blue
-BIPURPLE=$(printf "\033[1;95m") # Purple
-BICYAN=$(printf "\033[1;96m")   # Cyan
-BIWHITE=$(printf "\033[1;97m")  # White
+BIBLACK="$(printf '%b' '\033[1;90m')"  # Black
+BIRED="$(printf '%b' '\033[1;91m')"    # Red
+BIGREEN="$(printf '%b' '\033[1;92m')"  # Green
+BIYELLOW="$(printf '%b' '\033[1;93m')" # Yellow
+BIBLUE="$(printf '%b' '\033[1;94m')"   # Blue
+BIPURPLE="$(printf '%b' '\033[1;95m')" # Purple
+BICYAN="$(printf '%b' '\033[1;96m')"   # Cyan
+BIWHITE="$(printf '%b' '\033[1;97m')"  # White
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # High Intensity backgrounds
-ON_IBLACK=$(printf "\033[0;100m")  # Black
-ON_IRED=$(printf "\033[0;101m")    # Red
-ON_IGREEN=$(printf "\033[0;102m")  # Green
-ON_IYELLOW=$(printf "\033[0;103m") # Yellow
-ON_IBLUE=$(printf "\033[0;104m")   # Blue
-ON_IPURPLE=$(printf "\033[0;105m") # Purple
-ON_ICYAN=$(printf "\033[0;106m")   # Cyan
-ON_IWHITE=$(printf "\033[0;107m")  # White
+ON_IBLACK="$(printf '%b' '\033[0;100m')"  # Black
+ON_IRED="$(printf '%b' '\033[0;101m')"    # Red
+ON_IGREEN="$(printf '%b' '\033[0;102m')"  # Green
+ON_IYELLOW="$(printf '%b' '\033[0;103m')" # Yellow
+ON_IBLUE="$(printf '%b' '\033[0;104m')"   # Blue
+ON_IPURPLE="$(printf '%b' '\033[0;105m')" # Purple
+ON_ICYAN="$(printf '%b' '\033[0;106m')"   # Cyan
+ON_IWHITE="$(printf '%b' '\033[0;107m')"  # White
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # default path
 USRBINDIR="$HOME/.local/bin"
@@ -191,7 +191,8 @@ export LC_ADDRESS="en_US.UTF-8"
 export LC_TELEPHONE="en_US.UTF-8"
 export LC_MEASUREMENT="en_US.UTF-8"
 export LC_IDENTIFICATION="en_US.UTF-8"
-export LC_ALL="$LC_ALL"
+[ -n "$LC_ALL" ] || LC_ALL="$LANG"
+export LC_ALL LANG
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure display
 if [ -n "$DISPLAY" ]; then
@@ -296,10 +297,8 @@ export GPG_TTY SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export ssh
 [ -d "$HOME/.ssh" ] || mkdir -p "$HOME/.ssh"
-SSH_AUTH_SOCK="${SSH_AUTH_SOCK:-$HOME/.ssh/ssh_auth_sock}"
-if
-  [ -d "$HOME/.ssh" ] && ls "$HOME/.ssh"/id_* >/dev/null 2>&1
-then
+[ -n "$SSH_AUTH_SOCK" ] || SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"
+if [ -d "$HOME/.ssh" ] && ls -A "$HOME/.ssh"/id_* >/dev/null 2>&1; then
   for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
     ssh-add -q "$f" >/dev/null 2>&1
   done
@@ -308,7 +307,7 @@ if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if [ -n "$(which ssh-agent 2>/dev/null)" ]; then
     ssh-agent >/dev/null 2>&1
   fi
-  if [ -n "$SSH_AUTH_SOCK" ]; then
+  if [ -n "$SSH_AUTH_SOCK" ] && [ "$SSH_AUTH_SOCK" != "$HOME/.ssh/ssh_auth_sock" ]; then
     ln -sf "$SSH_AUTH_SOCK" "$HOME/.ssh/ssh_auth_sock" >/dev/null 2>&1
   fi
 fi
@@ -316,14 +315,14 @@ fi
 export SSH_AUTH_SOCK
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
-export LESS_TERMCAP_mb=$(printf '%b' '\e[1;32m')
-export LESS_TERMCAP_md=$(printf '%b' '\e[1;32m')
-export LESS_TERMCAP_me=$(printf '%b' '\e[0m')
-export LESS_TERMCAP_se=$(printf '%b' '\e[0m')
-export LESS_TERMCAP_so=$(printf '%b' '\e[01;33m')
-export LESS_TERMCAP_ue=$(printf '%b' '\e[0m')
-export LESS_TERMCAP_us=$(printf '%b' '\e[1;4;31m')
-export LESS="-CQaix4"
+export LESS_TERMCAP_mb="$(printf '%b' '\e[1;32m')"
+export LESS_TERMCAP_md="$(printf '%b' '\e[1;32m')"
+export LESS_TERMCAP_me="$(printf '%b' '\e[0m')"
+export LESS_TERMCAP_se="$(printf '%b' '\e[0m')"
+export LESS_TERMCAP_so="$(printf '%b' '\e[01;33m')"
+export LESS_TERMCAP_ue="$(printf '%b' '\e[0m')"
+export LESS_TERMCAP_us="$(printf '%b' '\e[1;4;31m')"
+export LESS='-CQaix4'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Don't clear the screen after quitting a `man` page.
 export MANPAGER="less -X"
@@ -340,8 +339,9 @@ export QA_RPATHS="\$((0x0001 | 0x0010))"
 export MPDSERVER="$HOSTNAME"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # notes settings
-export NOTES_DIRECTORY="$HOME/.local/share/editors/notes"
-export NOTES_SERVER_NAME="${NOTES_SERVER_NAME:-development}"
+[ -n "$NOTES_SERVER_NAME" ] || NOTES_SERVER_NAME="development"
+NOTES_DIRECTORY="$HOME/.local/share/editors/notes"
+export NOTES_SERVER_NAME NOTES_DIRECTORY
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup neovim
 export NVIM_LISTEN_ADDRESS="$RUNTIME_DIRECTORY/nvim.${USER}.sock"
@@ -423,11 +423,11 @@ if [ -n "$(which fnm 2>/dev/null)" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
-export NVM_DIR="$HOME/.local/share/nodejs/nvm"
 export NVM_BIN="$USRBINDIR"
+export NVM_DIR="$HOME/.local/share/nodejs/nvm"
+export NO_UPDATE_NOTIFIER="true"
+export NODE_REPL_HISTORY_SIZE=2000
 if [ -n "$(which nvm 2>/dev/null)" ]; then
-  export NO_UPDATE_NOTIFIER="true"
-  export NODE_REPL_HISTORY_SIZE=2000
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 fi
@@ -436,9 +436,9 @@ fi
 export NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
 export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
 if [ -n "$(which node 2>/dev/null)" ]; then
-  TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
   npm config set prefix "$NPM_PACKAGES" >/dev/null 2>&1
 fi
+TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Deno
 export DENO_INSTALL="$HOME/.local/share/deno"
@@ -464,7 +464,7 @@ TMP_BIN_PATH="$TMP_BIN_PATH:$CARGO_HOME/bin:$RUST_HOME/bin:$RUSTUP_HOME/bin"
 [ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
-[ -n "$(which hub 2>/dev/null)" ] && eval "$(hub alias -s >/dev/null 2>/dev/null)"
+#[ -n "$(which hub 2>/dev/null)" ] && eval "$(hub alias -s >/dev/null 2>/dev/null)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup vagrant
 export VAGRANT_HOME="$HOME/.local/share/vagrant"
@@ -765,14 +765,14 @@ if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
     MYEDITOR="emacs"
   fi
 else
-  if [ -n "$(which code-oss 2>/dev/null)" ]; then
-    MYEDITOR="code-oss"
-  elif [ -n "$(which code-insiders 2>/dev/null)" ]; then
+  if [ -n "$(which code-insiders 2>/dev/null)" ]; then
     MYEDITOR="code-insiders"
   elif [ -n "$(which code 2>/dev/null)" ]; then
     MYEDITOR="code"
   elif [ -n "$(which vscode 2>/dev/null)" ]; then
     MYEDITOR="vscode"
+  elif [ -n "$(which code-oss 2>/dev/null)" ]; then
+    MYEDITOR="code-oss"
   elif [ -n "$(which geany 2>/dev/null)" ]; then
     MYEDITOR="geany"
   elif [ -n "$(which gedit 2>/dev/null)" ]; then
@@ -891,16 +891,14 @@ if [ -n "$(which multi_clipboard 2>/dev/null)" ]; then
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# MacOS fix
-if [ "$(uname -s)" = Darwin ]; then
-  export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
-  export HOMEBREW_CASK_OPTS="--appdir=/Applications"
-fi
+# fix - https://brew.sh
+export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
+export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # cursor
 if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then
-  printf '%b' "\x1b[\x35 q" 2>/dev/null
-  printf '%b' "\e]12;cyan\a" 2>/dev/null
+  printf '%s' '\x1b[\x35 q' 2>/dev/null
+  printf '%s' '\e]12;cyan\a' 2>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
@@ -940,16 +938,16 @@ fi
 [ -f "$HOME/.config/local/servers/$HOSTNAME_SHORT.local" ] && . "$HOME/.config/local/servers/$HOSTNAME_SHORT.local"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Create directories
-[ -d "$TMPDIR" ] || mkdir -p "$TMPDIR"
-[ -d "$LOGDIR" ] || mkdir -p "$LOGDIR"
-[ -d "$ICON_DIR" ] || mkdir -p "$ICON_DIR"
-[ -d "$FONT_DIR" ] || mkdir -p "$FONT_DIR"
-[ -d "$THEME_DIR" ] || mkdir -p "$THEME_DIR"
-[ -d "$USRBINDIR" ] || mkdir -p "$USRBINDIR"
-[ -d "$WALLPAPER_DIR" ] || mkdir -p "$WALLPAPER_DIR"
 [ -d "$HOME/.config/local" ] || mkdir -p "$HOME/.config/local"
-[ -d "$SETV_VIRTUAL_DIR_PATH" ] || mkdir -p "$SETV_VIRTUAL_DIR_PATH"
 [ -d "$HOME/.config/secure/inc" ] || mkdir -p "$HOME/.config/secure/inc"
+[ -n "$TMPDIR" ] && { [ -d "$TMPDIR" ] || mkdir -p "$TMPDIR"; }
+[ -n "$LOGDIR" ] && { [ -d "$LOGDIR" ] || mkdir -p "$LOGDIR"; }
+[ -n "$ICON_DIR" ] && { [ -d "$ICON_DIR" ] || mkdir -p "$ICON_DIR"; }
+[ -n "$FONT_DIR" ] && { [ -d "$FONT_DIR" ] || mkdir -p "$FONT_DIR"; }
+[ -n "$THEME_DIR" ] && { [ -d "$THEME_DIR" ] || mkdir -p "$THEME_DIR"; }
+[ -n "$USRBINDIR" ] && { [ -d "$USRBINDIR" ] || mkdir -p "$USRBINDIR"; }
+[ -n "$WALLPAPER_DIR" ] && { [ -d "$WALLPAPER_DIR" ] || mkdir -p "$WALLPAPER_DIR"; }
+[ -n "$SETV_VIRTUAL_DIR_PATH" ] && { [ -d "$SETV_VIRTUAL_DIR_PATH" ] || mkdir -p "$SETV_VIRTUAL_DIR_PATH"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bring in apps
 

@@ -34,6 +34,8 @@ __ln_rm() { if [ -e "$1" ]; then find -L $1 -mindepth 1 -maxdepth 1 -type l -exe
 __count_dir() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type d | wc -l; }
 __count_files() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type l,f | wc -l; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+geany() { eval $(which geany 2>/dev/null || false) --socket-file="/tmp/geany.sock" "$@" >/dev/null 2>&1 & }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_clone() { printf '%s' "Cloning repo to $2: " && git clone "$1" "${2:-$(basename "$1" 2>/dev/null)}" -q 2>/dev/null && printf '\n' || return 1; }

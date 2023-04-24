@@ -2,13 +2,13 @@
 # shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use custom `less` colors for `man` pages.
-LESS_TERMCAP_mb=$(printf "\e[1;31m")
-LESS_TERMCAP_md=$(printf "\e[1;31m")
-LESS_TERMCAP_me=$(printf "\e[0m")
-LESS_TERMCAP_se=$(printf "\e[0m")
-LESS_TERMCAP_so=$(printf "\e[1;44;33m")
-LESS_TERMCAP_ue=$(printf "\e[0m")
-LESS_TERMCAP_us=$(printf "\e[1;32m")
+LESS_TERMCAP_mb="$(printf '%b' "\e[1;31m")"
+LESS_TERMCAP_md="$(printf '%b' "\e[1;31m")"
+LESS_TERMCAP_me="$(printf '%b' "\e[0m")"
+LESS_TERMCAP_se="$(printf '%b' "\e[0m")"
+LESS_TERMCAP_so="$(printf '%b' "\e[1;44;33m")"
+LESS_TERMCAP_ue="$(printf '%b' "\e[0m")"
+LESS_TERMCAP_us="$(printf '%b' "\e[1;32m")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Don't clear the screen after quitting a `man` page.
 MANPAGER="less -X"
@@ -57,13 +57,13 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # color
 CLICOLOR=1
-GREP_COLORS="mt=37;45"
+GREP_COLORS='mt=37;45'
 if [ -f "$HOME/.dircolors" ]; then
   DIRCOLOR="$HOME/.dircolors"
 else
   DIRCOLOR="$HOME/.config/dircolors/dracula"
 fi
-LSCOLORS=exfxcxdxbxegedabagacad
+LSCOLORS='exfxcxdxbxegedabagacad'
 eval "$(gdircolors "$DIRCOLOR")"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export items

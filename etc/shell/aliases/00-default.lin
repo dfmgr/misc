@@ -1,5 +1,6 @@
 #!/usr/bin/env sh
 # shellcheck shell=sh
+# shellcheck disable=SC2139
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version       : 202303022155-git
 # @Author        : Jason Hempstead
@@ -95,20 +96,20 @@ alias profilerc='source ~/.profile '
 [ "$(uname -s)" = Linux ] && [ -n "$(which pacman 2>/dev/null)" ] && alias pacman='sudo pacman '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
-alias l.='ls -hA | grep -E --color=auto '\''^\.'\'' '
 alias ls='ls -h --color=auto '
 alias la='ls -hA --color=auto '
 alias ll='ls -hl --color=auto '
-alias lla='ls -hlA --color=auto '
 alias dir='ls -hD --color=auto '
+alias lla='ls -hlA --color=auto '
+alias l.='ls -hA | grep -E --color=auto '\''^\.'\'' '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # CD Aliases
-alias ~='builtin cd ~/ '
-alias ..='builtin cd ../ '
-alias ...='builtin cd ../../ '
-alias ....='builtin cd ../../../ '
-alias .....='builtin cd ../../../../ '
-alias cd..='builtin cd ../ '
+alias ~='builtin cd ~/'
+alias ..='builtin cd ../'
+alias cd..='builtin cd ../'
+alias ...='builtin cd ../../'
+alias ....='builtin cd ../../../'
+alias .....='builtin cd ../../../../'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # VisualStudio code
 if [ -n "$(which code-oss 2>/dev/null)" ]; then
@@ -125,6 +126,12 @@ elif [ -n "$(which code 2>/dev/null)" ]; then
   alias code-np='code --disable-extensions '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if echo "$EDITOR" | grep -q '^code'; then
+  alias ${EDITOR}=''$EDITOR''
+  alias ${EDITOR}w=''$EDITOR' -w'
+  alias ${EDITOR}-np=''$EDITOR' --disable-extensions'
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Powershell
 if [ -f "$(which pwsh-preview 2>/dev/null)" ]; then
   alias pwsh='pwsh-preview '
@@ -132,19 +139,11 @@ elif [ -f "$(which pwsh 2>/dev/null)" ]; then
   alias pwsh='pwsh '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Geany
-if [ -n "$(which geany 2>/dev/null)" ]; then
-  geany() {
-    $(which geany) --socket-file=/tmp/geany.sock "$@" >/dev/null 2>&1 &
-  }
-  alias='geany '
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
 alias vi='vim '
-alias vim='vim  '
-alias vis='vim +set si  '
-alias svim='sudo vim  '
+alias vim='vim '
+alias vis='vim +set si '
+alias svim='sudo vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
 if [ -n "$(which nvim 2>/dev/null)" ] && [ -f "$HOME/.config/neovim/init.vim" ]; then
