@@ -322,10 +322,10 @@ export LESS_TERMCAP_se="$(printf '%b' '\e[0m')"
 export LESS_TERMCAP_so="$(printf '%b' '\e[01;33m')"
 export LESS_TERMCAP_ue="$(printf '%b' '\e[0m')"
 export LESS_TERMCAP_us="$(printf '%b' '\e[1;4;31m')"
-export LESS='-CQaix4'
+export LESS="-cQaix4M --use-color"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Don't clear the screen after quitting a `man` page.
-export MANPAGER="less -X"
+# clear the screen after quitting a `man` page.
+export MANPAGER="less +Gg"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # add emacs to bin
 if [ -d "$HOME/.emacs.d/bin" ]; then
