@@ -108,11 +108,12 @@ APPVERSION="$(__appversion "https://github.com/$SCRIPTS_PREFIX/$APPNAME/raw/$REP
 PLUGIN_REPOS=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Specify required system packages you can prefix os to OS_PACKAGES: MAC_OS_PACKAGES WIN_OS_PACKAGES
-OS_PACKAGES="misc "
-OS_PACKAGES+=""
+OS_PACKAGES="curl wget lynx nano ruby"
+LINUX_OS_PACKAGES="mlocate"
+MAC_OS_PACKAGES="locate"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define required system python packages
-PYTHON_PACKAGES=""
+PYTHON_PACKAGES="pip setuptools"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define required system perl packages
 PERL_PACKAGES=""
@@ -120,15 +121,22 @@ PERL_PACKAGES=""
 # define additional packages - tries to install via tha package managers
 NODEJS=""
 PERL_CPAN=""
-RUBY_GEMS=""
-PYTHON_PIP=""
+RUBY_GEMS="mdless"
+PYTHON_PIP="mycli shodan ytmdl asciinema toot tootstream rainbowstream irc virtualenvwrapper powerline-status"
 PHP_COMPOSER=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Specify ARCH_USER_REPO Pacakges
 AUR_PACKAGES=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define post install message
+__run_post_message() {
+
+  return ${?:-0}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define pre-install scripts
 __run_pre_install() {
+  mkdir -p "$HOME/.local/bin"
 
   return ${?:-0}
 }
@@ -141,10 +149,7 @@ __run_prepost_install() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run after primary post install function
 __run_post_install() {
-  mkdir -p "$HOME/.local/bin"
-  if ! __cmd_exists misc; then
-    printf '#!/usr/bin/env sh\n\nexec bash "$@"' >"$HOME/.local/bin/misc" && chmod 755 "$HOME/.local/bin/misc"
-  fi
+
   return ${?:-0}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -173,15 +178,15 @@ if_os_id arch && ARCH_USER_REPO="$AUR_PACKAGES"
 # define linux packages
 if if_os linux; then
   if if_os_id arch; then
-    SYSTEM_PACKAGES="$OS_PACKAGES $ARCH_OS_PACKAGES"
+    SYSTEM_PACKAGES="$OS_PACKAGES $LINUX_OS_PACKAGES $ARCH_OS_PACKAGES"
   elif if_os_id centos; then
-    SYSTEM_PACKAGES="$OS_PACKAGES $CENTOS_OS_PACKAGES"
+    SYSTEM_PACKAGES="$OS_PACKAGES $LINUX_OS_PACKAGES $CENTOS_OS_PACKAGES"
   elif if_os_id debian; then
-    SYSTEM_PACKAGES="$OS_PACKAGES $DEBIAN_OS_PACKAGES"
+    SYSTEM_PACKAGES="$OS_PACKAGES $LINUX_OS_PACKAGES $DEBIAN_OS_PACKAGES"
   elif if_os_id ubuntu; then
-    SYSTEM_PACKAGES="$OS_PACKAGES $UBUNTU_OS_PACKAGES"
+    SYSTEM_PACKAGES="$OS_PACKAGES $LINUX_OS_PACKAGES $UBUNTU_OS_PACKAGES"
   else
-    SYSTEM_PACKAGES="$OS_PACKAGES"
+    SYSTEM_PACKAGES="$OS_PACKAGES $LINUX_OS_PACKAGES"
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -285,6 +290,9 @@ dfmgr_install_version
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run exit function
 run_exit
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# post install message
+__run_post_message
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run any external scripts
 if ! __cmd_exists "$BUILD_APPNAME" && [ -f "$INSTDIR/build.sh" ]; then

@@ -17,7 +17,7 @@ multi_line = False
 destructive_warning = True
 
 # log_file location.
-log_file = ~/var/log/.mycli.log
+log_file = ~/.local/log/mycli.log
 
 # Default log level. Possible values: "CRITICAL", "ERROR", "WARNING", "INFO"
 # and "DEBUG".
