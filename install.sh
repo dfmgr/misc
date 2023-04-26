@@ -121,7 +121,7 @@ PERL_PACKAGES=""
 # define additional packages - tries to install via tha package managers
 NODEJS=""
 PERL_CPAN=""
-RUBY_GEMS="mdless"
+RUBY_GEMS=""
 PYTHON_PIP="mycli shodan ytmdl asciinema toot tootstream rainbowstream irc virtualenvwrapper powerline-status"
 PHP_COMPOSER=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
