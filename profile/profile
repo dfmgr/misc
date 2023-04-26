@@ -332,6 +332,11 @@ if [ -d "$HOME/.emacs.d/bin" ]; then
   TMP_BIN_PATH="$HOME/.emacs.d/bin:$TMP_BIN_PATH"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# add doom-emacs to bin
+if [ -d "$HOME/.local/share/emacs/plugins/doom-emacs/bin" ]; then
+  TMP_BIN_PATH="$HOME/.local/share/emacs/plugins/doom-emacs/bin:$TMP_BIN_PATH"
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # rpm development
 export QA_RPATHS="\$((0x0001 | 0x0010))"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -364,6 +369,9 @@ else
 fi
 unset lua_ver
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# configure bash-it - https://github.com/Bash-it/bash-it
+export BASH_IT="$HOME/.local/share/bash/plugins/bash-it"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure asdf - https://asdf-vm.com
 export ASDF_DIR="$HOME/.local/share/misc/plugins/asdf"
 export ASDF_DATA_DIR="$HOME/.local/share/misc/plugins/asdf"
@@ -381,7 +389,7 @@ export GODIR="$HOME/.local/share/go"
 export GOPATH="$GODIR"
 export GOBIN="$GODIR/bin"
 export GOCACHE="$GODIR/build"
-export TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
+TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure gofish - https://gofi.sh
 export GOFISH_CACHE="$HOME/cache/.gofish"
@@ -393,9 +401,9 @@ export GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
 # Ruby Version Manager
 export rvm_path="$HOME/.local/share/rvm"
 if [ -f "$rvm_path/scripts/rvm" ]; then
+  TMP_BIN_PATH="$rvm_path/bin:$TMP_BIN_PATH"
   . "$rvm_path/scripts/rvm"
   . "$rvm_path/scripts/completion"
-  TMP_BIN_PATH="$rvm_path/bin:$TMP_BIN_PATH"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup ruby
@@ -407,20 +415,20 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # PNPM
 export PNPM_HOME="$HOME/.local/share/nodejs/pnpm"
-export TMP_BIN_PATH="$PNPM_HOME:$TMP_BIN_PATH"
 [ -d "$PNPM_HOME" ] || mkdir -p "$PNPM_HOME"
+TMP_BIN_PATH="$PNPM_HOME:$TMP_BIN_PATH"
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Fast Node Manager
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
 export FNM_DEFAULT="$FNM_DIR/aliases/default/bin"
-export TMP_BIN_PATH="$FNM_BIN:$TMP_BIN_PATH"
 if [ -n "$(which fnm 2>/dev/null)" ]; then
   eval "$(fnm env --version-file-strategy recursive --shell "$SHELL_NAME" 2>/dev/null)"
   if [ -d "$FNM_DEFAULT" ]; then
     ln -sf "$FNM_DEFAULT"/* "$USRBINDIR/" 2>/dev/null
   fi
 fi
+TMP_BIN_PATH="$FNM_BIN:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # node version manager
 export NVM_BIN="$USRBINDIR"

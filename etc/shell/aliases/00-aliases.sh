@@ -15,5 +15,5 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Aliases for all OSes
-
+[ -n "$(which "nvim" 2>/dev/null)" ] && [ -z "$(which "neovim" 2>/dev/null)" ] && alias neovim='nvim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

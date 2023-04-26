@@ -1,17 +1,13 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
-# shellcheck disable=SC2317
-# shellcheck disable=SC2120
-# shellcheck disable=SC2155
-# shellcheck disable=SC2199
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version           :  202304232104-git
+##@Version           :  202304251442-git
 # @@Author           :  Jason Hempstead
 # @@Contact          :  jason@casjaysdev.com
-# @@License          :  LICENSE.md
+# @@License          :  WTFPL
 # @@ReadME           :  install.sh --help
 # @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
-# @@Created          :  Sunday, Apr 23, 2023 23:47 EDT
+# @@Created          :  Tuesday, Apr 25, 2023 14:42 EDT
 # @@File             :  install.sh
 # @@Description      :  Install configurations for misc
 # @@Changelog        :  New script
@@ -22,13 +18,27 @@
 # @@sudo/root        :  no
 # @@Template         :  installers/dfmgr
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# shell check options
+# shellcheck disable=SC2317
+# shellcheck disable=SC2120
+# shellcheck disable=SC2155
+# shellcheck disable=SC2199
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="misc"
-VERSION="202304232104-git"
+VERSION="202304251442-git"
 HOME="${USER_HOME:-$HOME}"
 USER="${SUDO_USER:-$USER}"
 RUN_USER="${SUDO_USER:-$USER}"
 SCRIPT_SRC_DIR="${BASH_SOURCE%/*}"
 export SCRIPTS_PREFIX="dfmgr"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+BUILD_APPNAME="$APPNAME"
+APPDIR="$HOME/.config/$APPNAME"
+REPO_BRANCH="${GIT_REPO_BRANCH:-main}"
+PLUGIN_DIR="$HOME/.local/share/$APPNAME/plugins"
+REPO="https://github.com/$SCRIPTS_PREFIX/$APPNAME"
+INSTDIR="$HOME/.local/share/CasjaysDev/$SCRIPTS_PREFIX/$APPNAME"
+REPORAW="https://github.com/$SCRIPTS_PREFIX/$APPNAME/raw/$REPO_BRANCH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set bash options
 trap 'retVal=$?;trap_exit' ERR EXIT SIGINT
@@ -36,6 +46,8 @@ trap 'retVal=$?;trap_exit' ERR EXIT SIGINT
 [ "$1" = "--debug" ] && set -x && export SCRIPT_OPTS="--debug" && export _DEBUG="on"
 [ "$1" = "--raw" ] && export SHOW_RAW="true"
 set -o pipefail
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+for app in curl wget git; do type -P "$app" >/dev/null 2>&1 || missing_app+=("$app"); done && [ -z "${missing_app[*]}" ] || { printf '%s\n' "${missing_app[*]}" && exit 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import functions
 CASJAYSDEVDIR="${CASJAYSDEVDIR:-/usr/local/share/CasjaysDev/scripts}"
@@ -56,103 +68,159 @@ else
   exit 90
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define custom functions
+__download_file() { curl -q -LSsf "$1" -o "$2" || return 1; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# OS Support: supported_os unsupported_oses
+supported_os linux mac windows
+unsupported_oses
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# get sudo credentials
+sudorun "true"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Requires root - restarting with sudo
+#sudoreq "$0 *"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Make sure the scripts repo is installed
+scripts_check
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Call the main function
+dfmgr_install
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Script options IE: --help --version
+show_optvars "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# trap the cleanup function
+trap_exit
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Initialize the installer
+dfmgr_run_init
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Do not update
+#installer_noupdate "$@"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Defaults
+APPNAME="misc"
+BUILD_APPNAME="misc"
+APPVERSION="$(__appversion "https://github.com/$SCRIPTS_PREFIX/$APPNAME/raw/$REPO_BRANCH/version.txt")"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup plugins
+PLUGIN_REPOS=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Specify required system packages you can prefix os to OS_PACKAGES: MAC_OS_PACKAGES WIN_OS_PACKAGES
+OS_PACKAGES="misc "
+OS_PACKAGES+=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define required system python packages
+PYTHON_PACKAGES=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define required system perl packages
+PERL_PACKAGES=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# define additional packages - tries to install via tha package managers
+NODEJS=""
+PERL_CPAN=""
+RUBY_GEMS=""
+PYTHON_PIP=""
+PHP_COMPOSER=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Specify ARCH_USER_REPO Pacakges
+AUR_PACKAGES=""
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Define pre-install scripts
 __run_pre_install() {
 
   return ${?:-0}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Define custom functions
+# run before primary post install function
+__run_prepost_install() {
 
+  return ${?:-0}
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Call the main function
-dfmgr_install
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# trap the cleanup function
-trap_exit
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# OS Support: supported_os unsupported_oses
-unsupported_oses
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Make sure the scripts repo is installed
-scripts_check
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Defaults
-APPNAME="${APPNAME:-install.sh}"
-APPDIR="$CONF/$APPNAME"
-INSTDIR="$CASJAYSDEVSHARE/dfmgr/$APPNAME"
-REPO_BRANCH="${GIT_REPO_BRANCH:-main}"
-REPO="${DFMGR:-https://github.com/dfmgr}/$APPNAME"
-REPORAW="$REPO/raw/$REPO_BRANCH"
-APPVERSION="$(__appversion "$REPORAW/version.txt")"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Setup plugins
-PLUGIN_REPOS="https://github.com/asdf-vm/asdf https://github.com/basherpm/basher https://github.com/DhavalKapil/luaver"
-PLUGIN_DIR="${SHARE:-$HOME/.local/share}/$APPNAME/plugins"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Export variables
+# run after primary post install function
+__run_post_install() {
 
+  return ${?:-0}
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Custom plugin function
+__custom_plugin() {
+  local exitCodeC=0
+  # execute "git_clone $repo $dir" "Installing plugin name"
+  return $exitCodeC
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Other dependencies
+dotfilesreq misc
+dotfilesreqadmin cron
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# END OF CONFIGURATION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Require a version higher than
 dfmgr_req_version "$APPVERSION"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Script options IE: --help --version
-show_optvars "$@"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Do not update
-#installer_noupdate "$@"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Requires root - no point in continuing
-#sudoreq "$0 *" # sudo required
-#sudorun "$0 *" # sudo optional
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Initialize the installer
-dfmgr_run_init
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Run pre-install commands
 execute "__run_pre_install" "Running pre-installation commands"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# end with a space
-if_os mac && APP="curl wget lynx nano locate "
-if_os linux && APP="curl wget lynx pip3 nano mlocate "
-AUR=""
-PERL=""
-PYTH="pip setuptools "
-PIPS="shodan ytmdl asciinema toot tootstream rainbowstream irc virtualenvwrapper powerline-status "
-CPAN=""
-GEMS=""
-NPM=""
+# define arch user repo packages
+if_os_id arch && ARCH_USER_REPO="$AUR_PACKAGES"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# define linux packages
+if if_os linux; then
+  if if_os_id arch; then
+    SYSTEM_PACKAGES="$OS_PACKAGES $ARCH_OS_PACKAGES"
+  elif if_os_id centos; then
+    SYSTEM_PACKAGES="$OS_PACKAGES $CENTOS_OS_PACKAGES"
+  elif if_os_id debian; then
+    SYSTEM_PACKAGES="$OS_PACKAGES $DEBIAN_OS_PACKAGES"
+  elif if_os_id ubuntu; then
+    SYSTEM_PACKAGES="$OS_PACKAGES $UBUNTU_OS_PACKAGES"
+  else
+    SYSTEM_PACKAGES="$OS_PACKAGES"
+  fi
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define MacOS packages - homebrew
+if if_os mac; then
+  SYSTEM_PACKAGES="$OS_PACKAGES $MAC_OS_PACKAGES"
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Define Windows packages - choco
+if if_os win; then
+  SYSTEM_PACKAGES="$OS_PACKAGES $WIN_OS_PACKAGES"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # install required packages using the aur - Requires yay to be installed
-install_aur "$AUR"
+install_aur "${ARCH_USER_REPO//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # install packages - useful for package that have the same name on all oses
-install_packages "$APP"
+install_packages "${SYSTEM_PACKAGES//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# install required packages using file
-install_required "$APP"
+# install required packages using file from pkmgr repo
+install_required "$APPNAME"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # check for perl modules and install using system package manager
-install_perl "$PERL"
+install_perl "${PERL_PACKAGES//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # check for python modules and install using system package manager
-install_python "$PYTH"
+install_python "${PYTHON_PACKAGES//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # check for pip binaries and install using python package manager
-install_pip "$PIPS"
+install_pip "${PYTHON_PIP//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # check for cpan binaries and install using perl package manager
-install_cpan "$CPAN"
+install_cpan "${PERL_CPAN//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # check for ruby binaries and install using ruby package manager
-install_gem "$GEMS"
+install_gem "${RUBY_GEMS//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# check for npm binaries and install using node package manager
-install_npm "$NPM"
+# check for npm binaries and install using npm/yarn package manager
+install_npm "${NODEJS//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Other dependencies
-dotfilesreq git
-dotfilesreqadmin
+# check for php binaries and install using php composer
+install_php "${PHP_COMPOSER//,/ }"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ensure directories exist
 ensure_dirs
@@ -172,13 +240,6 @@ if __am_i_online; then
   # exit on fail
   failexitcode $? "Git has failed"
 fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Custom plugin function
-__custom_plugin() {
-  local exitCodeC=0
-
-  return $exitCodeC
-}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Install Plugins
 if __am_i_online; then
@@ -203,49 +264,6 @@ if __am_i_online; then
   failexitcode $exitCodeP "Installation of plugin failed"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# run before primary post install function
-__run_prepost_install() {
-  [ -d "$HOME/.local/bin" ] || mkdir -p "$HOME/.local/bin"
-  return ${?:-0}
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# run after primary post install function
-__run_post_install() {
-  local pybin
-  pybin="$(basname "$(type -P python || type -P python3 || echo 'python3')")"
-  for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc Xresources xscreensaver; do
-    if [ -L "$HOME/.$f" ]; then
-      rm_link "$HOME/.$f"
-    fi
-    cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
-    replace "$HOME/.$f" "/home/jason" "$HOME"
-  done
-  for c in CasjaysDev dunst lynx xresources; do
-    if [ -L "$HOME/.config/$c" ]; then
-      rm_link "$HOME/.config/$c"
-    fi
-    if [ ! -d "$HOME/.config/$c" ]; then
-      mkd "$HOME/.config/$c"
-    fi
-    cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"
-  done
-  if [ -d "$HOME/bin" ]; then
-    cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"
-  fi
-  if [ -d "$HOME/.bin" ]; then
-    cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"
-  fi
-  if [ ! -x "$HOME/.local/bin/vcprompt" ]; then
-    curl -q -LSsf "https://github.com/djl/vcprompt/raw/master/bin/vcprompt" -o "$HOME/.local/bin/vcprompt"
-    chmod 755 "$HOME/.local/bin/vcprompt"
-    replace "/bin/env python" "/bin/env $pybin" "$HOME/.local/bin/vcprompt"
-  fi
-  if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then
-    ln_sf "$(builtin type -P powerline-go)" "/usr/local/bin/powerline"
-  fi
-  return ${?:-0}
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run post install scripts
 run_postinst() {
   __run_prepost_install
@@ -266,14 +284,12 @@ dfmgr_install_version
 run_exit
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run any external scripts
-if ! cmd_exists "$APPNAME" && [ -f "$INSTDIR/build.sh" ]; then
-  if builtin cd "$PLUGIN_DIR/source"; then
-    BUILD_SCRIPT_SRC_DIR="$PLUGIN_DIR/source"
-    BUILD_SRC_URL=""
-    export BUILD_SCRIPT_SRC_DIR BUILD_SRC_URL
-    eval "$INSTDIR/build.sh"
-  fi
-  cmd_exists $APPNAME || printf_red "$APPNAME is not installed: run $INSTDIR/build.sh"
+if ! __cmd_exists "$BUILD_APPNAME" && [ -f "$INSTDIR/build.sh" ]; then
+  BUILD_SCRIPT_SRC_DIR="$PLUGIN_DIR/source"
+  BUILD_SRC_URL=""
+  export BUILD_SCRIPT_SRC_DIR BUILD_SRC_URL
+  eval "$INSTDIR/build.sh"
+  __cmd_exists $BUILD_APPNAME || printf_red "$BUILD_APPNAME is not installed: run $INSTDIR/build.sh"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # End application
