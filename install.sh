@@ -141,7 +141,10 @@ __run_prepost_install() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run after primary post install function
 __run_post_install() {
-
+  mkdir -p "$HOME/.local/bin"
+  if ! __cmd_exists misc; then
+    printf '#!/usr/bin/env sh\n\nexec bash "$@"' >"$HOME/.local/bin/misc" && chmod 755 "$HOME/.local/bin/misc"
+  fi
   return ${?:-0}
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
