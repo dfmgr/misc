@@ -322,7 +322,7 @@ export LESS_TERMCAP_se='\e[0m'
 export LESS_TERMCAP_so='\e[01;33m'
 export LESS_TERMCAP_ue='\e[0m'
 export LESS_TERMCAP_us='\e[1;4;31m'
-export LESS="-cQaix4M --use-color"
+export LESS="-RcQaix4M --use-color"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # clear the screen after quitting a `man` page.
 export MANPAGER="less +Gg"
