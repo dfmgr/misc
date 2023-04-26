@@ -126,39 +126,30 @@ elif which code >/dev/null 2>&1; then
   alias code-np='code --disable-extensions '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if echo "$EDITOR" | grep -q '^code'; then
-  alias ${EDITOR}=''$EDITOR''
-  alias ${EDITOR}w=''$EDITOR' -w'
-  alias ${EDITOR}-np=''$EDITOR' --disable-extensions'
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Powershell
 if which pwsh-preview >/dev/null 2>&1; then
   alias pwsh='pwsh-preview '
-elif which pwsh >/dev/null 2>&1; then
-  alias pwsh='pwsh '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set vim
 alias vi='vim '
-alias vim='vim '
 alias vis='vim +set si '
 alias svim='sudo vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
 if which nvim >/dev/null 2>&1 && [ -f "$HOME/.config/neovim/init.vim" ]; then
-  alias nvim='nvim -u $HOME/.config/neovim/init.vim '
-elif which nvim >/dev/null 2>&1 && [ -f "$HOME/.config/nvim/init.vim" ]; then
-  alias nvim='nvim -u $HOME/.config/nvim/init.vim '
+  alias nvim='nvim -u $HOME/.config/neovim/init.vim'
+  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
+elif which neovim >/dev/null 2>&1 && [ -f "$HOME/.config/nvim/init.vim" ]; then
+  alias nvim='neovim -u $HOME/.config/nvim/init.vim'
+  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
-which docker >/dev/null 2>&1 && alias docker='docker '
 which minikube >/dev/null 2>&1 && alias kubectl='minikube kubectl '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
-which trash >/dev/null 2>&1 && alias empty-trash='trash empty ' ||
-  alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/* '
+which trash >/dev/null 2>&1 && alias empty-trash='trash empty ' || alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/* '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Hide/show icons.
 which gsettings >/dev/null 2>&1 && alias desktop-icons-hide='gsettings set org.gnome.desktop.background show-desktop-icons false '
@@ -214,9 +205,9 @@ alias mylatlong='mylocation | grep --color=none "LAT\|LON" '
 alias emj='emojis '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # other
+which thefuck || alias thefuck='rerun_that -- shit'
 alias shit='rerun_that -- shit'
 alias bork='rerun_that -- bork'
-alias fuckit='rerun_that -- fuck'
 alias balls='rerun_that -- balls'
 alias please='rerun_that -- please'
 alias gcm='git add . && git commit -am "🗃️ Committing everything that changed 🗃️ " '
