@@ -55,7 +55,7 @@ alias setverfile='setver --file '
 alias ssh='ssh -X '
 alias sshq='ssh -qX '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$(command -v vim 2>/dev/null)" ] && alias vim='winpty vim.exe '
+which vim >/dev/null 2>&1 && alias vim='winpty vim.exe '
 [ -f "/c/Progra~1/ActivePython2/python.exe" ] && alias python='winpty /c/Progra~1/ActivePython2/python.exe '
 [ -f "/c/Progra~1/ActivePython2/python.exe" ] && alias pip='winpty /c/Progra~1/ActivePython2/python.exe -m pip '
 [ -f "/c/Progra~1/ActivePython3/python.exe" ] && alias python3='winpty /c/Progra~1/ActivePython3/python.exe '
@@ -90,3 +90,4 @@ alias command-not-found='fuck '
 [ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
+true

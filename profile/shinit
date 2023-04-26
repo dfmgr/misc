@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# shellcheck shell=sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version           :  202208191502-git
 # @@Author           :  jason
@@ -20,9 +21,16 @@
 [ -f "$HOME/.profile" ] && . "$HOME/.profile"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # get hostname info
-HOSTNAME_FULL="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
-HOSTNAME_SHORT="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
+if which hostname >/dev/null 2>&1; then
+  HOSTNAME_FULL="$(hostname -f)"
+  HOSTNAME_SHORT="$(hostname -s)"
+else
+  HOSTNAME_FULL="$(hostnamecli -f)"
+  HOSTNAME_SHORT="$(hostnamecli -s)"
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -n "$HOSTNAME_FULL" ] && HOSTNAME="$HOSTNAME_FULL" || HOSTNAME="$HOSTNAME_SHORT"
+unset HOSTNAME_SHORT HOSTNAME_FULL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 PS1="$RED$SHELL_NAME:$GREEN$USER@$HOSTNAME$NC: $YELLOW$PWD$NC : $BLACK🐚$NC "
 export PS1 HOSTNAME
