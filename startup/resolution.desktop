@@ -1,0 +1,12 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Encoding=UTF-8
+Version=0.9.4
+Type=Application
+Name=set-resolution
+Comment=Change screen resolution
+Exec=~/.local/bin/set-resolution.sh
+StartupNotify=false
+Terminal=false
+Hidden=false
