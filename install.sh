@@ -173,6 +173,9 @@ __run_post_install() {
   if [ -d "$HOME/.bin" ]; then
     cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"
   fi
+  if [ -d "$$HOME/.config/autostart" ]; then
+    chmod -Rf +x "$HOME/.config/autostart"/*.desktop
+  fi
   if [ ! -x "$HOME/.local/bin/vcprompt" ]; then
     curl -q -LSsf "https://github.com/djl/vcprompt/raw/master/bin/vcprompt" -o "$HOME/.local/bin/vcprompt"
     chmod 755 "$HOME/.local/bin/vcprompt"
