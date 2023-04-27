@@ -1,3 +1,14 @@
+## ❗ Changelog: 2023-04-26 at 20:33:03 ❗  
+
+❗ Fixed Permissions: profile/xinitrc ❗  
+  
+  
+Fixed Permissions: profile/xinitrc  
+
+
+### ❗ End of changes for 202304262029-git ❗  
+
+----  
 ## 🗃️ Changelog: 2023-04-26 at 20:29:13 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
