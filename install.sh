@@ -149,6 +149,38 @@ __run_prepost_install() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # run after primary post install function
 __run_post_install() {
+  local pybin
+  pybin="$(basename "$(type -P python3 || type -P python2 || echo 'python')")"
+  for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc Xresources xscreensaver xinitrc; do
+    if [ -L "$HOME/.$f" ]; then
+      rm_link "$HOME/.$f"
+    fi
+    cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
+    replace "$HOME/.$f" "/home/jason" "$HOME"
+  done
+  for c in CasjaysDev dunst lynx xresources; do
+    if [ -L "$HOME/.config/$c" ]; then
+      rm_link "$HOME/.config/$c"
+    fi
+    if [ ! -d "$HOME/.config/$c" ]; then
+      mkd "$HOME/.config/$c"
+    fi
+    cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"
+  done
+  if [ -d "$HOME/bin" ]; then
+    cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"
+  fi
+  if [ -d "$HOME/.bin" ]; then
+    cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"
+  fi
+  if [ ! -x "$HOME/.local/bin/vcprompt" ]; then
+    curl -q -LSsf "https://github.com/djl/vcprompt/raw/master/bin/vcprompt" -o "$HOME/.local/bin/vcprompt"
+    chmod 755 "$HOME/.local/bin/vcprompt"
+    replace "/bin/env python" "/bin/env $pybin" "$HOME/.local/bin/vcprompt"
+  fi
+  if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then
+    ln_sf "$(builtin type -P powerline-go)" "/usr/local/bin/powerline"
+  fi
 
   return ${?:-0}
 }
