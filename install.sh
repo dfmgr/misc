@@ -151,7 +151,7 @@ __run_prepost_install() {
 __run_post_install() {
   local pybin
   pybin="$(basename "$(type -P python3 || type -P python2 || echo 'python')")"
-  for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc Xresources xscreensaver xinitrc; do
+  for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc Xresources xscreensaver xinitrc xserverrc; do
     if [ -L "$HOME/.$f" ]; then
       rm_link "$HOME/.$f"
     fi

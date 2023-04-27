@@ -4,10 +4,10 @@
 # @@Author           :  Jason Hempstead
 # @@Contact          :  git-admin@casjaysdev.com
 # @@License          :  LICENSE.md
-# @@ReadME           :  .xinitrc --help
+# @@ReadME           :  .xserverrc --help
 # @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
 # @@Created          :  Wednesday, Apr 26, 2023 20:04 EDT
-# @@File             :  .xinitrc
+# @@File             :  .xserverrc
 # @@Description      :  X server init file
 # @@Changelog        :  newScript
 # @@TODO             :  Refactor code
@@ -17,7 +17,6 @@
 # @@sudo/root        :  no
 # @@Template         :  shell
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f /etc/xprofile ] && . /etc/xprofile
-[ -f ~/.xprofile ] && . ~/.xprofile
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

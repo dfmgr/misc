@@ -1,3 +1,17 @@
+## 🗃️ Changelog: 2023-04-26 at 20:48:38 🗃️  
+
+🗃️ Committing everything that changed 🗃️  
+  
+  
+install.sh  
+profile/xinitrc  
+profile/xserverrc  
+startup/resolution.desktop  
+
+
+### 🗃️ End of changes for 202304262033-git 🗃️  
+
+----  
 ## ❗ Changelog: 2023-04-26 at 20:33:05 ❗  
 
 ❗ Fixed Permissions: startup/resolution.desktop ❗  
