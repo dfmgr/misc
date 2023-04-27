@@ -19,14 +19,14 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # get resolution
 if which xrandr >/dev/null 2>&1; then
-  RESOLUTION="$(xrandr --current 2>/dev/null | grep '\*' | uniq | awk '{print $1}')"
+  export RESOLUTION="$(xrandr --current 2>/dev/null | grep '\*' | uniq | awk '{print $1}')"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix screen resolution
 if [ -n "$RESOLUTION" ] && [ -x "$HOME/.config/screenlayout/$RESOLUTION.sh" ]; then
-  "$HOME/.config/screenlayout/$RESOLUTION.sh"
+  . "$HOME/.config/screenlayout/$RESOLUTION.sh"
 elif [ -x "$HOME/.config/screenlayout/default.sh" ]; then
-  "$HOME/.config/screenlayout/default.sh"
+  . "$HOME/.config/screenlayout/default.sh"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
