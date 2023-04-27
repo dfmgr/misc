@@ -1,3 +1,14 @@
+## ❗ Changelog: 2023-04-26 at 20:33:05 ❗  
+
+❗ Fixed Permissions: startup/resolution.desktop ❗  
+  
+  
+Fixed Permissions: startup/resolution.desktop  
+
+
+### ❗ End of changes for 202304262029-git ❗  
+
+----  
 ## ❗ Changelog: 2023-04-26 at 20:33:03 ❗  
 
 ❗ Fixed Permissions: profile/xinitrc ❗  
