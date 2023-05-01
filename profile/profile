@@ -400,14 +400,7 @@ if [ -f "$rvm_path/scripts/rvm" ]; then
   . "$rvm_path/scripts/rvm"
   . "$rvm_path/scripts/completion"
 fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Setup ruby
-if which ruby >/dev/null 2>&1; then
-  export GEM_HOME="$HOME/.local/share/gem"
-  export GEM_PATH="$(ruby -e 'puts Gem.user_dir')/bin"
-  TMP_BIN_PATH="$GEM_PATH:$TMP_BIN_PATH"
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # PNPM
 export PNPM_HOME="$HOME/.local/share/nodejs/pnpm"
 [ -d "$PNPM_HOME" ] || mkdir -p "$PNPM_HOME"

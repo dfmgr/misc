@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # shellcheck shell=bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version           :  202304290018-git
+##@Version           :  202304302239-git
 # @@Author           :  Jason Hempstead
 # @@Contact          :  jason@casjaysdev.com
-# @@License          :  LICENSE.md
+# @@License          :  WTFPL
 # @@ReadME           :  install.sh --help
 # @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
-# @@Created          :  Saturday, Apr 29, 2023 00:32 EDT
+# @@Created          :  Sunday, Apr 30, 2023 22:39 EDT
 # @@File             :  install.sh
 # @@Description      :  Install configurations for misc
 # @@Changelog        :  New script
@@ -25,7 +25,7 @@
 # shellcheck disable=SC2199
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 APPNAME="misc"
-VERSION="202304290018-git"
+VERSION="202304302239-git"
 HOME="${USER_HOME:-$HOME}"
 USER="${SUDO_USER:-$USER}"
 RUN_USER="${SUDO_USER:-$USER}"
@@ -87,16 +87,16 @@ __failexitcode() { [ $1 -ne 0 ] && printf_red "😠 $2 😠" && exit ${1:-4}; }
 __get_exit_status() { s=$? && getRunStatus=$((s + ${getRunStatus:-0})) && return $s; }
 __service_is_running() { systemctl is-active $1 2>&1 | grep -qiw 'active' || return 1; }
 __service_is_active() { systemctl is-enabled $1 2>&1 | grep -qiw 'enabled' || return 1; }
-__get_version() { echo "$@" | awk -F '.' '{ printf("%d%03d%03d%03d\n", $1,$2,$3,$4) }'; }
+__get_version() { echo "$@" | awk -F '.' '{ printf("%d%d%d%d\n", $1,$2,$3,$4) }'; }
 __silent_start() { __cmd_exists $1 && (eval "$*" &>/dev/null &) && __app_is_running $1 || return 1; }
 __symlink() { { __rm_rf "$2" || true; } && ln_sf "$1" "$2" &>/dev/null || { [ -L "$2" ] || return 1; }; }
 __get_pid() { ps -aux | grep -v ' grep ' | grep "$1" | awk -F ' ' '{print $2}' | grep ${2:-[0-9]} || return 1; }
 __dir_count() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type d 2>/dev/null | wc -l; }
 __file_count() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type f 2>/dev/null | wc -l; }
 __kill_process_id() { __input_is_number $1 && pid=$1 && { [ -z "$pid" ] || kill -15 $pid &>/dev/null; } || return 1; }
-__kill() { __kill_process_id "$1" || __kill_process_name "$1" || { ! __app_is_running "$1" && return 0; } || return 1; }
+__kill() { __kill_process_id "$1" || __kill_process_name "$1" || { ! __app_is_running "$1" || kill -9 $pid &>/dev/null; } || return 1; }
 __replace_all() { [ -n "$3" ] && [ -e "$3" ] && find "$3" -not -path "$3/.git/*" -type f -exec $sed -i "s|$1|$2|g" {} \; >/dev/null 2>&1 || return 1; }
-__kill_process_name() { local pid="$(pidof "$1" 2>/dev/null)" && { [ -z "$pid" ] || kill -19 $pid &>/dev/null || kill -9 $pid &>/dev/null; } || return 1; }
+__kill_process_name() { local pid="$(pidof "$1" 2>/dev/null)" && { [ -z "$pid" ] || { kill -19 $pid &>/dev/null && ! __app_is_running "$1" && return 0; } || kill -9 $pid &>/dev/null; } || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 sed="$(builtin type -P gsed 2>/dev/null || builtin type -P sed 2>/dev/null || return)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -142,7 +142,7 @@ BUILD_SRC_URL=""
 BUILD_SCRIPT_SRC_DIR="$PLUGIN_DIR/source"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup plugins
-PLUGIN_REPOS=""
+PLUGIN_REPOS="https://github.com/asdf-vm/asdf https://github.com/basherpm/basher https://github.com/DhavalKapil/luaver"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Grab release from github releases
 LATEST_RELEASE=""
@@ -183,7 +183,7 @@ __run_post_message() {
 # Define pre-install scripts
 __run_pre_install() {
   local getRunStatus=0
-  [ -d "$HOME/.local/bin" ] || __mkdir "$HOME/.local/bin"
+  __mkdir "$HOME/.local/bin"
   return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -204,7 +204,7 @@ __run_post_install() {
       __rm_link "$HOME/.$f"
     fi
     __cp_rf "$INSTDIR/profile/$f" "$HOME/.$f"
-    __replace_all "/home/jason" "$HOME" "$HOME/.$f"
+    __replace_one "/home/jason" "$HOME" "$HOME/.$f"
   done
   for c in CasjaysDev dunst lynx xresources; do
     if [ -L "$HOME/.config/$c" ]; then
@@ -227,12 +227,11 @@ __run_post_install() {
   if [ ! -x "$HOME/.local/bin/vcprompt" ]; then
     __download_file "https://github.com/djl/vcprompt/raw/master/bin/vcprompt" "$HOME/.local/bin/vcprompt"
     __chmod 755 "$HOME/.local/bin/vcprompt"
-    __replace_all "/bin/env python" "/bin/env $pybin" "$HOME/.local/bin/vcprompt"
+    __replace_one "/bin/env python" "/bin/env $pybin" "$HOME/.local/bin/vcprompt"
   fi
   if [ -n "$(builtin type -P powerline-go)" ] && [ -z "$(builtin type -P powerline)" ]; then
     __symlink "$(builtin type -P powerline-go)" "/usr/local/bin/powerline"
   fi
-
   return $getRunStatus
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
