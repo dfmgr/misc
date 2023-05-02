@@ -145,8 +145,8 @@ elif [ -n "$ZSH_VERSION" ]; then
   SHELL="$(which zsh 2>/dev/null)"
   export ZDOTDIR="$HOME/.config/zsh"
   export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
-  export ZSH="$HOME/.local/share/zsh/oh-my-zsh"
-  export ZSH_CUSTOM="$HOME/.local/share/zsh/oh-my-zsh/custom"
+  export ZSH="$HOME/.local/share/zsh/plugins/oh-my-zsh"
+  export ZSH_CUSTOM="$HOME/.local/share/zsh/plugins/oh-my-zsh/custom"
   export ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
   export HISTFILE="$HOME/.config/zsh/zsh_history"
   autoload -Uz compinit && compinit -i

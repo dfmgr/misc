@@ -175,6 +175,9 @@ RUBY_GEMS=""
 PYTHON_PIP="mycli shodan ytmdl asciinema toot tootstream rainbowstream irc virtualenvwrapper powerline-status"
 PHP_COMPOSER=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Run custom actions
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Show a custom message after install
 __run_post_message() {
   true
