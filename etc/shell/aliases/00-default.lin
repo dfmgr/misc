@@ -112,18 +112,21 @@ alias ....='builtin cd ../../../'
 alias .....='builtin cd ../../../../'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # VisualStudio code
-if which code-oss >/dev/null 2>&1; then
-  alias code='code-oss '
-  alias codew='code-oss -w '
-  alias code-np='code-oss --disable-extensions '
-elif which code-insiders >/dev/null 2>&1; then
+if which code-insiders >/dev/null 2>&1; then
   alias code='code-insiders '
   alias codew='code-insiders -w '
   alias code-np='code-insiders --disable-extensions '
+  alias code-kill='while :;do killall code-insiders || break;done'
+elif which code-oss >/dev/null 2>&1; then
+  alias code='code-oss '
+  alias codew='code-oss -w '
+  alias code-np='code-oss --disable-extensions '
+  alias code-kill='while :;do killall code-oss || break;done'
 elif which code >/dev/null 2>&1; then
   alias code='code '
   alias codew='code -w '
   alias code-np='code --disable-extensions '
+  alias code-kill='while :;do killall code || break;done'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Powershell
