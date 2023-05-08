@@ -18,6 +18,8 @@
 # @@sudo/root        :  no
 # @@Template         :  shell/sh
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+geany() { eval "$(which geany 2>/dev/null || false)" --socket-file="/tmp/geany.sock" "$@" >/dev/null 2>&1 & }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __tar_create() { tar cfvz "$@"; }
 __tar_extract() { tar xfvz "$@"; }
 __count_lines() { wc -l "$1" | awk '${print $1}'; }
@@ -33,8 +35,6 @@ __setcursor() { printf '%b' "\x1b[\x35 q" && printf '%b' "\e]12;cyan\a" 2>/dev/n
 __ln_rm() { if [ -e "$1" ]; then find -L $1 -mindepth 1 -maxdepth 1 -type l -exec rm -f {} \;; fi; }
 __count_dir() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type d | wc -l; }
 __count_files() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type l,f | wc -l; }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-geany() { eval $(which geany 2>/dev/null || false) --socket-file="/tmp/geany.sock" "$@" >/dev/null 2>&1 & }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

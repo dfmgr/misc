@@ -18,9 +18,6 @@
 # @@sudo/root        :  no
 # @@Template         :  N/A
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# fish specific
-[ -n "$FISH_VERSION" ] && return
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # colors initialization
 color_prompt=yes
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
