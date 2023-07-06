@@ -438,11 +438,10 @@ export DENO_INSTALL="$HOME/.local/share/deno"
 TMP_BIN_PATH="$DENO_INSTALL/bin:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Python
-TMP_BIN_PATH="/usr/local/share/python/venv/bin"
 if [ -z "$PYTHONPATH" ]; then
-  export PYTHONPATH="/usr/local/share/python/venv"
+  export PYTHONPATH="/usr/local"
 else
-  export PYTHONPATH="$PYTHONPATH:/usr/local/share/python/venv"
+  export PYTHONPATH="$PYTHONPATH:/usr/local"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python setV
