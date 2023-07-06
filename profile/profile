@@ -441,6 +441,7 @@ TMP_BIN_PATH="$DENO_INSTALL/bin:$TMP_BIN_PATH"
 if [ -z "$PYTHONPATH" ]; then
   export PYTHONPATH="/usr/local"
 else
+  PYTHONPATH="$(echo "$PYTHONPATH" | sed 's|:/usr/local||g')"
   export PYTHONPATH="$PYTHONPATH:/usr/local"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
