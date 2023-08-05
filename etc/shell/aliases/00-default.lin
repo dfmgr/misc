@@ -215,8 +215,8 @@ alias bork='rerun_that -- bork'
 alias balls='rerun_that -- balls'
 alias please='rerun_that -- please'
 alias gcm='git add . && git commit -am "🗃️ Committing everything that changed 🗃️ " '
-alias scripts_update='sudo -n true && sudo git -C /usr/local/share/CasjaysDev/scripts pull -q && printf_green "Scripts has been updated\n"'
-alias copy-templates='scripts_update;gen-header --copy;gen-dns --copy;gen-html --copy;gen-license --copy;gen-readme --copy;gen-script --copy;gen-dns --copy;'
+alias scripts_update='sudo -n true && [ -d /usr/local/share/CasjaysDev/scripts/.git ] && sudo git -C /usr/local/share/CasjaysDev/scripts pull -q && printf_green "Scripts has been updated\n"'
+alias copy-templates='[ -d /usr/local/share/CasjaysDev/scripts/.git ] && { scripts_update;gen-header --copy;gen-dns --copy;gen-html --copy;gen-license --copy;gen-readme --copy;gen-script --copy;gen-dns --copy; }'
 alias update-system='printf_blue "Updating your system. This may take a while......" && pkmgr silent upgrade && sudo systemmgr update &>/dev/null && dfmgr update &>/dev/null && printf_green "Your system has been updated" || printf_red "Failed to update your system" '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Import global aliases
