@@ -12,7 +12,7 @@ remove-samples() {
   # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
   ##@Version       : 202207042253-git
   # @Author        : Jason
-  # @Contact       : jason@casjaysdev.com
+  # @Contact       : jason@casjaysdev.pro
   # @License       : WTFPL
   # @ReadME        : remove-samples --help
   # @Copyright     : Copyright (c) 2021, Casjays Developments

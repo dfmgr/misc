@@ -2,7 +2,7 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ##@Version           :  202304261931-git
 # @@Author           :  Jason Hempstead
-# @@Contact          :  git-admin@casjaysdev.com
+# @@Contact          :  git-admin@casjaysdev.pro
 # @@License          :  LICENSE.md
 # @@ReadME           :  set-resolution.sh --help
 # @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments

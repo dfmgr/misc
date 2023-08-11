@@ -18,7 +18,7 @@ global debug_package  %{nil}
 %_gpg_name            Jason Hempstead
 %_gpgbin              /usr/bin/gpg
 %packager             CasjaysDev
-%vendor               CasjaysDev http://rpms.casjaysdev.com
+%vendor               CasjaysDev http://rpms.casjaysdev.pro
 %distribution         2.casjay.%osver
 %dist                 2.casjay.%osver
 %BuildArch            x86_64
