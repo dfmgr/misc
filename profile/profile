@@ -163,8 +163,11 @@ export HOSTNAME
 export NODE_MANAGER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set default prompt
-PS1="$RED$SHELL_NAME:$GREEN$USER@$HOSTNAME$NC: $YELLOW$PWD$NC : $BLACK🐚$NC "
-export PS1
+if [ -f "$HOME/.config/bash/server-prompt.sh" ]; then
+  . "$HOME/.config/bash/server-prompt.sh"
+else
+  PS1="$RED$SHELL_NAME:$GREEN$USER@$HOSTNAME$NC: $YELLOW$PWD$NC : $BLACK🐚$NC "
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # set umask
 #umask 022
