@@ -17,10 +17,17 @@
 # @@sudo/root        :  no
 # @@Template         :  shell
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export PATH="$HOME/.local/bin:$PATH"
-# Setup display
-[ -f "$HOME/.config/.screenlayout/default.sh" ] && . "$HOME/.config/.screenlayout/default.sh"
+# shell check options
+# shellcheck disable=SC2317
+# shellcheck disable=SC2120
+# shellcheck disable=SC2155
+# shellcheck disable=SC2199
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export XPROFILE_IS_SOURCED=1
+# Return if already sourced
+[ "$IS_SOURCED_XSESSION" != 1 ] || return
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ -z "$IS_SOURCED_XPROFILE" ] && [ -f "$HOME/.xprofile" ] && . "$HOME/.xprofile"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+export IS_SOURCED_XSESSION=1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

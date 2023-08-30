@@ -24,12 +24,15 @@
 # shellcheck disable=SC2155
 # shellcheck disable=SC2199
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Return if already sourced
+[ "$IS_SOURCED_XPROFILE" != 1 ] || return
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Export default paths
 export PATH="$HOME/.local/bin:usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/share/games:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup display
-[ -f "$HOME/.config/.screenlayout/default.sh" ] && . "$HOME/.config/.screenlayout/default.sh"
+[ -f "$HOME/.config/screenlayout/default.sh" ] && . "$HOME/.config/screenlayout/default.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export XPROFILE_IS_SOURCED=1
+export IS_SOURCED_XPROFILE=1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
