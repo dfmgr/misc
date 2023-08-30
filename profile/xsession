@@ -1,1 +1,26 @@
+#!/usr/bin/env sh
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version           :  202304261931-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  git-admin@casjaysdev.pro
+# @@License          :  LICENSE.md
+# @@ReadME           :  .xserverrc --help
+# @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
+# @@Created          :  Wednesday, Apr 26, 2023 20:04 EDT
+# @@File             :  .xserverrc
+# @@Description      :  X server init file
+# @@Changelog        :  newScript
+# @@TODO             :  Refactor code
+# @@Other            :
+# @@Resource         :
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  shell
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 export PATH="$HOME/.local/bin:$PATH"
+# Setup display
+[ -f "$HOME/.config/.screenlayout/default.sh" ] && . "$HOME/.config/.screenlayout/default.sh"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+export XPROFILE_IS_SOURCED=1
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

@@ -17,7 +17,6 @@
 # @@sudo/root        :  no
 # @@Template         :  shell
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-export PATH="$HOME/.local/bin:$PATH"
-[ -f ~/.xprofile ] && . ~/.xprofile
+[ -f "$HOME/.xprofile" ] && . "$HOME/.xprofile"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

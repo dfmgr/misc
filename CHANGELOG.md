@@ -1,3 +1,18 @@
+## 🗃️ Changelog: 2023-08-30 at 16:07:38 🗃️  
+
+🗃️ Committing everything that changed 🗃️  
+  
+  
+install.sh  
+profile/shinit  
+profile/xinitrc  
+profile/xprofile  
+profile/xsession  
+
+
+### 🗃️ End of changes for 202308301555-git 🗃️  
+
+----  
 ## 🗃️ Changelog: 2023-08-30 at 15:55:10 🗃️  
 
 🗃️ Committing everything that changed 🗃️  

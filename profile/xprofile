@@ -30,3 +30,6 @@ export PATH="$HOME/.local/bin:usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/
 # Setup display
 [ -f "$HOME/.config/.screenlayout/default.sh" ] && . "$HOME/.config/.screenlayout/default.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+export XPROFILE_IS_SOURCED=1
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

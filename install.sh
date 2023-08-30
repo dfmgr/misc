@@ -203,9 +203,9 @@ __run_prepost_install() {
 # run after primary post install function
 __run_post_install() {
   local getRunStatus=0
-  local pybin
+  local pybin=""
   pybin="$(basename "$(type -P python3 || type -P python2 || echo 'python')")"
-  for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc Xresources xscreensaver xinitrc xsession xserverrc; do
+  for f in curlrc dircolors gntrc inputrc libao myclirc profile shinit rpmmacros wgetrc xprofile Xresources xscreensaver xinitrc xsession xserverrc; do
     if [ -L "$HOME/.$f" ]; then
       __rm_link "$HOME/.$f"
     fi
@@ -222,10 +222,10 @@ __run_post_install() {
     __cp_rf "$INSTDIR/profile/config/$c/." "$HOME/.config/$c/"
   done
   if [ -d "$HOME/bin" ]; then
-    __cp_rf "$HOME/bin"/* "$HOME/.local/bin" && rm_rf "$HOME/bin"
+    __cp_rf "$HOME/bin"/* "$HOME/.local/bin/" && rm_rf "$HOME/bin"
   fi
   if [ -d "$HOME/.bin" ]; then
-    __cp_rf "$HOME/.bin"/* "$HOME/.local/bin" && rm_rf "$HOME/.bin"
+    __cp_rf "$HOME/.bin"/* "$HOME/.local/bin/" && rm_rf "$HOME/.bin"
   fi
   if [ -d "$$HOME/.config/autostart" ]; then
     __chmod +x "$HOME/.config/autostart"/*.desktop

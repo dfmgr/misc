@@ -32,7 +32,7 @@ fi
 [ -n "$HOSTNAME_FULL" ] && HOSTNAME="$HOSTNAME_FULL" || HOSTNAME="$HOSTNAME_SHORT"
 unset HOSTNAME_SHORT HOSTNAME_FULL
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PS1="$RED$SHELL_NAME:$GREEN$USER@$HOSTNAME$NC: $YELLOW$PWD$NC : $BLACK🐚$NC "
+PS1="$RED$SHELL_NAME:$GREEN$USER@$HOSTNAME$NC:$YELLOW$PWD$NC:$BLACK🐚$NC "
 export PS1 HOSTNAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 [ -f "$HOME/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/misc/shell/aliases/00-aliases.sh"
