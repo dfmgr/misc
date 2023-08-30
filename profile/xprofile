@@ -1,0 +1,32 @@
+#!/usr/bin/env sh
+# shellcheck shell=sh
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version           :  202308231802-git
+# @@Author           :  Jason Hempstead
+# @@Contact          :  git-admin@casjaysdev.pro
+# @@License          :  LICENSE.md
+# @@ReadME           :  .xprofile --help
+# @@Copyright        :  Copyright: (c) 2023 Jason Hempstead, Casjays Developments
+# @@Created          :  Wednesday, Aug 30, 2023 15:48 EDT
+# @@File             :  .xprofile
+# @@Description      :  Xserver profile
+# @@Changelog        :  newScript
+# @@TODO             :  Refactor code
+# @@Other            :
+# @@Resource         :
+# @@Terminal App     :  no
+# @@sudo/root        :  no
+# @@Template         :  shell/sh
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# shell check options
+# shellcheck disable=SC2317
+# shellcheck disable=SC2120
+# shellcheck disable=SC2155
+# shellcheck disable=SC2199
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Export default paths
+export PATH="$HOME/.local/bin:usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/share/games:/usr/games"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Setup display
+[ -f "$HOME/.config/.screenlayout/default.sh" ] && . "$HOME/.config/.screenlayout/default.sh"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
