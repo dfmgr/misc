@@ -9,6 +9,7 @@ bin/functions.bash
 ### 🗃️ End of changes for 202308301653-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-30 at 16:53:32 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -20,6 +21,7 @@ install.sh
 ### 🗃️ End of changes for 202308301620-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-30 at 16:20:51 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -32,6 +34,7 @@ profile/xsession
 ### 🗃️ End of changes for 202308301607-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-30 at 16:07:38 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -47,6 +50,7 @@ profile/xsession
 ### 🗃️ End of changes for 202308301555-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-30 at 15:55:10 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -58,6 +62,7 @@ profile/xprofile
 ### 🗃️ End of changes for 202308231802-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-23 at 18:02:41 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -69,6 +74,7 @@ profile/profile
 ### 🗃️ End of changes for 202308231713-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-23 at 17:13:46 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -80,6 +86,7 @@ profile/profile
 ### 🗃️ End of changes for 202308102007-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-10 at 20:07:24 🗃️  
 
 🗃️ Updated domain names 🗃️  
@@ -205,6 +212,7 @@ profile/xserverrc
 ### 🗃️ End of changes for 202308050025-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-05 at 00:25:40 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -216,6 +224,7 @@ etc/shell/aliases/00-default.lin
 ### 🗃️ End of changes for 202308042347-git 🗃️  
 
 ----  
+
 ## ✔️ Changelog: 2023-08-04 at 23:47:10 ✔️  
 
 ✔️ FIXED: etc/shell/aliases/00-default.lin ✔️  
@@ -227,6 +236,7 @@ FIXED: etc/shell/aliases/00-default.lin
 ### ✔️ End of changes for 202308042343-git ✔️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-08-04 at 23:43:21 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -238,6 +248,7 @@ etc/shell/aliases/00-default.lin
 ### 🗃️ End of changes for 202307061631-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-07-06 at 16:31:54 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -249,6 +260,7 @@ profile/profile
 ### 🗃️ End of changes for 202307061516-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-07-06 at 15:16:54 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -260,6 +272,7 @@ profile/profile
 ### 🗃️ End of changes for 202307061447-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-07-06 at 14:47:51 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -271,6 +284,7 @@ profile/profile
 ### 🗃️ End of changes for 202305091521-git 🗃️  
 
 ----  
+
 ## ➖ Changelog: 2023-05-09 at 15:21:05 ➖  
 
 ➖ Deleted: completions/_rmd_completions ➖  
@@ -282,6 +296,7 @@ Deleted: completions/_rmd_completions
 ### ➖ End of changes for 202305081943-git ➖  
 
 ----  
+
 ## 🗃️ Changelog: 2023-05-08 at 19:43:53 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -294,6 +309,7 @@ profile/profile
 ### 🗃️ End of changes for 202305051818-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-05-05 at 18:18:56 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -305,6 +321,7 @@ etc/shell/aliases/00-default.lin
 ### 🗃️ End of changes for 202305030939-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-05-03 at 09:39:48 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -316,6 +333,7 @@ install.sh
 ### 🗃️ End of changes for 202305012301-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-05-01 at 23:01:34 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -328,6 +346,7 @@ profile/profile
 ### 🗃️ End of changes for 202305011823-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-05-01 at 18:23:17 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -340,6 +359,7 @@ profile/profile
 ### 🗃️ End of changes for 202304292252-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-29 at 22:52:07 🗃️  
 
 🗃️ Updated static server 🗃️  
@@ -351,6 +371,7 @@ etc/shell/aliases/00-default.lin
 ### 🗃️ End of changes for 202304290045-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-29 at 00:45:31 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -362,6 +383,7 @@ install.sh
 ### 🗃️ End of changes for 202304290018-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-29 at 00:18:47 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -374,6 +396,7 @@ install.sh
 ### 🗃️ End of changes for 202304262114-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 21:14:38 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -387,6 +410,7 @@ profile/xsession
 ### 🗃️ End of changes for 202304262104-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 21:04:13 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -398,6 +422,7 @@ install.sh
 ### 🗃️ End of changes for 202304262059-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 20:59:17 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -410,6 +435,7 @@ profile/xserverrc
 ### 🗃️ End of changes for 202304262048-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 20:48:38 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -424,6 +450,7 @@ startup/resolution.desktop
 ### 🗃️ End of changes for 202304262033-git 🗃️  
 
 ----  
+
 ## ❗ Changelog: 2023-04-26 at 20:33:05 ❗  
 
 ❗ Fixed Permissions: startup/resolution.desktop ❗  
@@ -435,6 +462,7 @@ Fixed Permissions: startup/resolution.desktop
 ### ❗ End of changes for 202304262029-git ❗  
 
 ----  
+
 ## ❗ Changelog: 2023-04-26 at 20:33:03 ❗  
 
 ❗ Fixed Permissions: profile/xinitrc ❗  
@@ -446,6 +474,7 @@ Fixed Permissions: profile/xinitrc
 ### ❗ End of changes for 202304262029-git ❗  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 20:29:13 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -459,6 +488,7 @@ startup/
 ### 🗃️ End of changes for 202304262017-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 20:17:22 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -470,6 +500,7 @@ profile/xinitrc
 ### 🗃️ End of changes for 202304262008-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 20:08:33 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -483,6 +514,7 @@ profile/xinitrc
 ### 🗃️ End of changes for 202304261931-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 19:31:14 🗃️  
 
 🗃️ Updating aliases 🗃️  
@@ -494,6 +526,7 @@ etc/shell/aliases/00-default.lin
 ### 🗃️ End of changes for 202304261916-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 19:16:51 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -510,6 +543,7 @@ profile/shinit
 ### 🗃️ End of changes for 202304261554-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 15:54:09 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -521,6 +555,7 @@ profile/profile
 ### 🗃️ End of changes for 202304261533-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 15:33:13 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -532,6 +567,7 @@ profile/profile
 ### 🗃️ End of changes for 202304261531-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 15:31:33 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -543,6 +579,7 @@ install.sh
 ### 🗃️ End of changes for 202304261413-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-26 at 14:13:48 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -556,6 +593,7 @@ profile/profile
 ### 🗃️ End of changes for 202304252344-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-25 at 23:44:21 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -567,6 +605,7 @@ install.sh
 ### 🗃️ End of changes for 202304252338-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-25 at 23:38:38 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
@@ -581,6 +620,7 @@ profile/profile
 ### 🗃️ End of changes for 202304250021-git 🗃️  
 
 ----  
+
 ## 🗃️ Changelog: 2023-04-25 at 00:21:47 🗃️  
 
 🗃️ Modified: profile/profile 🗃️  
@@ -592,6 +632,7 @@ Modified: profile/profile
 ### 🗃️ End of changes for 202304241822-git 🗃️  
 
 ----  
+
 #### Changelog: 2023-04-13 at 13:43:54  
 
 profile/profile : 🗃️  Committing everything that changed 🗃️ 🚀  
@@ -1213,6 +1254,7 @@ profile/profile : Fixed - Minor fixes 🚀
 ----  
   
 #### Changelog: 2022-08-19 at 15:02:57  
+
 #### 🗃️ Committing everything that changed 🗃️  
   
   
@@ -1221,6 +1263,7 @@ profile/profile : Fixed - Minor fixes 🚀
 ----  
   
 #### Changelog: 2022-08-19 at 13:54:22  
+
 #### 🗃️ Committing everything that changed 🗃️  
   
   
@@ -1229,6 +1272,7 @@ profile/profile : Fixed - Minor fixes 🚀
 ----  
   
 #### Changelog: 2022-08-19 at 13:37:33  
+
 #### 🗃️ Committing everything that changed 🗃️  
   
   
@@ -1253,6 +1297,7 @@ etc/shell/aliases/00-default.lin      🚀
 ----  
   
 #### Changelog: 2022-07-30 at 16:37:05  
+
 #### 🗃️ Committing everything that changed 🗃️  
   
 etc/shell/functions/global.sh      🚀  
@@ -1270,6 +1315,7 @@ etc/shell/aliases/00-default.lin      🚀
 ----  
   
 #### Changelog: 2022-07-25 at 09:24:57  
+
 #### 🗃️ Committing everything that changed 🗃️  
   
 bin/rmd      🚀  
@@ -1280,6 +1326,7 @@ bin/setup_virt      🚀
 ----  
   
 #### Changelog: 2022-07-20 at 07:59:07  
+
 #### 🗃️ Committing everything that changed 🗃️  
   
 etc/shell/aliases/00-default.lin      🚀  
@@ -1291,6 +1338,7 @@ etc/shell/aliases/00-default.win      🚀
 ----  
   
 #### Changelog: 2022-07-17 at 12:11:36  
+
 #### 🗃️ Committing everything that changed 🗃️  
   
 bin/functions.bash      🚀  
@@ -1308,12 +1356,15 @@ bin/functions.bash      🚀
 ----  
   
 <<<<<<< HEAD
+
 #### Changelog: 2022-07-17 at 08:37:46  
   
 bin/functions.bash      🚀  
   
 #### End of changes for 202207042253-git - 2022-07-17 at 08:37:46  
+
 =======
+
 #### Changelog: 2022-07-16 at 22:21:51  
   
 bin/setup_virt      🚀  
@@ -1327,6 +1378,7 @@ bin/setup_virt      🚀
 bin/setup_virt      🚀  
   
 #### End of changes for 202207042253-git - 2022-07-16 at 22:03:28  
+>>>>>>>
 >>>>>>> 88f9059c8b7b976c31de96eb33e884f9cb2425c9
   
 ----  
@@ -1341,9 +1393,10 @@ bin/cdd      🚀
   
 #### Changelog: 2022-07-16 at 08:14:07  
   
-bin/cdd 🚀   
+bin/cdd 🚀
   
 #### End of changes for 202207042253-git - 2022-07-16 at 08:14:07  
+
 ----  
   
   

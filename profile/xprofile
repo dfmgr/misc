@@ -28,7 +28,7 @@
 [ "$IS_SOURCED_XPROFILE" != 1 ] || return
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Export default paths
-export PATH="$HOME/.local/bin:usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/share/games:/usr/games"
+export PATH="$HOME/.local/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/bin:/sbin:/usr/share/games:/usr/games"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup display
 [ -f "$HOME/.config/screenlayout/default.sh" ] && . "$HOME/.config/screenlayout/default.sh"

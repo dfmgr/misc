@@ -17,6 +17,10 @@
 # @@sudo/root        :  no
 # @@Template         :  shell
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-[ -f "$HOME/.xprofile" ] && . "$HOME/.xprofile"
+[ "$IS_SOURCED_XINITRC" != 1 ] || return
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+[ -z "$IS_SOURCED_XPROFILE" ] && [ -f "$HOME/.xprofile" ] && . "$HOME/.xprofile"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+export IS_SOURCED_XINITRC=1
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
