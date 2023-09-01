@@ -58,7 +58,7 @@ SET_TIME="$(date +'%H:%M')"
 SET_DATE="$(date +'%Y-%m-%d')"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # dont output
-devnull() { tee &>/dev/null; }
+devnull() { tee >/dev/null 2>&1; }
 devnull2() { "$@" 2>/dev/null; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo
@@ -73,12 +73,16 @@ cp_rf() { if [ -e "$1" ]; then devnull cp -Rfa "$@"; fi; }
 mv_f() { if [ -e "$1" ]; then devnull mv -f "$@"; fi; }
 ln_rm() { devnull find "${1:-$HOME}" -xtype l -delete; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__am_i_online() { ping -c 1 "${1:-1.1.1.1}" >/dev/null 2>&1 || return 1; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__cmd_exists() { builtin type "$1" >/dev/null 2>&1 || builtin command -v "$1" >/dev/null 2>&1 || return 1; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 ln_sf() {
   devnull ln -sf "$@"
   ln_rm "${1:-$HOME}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-cd_into() { pushd "$1" &>/dev/null || printf_return "Failed to cd into $1" 1; }
+cd_into() { pushd "$1" >/dev/null 2>&1 || printf_return "Failed to cd into $1" 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # colorize
 if [ "$SHOW_RAW" = "true" ]; then
@@ -287,7 +291,7 @@ app_version() {
   if [ -f "$filename" ]; then                 # check for file
     printf "\n"
     printf_green "Getting info for $appname"
-    grep_head "Version" "$filename" &>/dev/null &&
+    grep_head "Version" "$filename" >/dev/null 2>&1 &&
       grep_head '' "$filename" | printf_readline "3" &&
       printf_green "$(grep_head "Version" "$filename" | head -n1)" ||
       printf_return "${filename:-File} was found, however, No information was provided"
@@ -430,12 +434,12 @@ if [ -f "$(command -v zenity 2>/dev/null)" ] && [ -n "$DESKTOP_SESSION" ]; then
   }
 else
   execute() {
-    __set_trap() { trap -p "$1" | grep "$2" &>/dev/null || trap '$2' "$1"; }
+    __set_trap() { trap -p "$1" | grep "$2" >/dev/null 2>&1 || trap '$2' "$1"; }
     __kill_all_subprocesses() {
       local i=""
       for i in $(jobs -p); do
         kill "$i"
-        wait "$i" &>/dev/null
+        wait "$i" >/dev/null 2>&1
       done
     }
     __show_spinner() {
@@ -446,7 +450,7 @@ else
       local -r PID="$1"
       local i=0
       local frameText=""
-      while kill -0 "$PID" &>/dev/null; do
+      while kill -0 "$PID" >/dev/null 2>&1; do
         frameText="                [${FRAMES:i++%NUMBER_OR_FRAMES:1}] $MSG"
         printf "%s" "$frameText"
         sleep 0.2
@@ -462,7 +466,7 @@ else
     eval "$CMDS" >/dev/null 2>"$TMP_FILE" &
     cmdsPID=$!
     __show_spinner "$cmdsPID" "$CMDS" "$MSG"
-    wait "$cmdsPID" &>/dev/null
+    wait "$cmdsPID" >/dev/null 2>&1
     exitCode=$?
     printf_execute_result $exitCode "$MSG"
     if [ $exitCode -ne 0 ]; then
