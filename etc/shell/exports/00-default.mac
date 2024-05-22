@@ -13,6 +13,9 @@ LESS_TERMCAP_us="$(printf '%b' "\e[1;32m")"
 # Don't clear the screen after quitting a `man` page.
 MANPAGER="less -X"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# homebrew
+[ -f "/usr/local/bin/brew" ] && eval "$(/usr/local/bin/brew shellenv)"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # browser
 if [ -z "$BROWSER" ]; then
   if [ -f "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" ]; then

@@ -1,3 +1,15 @@
+## 🗃️ Changelog: 2024-05-22 at 08:56:06 🗃️  
+
+🗃️ Committing everything that changed 🗃️  
+  
+  
+etc/shell/exports/00-default.lin  
+etc/shell/exports/00-default.mac  
+
+
+### 🗃️ End of changes for 202309011919-git 🗃️  
+
+----  
 ## 🗃️ Changelog: 2023-09-01 at 18:05:30 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
