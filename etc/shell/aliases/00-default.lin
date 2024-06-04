@@ -2,18 +2,18 @@
 # shellcheck shell=sh
 # shellcheck disable=SC2139
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202303022155-git
-# @Author        : Jason Hempstead
-# @Contact       : jason@casjaysdev.pro
-# @License       : LICENSE.md
-# @ReadME        : README.md
-# @Copyright     : Copyright: (c) 2023 Jason Hempstead, CasjaysDev
-# @Created       : Thursday, Mar 02, 2023 21:54 EDT
-# @File          : 00-default.lin
-# @Description   :
-# @TODO          :
-# @Other         :
-# @Resource      :
+##@Version : 202303022155-git
+# @Author : Jason Hempstead
+# @Contact : jason@casjaysdev.pro
+# @License : LICENSE.md
+# @ReadME : README.md
+# @Copyright : Copyright: (c) 2023 Jason Hempstead, CasjaysDev
+# @Created : Thursday, Mar 02, 2023 21:54 EDT
+# @File : 00-default.lin
+# @Description :
+# @TODO :
+# @Other :
+# @Resource :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # System Aliases
 alias q='exit '
@@ -51,14 +51,14 @@ alias cp_rpf='cp --parents -Rfv '
 alias less='less -r '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
-alias sudo='sudo -HE --preserve-env=PATH  '
-alias svi='sudo vim '
-alias adb='sudo adb '
-alias npmg='sudo npm -g '
-alias netstat='sudo netstat '
-alias fastboot='sudo fastboot '
-alias ipconfig='sudo ifconfig '
-alias systemctl='sudo systemctl '
+[ -n "$(command -v doas 2>/dev/null)" ] && alias sudo='doas ' || alias sudo='sudo -HE --preserve-env=PATH '
+alias svi='sudo vim'
+alias adb='sudo adb'
+alias npmg='sudo npm -g'
+alias netstat='sudo netstat'
+alias fastboot='sudo fastboot'
+alias ipconfig='sudo ifconfig'
+alias systemctl='sudo systemctl'
 alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
 alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
