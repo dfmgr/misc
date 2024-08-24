@@ -145,7 +145,7 @@ BUILD_SRC_URL=""
 BUILD_SCRIPT_SRC_DIR="$PLUGIN_DIR/source"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup plugins
-PLUGIN_REPOS="https://github.com/asdf-vm/asdf https://github.com/basherpm/basher "
+PLUGIN_REPOS=""
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Grab release from github releases
 LATEST_RELEASE=""
