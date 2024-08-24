@@ -15,6 +15,6 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # exports for all OSes
-export BASHRC_SEND_NOTIFY="no"
+export BASHRC_SEND_NOTIFY="yes"
 export BASHRC_SHOW_NEFETCH="no"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
