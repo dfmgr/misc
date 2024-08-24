@@ -15,7 +15,7 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # exports for all OSes
-
+[ -f "$HOME/.config/misc/shell/exports/00-export.sh" ] && . "$HOME/.config/misc/shell/exports/00-export.sh"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import
 case "$(uname -s)" in
