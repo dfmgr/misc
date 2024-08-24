@@ -15,8 +15,10 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import
+[ -f "$HOME/.config/misc/shell/aliases/00-aliases.sh" ] && . "$HOME/.config/misc/shell/aliases/00-aliases.sh" || true
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 case "$(uname -s)" in
-Linux) [ -f "$HOME/.config/misc/shell/aliases/00-default.lin" ] && . "$HOME/.config/misc/shell/aliases/00-default.lin" ;;
-Darwin) [ -f "$HOME/.config/misc/shell/aliases/00-default.mac" ] && . "$HOME/.config/misc/shell/aliases/00-default.mac" ;;
-Windows*) [ -f "$HOME/.config/misc/shell/aliases/00-default.win" ] && . "$HOME/.config/misc/shell/aliases/00-default.win" ;;
+Linux) [ -f "$HOME/.config/misc/shell/aliases/00-default.lin" ] && . "$HOME/.config/misc/shell/aliases/00-default.lin" || true ;;
+Darwin) [ -f "$HOME/.config/misc/shell/aliases/00-default.mac" ] && . "$HOME/.config/misc/shell/aliases/00-default.mac" || true ;;
+Windows*) [ -f "$HOME/.config/misc/shell/aliases/00-default.win" ] && . "$HOME/.config/misc/shell/aliases/00-default.win" || true ;;
 esac

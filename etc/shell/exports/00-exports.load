@@ -15,11 +15,11 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # exports for all OSes
-[ -f "$HOME/.config/misc/shell/exports/00-export.sh" ] && . "$HOME/.config/misc/shell/exports/00-export.sh"
+[ -f "$HOME/.config/misc/shell/exports/00-export.sh" ] && . "$HOME/.config/misc/shell/exports/00-export.sh" || true
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import
 case "$(uname -s)" in
-Linux) [ -f "$HOME/.config/misc/shell/exports/00-default.lin" ] && . "$HOME/.config/misc/shell/exports/00-default.lin" ;;
-Darwin) [ -f "$HOME/.config/misc/shell/exports/00-default.mac" ] && . "$HOME/.config/misc/shell/exports/00-default.mac" ;;
-Windows*) [ -f "$HOME/.config/misc/shell/exports/00-default.win" ] && . "$HOME/.config/misc/shell/exports/00-default.win" ;;
+Linux) [ -f "$HOME/.config/misc/shell/exports/00-default.lin" ] && . "$HOME/.config/misc/shell/exports/00-default.lin" || true ;;
+Darwin) [ -f "$HOME/.config/misc/shell/exports/00-default.mac" ] && . "$HOME/.config/misc/shell/exports/00-default.mac" || true ;;
+Windows*) [ -f "$HOME/.config/misc/shell/exports/00-default.win" ] && . "$HOME/.config/misc/shell/exports/00-default.win" || true ;;
 esac
