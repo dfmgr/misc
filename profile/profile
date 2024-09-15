@@ -340,7 +340,7 @@ export NOTES_SERVER_NAME NOTES_DIRECTORY
 export NVIM_LISTEN_ADDRESS="$RUNTIME_DIRECTORY/nvim.${USER}.sock"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure lua - https://github.com/DhavalKapil/luaver
-export LUAVER_HOME="$HOME/.local/share/misc/plugins/luaver"
+export LUAVER_HOME="$HOME/.local/share/lua/plugins/luaver"
 [ -f "$LUAVER_HOME/luaver" ] && ln -sf "$LUAVER_HOME/luaver" "$HOME/.local/bin/luaver"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup luarocks
@@ -361,8 +361,8 @@ unset lua_ver
 export BASH_IT="$HOME/.local/share/bash/plugins/bash-it"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure asdf - https://asdf-vm.com
-export ASDF_DIR="$HOME/.local/share/misc/plugins/asdf"
-export ASDF_DATA_DIR="$HOME/.local/share/misc/plugins/asdf"
+export ASDF_DIR="$HOME/.config/asdf"
+export ASDF_DATA_DIR="$HOME/.local/share/bash/plugins/asdf"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # configure basher - https://www.basher.it
 export BASHER_ROOT="$HOME/.local/share/misc/plugins/basher"
@@ -379,21 +379,17 @@ export GOBIN="$GODIR/bin"
 export GOCACHE="$GODIR/build"
 TMP_BIN_PATH="$GOBIN:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# configure gofish - https://gofi.sh
-export GOFISH_CACHE="$HOME/cache/.gofish"
-export GOFISH_HOME="$HOME/.local/share/gofish"
-export GOFISH_RIGS="$GOFISH_HOME/Rigs"
-export GOFISH_BARREL="$GOFISH_HOME/Barrel"
-export GOFISH_DEFAULT_RIG="$GOFISH_HOME/Rigs/github.com/fishworks/fish-food"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Ruby Version Manager
-export rvm_path="$HOME/.local/share/rvm"
+export rvm_path="$HOME/.local/share/ruby/rvm"
 if [ -f "$rvm_path/scripts/rvm" ]; then
   TMP_BIN_PATH="$rvm_path/bin:$TMP_BIN_PATH"
   . "$rvm_path/scripts/rvm"
   . "$rvm_path/scripts/completion"
 fi
-
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# RBENV
+export RBENV_ROOT="$HOME/.local/share/ruby/rbenv"
+#- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # PNPM
 export PNPM_HOME="$HOME/.local/share/nodejs/pnpm"
 [ -d "$PNPM_HOME" ] || mkdir -p "$PNPM_HOME"
