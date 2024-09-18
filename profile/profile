@@ -475,15 +475,18 @@ elif [ -S "${XDG_RUNTIME_DIR}/docker.sock" ]; then
   DOCKER_SOCK="${XDG_RUNTIME_DIR}/docker.sock"
 fi
 [ -n "$DOCKER_HOST" ] || DOCKER_HOST="$DOCKER_SOCK"
+export DOCKER_HOST
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Kubernetes
 KUBECONFIG="$HOME/.config/kube/config"
+MINIKUBE_HOME="$HOME/.config/minikube"
 if which kubectl >/dev/null 2>&1; then
   eval "$(kubectl completion "$SHELL_NAME")"
 elif which kubectl >/dev/null 2>&1; then
   eval "$()"
 fi
 which podman >/dev/null 2>&1 && KIND_EXPERIMENTAL_PROVIDER="podman" || KIND_EXPERIMENTAL_PROVIDER="docker"
+export MINIKUBE_HOME KUBECONFIG KIND_EXPERIMENTAL_PROVIDER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup dockerstarter
 export DOCKERCONFDIR="$HOME/.config/dockstarter"
@@ -492,10 +495,10 @@ export DOCKERCONFDIR="$HOME/.config/dockstarter"
 export DOCKERMGR_HOME="$HOME/.config/myscripts/dockermgr"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # distrobox
-DBX_SKIP_WORKDIR=0
-DBX_NON_INTERACTIVE=1
-DBX_CONTAINER_ALWAYS_PULL=1
-DBX_HOME="$HOME/.local/share/distrobox"
+export DBX_SKIP_WORKDIR=0
+export DBX_NON_INTERACTIVE=1
+export DBX_CONTAINER_ALWAYS_PULL=1
+export DBX_HOME="$HOME/.local/share/distrobox"
 TMP_BIN_PATH="$TMP_BIN_PATH:$DBX_HOME/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # dotnet
