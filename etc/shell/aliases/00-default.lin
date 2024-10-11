@@ -64,20 +64,36 @@ alias ports='sudo netstat -taupln | grep --color=auto LISTEN '
 alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # VIM
-[ -f "" ] && alias vim='\' || alias vim='\'
+alias vi='vim '
+alias vis='vim +set si '
+alias svim='sudo vim '
+[ -f "$HOME/.config/vim/vim-zen.vim" ] && alias vim='\vim  -u $HOME/.config/vim/vim-zen.vim' || alias vim='\vim'
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+#Set neovim
+if which nvim >/dev/null 2>&1 && [ -f "$HOME/.config/neovim/init.vim" ]; then
+  alias nvim='nvim -u $HOME/.config/neovim/init.vim'
+  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
+elif which neovim >/dev/null 2>&1 && [ -f "$HOME/.config/nvim/init.vim" ]; then
+  alias nvim='neovim -u $HOME/.config/nvim/init.vim'
+  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # TMUX
-[ -f "$HOME/.config/tmux/singlerc.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-single='\tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
-[ -f "$HOME/.config/tmux/tmux-zen.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-zen='\tmux -L zen -f $HOME/.config/tmux/tmux-zen.conf new-session -D -A -s zen' || alias tmux-zen='tmux'
-[ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-ssh='\tmux -L ssh  -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
+if which tmux >/dev/null 2>&1; then
+  [ -f "$HOME/.config/tmux/singlerc.conf" ] && alias tmux-single='\tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
+  [ -f "$HOME/.config/tmux/tmux-zen.conf" ] && alias tmux-zen='\tmux -L zen -f $HOME/.config/tmux/tmux-zen.conf new-session -D -A -s zen' || alias tmux-zen='tmux'
+  [ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && alias tmux-ssh='\tmux -L ssh  -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # SCREEN
-[ -f "$HOME/.config/screen/dev/sshrc" ] && which screen >/dev/null 2>&1 && alias screen-ssh='\screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='\screen -t ssh '
-[ -f "$HOME/.config/screen/dev/noderc" ] && which screen >/dev/null 2>&1 && alias screen-node='\screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='\screen -t node '
-[ -f "$HOME/.config/screen/singlerc" ] && which screen >/dev/null 2>&1 && alias screen-single='\screen -c $HOME/.config/screen/singlerc ' || alias screen-single='\screen -t single '
-[ -f "$HOME/.config/screen/productivityrc" ] && which screen >/dev/null 2>&1 && alias screen-prod='\screen -c $HOME/.config/screen/productivityrc ' || alias screen-single='\screen -t prod '
-[ -f "$HOME/.config/screen/dev/developmentrc" ] && which screen >/dev/null 2>&1 && alias screen-dev='\screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='\screen -t dev '
-[ -f "$HOME/.config/screen/other/socialrc" ] && which screen >/dev/null 2>&1 && alias screen-social='\screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='\screen -t social '
+if which screen >/dev/null 2>&1; then
+  [ -f "$HOME/.config/screen/dev/sshrc" ] && alias screen-ssh='\screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='\screen -t ssh '
+  [ -f "$HOME/.config/screen/dev/noderc" ] && alias screen-node='\screen -c $HOME/.config/screen/dev/noderc ' || alias screen-node='\screen -t node '
+  [ -f "$HOME/.config/screen/singlerc" ] && alias screen-single='\screen -c $HOME/.config/screen/singlerc ' || alias screen-single='\screen -t single '
+  [ -f "$HOME/.config/screen/productivityrc" ] && alias screen-prod='\screen -c $HOME/.config/screen/productivityrc ' || alias screen-single='\screen -t prod '
+  [ -f "$HOME/.config/screen/dev/developmentrc" ] && alias screen-dev='\screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='\screen -t dev '
+  [ -f "$HOME/.config/screen/other/socialrc" ] && alias screen-social='\screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='\screen -t social '
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
 alias profilerc='source ~/.profile '
@@ -137,20 +153,10 @@ fi
 # Powershell
 if which pwsh-preview >/dev/null 2>&1; then
   alias pwsh='pwsh-preview '
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#Set vim
-alias vi='vim '
-alias vis='vim +set si '
-alias svim='sudo vim '
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#Set neovim
-if which nvim >/dev/null 2>&1 && [ -f "$HOME/.config/neovim/init.vim" ]; then
-  alias nvim='nvim -u $HOME/.config/neovim/init.vim'
-  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
-elif which neovim >/dev/null 2>&1 && [ -f "$HOME/.config/nvim/init.vim" ]; then
-  alias nvim='neovim -u $HOME/.config/nvim/init.vim'
-  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
+  alias powershell='pwsh-preview '
+elif which pwsh >/dev/null 2>&1; then
+  alias pwsh='pwsh '
+  alias powershell='pwsh '
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set docker
