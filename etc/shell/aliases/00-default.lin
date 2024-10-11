@@ -67,9 +67,9 @@ alias flushdns='sudo systemd-resolve --flush-caches '
 [ -f "" ] && alias vim='\' || alias vim='\'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # TMUX
-[ -f "$HOME/.config/tmux/tmux-zen.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-zen='\tmux -f $HOME/.config/tmux/tmux-zen.conf' || alias tmux-zen='tmux'
-[ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-ssh='\tmux -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
 [ -f "$HOME/.config/tmux/singlerc.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-single='\tmux -f $HOME/.config/tmux/singlerc.conf new-session -D -A -s single ' || alias tmux-ssh='tmux '
+[ -f "$HOME/.config/tmux/tmux-zen.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-zen='\tmux -L zen -f $HOME/.config/tmux/tmux-zen.conf new-session -D -A -s zen' || alias tmux-zen='tmux'
+[ -f "$HOME/.config/tmux/tmux.ssh.conf" ] && which tmux >/dev/null 2>&1 && alias tmux-ssh='\tmux -L ssh  -f $HOME/.config/tmux/tmux.ssh.conf new-session -D -A -s ssh ' || alias tmux-ssh='tmux '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # SCREEN
 [ -f "$HOME/.config/screen/dev/sshrc" ] && which screen >/dev/null 2>&1 && alias screen-ssh='\screen -c $HOME/.config/screen/dev/sshrc ' || alias screen-ssh='\screen -t ssh '
