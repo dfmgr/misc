@@ -472,7 +472,7 @@ if [ -S "/run/docker.sock" ]; then
 elif [ -S "/run/docker/docker.sock" ]; then
   DOCKER_SOCK="unix:///run/docker/docker.sock"
 elif [ -S "${XDG_RUNTIME_DIR}/docker.sock" ]; then
-  DOCKER_SOCK="unix://${XDG_RUNTIME_DIR}/docker.sock"
+  DOCKER_SOCK="unix:///${XDG_RUNTIME_DIR}/docker.sock"
 fi
 [ -n "$DOCKER_HOST" ] || DOCKER_HOST="$DOCKER_SOCK"
 export DOCKER_HOST
