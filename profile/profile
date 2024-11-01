@@ -475,6 +475,7 @@ elif [ -S "${XDG_RUNTIME_DIR}/docker.sock" ]; then
   DOCKER_SOCK="unix:///${XDG_RUNTIME_DIR}/docker.sock"
 fi
 [ -n "$DOCKER_HOST" ] || DOCKER_HOST="$DOCKER_SOCK"
+[ -f "$HOME/.config/myscripts/composemgr/compose.env" ] && export COMPOSE_ENV_FILES="$HOME/.config/myscripts/composemgr/compose.env"
 export DOCKER_HOST
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Kubernetes
