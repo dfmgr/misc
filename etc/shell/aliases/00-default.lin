@@ -71,11 +71,11 @@ alias svim='sudo vim '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 #Set neovim
 if which nvim >/dev/null 2>&1 && [ -f "$HOME/.config/neovim/init.vim" ]; then
-  alias nvim='nvim -u $HOME/.config/neovim/init.vim'
-  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
+  alias nvim='\nvim -u $HOME/.config/neovim/init.vim'
+  alias neovim='\nvim -u $HOME/.config/neovim/init.vim'
 elif which neovim >/dev/null 2>&1 && [ -f "$HOME/.config/nvim/init.vim" ]; then
-  alias nvim='neovim -u $HOME/.config/nvim/init.vim'
-  alias neovim='nvim -u $HOME/.config/neovim/init.vim'
+  alias nvim='\neovim -u $HOME/.config/nvim/init.vim'
+  alias neovim='\neovim -u $HOME/.config/neovim/init.vim'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # TMUX
@@ -106,8 +106,8 @@ alias profilerc='source ~/.profile '
 [ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias bashrc='clear && source ~/.bashrc '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ssh aliases
-[ -n "$DISPLAY" ] && alias ssh='ssh -X' || alias ssh='ssh '
-[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q '
+[ -n "$DISPLAY" ] && alias ssh='ssh -Xt' || alias ssh='ssh -t '
+[ -n "$DISPLAY" ] && alias sshq='ssh -qXt' || alias ssh='ssh -qt '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
 [ "$(uname -s)" = Linux ] && which apt >/dev/null 2>&1 && alias apt='sudo apt '
