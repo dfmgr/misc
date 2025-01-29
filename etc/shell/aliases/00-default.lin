@@ -15,6 +15,10 @@
 # @Other :
 # @Resource :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Functions
+__ssh() { clear && \ssh "$@" && clear; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 # System Aliases
 alias q='exit '
 alias :q='exit '
@@ -38,18 +42,19 @@ alias wget='wget -c '
 alias df='df -H '
 alias du='du -ch '
 alias setverfile='setver --file '
-alias userlist='cut -d: -f1 /etc/passwd '
+alias listusers='\cut -d: -f1 /etc/passwd'
+alias listgroups='\cut -d: -f1 /etc/groups'
 alias muttsync='mailsync '
 alias mutt='neomutt '
-alias sort='LC_ALL=C sort '
-alias uniq='LC_ALL=C uniq '
-alias lynx='lynx -cfg=$HOME/.config/lynx/lynx.cfg -lss=$HOME/.config/lynx/lynx.lss '
-alias grep='grep --color=auto '
-alias egrep='grep -E --color=auto '
-alias fgrep='grep -F --color=auto '
+alias sort='LC_ALL=C \sort '
+alias uniq='LC_ALL=C \uniq '
+alias lynx='\lynx -cfg=$HOME/.config/lynx/lynx.cfg -lss=$HOME/.config/lynx/lynx.lss '
+alias grep='\grep --color=auto'
+alias egrep='\grep -E --color=auto'
+alias fgrep='\grep -F --color=auto'
 alias cp_rpf='cp --parents -Rfv '
-alias ln_sf='ln -sf '
-alias less='less -r '
+alias ln_sf='\ln -sf '
+alias less='\less -r '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sudo commands
 [ -n "$(command -v doas 2>/dev/null)" ] && alias sudo='doas ' || alias sudo='sudo -HE --preserve-env=PATH '
@@ -106,15 +111,15 @@ alias profilerc='source ~/.profile '
 [ "$(basename "$SHELL" 2>/dev/null)" = "bash" ] && alias bashrc='clear && source ~/.bashrc '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ssh aliases
-[ -n "$DISPLAY" ] && alias ssh='ssh -Xt' || alias ssh='ssh -t '
-[ -n "$DISPLAY" ] && alias sshq='ssh -qXt' || alias ssh='ssh -qt '
+[ -n "$DISPLAY" ] && alias ssh='__ssh -Xt' || alias ssh='__ssh -t '
+[ -n "$DISPLAY" ] && alias sshq='__ssh -qXt' || alias ssh='__ssh -qt '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
-[ "$(uname -s)" = Linux ] && which apt >/dev/null 2>&1 && alias apt='sudo apt '
-[ "$(uname -s)" = Linux ] && which apt-get >/dev/null 2>&1 && alias apt-get='sudo apt-get '
-[ "$(uname -s)" = Linux ] && which dnf >/dev/null 2>&1 && alias dnf='sudo dnf '
-[ "$(uname -s)" = Linux ] && which yum >/dev/null 2>&1 && alias yum='sudo yum '
-[ "$(uname -s)" = Linux ] && which pacman >/dev/null 2>&1 && alias pacman='sudo pacman '
+which apt >/dev/null 2>&1 && alias apt='sudo apt '
+which dnf >/dev/null 2>&1 && alias dnf='sudo dnf '
+which yum >/dev/null 2>&1 && alias yum='sudo yum '
+which pacman >/dev/null 2>&1 && alias pacman='sudo pacman '
+which apt-get >/dev/null 2>&1 && alias apt-get='sudo apt-get '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ls
 alias ls='ls -h --color=auto '
@@ -177,7 +182,7 @@ which gnome-screensaver-command >/dev/null 2>&1 && alias afk='gnome-screensaver-
 which xfce4-session-logout >/dev/null 2>&1 && alias logout='xfce4-session-logout '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Open command
-[ "$(uname -s)" = Linux ] && which xdg-open >/dev/null 2>&1 && alias open='xdg-open '
+[ "$(uname -s)" = Linux ] && which xdg-open >/dev/null 2>&1 && alias open='xdg-open ' || open='false'
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # youtube-dl
 which youtube-dl >/dev/null 2>&1 && alias nightcorea='ytda nightcorea '
@@ -220,7 +225,6 @@ alias emj='emojis '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # other
 which thefuck >/dev/null 2>&1 || alias thefuck='rerun_that -- shit'
-
 alias shit='rerun_that -- shit'
 alias bork='rerun_that -- bork'
 alias balls='rerun_that -- balls'
