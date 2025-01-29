@@ -444,6 +444,9 @@ export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/python/setvenv/"
 # setup pipx
 export PIPX_BIN_DIR="$USRBINDIR"
 export PIPX_HOME="$HOME/.local/share/python/pipx"
+if which pipx >/dev/null 2>&1; then
+  eval "$(register-python-argcomplete pipx)"
+fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python virtualenvwrapper
 export VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD="yes"
