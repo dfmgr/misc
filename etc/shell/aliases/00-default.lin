@@ -196,8 +196,7 @@ which ytda >/dev/null 2>&1 && alias yta-mp3='ytda mp3 '
 which ytda >/dev/null 2>&1 && alias yta-opus='ytda opus '
 which ytda >/dev/null 2>&1 && alias yta-vorbis='ytda vorbis '
 which ytda >/dev/null 2>&1 && alias yta-wav='ytda wav '
-which ytda >/dev/null 2>&1 && alias ytdv='ytda video '
-which ytda >/dev/null 2>&1 && alias ytstream='ytstream '
+which ytda >/dev/null 2>&1 && alias streamyt='ytstream '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Media
 which castero >/dev/null 2>&1 && alias podcasts='castero '
