@@ -1,5 +1,16 @@
 ## ➕ Changelog: 2025-05-29 at 11:28:37 ➕  
 
+➕ Added: man/tocase.1 ➕  
+  
+  
+Added: man/tocase.1  
+
+
+### ➕ End of changes for 202505271258-git ➕  
+
+----  
+## ➕ Changelog: 2025-05-29 at 11:28:37 ➕  
+
 ➕ Added: completions/_tocase_completions ➕  
   
   
