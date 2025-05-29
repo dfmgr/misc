@@ -1,3 +1,14 @@
+## ➕ Changelog: 2025-05-29 at 11:28:36 ➕  
+
+➕ Added: bin/tocase ➕  
+  
+  
+Added: bin/tocase  
+
+
+### ➕ End of changes for 202505271258-git ➕  
+
+----  
 ## 🗃️ Changelog: 2025-05-27 at 12:58:18 🗃️  
 
 🗃️ Committing everything that changed 🗃️  
