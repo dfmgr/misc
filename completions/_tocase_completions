@@ -82,7 +82,6 @@ _tocase_completion() {
       COMPREPLY=($(compgen -W '${LONGOPTS}' -- ${cur}))
     fi
   else
-    compopt -o space
     case "${prev:-${COMP_WORDS[1]}}" in
     --completions)
       prev=""
