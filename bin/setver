@@ -112,12 +112,13 @@ main() {
   dns)
     shift 1
     if [ -n "$1" ]; then
-      printf_blue "${SETVER_DNSVER}${1}"
+      printf_blue "${1}"
     else
-      printf_green "${SETVER_DNSVER}01"
+      printf_green "${SETVER_DNSVER}"
     fi
     ;;
-  create) # Always want version in the top dir of git repo
+    # Always want version in the top dir of git repo
+  create)
     if __git_porcelain "$FULLFILE"; then
       FULLFILE="$(__git_top_dir "$FULLFILE")"
     else
