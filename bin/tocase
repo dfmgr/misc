@@ -592,9 +592,11 @@ cmd_exists --error --ask bash || exit 3 # exit 3 if not found
 # begin main app
 case "$1" in
 u | upper)
+  shift 1
   echo "$@" | tr '[:lower:]' '[:upper:]'
   ;;
 l | lower)
+  shift 1
   echo "$@" | tr '[:upper:]' '[:lower:]'
   ;;
 *)
