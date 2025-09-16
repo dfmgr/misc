@@ -17,6 +17,8 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Functions
 __ssh() { clear && \ssh "$@" && clear; }
+__claude_user() { \claude --dangerously-skip-permissions -r "$@" . || \claude --dangerously-skip-permissions "$@" .; }
+__claude_root() { \claude --permission-mode bypassPermissions -r "$@" . || \claude --permission-mode bypassPermissions "$@" .; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # System Aliases
@@ -98,6 +100,14 @@ if which screen >/dev/null 2>&1; then
   [ -f "$HOME/.config/screen/productivityrc" ] && alias screen-prod='\screen -c $HOME/.config/screen/productivityrc ' || alias screen-single='\screen -t prod '
   [ -f "$HOME/.config/screen/dev/developmentrc" ] && alias screen-dev='\screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='\screen -t dev '
   [ -f "$HOME/.config/screen/other/socialrc" ] && alias screen-social='\screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='\screen -t social '
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if which claude >/dev/null 2>&1; then
+  if [ $(id -u) -ne 0 ]; then
+    alias claude='__claude_user'
+  else
+    alias claude='__claude_root'
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
