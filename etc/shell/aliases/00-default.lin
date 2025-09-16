@@ -18,7 +18,7 @@
 # Functions
 __ssh() { clear && \ssh "$@" && clear; }
 __claude_user() { \claude --dangerously-skip-permissions -r "$@" . || \claude --dangerously-skip-permissions "$@" .; }
-__claude_root() { \claude --permission-mode bypassPermissions -r "$@" . || \claude --permission-mode bypassPermissions "$@" .; }
+__claude_root() { \claude -r "$@" . || \claude "$@" .; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # System Aliases
