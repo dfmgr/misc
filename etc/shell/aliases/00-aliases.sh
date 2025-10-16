@@ -15,10 +15,10 @@
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Aliases for all OSes
-if which "nvim" >/dev/null 2>&1 && ! which "neovim" >/dev/null 2>&1; then
+if command -v nvim >/dev/null 2>&1 && ! command -v neovim >/dev/null 2>&1; then
   alias neovim='nvim '
 fi
-if which mongod >/dev/null 2>&1; then
+if command -v mongod >/dev/null 2>&1; then
   alias mongod='mkdir -p $HOME/.local/share/mongodb/db;\mongod --dbpath $HOME/.local/share/mongodb/db --nounixsocket'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
