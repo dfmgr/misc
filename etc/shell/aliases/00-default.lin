@@ -17,8 +17,9 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Functions
 __ssh() { clear && \ssh "$@" && clear; }
-__claude_user() { \claude --dangerously-skip-permissions -r "$@" . || \claude --dangerously-skip-permissions "$@" .; }
 __claude_root() { \claude -r "$@" . || \claude "$@" .; }
+__claude_user() { \claude --dangerously-skip-permissions -r "$@" . || \claude --dangerously-skip-permissions "$@" .; }
+__openai_codex() { \codex resume --dangerously-bypass-approvals-and-sandbox --search "$@"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # System Aliases
@@ -108,6 +109,10 @@ if which claude >/dev/null 2>&1; then
   else
     alias claude='__claude_root'
   fi
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if which codex >/dev/null 2>&1; then
+  alias codex='__openai_codex'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
