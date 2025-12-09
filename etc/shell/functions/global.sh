@@ -32,7 +32,8 @@ __cp_rf() { if [ -e "$1" ]; then cp -Rf "$1" "$2" || return 0; fi; }
 __for_each() { for item in ${1}; do ${2} ${item} && sleep .1; done; }
 __symlink() { if [ -e "$1" ]; then __ln_sf "${1}" "${2}" || return 0; fi; }
 __setcursor() { printf '\x1b[\x35 q\e]12;cyan\a' 2>/dev/null; }
-__ln_rm() { if [ -e "$1" ]; then find -L $1 -mindepth 1 -maxdepth 1 -type l -exec rm -f {} \;; fi; }
+# Optimized: Check directory exists before find operation
+__ln_rm() { [ -d "$1" ] && find "$1" -mindepth 1 -maxdepth 1 -type l -delete 2>/dev/null; }
 __count_dir() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type d | wc -l; }
 __count_files() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.git/*" -type l,f | wc -l; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
