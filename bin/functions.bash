@@ -479,13 +479,22 @@ __dirname() { cd "$1" 2>/dev/null && pwd || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __is_dir() { echo "${1:-/}" | grep -q "^${2:-/}$" && return 1 || return 0; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Optimized: Avoid wc subprocess, check if output is empty
 __git_porcelain_count() {
   [ -d "$(__git_top_dir "${1:-.}")/.git" ] &&
-    [ "$(git -C "${1:-.}" status --porcelain 2>/dev/null | wc -l 2>/dev/null)" -eq "0" ] &&
+    [ -z "$(git -C "${1:-.}" status --porcelain 2>/dev/null)" ] &&
     return 0 || return 1
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_porcelain() { __git_porcelain_count "${1:-.}" && return 0 || return 1; }
-__git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null | grep -v fatal && return 0 || echo "${1:-$PWD}"; }
+# Optimized: Cache git top dir per PWD
+__git_top_dir() {
+  local check_dir="${1:-.}"
+  if [ "$_GIT_TOPDIR_CACHE_PWD" != "$check_dir" ]; then
+    _GIT_TOPDIR_CACHE_PWD="$check_dir"
+    _GIT_TOPDIR_CACHE="$(git -C "$check_dir" rev-parse --show-toplevel 2>/dev/null | grep -v fatal || echo "${1:-$PWD}")"
+  fi
+  echo "$_GIT_TOPDIR_CACHE"
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 unset SEARCH_DIR SEARCH_FILE ARGS opts

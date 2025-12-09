@@ -18,7 +18,7 @@
 # @@Template         :  shell
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # get resolution
-if which xrandr >/dev/null 2>&1; then
+if command -v xrandr >/dev/null 2>&1; then
   export RESOLUTION="$(xrandr --current 2>/dev/null | grep '\*' | uniq | awk '{print $1}')"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

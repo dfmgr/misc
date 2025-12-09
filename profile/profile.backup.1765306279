@@ -124,17 +124,17 @@ elif [ -n "$BASH_VERSION" ]; then
   export OSH="$HOME/.local/share/bash/oh-my-bash"
   export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
   if [ -d "$HOME/.config/bash" ]; then
-  history -r 2>/dev/null || true
+    history -r
     export HISTFILE="$HOME/.config/bash/bash_history"
     if [ -f "$HOME/.bash_history" ] && [ "$HISTFILE" != "$HOME/.bash_history" ]; then
       mv -f "$HOME/.bash_history" "$HISTFILE"
-      history -a && history -w && history -r 2>/dev/null || true
+      history -a && history -w && history -r
     fi
   else
     export HISTFILE="$HOME/.bash_history"
   fi
-  if command -v direnv >/dev/null 2>&1; then
-    direnv hook bash >/dev/null 2>direnv hook bash >/dev/null 2>&11 || true
+  if which direnv >/dev/null 2>&1; then
+    direnv hook bash >/dev/null 2>&1
   fi
   # cursor
 # zsh specific
@@ -146,16 +146,16 @@ elif [ -n "$ZSH_VERSION" ]; then
   export ZSH_CUSTOM="$HOME/.local/share/zsh/plugins/oh-my-zsh/custom"
   export ZSH_DISABLE_COMPFIX="${ZSH_DISABLE_COMPFIX:-true}"
   export HISTFILE="$HOME/.config/zsh/zsh_history"
-  autoload -Uz compinit && compinit -i 2>/dev/null || true
-  autoload -U +X bashcompinit && bashcompinit 2>/dev/null || true
-  command -v direnv >/dev/null 2>&1 && direnv hook zsh >/dev/null 2>direnv hook zsh >/dev/null 2>&11 || true
+  autoload -Uz compinit && compinit -i
+  autoload -U +X bashcompinit && bashcompinit
+  which direnv >/dev/null 2>&1 && direnv hook zsh >/dev/null 2>&1
 fi
 SHELL_NAME="$(basename "$SHELL")"
 export SHELL SHELL_NAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # get hostname info
-HOSTNAME_FULL="$(hostname_cli="$(command -v hostname 2>/dev/null || command -v hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
-HOSTNAME_SHORT="$(hostname_cli="$(command -v hostname 2>/dev/null || command -v hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
+HOSTNAME_FULL="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
+HOSTNAME_SHORT="$(hostname_cli="$(which hostname 2>/dev/null || which hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
 [ -n "$HOSTNAME_FULL" ] && HOSTNAME="$HOSTNAME_FULL" || HOSTNAME="$HOSTNAME_SHORT"
 export HOSTNAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -192,14 +192,14 @@ if [ -n "$DISPLAY" ]; then
   if [ -n "$DISPLAY_LOW_DENSITY" ] && grep -siq chromium /proc/version; then
     export DISPLAY_LOW_DENSITY="$DISPLAY"
   fi
-  if command -v xrandr >/dev/null 2>&1; then
+  if which xrandr >/dev/null 2>&1; then
     RESOLUTION="$(xrandr --current 2>/dev/null | grep '\*' | uniq | awk '{print $1}')"
   fi
 fi
 export RESOLUTION
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # disable blank screen
-if [ -n "$DISPLAY" ] && command -v xset >/dev/null 2>&1; then
+if [ -n "$DISPLAY" ] && which xset >/dev/null 2>&1; then
   xset s off >/dev/null 2>&1
   xset -dpms >/dev/null 2>&1
   xset s off -dpms >/dev/null 2>&1
@@ -208,7 +208,7 @@ fi
 # enable control alt backspace
 if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
   XKBOPTIONS="terminate:ctrl_alt_bksp"
-  if command -v setxkbmap >/dev/null 2>&1; then
+  if which setxkbmap >/dev/null 2>&1; then
     setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" 2>/dev/null
   fi
 fi
@@ -216,11 +216,11 @@ export XKBOPTIONS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup modifiers
 if [ -n "$DISPLAY" ] && [ -n "$DESKTOP_SESSION" ]; then
-  if command -v ibus >/dev/null 2>&1; then
+  if which ibus >/dev/null 2>&1; then
     XMODIFIERS=@im=ibus
     GTK_IM_MODULE="ibus"
     QT_IM_MODULE="ibus"
-  elif command -v fcitx >/dev/null 2>&1; then
+  elif which fcitx >/dev/null 2>&1; then
     XMODIFIERS=@im=fcitx
     GTK_IM_MODULE="fcitx"
     QT_IM_MODULE="fcitx"
@@ -233,7 +233,7 @@ if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
   if [ ! -f "$HOME/.Xdefaults" ]; then
     touch "$HOME/.Xdefaults"
   fi
-  if command -v xrdb >/dev/null 2>&1; then
+  if which xrdb >/dev/null 2>&1; then
     xrdb -merge "$HOME/.Xdefaults" 2>/dev/null
   fi
 fi
@@ -264,11 +264,11 @@ SUDO_PROMPT="$(printf "\033[1;31m")[sudo]$(printf "\033[1;36m") password for $(p
 export SUDO_PROMPT
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create a banner
-if command -v figlet >/dev/null 2>&1; then
+if which figlet >/dev/null 2>&1; then
   export BANNER="figlet -f banner"
-elif command -v toilet >/dev/null 2>&1; then
+elif which toilet >/dev/null 2>&1; then
   export BANNER="toilet -f mono9.tlf"
-elif command -v banner >/dev/null 2>&1; then
+elif which banner >/dev/null 2>&1; then
   export BANNER="banner"
 else
   export BANNER="echo -e"
@@ -277,7 +277,7 @@ fi
 # export gpg tty
 GPG_TTY="$(tty)"
 SSH_AUTH_SOCK="$RUNTIME_DIRECTORY/gnupg/S.gpg-agent.ssh"
-if command -v gpg-agent >/dev/null 2>&1; then
+if which gpg-agent >/dev/null 2>&1; then
   # Start gpg-agent only if not already running
   if ! pgrep -x gpg-agent >/dev/null 2>&1; then
     timeout 2 gpg-agent --enable-ssh-support --daemon -q >/dev/null 2>&1 &
@@ -295,7 +295,7 @@ if [ -d "$HOME/.ssh" ] && ls -A "$HOME/.ssh"/id_* >/dev/null 2>&1; then
   done) &
 fi
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
-  if command -v ssh-agent >/dev/null 2>&1; then
+  if which ssh-agent >/dev/null 2>&1; then
     ssh-agent >/dev/null 2>&1
   fi
   if [ -n "$SSH_AUTH_SOCK" ] && [ "$SSH_AUTH_SOCK" != "$HOME/.ssh/ssh_auth_sock" ]; then
@@ -403,7 +403,7 @@ TMP_BIN_PATH="$PNPM_HOME:$TMP_BIN_PATH"
 export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
 export FNM_DEFAULT="$FNM_DIR/aliases/default/bin"
-if command -v fnm >/dev/null 2>&1; then
+if which fnm >/dev/null 2>&1; then
   eval "$(fnm env --version-file-strategy recursive --shell "$SHELL_NAME" 2>/dev/null)"
   if [ -d "$FNM_DEFAULT" ]; then
     ln -sf "$FNM_DEFAULT"/* "$USRBINDIR/" 2>/dev/null
@@ -416,7 +416,7 @@ export NVM_BIN="$USRBINDIR"
 export NVM_DIR="$HOME/.local/share/nodejs/nvm"
 export NO_UPDATE_NOTIFIER="true"
 export NODE_REPL_HISTORY_SIZE=2000
-if command -v nvm >/dev/null 2>&1; then
+if which nvm >/dev/null 2>&1; then
   [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
   [ -s "$NVM_DIR/bash_completion" ] && . "$NVM_DIR/bash_completion"
 fi
@@ -424,7 +424,7 @@ fi
 # Node
 export NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
 export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
-if command -v node >/dev/null 2>&1; then
+if which node >/dev/null 2>&1; then
   npm config set prefix "$NPM_PACKAGES" >/dev/null 2>&1
 fi
 TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
@@ -448,14 +448,14 @@ export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/python/setvenv/"
 # setup pipx
 export PIPX_BIN_DIR="$USRBINDIR"
 export PIPX_HOME="$HOME/.local/share/python/pipx"
-if command -v pipx >/dev/null 2>&1; then
+if which pipx >/dev/null 2>&1; then
   eval "$(register-python-argcomplete pipx)"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python virtualenvwrapper
 export VIRTUALENVWRAPPER_VIRTUALENV_WORKON_CD="yes"
-export VIRTUALENVWRAPPER_PIP="$(command -v pip3 2>/dev/null || command -v pip 2>/dev/null)"
-export VIRTUALENVWRAPPER_VIRTUALENV="$(command -v venv 2>/dev/null || command -v virtualenv 2>/dev/null)"
+export VIRTUALENVWRAPPER_PIP="$(which pip3 2>/dev/null || which pip 2>/dev/null)"
+export VIRTUALENVWRAPPER_VIRTUALENV="$(which venv 2>/dev/null || which virtualenv 2>/dev/null)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Add Rust/Cargo to the path
 export RUST_HOME="$HOME/.local/share/rust"
@@ -465,7 +465,7 @@ TMP_BIN_PATH="$TMP_BIN_PATH:$CARGO_HOME/bin:$RUST_HOME/bin:$RUSTUP_HOME/bin"
 [ -f "$CARGO_HOME/env" ] && . "$CARGO_HOME/env"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Use hub as git if installed
-#command -v hub >/dev/null 2>&1 && eval "$(hub alias -s >/dev/null 2>/dev/null)"
+#which hub >/dev/null 2>&1 && eval "$(hub alias -s >/dev/null 2>/dev/null)"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup vagrant
 export VAGRANT_HOME="$HOME/.local/share/vagrant"
@@ -488,7 +488,7 @@ export DOCKER_HOST
 # Kubernetes
 KUBECONFIG="$HOME/.config/kube/config"
 MINIKUBE_HOME="$HOME/.config/minikube"
-if command -v kubectl >/dev/null 2>&1; then
+if which kubectl >/dev/null 2>&1; then
   # Cache kubectl completion to avoid slow regeneration on every login
   _kubectl_completion_cache="$HOME/.cache/kubectl_completion_${SHELL_NAME}.sh"
   if [ ! -f "$_kubectl_completion_cache" ] || [ "$(find "$_kubectl_completion_cache" -mtime +7 2>/dev/null)" ]; then
@@ -497,7 +497,7 @@ if command -v kubectl >/dev/null 2>&1; then
   [ -f "$_kubectl_completion_cache" ] && . "$_kubectl_completion_cache"
   unset _kubectl_completion_cache
 fi
-command -v podman >/dev/null 2>&1 && KIND_EXPERIMENTAL_PROVIDER="podman" || KIND_EXPERIMENTAL_PROVIDER="docker"
+which podman >/dev/null 2>&1 && KIND_EXPERIMENTAL_PROVIDER="podman" || KIND_EXPERIMENTAL_PROVIDER="docker"
 export MINIKUBE_HOME KUBECONFIG KIND_EXPERIMENTAL_PROVIDER
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup dockerstarter
@@ -515,7 +515,7 @@ TMP_BIN_PATH="$TMP_BIN_PATH:$DBX_HOME/bin"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # bob
 export BOB_CONFIG="$HOME/.config/bob/config.json"
-command -v bob >/dev/null 2>&1 && eval "$(bob complete "$SHELL_NAME")" || true
+which bob >/dev/null 2>&1 && eval "$(bob complete "$SHELL_NAME")" || true
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # dotnet
 export DOTNET_ROOT="$HOME/.local/share/dotnet"
@@ -523,33 +523,33 @@ TMP_BIN_PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export browser
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v lynx >/dev/null 2>&1; then
+  if which lynx >/dev/null 2>&1; then
     MYBROWSER="$(which lynx 2>/dev/null)"
-  elif command -v links >/dev/null 2>&1; then
+  elif which links >/dev/null 2>&1; then
     MYBROWSER="$(which links 2>/dev/null)"
   fi
 else
-  if command -v garcon-url-handler >/dev/null 2>&1; then
+  if which garcon-url-handler >/dev/null 2>&1; then
     MYBROWSER="$(which garcon-url-handler 2>/dev/null) --url"
-  elif command -v firefox >/dev/null 2>&1; then
+  elif which firefox >/dev/null 2>&1; then
     MYBROWSER="$(which firefox 2>/dev/null)"
-  elif command -v chromium >/dev/null 2>&1; then
+  elif which chromium >/dev/null 2>&1; then
     MYBROWSER="$(which chromium 2>/dev/null)"
-  elif command -v google-chrome >/dev/null 2>&1; then
+  elif which google-chrome >/dev/null 2>&1; then
     MYBROWSER="$(which google-chrome 2>/dev/null)"
-  elif command -v opera >/dev/null 2>&1; then
+  elif which opera >/dev/null 2>&1; then
     MYBROWSER="$(which opera 2>/dev/null)"
-  elif command -v epiphany-browser >/dev/null 2>&1; then
+  elif which epiphany-browser >/dev/null 2>&1; then
     MYBROWSER="$(which epiphany-browser 2>/dev/null)"
-  elif command -v falkon >/dev/null 2>&1; then
+  elif which falkon >/dev/null 2>&1; then
     MYBROWSER="$(which falkon 2>/dev/null)"
-  elif command -v midori >/dev/null 2>&1; then
+  elif which midori >/dev/null 2>&1; then
     MYBROWSER="$(which midori 2>/dev/null)"
-  elif command -v netsurf >/dev/null 2>&1; then
+  elif which netsurf >/dev/null 2>&1; then
     MYBROWSER="$(which netsurf 2>/dev/null)"
-  elif command -v surf >/dev/null 2>&1; then
+  elif which surf >/dev/null 2>&1; then
     MYBROWSER="$(which surf 2>/dev/null)"
-  elif command -v arora >/dev/null 2>&1; then
+  elif which arora >/dev/null 2>&1; then
     MYBROWSER="$(which arora 2>/dev/null)"
   elif [ -f '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]; then
     MYBROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
@@ -561,9 +561,9 @@ else
     MYBROWSER='/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
   elif [ -f '/Applications/Tor Browser.app/Contents/MacOS/firefox' ]; then
     MYBROWSER='/Applications/Tor Browser.app/Contents/MacOS/firefox'
-  elif command -v lynx >/dev/null 2>&1; then
+  elif which lynx >/dev/null 2>&1; then
     MYBROWSER="$(which lynx 2>/dev/null)"
-  elif command -v links >/dev/null 2>&1; then
+  elif which links >/dev/null 2>&1; then
     MYBROWSER="$(which links 2>/dev/null)"
   fi
 fi
@@ -571,43 +571,43 @@ export BROWSER="$MYBROWSER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export terminal
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v tmux-new >/dev/null 2>&1; then
+  if which tmux-new >/dev/null 2>&1; then
     MYTERMINAL="tmux-new"
-  elif command -v tmux >/dev/null 2>&1; then
+  elif which tmux >/dev/null 2>&1; then
     MYTERMINAL="tmux"
-  elif command -v screen >/dev/null 2>&1; then
+  elif which screen >/dev/null 2>&1; then
     MYTERMINAL="screen"
   fi
 else
-  if command -v termite >/dev/null 2>&1; then
+  if which termite >/dev/null 2>&1; then
     MYTERMINAL="termite"
-  elif command -v xfce4-terminal >/dev/null 2>&1; then
+  elif which xfce4-terminal >/dev/null 2>&1; then
     MYTERMINAL="xfce4-terminal"
-  elif command -v qterminal >/dev/null 2>&1; then
+  elif which qterminal >/dev/null 2>&1; then
     MYTERMINAL="qterminal"
-  elif command -v mate-terminal >/dev/null 2>&1; then
+  elif which mate-terminal >/dev/null 2>&1; then
     MYTERMINAL="mate-terminal"
-  elif command -v i3-sensible-terminal >/dev/null 2>&1; then
+  elif which i3-sensible-terminal >/dev/null 2>&1; then
     MYTERMINAL="i3-sensible-terminal"
-  elif command -v rofi-sensible-terminal >/dev/null 2>&1; then
+  elif which rofi-sensible-terminal >/dev/null 2>&1; then
     MYTERMINAL="rofi-sensible-terminal"
-  elif command -v terminology >/dev/null 2>&1; then
+  elif which terminology >/dev/null 2>&1; then
     MYTERMINAL="terminology"
-  elif command -v gnome-terminal >/dev/null 2>&1; then
+  elif which gnome-terminal >/dev/null 2>&1; then
     MYTERMINAL="gnome-terminal"
   elif [ -f "/Applications/iTerm.app/Contents/MacOS/iTerm2" ]; then
     MYTERMINAL="/Applications/iTerm.app/Contents/MacOS/iTerm2"
   elif [ -f "/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal" ]; then
     MYTERMINAL="/System/Applications/Utilities/terminal.app/Contents/MacOS/terminal"
-  elif command -v xterm >/dev/null 2>&1; then
+  elif which xterm >/dev/null 2>&1; then
     MYTERMINAL="xterm"
-  elif command -v uxterm >/dev/null 2>&1; then
+  elif which uxterm >/dev/null 2>&1; then
     MYTERMINAL="uxterm"
-  elif command -v garcon-terminal-handler >/dev/null 2>&1; then
+  elif which garcon-terminal-handler >/dev/null 2>&1; then
     MYTERMINAL="garcon-terminal-handler"
-  elif command -v tmux >/dev/null 2>&1; then
+  elif which tmux >/dev/null 2>&1; then
     MYTERMINAL="tmux"
-  elif command -v screen >/dev/null 2>&1; then
+  elif which screen >/dev/null 2>&1; then
     MYTERMINAL="screen"
   else
     MYTERMINAL="$SHELL -c"
@@ -617,49 +617,49 @@ export TERMINAL="$MYTERMINAL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export file manager
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v lf >/dev/null 2>&1; then
+  if which lf >/dev/null 2>&1; then
     MYFILEMANAGER="lf"
-  elif command -v vifm >/dev/null 2>&1; then
+  elif which vifm >/dev/null 2>&1; then
     MYFILEMANAGER="vifm"
-  elif command -v ranger >/dev/null 2>&1; then
+  elif which ranger >/dev/null 2>&1; then
     MYFILEMANAGER="ranger"
-  elif command -v cfiles >/dev/null 2>&1; then
+  elif which cfiles >/dev/null 2>&1; then
     MYFILEMANAGER="cfiles"
-  elif command -v se >/dev/null 2>&1; then
+  elif which se >/dev/null 2>&1; then
     MYFILEMANAGER="se"
   fi
 else
-  if command -v thunar >/dev/null 2>&1; then
+  if which thunar >/dev/null 2>&1; then
     MYFILEMANAGER="thunar"
-  elif command -v Thunar >/dev/null 2>&1; then
+  elif which Thunar >/dev/null 2>&1; then
     MYFILEMANAGER="Thunar"
-  elif command -v caja >/dev/null 2>&1; then
+  elif which caja >/dev/null 2>&1; then
     MYFILEMANAGER="caja"
-  elif command -v spacefm >/dev/null 2>&1; then
+  elif which spacefm >/dev/null 2>&1; then
     MYFILEMANAGER="spacefm"
-  elif command -v nemo >/dev/null 2>&1; then
+  elif which nemo >/dev/null 2>&1; then
     MYFILEMANAGER="nemo"
-  elif command -v pcmanfm >/dev/null 2>&1; then
+  elif which pcmanfm >/dev/null 2>&1; then
     MYFILEMANAGER="pcmanfm"
-  elif command -v polo >/dev/null 2>&1; then
+  elif which polo >/dev/null 2>&1; then
     MYFILEMANAGER="polo"
-  elif command -v nautilus >/dev/null 2>&1; then
+  elif which nautilus >/dev/null 2>&1; then
     MYFILEMANAGER="nautilus"
-  elif command -v polo >/dev/null 2>&1; then
+  elif which polo >/dev/null 2>&1; then
     MYFILEMANAGER="polo"
-  elif command -v dolphin >/dev/null 2>&1; then
+  elif which dolphin >/dev/null 2>&1; then
     MYFILEMANAGER="dolphin"
-  elif command -v konqueror >/dev/null 2>&1; then
+  elif which konqueror >/dev/null 2>&1; then
     MYFILEMANAGER="konqueror"
-  elif command -v lf >/dev/null 2>&1; then
+  elif which lf >/dev/null 2>&1; then
     MYFILEMANAGER="lf"
-  elif command -v vifm >/dev/null 2>&1; then
+  elif which vifm >/dev/null 2>&1; then
     MYFILEMANAGER="vifm"
-  elif command -v ranger >/dev/null 2>&1; then
+  elif which ranger >/dev/null 2>&1; then
     MYFILEMANAGER="ranger"
-  elif command -v cfiles >/dev/null 2>&1; then
+  elif which cfiles >/dev/null 2>&1; then
     MYFILEMANAGER="cfiles"
-  elif command -v se >/dev/null 2>&1; then
+  elif which se >/dev/null 2>&1; then
     MYFILEMANAGER="se"
   fi
 fi
@@ -670,27 +670,27 @@ export FILEMANAGER="$MYFILEMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # virtual machine manager
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v kind >/dev/null 2>&1; then
+  if which kind >/dev/null 2>&1; then
     MYVMMANAGER="kind"
-  elif command -v minikube >/dev/null 2>&1; then
+  elif which minikube >/dev/null 2>&1; then
     MYVMMANAGER="minikube"
-  elif command -v kubectl >/dev/null 2>&1; then
+  elif which kubectl >/dev/null 2>&1; then
     MYVMMANAGER="kubectl"
-  elif command -v docker >/dev/null 2>&1; then
+  elif which docker >/dev/null 2>&1; then
     MYVMMANAGER="docker"
-  elif command -v podman >/dev/null 2>&1; then
+  elif which podman >/dev/null 2>&1; then
     MYVMMANAGER="podman"
   fi
 else
-  if command -v virt-manager >/dev/null 2>&1; then
+  if which virt-manager >/dev/null 2>&1; then
     MYVMMANAGER="virt-manager"
-  elif command -v VMWare >/dev/null 2>&1; then
+  elif which VMWare >/dev/null 2>&1; then
     MYVMMANAGER="VMWare"
-  elif command -v VirtualBox >/dev/null 2>&1; then
+  elif which VirtualBox >/dev/null 2>&1; then
     MYVMMANAGER="VirtualBox"
-  elif command -v kubectl >/dev/null 2>&1; then
+  elif which kubectl >/dev/null 2>&1; then
     MYVMMANAGER="kubectl"
-  elif command -v docker >/dev/null 2>&1; then
+  elif which docker >/dev/null 2>&1; then
     MYVMMANAGER="docker"
   fi
 fi
@@ -698,37 +698,37 @@ export VMMANAGER="$MYVMMANAGER"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export torrent client
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v transmission-remote >/dev/null 2>&1; then
+  if which transmission-remote >/dev/null 2>&1; then
     MYTORRENT="transmission-remote"
   fi
 else
-  if command -v transmission-remote-gtk >/dev/null 2>&1; then
+  if which transmission-remote-gtk >/dev/null 2>&1; then
     MYTORRENT="transmission-remote-gtk"
-  elif command -v transmission-gtk >/dev/null 2>&1; then
+  elif which transmission-gtk >/dev/null 2>&1; then
     MYTORRENT="transmission-gtk"
-  elif command -v transmission-cli >/dev/null 2>&1; then
+  elif which transmission-cli >/dev/null 2>&1; then
     MYTORRENT="transmission-cli"
-  elif command -v transmission-qt >/dev/null 2>&1; then
+  elif which transmission-qt >/dev/null 2>&1; then
     MYTORRENT="transmission-qt"
-  elif command -v deluge >/dev/null 2>&1; then
+  elif which deluge >/dev/null 2>&1; then
     MYTORRENT="deluge"
-  elif command -v vuze >/dev/null 2>&1; then
+  elif which vuze >/dev/null 2>&1; then
     MYTORRENT="vuze"
-  elif command -v qbittorrent >/dev/null 2>&1; then
+  elif which qbittorrent >/dev/null 2>&1; then
     MYTORRENT="qbittorrent"
-  elif command -v ktorrent >/dev/null 2>&1; then
+  elif which ktorrent >/dev/null 2>&1; then
     MYTORRENT="ktorrent"
-  elif command -v ctorrent >/dev/null 2>&1; then
+  elif which ctorrent >/dev/null 2>&1; then
     MYTORRENT="ctorrent"
-  elif command -v unworkable >/dev/null 2>&1; then
+  elif which unworkable >/dev/null 2>&1; then
     MYTORRENT="unworkable"
-  elif command -v rtorrent >/dev/null 2>&1; then
+  elif which rtorrent >/dev/null 2>&1; then
     MYTORRENT="rtorrent"
-  elif command -v bitstormlite >/dev/null 2>&1; then
+  elif which bitstormlite >/dev/null 2>&1; then
     MYTORRENT="bitstormlite"
   elif [ -f "/Applications/Transmission.app/Contents/MacOS/Transmission" ]; then
     MYTORRENT="/Applications/Transmission.app/Contents/MacOS/Transmission"
-  elif command -v transmission-remote >/dev/null 2>&1; then
+  elif which transmission-remote >/dev/null 2>&1; then
     MYTORRENT="transmission-remote"
   fi
 fi
@@ -736,35 +736,35 @@ export TORRENT="$MYTORRENT"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export email client
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v neomutt >/dev/null 2>&1; then
+  if which neomutt >/dev/null 2>&1; then
     MYEMAIL="neomutt"
-  elif command -v mutt >/dev/null 2>&1; then
+  elif which mutt >/dev/null 2>&1; then
     MYEMAIL="mutt"
-  elif command -v emacs >/dev/null 2>&1; then
+  elif which emacs >/dev/null 2>&1; then
     MYEMAIL="emacs"
   fi
 else
-  if command -v thunderbird >/dev/null 2>&1; then
+  if which thunderbird >/dev/null 2>&1; then
     MYEMAIL="thunderbird"
-  elif command -v evolution >/dev/null 2>&1; then
+  elif which evolution >/dev/null 2>&1; then
     MYEMAIL="evolution"
-  elif command -v clawsmail >/dev/null 2>&1; then
+  elif which clawsmail >/dev/null 2>&1; then
     MYEMAIL="clawsmail"
-  elif command -v geary >/dev/null 2>&1; then
+  elif which geary >/dev/null 2>&1; then
     MYEMAIL="geary"
-  elif command -v kmail >/dev/null 2>&1; then
+  elif which kmail >/dev/null 2>&1; then
     MYEMAIL="kmail"
-  elif command -v gmail >/dev/null 2>&1; then
+  elif which gmail >/dev/null 2>&1; then
     MYEMAIL="mybrowser https://gmail.com"
-  elif command -v ymail >/dev/null 2>&1; then
+  elif which ymail >/dev/null 2>&1; then
     MYEMAIL="mybrowser https://ymail.com"
-  elif command -v sylpheed >/dev/null 2>&1; then
+  elif which sylpheed >/dev/null 2>&1; then
     MYEMAIL="sylpheed"
-  elif command -v neomutt >/dev/null 2>&1; then
+  elif which neomutt >/dev/null 2>&1; then
     MYEMAIL="neomutt"
-  elif command -v mutt >/dev/null 2>&1; then
+  elif which mutt >/dev/null 2>&1; then
     MYEMAIL="mutt"
-  elif command -v emacs >/dev/null 2>&1; then
+  elif which emacs >/dev/null 2>&1; then
     MYEMAIL="emacs"
   fi
 fi
@@ -772,41 +772,41 @@ export EMAIL="$MYEMAIL"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export editor
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v nvim >/dev/null 2>&1; then
+  if which nvim >/dev/null 2>&1; then
     MYEDITOR="nvim"
-  elif command -v vim >/dev/null 2>&1; then
+  elif which vim >/dev/null 2>&1; then
     MYEDITOR="vim"
-  elif command -v nano >/dev/null 2>&1; then
+  elif which nano >/dev/null 2>&1; then
     MYEDITOR="nano"
-  elif command -v emacs >/dev/null 2>&1; then
+  elif which emacs >/dev/null 2>&1; then
     MYEDITOR="emacs"
   fi
 else
-  if command -v code-insiders >/dev/null 2>&1; then
+  if which code-insiders >/dev/null 2>&1; then
     MYEDITOR="code-insiders"
-  elif command -v code >/dev/null 2>&1; then
+  elif which code >/dev/null 2>&1; then
     MYEDITOR="code"
-  elif command -v vscode >/dev/null 2>&1; then
+  elif which vscode >/dev/null 2>&1; then
     MYEDITOR="vscode"
-  elif command -v code-oss >/dev/null 2>&1; then
+  elif which code-oss >/dev/null 2>&1; then
     MYEDITOR="code-oss"
-  elif command -v geany >/dev/null 2>&1; then
+  elif which geany >/dev/null 2>&1; then
     MYEDITOR="geany"
-  elif command -v gedit >/dev/null 2>&1; then
+  elif which gedit >/dev/null 2>&1; then
     MYEDITOR="gedit"
-  elif command -v atom >/dev/null 2>&1; then
+  elif which atom >/dev/null 2>&1; then
     MYEDITOR="atom"
-  elif command -v brackets >/dev/null 2>&1; then
+  elif which brackets >/dev/null 2>&1; then
     MYEDITOR="brackets"
-  elif command -v mousepad >/dev/null 2>&1; then
+  elif which mousepad >/dev/null 2>&1; then
     MYEDITOR="mousepad"
-  elif command -v vim >/dev/null 2>&1; then
+  elif which vim >/dev/null 2>&1; then
     MYEDITOR="vim"
-  elif command -v nvim >/dev/null 2>&1; then
+  elif which nvim >/dev/null 2>&1; then
     MYEDITOR="nvim"
-  elif command -v nano >/dev/null 2>&1; then
+  elif which nano >/dev/null 2>&1; then
     MYEDITOR="nano"
-  elif command -v emacs >/dev/null 2>&1; then
+  elif which emacs >/dev/null 2>&1; then
     MYEDITOR="emacs"
   fi
 fi
@@ -834,7 +834,7 @@ export GREP_COLORS='mt=38;5;220;1'
 [ -f "$HOME/.config/misc/shell/other/grep" ] && . "$HOME/.config/misc/shell/other/grep"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # lf file manager icons
-command -v lf >/dev/null 2>&1 && [ -f "$HOME/.config/misc/shell/other/lf" ] && . "$HOME/.config/misc/shell/other/lf"
+which lf >/dev/null 2>&1 && [ -f "$HOME/.config/misc/shell/other/lf" ] && . "$HOME/.config/misc/shell/other/lf"
 export LF_ICONS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup wallpaper directory
@@ -878,30 +878,30 @@ export CHTSH_HOME="$HOME/.config/cheatsh"
 #export TASKDATA="$HOME/.local/share/taskwarrior"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # multi_clipboard
-if command -v multi_clipboard >/dev/null 2>&1; then
+if which multi_clipboard >/dev/null 2>&1; then
   export SCREENEXCHANGE="$HOME/.screen-exchange"
   export SCREEN_MSGMINWAIT="1"
   export CLIPBOARD="$HOME/.cache/.clipboard"
   export CLMAXHIST="20"
   export CLSEP='\x07'
   if [ "$(uname -s)" = Linux ]; then
-    if command -v xsel >/dev/null 2>&1; then
+    if which xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
       export CLX="xsel"
-    elif command -v xclip >/dev/null 2>&1; then
+    elif which xclip >/dev/null 2>&1; then
       export CLXOS="xclip"
       export CLX="xclip"
     fi
   elif [ "$(uname -s)" = cygwin ]; then
-    if command -v xsel >/dev/null 2>&1; then
+    if which xsel >/dev/null 2>&1; then
       export CLXOS="xsel"
       export CLX="xsel"
-    elif command -v xclip >/dev/null 2>&1; then
+    elif which xclip >/dev/null 2>&1; then
       export CLXOS="xclip"
       export CLX="xclip"
     fi
   elif [ "$(uname -s)" = Darwin ]; then
-    if command -v pbcopy >/dev/null 2>&1; then
+    if which pbcopy >/dev/null 2>&1; then
       export CLXOS="pbcopy"
       export CLX="pbcopy"
     fi
