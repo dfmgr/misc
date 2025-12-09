@@ -943,11 +943,11 @@ fi
 [ -f "$HOME/.config/secure/apikeys.txt" ] && . "$HOME/.config/secure/apikeys.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # create env vars from shell files
-if [ $(find -L "$HOME/.config/secure/inc" -type f -name '*.sh' 2>/dev/null | grep '^' || false) ]; then
-  cat "$HOME/.config/secure/inc"/*.sh 2>/dev/null >"$HOME/.config/secure/env"
+if [ -n "$(find -L "$HOME/.config/secure/inc" -type f -name '*.sh' 2>/dev/null)" ]; then
+  cat "$HOME/.config/secure/inc"/*.sh 2>/dev/null >"$HOME/.config/secure/env.sh" || true
   [ -f "$HOME/.config/secure/env.sh" ] && . "$HOME/.config/secure/env.sh"
 else
-  rm -Rf "$HOME/.config/secure/env.sh" >/dev/null 2>&1
+  rm -Rf "$HOME/.config/secure/env.sh" >/dev/null 2>&1 || true
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # import local profile - override all other settings
