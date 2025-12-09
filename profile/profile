@@ -292,7 +292,7 @@ if [ -d "$HOME/.ssh" ] && ls -A "$HOME/.ssh"/id_* >/dev/null 2>&1; then
   # Add SSH keys in background to avoid blocking login
   (for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
     timeout 1 ssh-add -q "$f" >/dev/null 2>&1
-  done) &
+  done) >/dev/null 2>&1 & disown
 fi
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if command -v ssh-agent >/dev/null 2>&1; then
