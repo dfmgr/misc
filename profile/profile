@@ -239,7 +239,7 @@ if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XDG Settings
-[ -n "$UID" ] || UID="$(id -u)"
+[ -n "$UID" ] || UID="$(id -u 2>/dev/null || echo '1000')"
 CACHE_DIRECTORY="$HOME/.cache"
 STATE_DIRECTORY="$HOME/.local/lib"
 LOGS_DIRECTORY="${LOGDIR:-$HOME/.local/log}"
@@ -275,12 +275,12 @@ else
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # export gpg tty
-GPG_TTY="$(tty)"
+GPG_TTY="$(tty 2>/dev/null || echo '/dev/tty')"
 SSH_AUTH_SOCK="$RUNTIME_DIRECTORY/gnupg/S.gpg-agent.ssh"
 if command -v gpg-agent >/dev/null 2>&1; then
   # Start gpg-agent only if not already running
   if ! pgrep -x gpg-agent >/dev/null 2>&1; then
-    timeout 2 gpg-agent --enable-ssh-support --daemon -q >/dev/null 2>&1 &
+    timeout 2 gpg-agent --enable-ssh-support --daemon -q >/dev/null 2>&1 & true
   fi
 fi
 export GPG_TTY SSH_AUTH_SOCK
@@ -354,10 +354,10 @@ export LUAROCKS_BIN="$LUAROCKS_PREFIX/bin"
 TMP_BIN_PATH="$LUAROCKS_BIN:$TMP_BIN_PATH"
 [ -d "$HOME/.config/luarocks" ] || mkdir -p "$HOME/.config/luarocks"
 [ -f "$HOME/.config/luarocks/config-$lua_ver" ] || touch "$HOME/.config/luarocks/config-$lua_ver"
-if grep -Rsq "home_tree" "$HOME/.config/luarocks/config-$lua_ver"; then
-  sed -i "s|home_tree.*|home_tree = \"$LUAROCKS_PREFIX\"|g" "$HOME/.config/luarocks/config-$lua_ver"
+if grep -Rsq "home_tree" "$HOME/.config/luarocks/config-$lua_ver" 2>/dev/null; then
+  sed -i "s|home_tree.*|home_tree = \"$LUAROCKS_PREFIX\"|g" "$HOME/.config/luarocks/config-$lua_ver" 2>/dev/null || true
 else
-  echo "home_tree = \"$LUAROCKS_PREFIX\"" >>"$HOME/.config/luarocks/config-$lua_ver"
+  echo "home_tree = \"$LUAROCKS_PREFIX\"" >>"$HOME/.config/luarocks/config-$lua_ver" 2>/dev/null || true
 fi
 unset lua_ver
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -438,7 +438,7 @@ export PYTHONWARNINGS="ignore::DeprecationWarning"
 if [ -z "$PYTHONPATH" ]; then
   export PYTHONPATH="/usr/local"
 else
-  PYTHONPATH="$(echo "$PYTHONPATH" | sed 's|:/usr/local||g')"
+  PYTHONPATH="$(echo "$PYTHONPATH" | sed 's|:/usr/local||g' 2>/dev/null || echo "$PYTHONPATH")"
   export PYTHONPATH="$PYTHONPATH:/usr/local"
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -449,7 +449,10 @@ export SETV_VIRTUAL_DIR_PATH="$HOME/.local/share/python/setvenv/"
 export PIPX_BIN_DIR="$USRBINDIR"
 export PIPX_HOME="$HOME/.local/share/python/pipx"
 if command -v pipx >/dev/null 2>&1; then
-  eval "$(register-python-argcomplete pipx)"
+  # Only setup argcomplete if the command exists
+  if command -v register-python-argcomplete >/dev/null 2>&1; then
+    eval "$(register-python-argcomplete pipx 2>/dev/null)" || true
+  fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # setup python virtualenvwrapper
@@ -980,10 +983,10 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
 if [ -z "$FNM_MULTISHELL_PATH" ]; then
-  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g' 2>/dev/null || echo "$TMP_BIN_PATH")"
   PATH="$SET_USR_PATH:$USRBINDIR:$SYSBINDIR:."
 else
-  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR|$FNM_MULTISHELL_PATH" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g')"
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR|$FNM_MULTISHELL_PATH" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g' 2>/dev/null || echo "$TMP_BIN_PATH")"
   PATH="$FNM_MULTISHELL_PATH/bin:$SET_USR_PATH:$USRBINDIR:$SYSBINDIR:."
 fi
 export PATH
