@@ -148,14 +148,14 @@ elif [ -n "$ZSH_VERSION" ]; then
   export HISTFILE="$HOME/.config/zsh/zsh_history"
   autoload -Uz compinit && compinit -i 2>/dev/null || true
   autoload -U +X bashcompinit && bashcompinit 2>/dev/null || true
-  command -v direnv >/dev/null 2>&1 && direnv hook zsh >/dev/null 2>direnv hook zsh >/dev/null 2>&11 || true
+  command -v direnv >/dev/null 2>&1 && direnv hook zsh >/dev/null 2>&1 || true
 fi
 SHELL_NAME="$(basename "$SHELL")"
 export SHELL SHELL_NAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # get hostname info
-HOSTNAME_FULL="$(hostname_cli="$(command -v hostname 2>/dev/null || command -v hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f)"
-HOSTNAME_SHORT="$(hostname_cli="$(command -v hostname 2>/dev/null || command -v hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s)"
+HOSTNAME_FULL="$(hostname_cli="$(command -v hostname 2>/dev/null || command -v hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -f || true)"
+HOSTNAME_SHORT="$(hostname_cli="$(command -v hostname 2>/dev/null || command -v hostnamecli 2>/dev/null || echo 'true')" && [ -n "$hostname_cli" ] && $hostname_cli -s || true)"
 [ -n "$HOSTNAME_FULL" ] && HOSTNAME="$HOSTNAME_FULL" || HOSTNAME="$HOSTNAME_SHORT"
 export HOSTNAME
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -209,7 +209,7 @@ fi
 if [ -n "$DISPLAY" ] && [ "$(uname -s)" = "Linux" ]; then
   XKBOPTIONS="terminate:ctrl_alt_bksp"
   if command -v setxkbmap >/dev/null 2>&1; then
-    setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" 2>/dev/null
+    setxkbmap -model pc104 -layout us -option "terminate:ctrl_alt_bksp" 2>/dev/null || true
   fi
 fi
 export XKBOPTIONS
@@ -348,7 +348,7 @@ export LUAVER_HOME="$HOME/.local/share/lua/plugins/luaver"
 [ -f "$LUAVER_HOME/luaver" ] && ln -sf "$LUAVER_HOME/luaver" "$HOME/.local/bin/luaver"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Setup luarocks
-lua_ver="$(ls -A /usr/bin/lua* 2>/dev/null | grep 'lua[0-9].[0-9]' | sort -rV | sed 's|.*lua||g' | head -n1 | grep '^' || echo '5.4')"
+lua_ver="$(ls -A /usr/bin/lua* 2>/dev/null | grep 'lua[0-9].[0-9]' | sort -rV | sed 's|.*lua||g' | head -n1 || echo '5.4')"
 export LUAROCKS_PREFIX="$HOME/.local/share/lua/luarocks"
 export LUAROCKS_BIN="$LUAROCKS_PREFIX/bin"
 TMP_BIN_PATH="$LUAROCKS_BIN:$TMP_BIN_PATH"
@@ -404,9 +404,9 @@ export FNM_BIN="$USRBINDIR"
 export FNM_DIR="$HOME/.local/share/nodejs/fnm"
 export FNM_DEFAULT="$FNM_DIR/aliases/default/bin"
 if command -v fnm >/dev/null 2>&1; then
-  eval "$(fnm env --version-file-strategy recursive --shell "$SHELL_NAME" 2>/dev/null)"
+  eval "$(fnm env --version-file-strategy recursive --shell "$SHELL_NAME" 2>/dev/null || true)"
   if [ -d "$FNM_DEFAULT" ]; then
-    ln -sf "$FNM_DEFAULT"/* "$USRBINDIR/" 2>/dev/null
+    ln -sf "$FNM_DEFAULT"/* "$USRBINDIR/" 2>/dev/null || true
   fi
 fi
 TMP_BIN_PATH="$FNM_BIN:$TMP_BIN_PATH"
@@ -983,10 +983,10 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # fix PATH
 if [ -z "$FNM_MULTISHELL_PATH" ]; then
-  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g' 2>/dev/null || echo "$TMP_BIN_PATH")"
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g' 2>/dev/null || echo "$TMP_BIN_PATH")" || true
   PATH="$SET_USR_PATH:$USRBINDIR:$SYSBINDIR:."
 else
-  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR|$FNM_MULTISHELL_PATH" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g' 2>/dev/null || echo "$TMP_BIN_PATH")"
+  SET_USR_PATH="$(echo "$TMP_BIN_PATH" | tr ':' '\n' | grep -Fv '..' | grep "$HOME" | grep -vE "^\.|$USRBINDIR|$FNM_MULTISHELL_PATH" | sed 's|:.$||g' | grep -v '^$' | tr '\n' ':' | sed 's|:$||g' 2>/dev/null || echo "$TMP_BIN_PATH")" || true
   PATH="$FNM_MULTISHELL_PATH/bin:$SET_USR_PATH:$USRBINDIR:$SYSBINDIR:."
 fi
 export PATH
