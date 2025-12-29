@@ -114,12 +114,12 @@ export HISTIGNORE="[bf]g:exit:pwd:clear:q:q!:quit"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # sh specific
 if [ -n "$SH_VERSION" ]; then
-  SHELL="$(which "$SHELL" 2>/dev/null)"
+  SHELL="$(command -v "$SHELL" 2>/dev/null)"
   ENV=$HOME/.shinit
   export ENV
 # bash specific
 elif [ -n "$BASH_VERSION" ]; then
-  SHELL="$(which bash 2>/dev/null)"
+  SHELL="$(command -v bash 2>/dev/null)"
   export BASH_SILENCE_DEPRECATION_WARNING="1"
   export OSH="$HOME/.local/share/bash/oh-my-bash"
   export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
@@ -136,10 +136,9 @@ elif [ -n "$BASH_VERSION" ]; then
   if command -v direnv >/dev/null 2>&1; then
     eval "$(direnv hook bash)" 2>/dev/null || true
   fi
-  # cursor
 # zsh specific
 elif [ -n "$ZSH_VERSION" ]; then
-  SHELL="$(which zsh 2>/dev/null)"
+  SHELL="$(command -v zsh 2>/dev/null)"
   export ZDOTDIR="$HOME/.config/zsh"
   export ZSH_CACHEDIR="$HOME/.cache/oh-my-zsh"
   export ZSH="$HOME/.local/share/zsh/plugins/oh-my-zsh"
@@ -917,10 +916,9 @@ fi
 export HOMEBREW_INSTALL_BADGE="☕️ 🐸"
 export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# cursor
+# Set cursor type - blinking bar (I-beam) with cyan color
 if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then
-  printf '%b' '\x1b[5q' 2>/dev/null
-  printf '%b' '\e]12;cyan\a' 2>/dev/null
+  printf '\e[5 q\e]12;cyan\a' 2>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
