@@ -134,7 +134,7 @@ elif [ -n "$BASH_VERSION" ]; then
     export HISTFILE="$HOME/.bash_history"
   fi
   if command -v direnv >/dev/null 2>&1; then
-    direnv hook bash >/dev/null 2>direnv hook bash >/dev/null 2>&11 || true
+    eval "$(direnv hook bash)" 2>/dev/null || true
   fi
   # cursor
 # zsh specific
@@ -148,7 +148,8 @@ elif [ -n "$ZSH_VERSION" ]; then
   export HISTFILE="$HOME/.config/zsh/zsh_history"
   autoload -Uz compinit && compinit -i 2>/dev/null || true
   autoload -U +X bashcompinit && bashcompinit 2>/dev/null || true
-  command -v direnv >/dev/null 2>&1 && direnv hook zsh >/dev/null 2>&1 || true
+  # Initialize direnv for zsh
+  command -v direnv >/dev/null 2>&1 && eval "$(direnv hook zsh)" 2>/dev/null || true
 fi
 SHELL_NAME="$(basename "$SHELL")"
 export SHELL SHELL_NAME
@@ -290,9 +291,11 @@ export GPG_TTY SSH_AUTH_SOCK
 [ -n "$SSH_AUTH_SOCK" ] || SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"
 if [ -d "$HOME/.ssh" ] && ls -A "$HOME/.ssh"/id_* >/dev/null 2>&1; then
   # Add SSH keys in background to avoid blocking login
-  (for f in $(find "$HOME/.ssh"/id_* 2>/dev/null | grep -v '/*.pub'); do
-    timeout 1 ssh-add -q "$f" >/dev/null 2>&1
-  done) >/dev/null 2>&1 & disown
+  (
+    for f in "$HOME/.ssh"/id_*; do
+      [ -f "$f" ] && [ "${f##*.}" != "pub" ] && timeout 1 ssh-add -q "$f" 2>/dev/null
+    done
+  ) &
 fi
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if command -v ssh-agent >/dev/null 2>&1; then
@@ -424,8 +427,11 @@ fi
 # Node
 export NPM_PACKAGES="$HOME/.local/share/nodejs/modules"
 export NODE_PATH="$NPM_PACKAGES/lib/node_modules:$NODE_PATH"
-if command -v node >/dev/null 2>&1; then
-  npm config set prefix "$NPM_PACKAGES" >/dev/null 2>&1
+# Only set npm prefix if not already configured (avoid running npm on every login)
+if command -v npm >/dev/null 2>&1; then
+  if [ "$(npm config get prefix 2>/dev/null)" != "$NPM_PACKAGES" ]; then
+    npm config set prefix "$NPM_PACKAGES" >/dev/null 2>&1
+  fi
 fi
 TMP_BIN_PATH="$NPM_PACKAGES/bin:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -524,36 +530,32 @@ command -v bob >/dev/null 2>&1 && eval "$(bob complete "$SHELL_NAME")" || true
 export DOTNET_ROOT="$HOME/.local/share/dotnet"
 TMP_BIN_PATH="$DOTNET_ROOT:$DOTNET_ROOT/tools:$TMP_BIN_PATH"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# export browser
+# export browser (optimized: command -v returns path, no need for which)
 if [ -n "$SSH_CONNECTION" ] || [ -z "$DISPLAY" ]; then
-  if command -v lynx >/dev/null 2>&1; then
-    MYBROWSER="$(which lynx 2>/dev/null)"
-  elif command -v links >/dev/null 2>&1; then
-    MYBROWSER="$(which links 2>/dev/null)"
-  fi
+  MYBROWSER="$(command -v lynx 2>/dev/null)" || MYBROWSER="$(command -v links 2>/dev/null)"
 else
-  if command -v garcon-url-handler >/dev/null 2>&1; then
-    MYBROWSER="$(which garcon-url-handler 2>/dev/null) --url"
-  elif command -v firefox >/dev/null 2>&1; then
-    MYBROWSER="$(which firefox 2>/dev/null)"
-  elif command -v chromium >/dev/null 2>&1; then
-    MYBROWSER="$(which chromium 2>/dev/null)"
-  elif command -v google-chrome >/dev/null 2>&1; then
-    MYBROWSER="$(which google-chrome 2>/dev/null)"
-  elif command -v opera >/dev/null 2>&1; then
-    MYBROWSER="$(which opera 2>/dev/null)"
-  elif command -v epiphany-browser >/dev/null 2>&1; then
-    MYBROWSER="$(which epiphany-browser 2>/dev/null)"
-  elif command -v falkon >/dev/null 2>&1; then
-    MYBROWSER="$(which falkon 2>/dev/null)"
-  elif command -v midori >/dev/null 2>&1; then
-    MYBROWSER="$(which midori 2>/dev/null)"
-  elif command -v netsurf >/dev/null 2>&1; then
-    MYBROWSER="$(which netsurf 2>/dev/null)"
-  elif command -v surf >/dev/null 2>&1; then
-    MYBROWSER="$(which surf 2>/dev/null)"
-  elif command -v arora >/dev/null 2>&1; then
-    MYBROWSER="$(which arora 2>/dev/null)"
+  if MYBROWSER="$(command -v garcon-url-handler 2>/dev/null)"; then
+    MYBROWSER="$MYBROWSER --url"
+  elif MYBROWSER="$(command -v firefox 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v chromium 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v google-chrome 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v opera 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v epiphany-browser 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v falkon 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v midori 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v netsurf 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v surf 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v arora 2>/dev/null)"; then
+    :
   elif [ -f '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' ]; then
     MYBROWSER='/Applications/Google Chrome.app/Contents/MacOS/Google Chrome'
   elif [ -f '/Applications/Firefox.app/Contents/MacOS/firefox-bin' ]; then
@@ -564,10 +566,10 @@ else
     MYBROWSER='/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
   elif [ -f '/Applications/Tor Browser.app/Contents/MacOS/firefox' ]; then
     MYBROWSER='/Applications/Tor Browser.app/Contents/MacOS/firefox'
-  elif command -v lynx >/dev/null 2>&1; then
-    MYBROWSER="$(which lynx 2>/dev/null)"
-  elif command -v links >/dev/null 2>&1; then
-    MYBROWSER="$(which links 2>/dev/null)"
+  elif MYBROWSER="$(command -v lynx 2>/dev/null)"; then
+    :
+  elif MYBROWSER="$(command -v links 2>/dev/null)"; then
+    :
   fi
 fi
 export BROWSER="$MYBROWSER"
@@ -942,8 +944,8 @@ fi
 # store API keys here
 [ -f "$HOME/.config/secure/apikeys.txt" ] && . "$HOME/.config/secure/apikeys.txt"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# create env vars from shell files
-if [ -n "$(find -L "$HOME/.config/secure/inc" -type f -name '*.sh' 2>/dev/null)" ]; then
+# create env vars from shell files (optimized: use shell glob instead of find)
+if ls "$HOME/.config/secure/inc"/*.sh >/dev/null 2>&1; then
   cat "$HOME/.config/secure/inc"/*.sh 2>/dev/null >"$HOME/.config/secure/env.sh" || true
   [ -f "$HOME/.config/secure/env.sh" ] && . "$HOME/.config/secure/env.sh"
 else
