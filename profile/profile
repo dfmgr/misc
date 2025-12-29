@@ -918,7 +918,7 @@ export HOMEBREW_CASK_OPTS="--appdir=/Applications"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Set cursor type - blinking bar (I-beam) with cyan color
 if [ -n "$BASH_VERSION" ] || [ -n "$ZSH_VERSION" ]; then
-  printf '\e[5 q\e]12;cyan\a' 2>/dev/null
+  printf '\033[5 q\033]12;cyan\007' 2>/dev/null
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # global functions
