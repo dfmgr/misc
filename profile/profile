@@ -124,7 +124,7 @@ elif [ -n "$BASH_VERSION" ]; then
   export OSH="$HOME/.local/share/bash/oh-my-bash"
   export BASH_COMPLETION_USER_DIR="$HOME/.local/share/bash-completion/completions"
   if [ -d "$HOME/.config/bash" ]; then
-  history -r 2>/dev/null || true
+    history -r 2>/dev/null || true
     export HISTFILE="$HOME/.config/bash/bash_history"
     if [ -f "$HOME/.bash_history" ] && [ "$HISTFILE" != "$HOME/.bash_history" ]; then
       mv -f "$HOME/.bash_history" "$HISTFILE"
@@ -280,7 +280,8 @@ SSH_AUTH_SOCK="$RUNTIME_DIRECTORY/gnupg/S.gpg-agent.ssh"
 if command -v gpg-agent >/dev/null 2>&1; then
   # Start gpg-agent only if not already running
   if ! pgrep -x gpg-agent >/dev/null 2>&1; then
-    timeout 2 gpg-agent --enable-ssh-support --daemon -q >/dev/null 2>&1 & true
+    timeout 2 gpg-agent --enable-ssh-support --daemon -q >/dev/null 2>&1 &
+    true
   fi
 fi
 export GPG_TTY SSH_AUTH_SOCK
@@ -289,12 +290,9 @@ export GPG_TTY SSH_AUTH_SOCK
 [ -d "$HOME/.ssh" ] || mkdir -p "$HOME/.ssh"
 [ -n "$SSH_AUTH_SOCK" ] || SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"
 if [ -d "$HOME/.ssh" ] && ls -A "$HOME/.ssh"/id_* >/dev/null 2>&1; then
-  # Add SSH keys in background to avoid blocking login
-  (
-    for f in "$HOME/.ssh"/id_*; do
-      [ -f "$f" ] && [ "${f##*.}" != "pub" ] && timeout 1 ssh-add -q "$f" 2>/dev/null
-    done
-  ) &
+  timeout 1 && for f in "$HOME/.ssh"/id_*; do
+    [ -f "$f" ] && [ "${f##*.}" != "pub" ] && ssh-add -q "$f" 2>/dev/null
+  done
 fi
 if [ ! -S "$HOME/.ssh/ssh_auth_sock" ]; then
   if command -v ssh-agent >/dev/null 2>&1; then
