@@ -290,7 +290,7 @@ export GPG_TTY SSH_AUTH_SOCK
 [ -d "$HOME/.ssh" ] || mkdir -p "$HOME/.ssh"
 [ -n "$SSH_AUTH_SOCK" ] || SSH_AUTH_SOCK="$HOME/.ssh/ssh_auth_sock"
 if [ -d "$HOME/.ssh" ] && ls -A "$HOME/.ssh"/id_* >/dev/null 2>&1; then
-  timeout 1 && for f in "$HOME/.ssh"/id_*; do
+  for f in "$HOME/.ssh"/id_*; do
     [ -f "$f" ] && [ "${f##*.}" != "pub" ] && ssh-add -q "$f" 2>/dev/null
   done
 fi
