@@ -1,152 +1,259 @@
 #!/usr/bin/env bash
-remove-samples() {
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="remove-samples"
-  VERSION="202103181910-git"
-  USER="${SUDO_USER:-${USER}}"
-  HOME="${USER_HOME:-${HOME}}"
-  SRC_DIR="${BASH_SOURCE%/*}"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  #set opts
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202207042253-git
-  # @Author        : Jason
-  # @Contact       : jason@casjaysdev.pro
-  # @License       : WTFPL
-  # @ReadME        : remove-samples --help
-  # @Copyright     : Copyright (c) 2021, Casjays Developments
-  # @Created       : Thursday Mar 18, 2021 21:52:59 EDT
-  # @File          : remove-samples
-  # @Description   : Search for and remove sample files
-  # @TODO          :
-  # @Other         :
-  # @Resource      :
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Main function file
-  if [ -f "$SRC_DIR/functions.bash" ]; then
-    FUNCTIONS_DIR="$SRC_DIR"
-    . "$FUNCTIONS_DIR/functions.bash"
-  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-    FUNCTIONS_DIR="$HOME/.local/bin"
-    . "$FUNCTIONS_DIR/functions.bash"
-  else
-    printf "\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # helper function
-  __help() {
-    app_help "Usage: remove-samples  -  remove-samples --version" \
-      "-d, --dir              -  set working dir" \
-      '-r, --remove           -  remove files -r rm or -r "custom pipe command"' \
-      "-c, --config           -  create config file" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help"
-    exit
-  }
-  __version() { app_version; }
-  __gen_config() {
-    printf_green "Generating the config file in"
-    printf_green "$CONFDIR/$CONFFILE"
-    [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
-    [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$CONFDIR/$CONFFILE.$$"
-    cat <<EOF >"$CONFDIR/$CONFFILE"
-# Settings for remove-samples
-SAMPLE_NAME="${SAMPLE_NAME}"
-SAMPLE_TYPE="${SAMPLE_TYPE}"
-PROJECT_DIR="${PROJECT_DIR}"
-DOTFILES_DIR="${DOTFILES_DIR}"
-MAX_DEPTH="${MAX_DEPTH}"
-EOF
-    if [ -f "$CONFDIR/$CONFFILE" ]; then
-      printf_green "Your config file for remove-samples has been created"
-    else printf_red "Failed to create the config file"; fi
-    exit $?
-  }
-  __list_options() { echo -n "-$SHORTOPTS " | sed 's#:##g;s#,# -#g' && echo "--$LONGOPTS " | sed 's#:##g;s#,# --#g' && exit; }
-  __find_samples() {
-    local FINDDIR="${1:-$PWD}"
-    if [ -d "$FINDDIR" ]; then
-      printf_green "Finding all files matching ${SAMPLE_NAME:-*.sample} in $FINDDIR"
-      [ -n "$ACTION" ] && printf_red "Setting action to $ACTION"
-      find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH:-10} -iname ''${SAMPLE_NAME:-*.sample}'' \
-        -type ${SAMPLE_TYPE:-f,l} -not -path '*/.git/*' \
-        -not -path ''${PROJECT_DIR:-$HOME/Projects}'/*' \
-        -not -path ''${DOTFILES_DIR:-$HOME/.local/dotfiles}'/*' \
-        -not -path ''${CACHEDIR:-$HOME/.cache}'/*' \
-        -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION} 2>/dev/null | printf_readline "6"
-      [ $? = 0 ] && return 0 || return 1
-    else
-      printf_red "Please provide a valid directory"
-      return 1
-    fi
-    # NOTIN="$(echo "-not -path '*/.git/*' -not -path '*/Projects/*' -not -path '*/.local/dotfiles/*' -not -path '*/Documents/*'")"
-    # if (sudo -vn && sudo -ln) 2>&1 | grep -v 'may not' >/dev/null; then
-    #   sudo find /etc -type f -iname "*.rmpnew" -iname "*.sample" -exec rm -i {} \;
-    # fi
-    # find "$HOME/.local" "$HOME/.config" $NOTIN -type f -iname "*.sample" -exec rm -i {} \;
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Main function
-  local SETARGS="$@"
-  local SHORTOPTS="a,c,v,h,d:,r:,f:"
-  local LONGOPTS="all,config,version,help,dir:,remove:,file:"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local CONFFILE="settings.conf"
-  local CONFDIR="$HOME/.config/misc/settings/remove-samples"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ -f "$CONFDIR/$CONFFILE" ] && . "$CONFDIR/$CONFFILE"
-  [ $# -ne 0 ] || MYCURRDIR="$PWD"
-  [ -d "$1" ] && MYCURRDIR="$1" && shift
-  [ -d "$2" ] && MYCURRDIR="$2" && shift || MYCURRDIR="$(__git_top_dir "$MYCURRDIR")"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # options
-  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "remove-samples" -- "$@" 2>/dev/null)
-  eval set -- "$setopts" 2>/dev/null
-  while :; do
-    case $1 in
-    -a | --all) __list_options ;;
-    -v | --version) __version ;;
-    -h | --help) __help ;;
-    -c | --config) __gen_config ;;
-    -d | --dir)
-      FINDDIR="$2"
-      shift 1
-      ;;
-    -r | --remove)
-      [ "$2" = "rm" ] && ACTION='xargs rm -f' || ACTION="$2"
-      shift 1
-      ;;
-    -f | --file)
-      SAMPLE_NAME="$2"
-      shift 1
-      ;;
-    --)
-      shift 1
-      break
-      ;;
-    *) break ;;
-    esac
-    shift
-  done
-  set -- $SETARGS
-  [ -d "$MYCURRDIR" ] || printf_mkdir "$MYCURRDIR"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Required app check
-  cmd_exists --error bash || exit 1
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # begin main app
-  case ${OPTS:-$1} in
-  *) __find_samples "${FINDDIR:-$MYCURRDIR}" ;;
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202601061012-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.pro
+# @License       : WTFPL
+# @ReadME        : remove-samples --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 18, 2021 21:52 EDT
+# @File          : remove-samples
+# @Description   : Search for and remove sample files
+# @Changelog     : Refactored for self-contained operation
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Script variables
+PROG="remove-samples"
+VERSION="202601061012-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
   esac
-  # lets exit with code
-  return "${exitCode:-0}"
+}
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-remove-samples "$@"
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Git helper
+__git_top_dir() {
+  local dir="${1:-$PWD}"
+  if [ -d "$dir/.git" ]; then
+    echo "$dir"
+  elif git -C "$dir" rev-parse --show-toplevel 2>/dev/null; then
+    return 0
+  else
+    echo "$dir"
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Config file handling
+__gen_config() {
+  local CONFDIR="$HOME/.config/misc/settings/remove-samples"
+  local CONFFILE="settings.conf"
+  __printf_green "Generating the config file in"
+  __printf_green "$CONFDIR/$CONFFILE"
+  [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR"
+  [ -f "$CONFDIR/$CONFFILE" ] && cp -Rf "$CONFDIR/$CONFFILE" "$CONFDIR/$CONFFILE.$$"
+  cat <<EOF >"$CONFDIR/$CONFFILE"
+# Settings for remove-samples
+SAMPLE_NAME="${SAMPLE_NAME:-*.sample}"
+SAMPLE_TYPE="${SAMPLE_TYPE:-f,l}"
+PROJECT_DIR="${PROJECT_DIR:-$HOME/Projects}"
+DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.local/dotfiles}"
+MAX_DEPTH="${MAX_DEPTH:-10}"
+EOF
+  if [ -f "$CONFDIR/$CONFFILE" ]; then
+    __printf_green "Your config file for $PROG has been created"
+  else
+    __printf_red "Failed to create the config file"
+  fi
+  exit $?
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Find samples function
+__find_samples() {
+  local FINDDIR="${1:-$PWD}"
+  local ACTION="${2:-cat}"
+  local SAMPLE_NAME="${SAMPLE_NAME:-*.sample}"
+  local SAMPLE_TYPE="${SAMPLE_TYPE:-f,l}"
+  local MAX_DEPTH="${MAX_DEPTH:-10}"
+  local PROJECT_DIR="${PROJECT_DIR:-$HOME/Projects}"
+  local DOTFILES_DIR="${DOTFILES_DIR:-$HOME/.local/dotfiles}"
+  local CACHEDIR="${CACHEDIR:-$HOME/.cache}"
+
+  if [ -d "$FINDDIR" ]; then
+    __printf_green "Finding all files matching ${SAMPLE_NAME} in $FINDDIR"
+    [ "$ACTION" != "cat" ] && __printf_yellow "Setting action to $ACTION"
+    find -L "${FINDDIR}" -maxdepth ${MAX_DEPTH} -iname "${SAMPLE_NAME}" \
+      -type ${SAMPLE_TYPE} -not -path '*/.git/*' \
+      -not -path "${PROJECT_DIR}/*" \
+      -not -path "${DOTFILES_DIR}/*" \
+      -not -path "${CACHEDIR}/*" \
+      -not -path '*/CasjaysDev/*' 2>/dev/null | ${ACTION} 2>/dev/null
+    return $?
+  else
+    __printf_red "Please provide a valid directory"
+    return 1
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Search for and remove sample files
+
+Usage: $PROG [options] [directory]
+
+Options:
+  -v, --version    Show version
+  -h, --help       Show this help
+  -c, --config     Create config file
+  -d, --dir DIR    Set working directory
+  -r, --remove RM  Remove files (-r rm or -r "custom command")
+  -f, --file NAME  Set sample file pattern to search
+
+Arguments:
+  directory        Directory to search (default: current directory)
+
+Environment:
+  SAMPLE_NAME      Pattern to match (default: *.sample)
+  SAMPLE_TYPE      File type (default: f,l)
+  MAX_DEPTH        Maximum search depth (default: 10)
+
+Examples:
+  $PROG ~/config
+  $PROG -r rm ~/config
+  $PROG -f "*.bak" ~/config
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+  local CONFDIR="$HOME/.config/misc/settings/remove-samples"
+  local CONFFILE="settings.conf"
+  local FINDDIR=""
+  local ACTION="cat"
+  local MYCURRDIR=""
+
+  # Load config if exists
+  [ -f "$CONFDIR/$CONFFILE" ] && . "$CONFDIR/$CONFFILE"
+
+  # Check for directory argument first
+  [ $# -ne 0 ] || MYCURRDIR="$PWD"
+  [ -d "$1" ] && MYCURRDIR="$1" && shift 1
+
+  # Parse options
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -v|--version) __version; exit 0 ;;
+      -h|--help) __help; exit 0 ;;
+      -c|--config) __gen_config ;;
+      -d|--dir)
+        FINDDIR="$2"
+        shift 2
+        ;;
+      -r|--remove)
+        [ "$2" = "rm" ] && ACTION='xargs rm -f' || ACTION="$2"
+        shift 2
+        ;;
+      -f|--file)
+        SAMPLE_NAME="$2"
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        __printf_red "Unknown option: $1"
+        __help >&2
+        exit 1
+        ;;
+      *)
+        [ -d "$1" ] && MYCURRDIR="$1"
+        shift
+        ;;
+    esac
+  done
+
+  # Set directory
+  MYCURRDIR="${FINDDIR:-${MYCURRDIR:-$PWD}}"
+  MYCURRDIR="$(__git_top_dir "$MYCURRDIR")"
+
+  # Validate directory
+  if [ ! -d "$MYCURRDIR" ]; then
+    __printf_red "Directory does not exist: $MYCURRDIR"
+    exit 1
+  fi
+
+  # Execute search
+  __find_samples "$MYCURRDIR" "$ACTION"
+  exitCode=$?
+
+  return "$exitCode"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
+main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

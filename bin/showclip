@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="showclip"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -17,67 +9,227 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Created       : Thursday, Mar 11, 2021 17:44 EST
 # @File          : showclip
 # @Description   : Show clipboard contents
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: showclip" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
-main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+# Script variables
+PROG="showclip"
+VERSION="202601061012-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
   esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ "$(uname -s)" = Linux ]; then
-    clip=$(xclip -o -selection clipboard 2>/dev/null || return 1)
-    prim=$(xclip -o -selection primary 2>/dev/null || return 1)
-  elif [ "$(uname -s)" = Darwin ]; then
-    clip=$(xclip -o -selection clipboard 2>/dev/null || pbpaste || return 1)
-    prim=$(xclip -o -selection primary 2>/dev/null || pbpaste 2>/dev/null || return 1)
-  elif [ "$(command -v xclip)" ]; then
-    clip=$(xclip -o -selection clipboard 2>/dev/null || return 1)
-    prim=$(xclip -o -selection primary 2>/dev/null || return 1)
-  else
+}
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Get clipboard contents based on OS
+__get_clipboard() {
+  local os="$(__get_os)"
+  local clip="" prim=""
+
+  case "$os" in
+    mac)
+      clip=$(pbpaste 2>/dev/null)
+      prim="$clip"  # macOS doesn't have primary selection
+      ;;
+    linux|bsd)
+      if __cmd_exists xclip; then
+        clip=$(xclip -o -selection clipboard 2>/dev/null)
+        prim=$(xclip -o -selection primary 2>/dev/null)
+      elif __cmd_exists xsel; then
+        clip=$(xsel --clipboard --output 2>/dev/null)
+        prim=$(xsel --primary --output 2>/dev/null)
+      elif __cmd_exists wl-paste && [ -n "$WAYLAND_DISPLAY" ]; then
+        clip=$(wl-paste 2>/dev/null)
+        prim=$(wl-paste --primary 2>/dev/null)
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        clip=$(powershell.exe -Command "Get-Clipboard" 2>/dev/null | tr -d '\r')
+      fi
+      prim="$clip"
+      ;;
+  esac
+
+  echo "$clip"
+  echo "$prim"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Show clipboard contents
+
+Usage: $PROG [options]
+
+Options:
+  -v, --version    Show version
+  -h, --help       Show this help
+
+Description:
+  Displays the contents of both the clipboard and primary selection
+  (on systems that support it). Also shows a desktop notification
+  with the clipboard contents.
+
+Supported platforms:
+  - Linux/BSD: Uses xclip, xsel, or wl-paste
+  - macOS: Uses pbpaste
+  - Windows (WSL): Uses PowerShell
+
+Examples:
+  $PROG
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+  local clip="" prim=""
+
+  # Parse options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for display
+  if ! __has_display && [ "$(__get_os)" != "mac" ]; then
+    __printf_red "No display available"
     exit 1
   fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  # Get clipboard contents
+  local os="$(__get_os)"
+
+  case "$os" in
+    mac)
+      clip=$(pbpaste 2>/dev/null)
+      prim="$clip"
+      ;;
+    linux|bsd)
+      if __cmd_exists xclip; then
+        clip=$(xclip -o -selection clipboard 2>/dev/null)
+        prim=$(xclip -o -selection primary 2>/dev/null)
+      elif __cmd_exists xsel; then
+        clip=$(xsel --clipboard --output 2>/dev/null)
+        prim=$(xsel --primary --output 2>/dev/null)
+      elif __cmd_exists wl-paste && [ -n "$WAYLAND_DISPLAY" ]; then
+        clip=$(wl-paste 2>/dev/null)
+        prim=$(wl-paste --primary 2>/dev/null)
+      else
+        __printf_red "No clipboard utility found (install xclip, xsel, or wl-clipboard)"
+        exit 1
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        clip=$(powershell.exe -Command "Get-Clipboard" 2>/dev/null | tr -d '\r')
+      fi
+      prim="$clip"
+      ;;
+    *)
+      __printf_red "Unsupported operating system"
+      exit 1
+      ;;
+  esac
+
+  # Display results
   if [ -n "$clip" ] && [ "$clip" = "$prim" ]; then
-    notifications "Clipboard:" "$clip"
-    printf_green "Clipboard: $clip"
+    __notifications "Clipboard" "$clip"
+    __printf_green "Clipboard: $clip"
   elif [ -n "$clip" ] && [ -n "$prim" ]; then
-    notifications "Clipboard:" "$clip"
-    printf_green "Clipboard: $clip"
-    notifications "Primary:" "$prim"
-    printf_green "Primary: $prim"
+    __notifications "Clipboard" "$clip"
+    __printf_green "Clipboard: $clip"
+    __notifications "Primary" "$prim"
+    __printf_green "Primary: $prim"
   elif [ -n "$clip" ]; then
-    notifications "Clipboard:" "$clip"
-    printf_green "Clipboard: $clip"
+    __notifications "Clipboard" "$clip"
+    __printf_green "Clipboard: $clip"
   elif [ -n "$prim" ]; then
-    notifications "Primary:" "$prim"
-    printf_green "Primary: $prim"
+    __notifications "Primary" "$prim"
+    __printf_green "Primary: $prim"
   else
-    notifications "Clipboard:" "There is nothing in your clipboard"
-    printf_green "Clipboard: There is nothing in your clipboard"
-    return 1
+    __notifications "Clipboard" "There is nothing in your clipboard"
+    __printf_green "Clipboard: There is nothing in your clipboard"
+    exitCode=1
   fi
+
+  return "$exitCode"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
 main "$@"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

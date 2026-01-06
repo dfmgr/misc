@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -8,29 +8,123 @@
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 12:16 EST
 # @File          : prompt
-# @Description   : A dmenu binary prompt script.
+# @Description   : A dmenu binary prompt script
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Script variables
 PROG="prompt"
+VERSION="202601061012-git"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
+  esac
+}
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: prompt message action | prompt pathToFile" \
-    '-c                     -  create a file | prompt -c "name" "command"' \
-    "-f                     -  specify a file" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - A dmenu binary prompt script
+
+Usage: $PROG [options] <message> [action]
+
+Options:
+  -v, --version    Show version
+  -h, --help       Show this help
+  -c, --config     Create a new prompt config
+                   Usage: $PROG -c "name" "command"
+  -f, --file       Specify a config file to load
+
+Arguments:
+  message          The prompt message to display
+  action           Command to execute if user selects "Yes"
+
+Description:
+  Displays a Yes/No prompt using dmenu and executes the specified
+  action if the user selects "Yes".
+
+Examples:
+  $PROG "Shutdown?" "shutdown now"
+  $PROG -c "shutdown" "shutdown now"
+  $PROG -f shutdown
+
+Requirements:
+  dmenu
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Prompt config helper functions
 __make_conf() {
   local NAME="$1" && shift 1
   local PROMPTNAME="$1" && shift 1
@@ -49,84 +143,117 @@ fi
 EOF
   [ -f "$filename" ] && chmod -f 755 "$filename" && return 0 || return 1
 }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 __create() {
   local NAME="${1/ /_}"
   local PROMPTNAME="$1"
   local PROMPTCOMMAND="$2"
   shift $#
-  printf_green "Generating the config for $PROMPTNAME"
+  __printf_green "Generating the config for $PROMPTNAME"
   if [ -f "$CONFDIR/$NAME" ]; then
-    printf_red "😿 $NAME already exists in $CONFDIR 😿"
-    exitCode=1
+    __printf_red "$NAME already exists in $CONFDIR"
+    return 1
   else
     __make_conf "$NAME" "$PROMPTNAME" "$PROMPTCOMMAND" 2>/dev/null
     if [[ "$?" = 0 ]] && [ -f "$CONFDIR/$NAME" ]; then
-      printf_green "😹 Successfully create the prompt for $NAME 😹"
-      exitCode=0
+      __printf_green "Successfully created the prompt for $NAME"
+      return 0
     else
-      printf_red "😠 Failed to create $CONFDIR/$NAME 😠"
-      exitCode=1
+      __printf_red "Failed to create $CONFDIR/$NAME"
+      return 1
     fi
   fi
-  return ${exitCode:-$?}
+}
+
+__printf_exit() {
+  __printf_red "$1"
+  exit 1
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
 main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
+  # Parse options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for required commands
+  if ! __cmd_exists dmenu; then
+    __printf_red "Error: dmenu is not installed"
+    exit 1
   fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # command check
-  cmd_exists --error dmenu || exit 1
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+  # Check for display
+  if ! __has_display; then
+    __printf_red "Error: No display available"
+    exit 1
+  fi
+
   # App variables
   local CONFDIR="$HOME/.config/dmenu/prompts"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  local file=""
+  local name=""
+  local filename=""
+
+  # Create config directory if needed
   [ -d "$CONFDIR" ] || mkdir -p "$CONFDIR" &>/dev/null
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
-  -c | --config)
-    shift 1
-    [[ "$1" = "--remove" ]] && shift 1 && rm -Rf "${CONFDIR:?}/${1/ /_}"
-    __create "$1" "$2"
-    exit $?
-    ;;
-  -f | --file)
-    shift 1
-    name="${1/ /_}"
-    filename="${2/$CONFDIR\//$filename}"
-    file="$CONFDIR/$filename"
-    ;;
-  *)
-    name="${1/ /_}"
-    if [ -f "$CONFDIR/$name" ]; then
-      filename="${name/$CONFDIR\//$filename}"
+
+  # Process arguments
+  case "${1:-}" in
+    -c|--config)
+      shift 1
+      if [[ "${1:-}" = "--remove" ]]; then
+        shift 1
+        rm -Rf "${CONFDIR:?}/${1/ /_}"
+        exit $?
+      fi
+      __create "$1" "$2"
+      exit $?
+      ;;
+    -f|--file)
+      shift 1
+      name="${1/ /_}"
+      filename="${2:-$name}"
+      filename="${filename/$CONFDIR\//$filename}"
       file="$CONFDIR/$filename"
-    elif [ -f "$name" ]; then
-      filename="$name"
-      file="$name"
-    fi
-    if [ -z "$file" ]; then
-      [ -z "$1" ] || [ -z "$2" ] || __help
-    fi
-    ;;
+      ;;
+    *)
+      name="${1/ /_}"
+      if [ -f "$CONFDIR/$name" ]; then
+        filename="${name/$CONFDIR\//$filename}"
+        file="$CONFDIR/$filename"
+      elif [ -f "$name" ]; then
+        filename="$name"
+        file="$name"
+      fi
+      if [ -z "$file" ]; then
+        if [ -z "$1" ] || [ -z "$2" ]; then
+          # No file and no valid prompt args - show help
+          [ -n "$1" ] || { __help; exit 1; }
+        fi
+      fi
+      ;;
   esac
+
+  # Execute prompt
   if [ -n "$file" ]; then
-    [ -f "$file" ] && . "$file" || printf_exit "Can't load $file because it doesn't exist"
+    if [ -f "$file" ]; then
+      . "$file"
+    else
+      __printf_exit "Can't load $file because it doesn't exist"
+    fi
   else
-    [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ] && ${2:-true} || return 1
+    if [ "$(printf "No\\nYes" | dmenu -i -p "$1" -nb darkred -sb red -sf white -nf gray)" = "Yes" ]; then
+      ${2:-true}
+    else
+      return 1
+    fi
   fi
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
 main "$@"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

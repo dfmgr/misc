@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="show_wifi_clients"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -16,61 +8,194 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 17:47 EST
 # @File          : show_wifi_clients
-# @Description   : shows connected stations in hotspot mode
+# @Description   : Shows connected stations in hotspot mode
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: show_wifi_clients" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
-main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+# Script variables
+PROG="show_wifi_clients"
+VERSION="202601061012-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
   esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+__printf_cyan() { __printf_color "$1" "36"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Shows connected stations in hotspot mode
+
+Usage: $PROG [options]
+
+Options:
+  -v, --version    Show version
+  -h, --help       Show this help
+
+Description:
+  Displays all WiFi clients connected to your hotspot, showing:
+  - IP address
+  - Hostname (if available)
+  - MAC address
+
+Requirements:
+  - dnsmasq must be installed and running
+  - iw command must be available
+  - Access to dnsmasq lease file
+
+Lease file locations checked:
+  - /etc/dnsmasq.conf (dhcp-leasefile setting)
+  - /var/lib/misc/dnsmasq.leases (default)
+
+Examples:
+  $PROG
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+  local leasefileconf=""
+  local leasefile=""
+  local dnsmasqbin=""
+
+  # Parse options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for required commands
+  if ! __cmd_exists iw; then
+    __printf_red "Error: iw command not found"
+    __printf_yellow "Install iw: apt install iw / yum install iw"
+    exit 1
+  fi
+
+  # Get lease file location from dnsmasq config
   if [ -f "/etc/dnsmasq.conf" ]; then
-    leasefileconf="$(grep 'dhcp-leasefile=' /etc/dnsmasq.conf | sed 's/#//g;s#dhcp-leasefile=##g' | grep '^' || return 1)"
+    leasefileconf="$(grep 'dhcp-leasefile=' /etc/dnsmasq.conf 2>/dev/null | sed 's/#//g;s#dhcp-leasefile=##g' | grep '^')"
   fi
   leasefile="${leasefileconf:-/var/lib/misc/dnsmasq.leases}"
   dnsmasqbin="$(command -v dnsmasq 2>/dev/null)"
-  if [ -f "$leasefile" ] && [ -f "$dnsmasqbin" ]; then
-    printf_green "# All connected wifi devices, with IP address,"
-    printf_green "# hostname (if available), and MAC address."
-    for interface in $(iw dev | grep Interface | cut -f 2 -s -d" "); do
-      maclist=$(iw dev $interface station dump | grep Station | cut -f 2 -s -d" ")
-      for mac in $maclist; do
-        ip="UNKN"
-        host=""
-        ip=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 2 -s -d" ")
-        host=$(cat $leasefile | cut -f 2,3,4 -s -d" " | grep $mac | cut -f 3 -s -d" ")
-        printf "%-20s %-30s %-20s" $ip $host $mac | printf_readline "5"
-      done
-    done
-  else
-    printf_red "Make sure dnsmasq is installed and running!"
-    return 1
-  fi
-  return $?
-}
 
+  # Check requirements
+  if [ ! -f "$leasefile" ]; then
+    __printf_red "Lease file not found: $leasefile"
+    __printf_yellow "Make sure dnsmasq is installed and running!"
+    exit 1
+  fi
+
+  if [ -z "$dnsmasqbin" ]; then
+    __printf_red "dnsmasq is not installed"
+    __printf_yellow "Install dnsmasq: apt install dnsmasq / yum install dnsmasq"
+    exit 1
+  fi
+
+  # Display header
+  __printf_green "# All connected wifi devices, with IP address,"
+  __printf_green "# hostname (if available), and MAC address."
+  echo ""
+  __printf_cyan "$(printf '%-20s %-30s %-20s' 'IP Address' 'Hostname' 'MAC Address')"
+  __printf_cyan "$(printf '%-20s %-30s %-20s' '----------' '--------' '-----------')"
+
+  # Get connected clients
+  local found_clients=0
+  for interface in $(iw dev 2>/dev/null | grep Interface | cut -f 2 -s -d" "); do
+    local maclist=$(iw dev "$interface" station dump 2>/dev/null | grep Station | cut -f 2 -s -d" ")
+    for mac in $maclist; do
+      local ip="UNKNOWN"
+      local host=""
+      ip=$(cat "$leasefile" 2>/dev/null | cut -f 2,3,4 -s -d" " | grep -i "$mac" | cut -f 2 -s -d" ")
+      host=$(cat "$leasefile" 2>/dev/null | cut -f 2,3,4 -s -d" " | grep -i "$mac" | cut -f 3 -s -d" ")
+      [ -z "$ip" ] && ip="UNKNOWN"
+      [ -z "$host" ] && host="-"
+      printf "%-20s %-30s %-20s\n" "$ip" "$host" "$mac"
+      found_clients=1
+    done
+  done
+
+  if [ "$found_clients" -eq 0 ]; then
+    __printf_yellow "No connected clients found"
+  fi
+
+  return "$exitCode"
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
+# Execute
 main "$@"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

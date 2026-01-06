@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -9,80 +9,134 @@
 # @Created       : Tuesday, Mar 23, 2021 07:41 EDT
 # @File          : bonsai-tree
 # @Description   : bonsai.sh is a static and live bonsai tree generator, written in bash.
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         : Author: John Allbritten: theSynAck.com
 # @Resource      : https://gitlab.com/jallbrit/bonsai.sh.git
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="$(basename "$0")"
-VERSION="202103230741-git"
+# Script variables
+PROG="bonsai-tree"
+VERSION="202601061012-git"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
+  esac
+}
 
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-bonsai-tree_main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then
-    FUNCTIONS_DIR="$SRC_DIR"
-    . "$FUNCTIONS_DIR/functions.bash"
-  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-    FUNCTIONS_DIR="$HOME/.local/bin"
-    . "$FUNCTIONS_DIR/functions.bash"
-  else
-    printf "\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-    return 1
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
   fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
-  __version() { app_version; }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __help() {
-    app_help "4" "Usage: bonsai-tree [-h] [-i] [-l] [-T] [-m message] [-t time] [-g x,y] [ -c char] [-M 0-9]" \
-      "-l, --live             -  enable live generation" \
-      "-t, --time time        -  time between each step of growth [default: 0.01]" \
-      "-m, --message text     -  attach a message to the tree" \
-      "-b, --basetype 0-2     -  which ascii-art plant base to use (0 for none) [default: 1]" \
-      "-i, --infinite         -  keep generating trees until quit (2s between each)" \
-      "-T, --termcolors       -  use terminal colors" \
-      "-g, --geo geo          -  set custom geometry [default: fit to terminal]" \
-      "-c, --leaf char        -  character used for leaves [default: &]" \
-      "-M, --multiplier 0-9   -  branch multiplier; higher equals more branching [default: 5]" \
-      "-L, --life int         -  life of tree; higher equals more overall growth [default: 28]" \
-      "-h, --help             -  this message" \
-      "-v, --version          -  show version" \
-      "--options              -  used by completions"
-    exit $?
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __gen_config() {
-    printf_green "Generating the config file in"
-    printf_green "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
-    [ -d "$BONSAI_TREE_CONFIG_DIR" ] || mkdir -p "$BONSAI_TREE_CONFIG_DIR"
-    [ -d "$BONSAI_TREE_CONFIG_BACKUP_DIR" ] || mkdir -p "$BONSAI_TREE_CONFIG_BACKUP_DIR"
-    [ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ] &&
-      cp -Rf "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" "$BONSAI_TREE_CONFIG_BACKUP_DIR/$BONSAI_TREE_CONFIG_FILE.$$"
-    cat <<EOF >"$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
-# Settings for bonsai-tree
 
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Static and live bonsai tree generator
+
+Usage: $PROG [options]
+
+Options:
+  -l, --live             Enable live generation
+  -t, --time TIME        Time between each step of growth [default: 0.01]
+  -m, --message TEXT     Attach a message to the tree
+  -b, --basetype 0-2     Which ascii-art plant base to use (0 for none) [default: 1]
+  -i, --infinite         Keep generating trees until quit (2s between each)
+  -T, --termcolors       Use terminal colors
+  -g, --geo X,Y          Set custom geometry [default: fit to terminal]
+  -c, --leaf CHAR        Character used for leaves [default: &]
+  -M, --multiplier 0-9   Branch multiplier; higher equals more branching [default: 5]
+  -L, --life INT         Life of tree; higher equals more overall growth [default: 28]
+  -v, --version          Show version
+  -h, --help             Show this help
+
+Examples:
+  $PROG -l                      # Live generation
+  $PROG -m "Hello World"        # With message
+  $PROG -i                      # Infinite mode
 EOF
-    if [ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ]; then
-      printf_green "Your config file for bonsai-tree has been created"
-      true
-    else
-      printf_red "Failed to create the config file"
-      false
-    fi
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+
+  # Parse options first
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for required applications
+  if ! __cmd_exists bash; then
+    __printf_red "Error: bash is required"
+    exit 1
+  fi
+
   # Defaults
-  local exitCode=""
-  local BONSAI_TREE_CONFIG_FILE="settings.conf"
-  local BONSAI_TREE_CONFIG_DIR="$HOME/.config/misc/settings/bonsai-tree"
-  local BONSAI_TREE_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/bonsai-tree/backups"
-  local BONSAI_TREE_OPTIONS_DIR="$HOME/.local/share/misc/bonsai-tree/options"
-  local flag_h=false
   local live=false
   local infinite=false
   local termCols=$(tput cols)
@@ -95,136 +149,83 @@ EOF
   local basetype=1
   local multiplier=5
   local lifeStart=28
-  local steptime=0.01 # time between steps
-  local lineWidth=4   # words per line
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Argument/Option settings
-  local SETARGS="${*}"
-  local SHORTOPTS="c,v,h,l,u,t:,i,g:,c:,T,m:,b:,M:,L:"
-  local LONGOPTS="options,config,version,help,usage,live,time:,infinite,geo:,leaf:,termcolors,message:,base:,multiplier:,life:"
-  local ARRAY=""
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Generate Files
-  [ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ] || __gen_config &>/dev/null
-  [ -f "$BONSAI_TREE_OPTIONS_DIR/options" ] || __list_options "$BONSAI_TREE_OPTIONS_DIR" &>/dev/null
-  [ -f "$BONSAI_TREE_OPTIONS_DIR/array" ] || __list_array "$BONSAI_TREE_OPTIONS_DIR" "$ARRAY" &>/dev/null
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Import config
-  [ -f "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE" ] && . "$BONSAI_TREE_CONFIG_DIR/$BONSAI_TREE_CONFIG_FILE"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # options
-  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
-  eval set -- "${setopts[@]}" 2>/dev/null
-  while :; do
-    case $1 in
-    --options)
-      __list_options "$BONSAI_TREE_OPTIONS_DIR"
-      __list_array "$BONSAI_TREE_OPTIONS_DIR" "$ARRAY"
-      exit $?
-      ;;
-    -v | --version)
-      __version
-      exit $?
-      ;;
-    -h | --help | -u | --usage)
-      __help
-      exit $?
-      ;;
-    -c | --config)
-      __gen_config
-      exit $?
-      ;;
-    -l | --live)
-      live=true
-      ;;
+  local steptime=0.01
+  local lineWidth=4
 
-    -t | --time)
-      steptime="$2"
-      shift 1
-      ;;
-
-    -i | --infinite)
-      infinite=true
-      ;;
-
-    -g | --geo)
-      geo=$2
-      shift 1
-      ;;
-
-    -c | --leaf)
-      leafchar="$2"
-      shift 1
-      ;;
-
-    -T | --termcolors)
-      termColors=true
-      ;;
-    -m | --message)
-      flag_m=true
-      message="$2"
-      shift 1
-      ;;
-
-    -b | --basetype)
-      basetype="$2"
-      shift 1
-      ;;
-
-    -M | --multiplier)
-      multiplier="$2"
-      shift 1
-      ;;
-
-    -L | --life)
-      lifeStart="$2"
-      shift 1
-      ;;
-
-    --)
-      shift 1
-      break
-      ;;
-      #*) break ;;
+  # Parse all options
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -l|--live)
+        live=true
+        shift
+        ;;
+      -t|--time)
+        steptime="$2"
+        shift 2
+        ;;
+      -i|--infinite)
+        infinite=true
+        shift
+        ;;
+      -g|--geo)
+        geometry="$2"
+        shift 2
+        ;;
+      -c|--leaf)
+        leafchar="$2"
+        shift 2
+        ;;
+      -T|--termcolors)
+        termColors=true
+        shift
+        ;;
+      -m|--message)
+        flag_m=true
+        message="$2"
+        shift 2
+        ;;
+      -b|--basetype)
+        basetype="$2"
+        shift 2
+        ;;
+      -M|--multiplier)
+        multiplier="$2"
+        shift 2
+        ;;
+      -L|--life)
+        lifeStart="$2"
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        shift
+        ;;
     esac
-    shift
   done
-  set -- "$SETARGS"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Check for required applications
-  cmd_exists --error bash || exit 1
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # begin main app
-  # geometry processing
-  cols=$(echo "$geometry" | cut -d ',' -f1) # width; X
-  rows=$(echo "$geometry" | cut -d ',' -f2) # height; Y
 
-  IFS=$'\n' # delimit strings by newline
-  tabs 4    # set tabs to 4 spaces
+  # geometry processing
+  local cols=$(echo "$geometry" | cut -d ',' -f1)
+  local rows=$(echo "$geometry" | cut -d ',' -f2)
+
+  IFS=$'\n'
+  tabs 4
 
   declare -A gridMessage
 
   # message processing
   if [ $flag_m = true ]; then
-
-    messageWidth=20
-
-    # make room for the message to go on the right side
+    local messageWidth=20
     cols=$((cols - messageWidth - 8))
-
-    # wordwrap message, delimiting by spaces
     message="$(echo "$message" | fold -sw $messageWidth)"
-
-    # get number of lines in the message
-    messageLineCount=0
+    local messageLineCount=0
     for line in $message; do
       messageLineCount=$((messageLineCount + 1))
     done
-
-    messageOffset=$((rows - messageLineCount - 7))
-
-    # put lines of message into a grid
-    index=$messageOffset
+    local messageOffset=$((rows - messageLineCount - 7))
+    local index=$messageOffset
     for line in $message; do
       gridMessage[$index]="$line"
       index=$((index + 1))
@@ -247,12 +248,13 @@ EOF
   R='\e[0m'
 
   # create ascii base in lines
-  base=""
+  local base=""
+  local art=""
+  local width=0
   case $basetype in
   0)
     base=""
     ;;
-
   1)
     width=15
     art="\
@@ -261,7 +263,6 @@ ${Grey}:${Green}___________${DarkBrown}./~~\\.${Green}___________${Grey}:
   \\________________________/
   (_)                    (_)"
     ;;
-
   2)
     width=7
     art="\
@@ -272,15 +273,15 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
   esac
 
   # get base height
-  baseHeight=0
+  local baseHeight=0
   for line in $art; do
     baseHeight=$((baseHeight + 1))
   done
 
-  # add spaces before base so that it's in the middle of the terminal
-  iter=1
+  # add spaces before base
+  local iter=1
   for line in $art; do
-    filler=''
+    local filler=''
     for ((i = 0; i < $(((cols / 2) - width)); i++)); do
       filler+=" "
     done
@@ -288,48 +289,41 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
     [ $iter -ne $baseHeight ] && base+='\n'
     iter=$((iter + 1))
   done
-  unset IFS # reset delimiter
+  unset IFS
 
   rows=$((rows - baseHeight))
 
-  declare -A grid # must be done outside function for unknown reason
+  declare -A grid
 
-  trap 'echo "press q to quit"' SIGINT # disable CTRL+C
+  trap 'echo "press q to quit"' SIGINT
 
   init() {
     branches=0
     shoots=0
-
     branchesMax=$((multiplier * 110))
     shootsMax=$multiplier
 
-    # fill grid full of spaces
     for ((row = 0; row < $rows; row++)); do
       for ((col = 0; col < $cols; col++)); do
         grid[$row, $col]=' '
       done
     done
 
-    # No echo stdin and hide the cursor
     if [ $live = true ]; then
       stty -echo
       echo -ne "\e[?25l"
-
       echo -ne "\e[2J"
     fi
   }
 
   grow() {
     local start=$((cols / 2))
-
-    local x=$((cols / 2)) # start halfway across the screen
-    local y=$rows         # start just above the base
-
+    local x=$((cols / 2))
+    local y=$rows
     branch $x $y trunk $lifeStart
   }
 
   branch() {
-    # argument declarations
     local x=$1
     local y=$2
     local type=$3
@@ -337,145 +331,105 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
     local dx=0
     local dy=0
 
-    # check if the user is hitting q
-    timeout=0.001
+    local timeout=0.001
     [ $live = "false" ] && timeout=.0001
     read -n 1 -t $timeout input
     [ "$input" = "q" ] && clean "quit"
 
     branches=$((branches + 1))
 
-    # as long as we're alive...
     while [ $life -gt 0 ]; do
+      life=$((life - 1))
 
-      life=$((life - 1)) # ensure life ends
-
-      # case $life in
-      # 	[0]) type=dead ;;
-      # 	[1-4]) type=dying ;;
-      # esac
-
-      # set dy based on type
       case $type in
-      shoot*) # if this is a shoot, trend horizontal/downward growth
+      shoot*)
         case "$((RANDOM % 10))" in
         [0-1]) dy=-1 ;;
         [2-7]) dy=0 ;;
         [8-9]) dy=1 ;;
         esac
         ;;
-
-      dying) # discourage vertical growth
+      dying)
         case "$((RANDOM % 10))" in
         [0-1]) dy=-1 ;;
         [2-8]) dy=0 ;;
         [9-10]) dy=1 ;;
         esac
         ;;
-
-      *) # otherwise, let it grow up/not at all
+      *)
         dy=0
         [ $life -ne $lifeStart ] && [ $((RANDOM % 10)) -gt 2 ] && dy=-1
         ;;
       esac
-      # if we're about to hit the ground, cut it off
+
       [ $dy -gt 0 ] && [ $y -gt $((rows - 1)) ] && dy=0
       [ $type = "trunk" ] && [ $life -lt 4 ] && dy=0
 
-      # set dx based on type
       case $type in
-      shootLeft) # tend left: dx=[-2,1]
+      shootLeft)
         case $((RANDOM % 10)) in
         [0-1]) dx=-2 ;;
         [2-5]) dx=-1 ;;
         [6-8]) dx=0 ;;
         [9]) dx=1 ;;
         esac ;;
-
-      shootRight) # tend right: dx=[-1,2]
+      shootRight)
         case $((RANDOM % 10)) in
         [0-1]) dx=2 ;;
         [2-5]) dx=1 ;;
         [6-8]) dx=0 ;;
         [9]) dx=-1 ;;
         esac ;;
-
-      dying) # tend left/right: dx=[-3,3]
+      dying)
         dx=$(((RANDOM % 7) - 3)) ;;
-
-      *) # tend equal: dx=[-1,1]
+      *)
         dx=$(((RANDOM % 3) - 1)) ;;
-
       esac
 
-      # re-branch upon conditions
       if [ $branches -lt $branchesMax ]; then
-
-        # branch is dead
         if [ $life -lt 3 ]; then
           branch $x $y dead $life
-
-        # branch is dying and needs to branch into leaves
         elif [ $type = trunk ] && [ $life -lt $((multiplier + 2)) ]; then
           branch $x $y dying $life
-
         elif [[ $type = "shoot"* ]] && [ $life -lt $((multiplier + 2)) ]; then
           branch $x $y dying $life
-
-        # re-branch if: not close to the base AND (pass a chance test OR be a trunk, not have too man shoots already, and not be about to die)
         elif [[ $type = trunk && $life -lt $((lifeStart - 8)) && (
           $((RANDOM % (16 - multiplier))) -eq 0 || (
           $type = trunk && $((life % 5)) -eq 0 && $life -gt 5)) ]]; then
-
-          # if a trunk is splitting and not about to die, chance to create another trunk
           if [ $((RANDOM % 3)) -eq 0 ] && [ $life -gt 7 ]; then
             branch $x $y trunk $life
-
           elif [ $shoots -lt $shootsMax ]; then
-
-            # give the shoot some life
-            tmpLife=$((life + multiplier - 2))
+            local tmpLife=$((life + multiplier - 2))
             [ $tmpLife -lt 0 ] && tmpLife=0
-
-            # first shoot is randomly directed
             if [ $shoots -eq 0 ]; then
               tmpType=shootLeft
               [ $((RANDOM % 2)) -eq 0 ] && tmpType=shootRight
-
-            # secondary shoots alternate from the first
             else
               case $tmpType in
-              shootLeft) # last shoot was left, shoot right
-                tmpType=shootRight ;;
-              shootRight) # last shoot was right, shoot left
-                tmpType=shootLeft ;;
+              shootLeft) tmpType=shootRight ;;
+              shootRight) tmpType=shootLeft ;;
               esac
             fi
             branch $x $y $tmpType $tmpLife
             shoots=$((shoots + 1))
           fi
         fi
-      else # if we're past max branches but want to branch...
+      else
         char='<>'
       fi
 
-      # implement dx,dy
       x=$((x + dx))
       y=$((y + dy))
 
-      # choose color
       case $type in
       trunk | shoot*)
         color=${DarkBrown}
         [ $((RANDOM % 4)) -eq 0 ] && color=${LightBrown}
         ;;
-
       dying) color=${BrownGreen} ;;
-
       dead) color=${Green} ;;
       esac
 
-      # choose branch character
       case $type in
       trunk)
         if [ $dx -lt 0 ]; then
@@ -485,51 +439,32 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
         elif [ $dx -gt 0 ]; then
           char='/'
         fi
-        [ $dy -eq 0 ] && char='/~' # not growing
-        #[ $dy -lt 0 ] && char='/~'	# growing
+        [ $dy -eq 0 ] && char='/~'
         ;;
-
-      # shoots tend to look horizontal
       shootLeft)
         case $dx in
         [-3,-1]) char='\\|' ;;
         [0]) char='/|' ;;
         [1,3]) char='/' ;;
         esac
-        #[ $dy -lt 0 ] && char='/~'	# growing up
-        [ $dy -gt 0 ] && char='/'   # growing down
-        [ $dy -eq 0 ] && char='\\_' # not growing
+        [ $dy -gt 0 ] && char='/'
+        [ $dy -eq 0 ] && char='\\_'
         ;;
-
       shootRight)
         case $dx in
         [-3,-1]) char='\\|' ;;
         [0]) char='/|' ;;
         [1,3]) char='/' ;;
         esac
-        #[ $dy -lt 0 ] && char=''	# growing up
-        [ $dy -gt 0 ] && char='\\' # growing down
-        [ $dy -eq 0 ] && char='_/' # not growing
+        [ $dy -gt 0 ] && char='\\'
+        [ $dy -eq 0 ] && char='_/'
         ;;
-
-        #dead)
-        #	#life=$((life + 1))
-        #	char="${leafchar}"
-        #	[ $dx -lt -2 ] || [ $dx -gt 2 ] && char="${leafchar}${leafchar}"
-        #	;;
-
       esac
 
-      # set leaf if needed
       [ $life -lt 4 ] && char="${leafchar}"
 
-      # uncomment for help debugging
-      #echo -e "$life:\t$x, $y: $char"
-
-      # put character in grid
       grid[$y, $x]="${color}${char}${R}"
 
-      # if live, print what we have so far and let the user see it
       if [ $live = true ]; then
         print
         sleep $steptime
@@ -538,51 +473,30 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
   }
 
   print() {
-    # parse grid for output
-    output=""
+    local output=""
     for ((row = 0; row < $rows; row++)); do
-
-      line=""
-
+      local line=""
       for ((col = 0; col < $cols; col++)); do
-
-        # this prints a space at 0,0 and is necessary at the moment
         [ $live = true ] && echo -ne "\e[0;0H "
-
-        # grab the character from our grid
         line+="${grid[$row, $col]}"
       done
-
-      # add our message
       if [ $flag_m = true ]; then
-        # remove trailing whitespace before we add our message
         line=$(sed -r 's/[ \t]*$//' <(printf "$line"))
         line+="   \t${gridMessage[$row]}"
       fi
-
       line="${line}\n"
-
-      # end 'er with the ol' newline
       output+="$line"
     done
-
-    # add the ascii-art base we generated earlier
     output+="$base"
-
-    # output, removing trailing whitespace
     sed -r 's/[ \t]*$//' <(printf "$output")
   }
 
   clean() {
-    # Show cursor and echo stdin
     if [ $live = true ]; then
       echo -ne "\e[?25h"
       stty echo
     fi
-
-    echo "" # ensure the cursor resets to the next line
-
-    # if we wanna quit
+    echo ""
     if [ "$1" = "quit" ]; then
       trap SIGINT
       exit 0
@@ -602,12 +516,12 @@ ${Grey}(${Green}---${DarkBrown}./~~\\.${Green}---${Grey})
     sleep 2
     bonsai
   done
-  # lets exit with code
+
   return "${exitCode:-$?}"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-bonsai-tree_main "$@"
+# Execute
+main "$@"
+exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# End application
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

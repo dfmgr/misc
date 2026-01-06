@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="pasteit"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -17,209 +9,305 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Created       : Thursday, Mar 11, 2021 11:39 EST
 # @File          : pasteit
 # @Description   : Pastes from STDIN or file from commandline argument to Stikked pastebin
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      : https://github.com/glensc/pbin
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set functions
-__version() { app_version; }
-__help() {
-  app_help "Usage: pasteit 'message to post'" \
-    "-a, --apikey           -  API key for the server" \
-    "-t, --title            -  title of this paste" \
-    "-n, --name             -  author of this paste" \
-    "-p, --private          -  should this paste be private" \
-    "-l, --language         -  language this paste is in" \
-    "-e, --expire           -  paste expiration in minutes" \
-    "-r, --reply            -  reply to existing paste" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
-main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+# Script variables
+PROG="pasteit"
+VERSION="202601061012-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
   esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  set -e
-  PROGRAM=${0##*/}
+}
 
-  # can be overriden from env
-  PASTE_URL="${PRIVATE_PASTEBIN_URL:-https://casjay.cc}"
-  PASTE_API="${PRIVATE_PASTEBIN_API:-/api/create}"
-  PASTE_APIKEY="${PRIVATE_PASTEBIN_APIKEY:-}"
-  PASTE_USER="${PRIVATE_PASTEBIN_USER:-$USER}"
-  PASTE_EMAIL="${PRIVATE_PASTEBIN_EMAIL:-$USER@HOSTNAME}"
-  # filter url for printing (remove password)
-  print_url() {
-    local url="$1"
-    echo "$url" | sed -e 's;://[^@]*@;://' | grep '^'
-  }
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
 
-  # paste. take input from stdin
-  pastebin() {
-    # show params
-    sed -e '/^$/d' >&2 <<-EOF
-		${PASTE_APIKEY+apikey: "$PASTE_APIKEY"}
-		${title+title: "$title"}
-		${name+name: "$name"}
-		${private+private: "$private"}
-		${language+language: "$language"}
-		${expire+expire: "$expire"}
-		${reply+reply: "$reply"}
-	EOF
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
 
-    # do paste
-    curl "$PASTE_URL$PASTE_API${PASTE_APIKEY+?apikey=${PASTE_APIKEY}}" \
-      ${title+-F title="$title"} \
-      ${name+-F name="$name"} \
-      ${private+-F private="$private"} \
-      ${language+-F lang="$language"} \
-      ${expire+-F expire="$expire"} \
-      ${reply+-F reply="$reply"} \
-      -F 'text=<-'
-  }
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
 
-  # try to resolve mime-type to language
-  mime_to_lang() {
-    local mime="$1"
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
 
-    awk -F ':' -vm="$mime" 'm==$1 {print $2}' <<-EOF
-	application/javascript:javascript
-	application/xml:xml
-	text/html:html5
-	text/x-c:c
-	text/x-c++:cpp
-	text/x-diff:diff
-	text/x-lua:lua
-	text/x-php:php
-	text/x-python:python
-	text/x-ruby:ruby
-	text/x-shellscript:bash
-	EOF
-  }
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
 
-  # detect filetype. outputs nothing if no file binary or no detected
-  detect_mimetype() {
-    local file="$1" out
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
 
-    out=$(file -L --mime-type "$file" 2>/dev/null || :)
-    echo "${out#*: }"
-  }
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
 
-  usage() {
-    echo "Usage: $PROGRAM [options] < [input_file]
+__help() {
+  cat <<EOF
+$PROG $VERSION - Paste content to Stikked pastebin
+
+Usage: $PROG [options] < [input_file]
+       $PROG [options] [file1] [file2] ...
+       command | $PROG [options]
 
 Options:
-  -a, --apikey    API key for the server
-  -t, --title     title of this paste
-  -n, --name      author of this paste
-  -p, --private   should this paste be private
-  -l, --language  language this paste is in
-  -e, --expire    paste expiration in minutes
-  -r, --reply     reply to existing paste
-"
-  }
+  -v, --version    Show version
+  -h, --help       Show this help
+  -a, --apikey     API key for the server
+  -t, --title      Title of this paste
+  -n, --name       Author of this paste
+  -p, --private    Should this paste be private
+  -l, --language   Language this paste is in
+  -e, --expire     Paste expiration in minutes
+  -r, --reply      Reply to existing paste
 
-  set_defaults() {
-    unset title
-    unset private
-    unset language
-    unset expire
-    unset reply
+Environment:
+  PRIVATE_PASTEBIN_URL      Pastebin URL (default: https://casjay.cc)
+  PRIVATE_PASTEBIN_API      API endpoint (default: /api/create)
+  PRIVATE_PASTEBIN_APIKEY   API key
+  PRIVATE_PASTEBIN_USER     Username (default: \$USER)
 
-    # default to user
-    name=${PASTE_USER}
-  }
+Examples:
+  echo "Hello World" | $PROG
+  $PROG -t "My Code" -l bash script.sh
+  cat file.txt | $PROG --private
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Filter URL for printing (remove password)
+__print_url() {
+  local url="$1"
+  echo "$url" | sed -e 's;://[^@]*@;://' | grep '^'
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Resolve mime-type to language
+__mime_to_lang() {
+  local mime="$1"
 
-  set_defaults
+  awk -F ':' -vm="$mime" 'm==$1 {print $2}' <<-EOF
+application/javascript:javascript
+application/xml:xml
+text/html:html5
+text/x-c:c
+text/x-c++:cpp
+text/x-diff:diff
+text/x-lua:lua
+text/x-php:php
+text/x-python:python
+text/x-ruby:ruby
+text/x-shellscript:bash
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Detect filetype
+__detect_mimetype() {
+  local file="$1" out
 
-  # parse command line args
-  t=$(getopt -o h,t:,n:,p,l:,e:,r:,b:,a: --long help,title:,name:,private,language:,expire:,reply:,apikey: -n "$PROGRAM" -- "$@")
+  out=$(file -L --mime-type "$file" 2>/dev/null || :)
+  echo "${out#*: }"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Do the paste
+__pastebin() {
+  local PASTE_URL="$1"
+  local PASTE_API="$2"
+  local PASTE_APIKEY="$3"
+
+  # Show params
+  sed -e '/^$/d' >&2 <<-EOF
+${PASTE_APIKEY+apikey: "$PASTE_APIKEY"}
+${title+title: "$title"}
+${name+name: "$name"}
+${private+private: "$private"}
+${language+language: "$language"}
+${expire+expire: "$expire"}
+${reply+reply: "$reply"}
+EOF
+
+  # Do paste
+  curl "$PASTE_URL$PASTE_API${PASTE_APIKEY+?apikey=${PASTE_APIKEY}}" \
+    ${title+-F title="$title"} \
+    ${name+-F name="$name"} \
+    ${private+-F private="$private"} \
+    ${language+-F lang="$language"} \
+    ${expire+-F expire="$expire"} \
+    ${reply+-F reply="$reply"} \
+    -F 'text=<-'
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+
+  # Parse initial options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for curl
+  if ! __cmd_exists curl; then
+    __printf_red "Error: curl is required but not found"
+    exit 1
+  fi
+
+  set -e
+
+  # Configuration from environment
+  local PASTE_URL="${PRIVATE_PASTEBIN_URL:-https://casjay.cc}"
+  local PASTE_API="${PRIVATE_PASTEBIN_API:-/api/create}"
+  local PASTE_APIKEY="${PRIVATE_PASTEBIN_APIKEY:-}"
+  local PASTE_USER="${PRIVATE_PASTEBIN_USER:-$USER}"
+
+  # Variables for paste options
+  local title name private language expire reply
+
+  # Default to user
+  name=${PASTE_USER}
+
+  # Parse command line args
+  local t
+  t=$(getopt -o h,v,t:,n:,p,l:,e:,r:,b:,a: --long help,version,title:,name:,private,language:,expire:,reply:,apikey: -n "$PROG" -- "$@")
   eval set -- "$t"
 
   while :; do
     case "$1" in
-    -h | --help)
-      usage
-      exit 0
-      ;;
-    -t | --title)
-      shift
-      title="$1"
-      ;;
-    -n | --name)
-      shift
-      name="$1"
-      ;;
-    -p | --private)
-      private=1
-      ;;
-    -l | --language)
-      shift
-      language="$1"
-      ;;
-    -e | --expire)
-      shift
-      expire="$1"
-      ;;
-    -r | --reply)
-      shift
-      reply="$1"
-      ;;
-    -b)
-      shift
-      PASTE_URL="$1"
-      ;;
-    -a | --apikey)
-      shift
-      PASTE_APIKEY="$1"
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      echo >&2 "$PROGRAM: Internal error: [$1] not recognized!"
-      exit 1
-      ;;
+      -h|--help)
+        __help
+        exit 0
+        ;;
+      -v|--version)
+        __version
+        exit 0
+        ;;
+      -t|--title)
+        shift
+        title="$1"
+        ;;
+      -n|--name)
+        shift
+        name="$1"
+        ;;
+      -p|--private)
+        private=1
+        ;;
+      -l|--language)
+        shift
+        language="$1"
+        ;;
+      -e|--expire)
+        shift
+        expire="$1"
+        ;;
+      -r|--reply)
+        shift
+        reply="$1"
+        ;;
+      -b)
+        shift
+        PASTE_URL="$1"
+        ;;
+      -a|--apikey)
+        shift
+        PASTE_APIKEY="$1"
+        ;;
+      --)
+        shift
+        break
+        ;;
+      *)
+        __printf_red "Error: Internal error: [$1] not recognized!"
+        exit 1
+        ;;
     esac
     shift
   done
 
-  printf "Paste endpoint: %s\n" "$(print_url "$PASTE_URL")"
+  printf "Paste endpoint: %s\n" "$(__print_url "$PASTE_URL")"
 
-  # if we have more commandline arguments, set these as title
+  # If we have more commandline arguments, set these as title
   if [ "${title+set}" != "set" ]; then
     title="$*"
   fi
   title="$(basename "$title")"
 
-  # set language from first filename
+  # Set language from first filename
   if [ -n "$1" ] && [ "${language+set}" != "set" ]; then
-    mime=$(detect_mimetype "$1")
+    local mime
+    mime=$(__detect_mimetype "$1")
 
     if [ -n "$mime" ]; then
-      language=$(mime_to_lang "$mime")
+      language=$(__mime_to_lang "$mime")
     fi
   fi
 
-  # take filenames from commandline, or from stdin
+  # Take filenames from commandline, or from stdin
+  local paste
   if [ $# -gt 0 ]; then
     paste=$(cat "$@")
   else
     paste=$(cat)
   fi
-  printf "%s" "$paste" | pastebin
+
+  printf "%s" "$paste" | __pastebin "$PASTE_URL" "$PASTE_API" "$PASTE_APIKEY"
+  exitCode=$?
+
+  return "$exitCode"
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
 main "$@"
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

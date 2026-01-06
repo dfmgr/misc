@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="linkhandler"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -17,75 +9,254 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Created       : Thursday, Mar 11, 2021 07:56 EST
 # @File          : linkhandler
 # @Description   : Feed script a url or file location.
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
-__version() { app_version; }
-__help() {
-  app_help "Usage: linkhander pathtofile or url" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
+# Script variables
+PROG="linkhandler"
+VERSION="202601061012-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
+  esac
 }
-main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
   fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
   esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  cmd_exists --error setsid || exit 1
-  case "$1" in
-  *mkv | *webm | *mp4 | *youtube.com/watch* | *youtube.com/playlist* | *youtu.be* | *hooktube.com* | *bitchute.com*)
-    if [ -f "$(command -v mpv)" ]; then
-      setsid mpv --input-ipc-server=/tmp/mpvsoc"$(date +%s)" -quiet "$1" &>/dev/null && return 0 || return 1 &
-    else
-      return 1
-    fi
-    ;;
-  *png | *jpg | *jpe | *jpeg | *gif)
-    if [ -f "$(command -v sxiv)" ]; then
-      curl -sL "$1" >"/tmp/$(echo "$1" | sed "s/.*\///")" && sxiv -a "/tmp/$(echo "$1" | sed "s/.*\///")" &>/dev/null && return 0 || return 1 &
-    else
-      return 1
-    fi
-    ;;
-  *mp3 | *flac | *opus | *mp3?source*)
-    if [ -f "$(command -v tsp)" ]; then
-      setsid tsp curl -LO "$1" &>/dev/null && return 0 || return 1 &
-    elif [ -f "$(command -v deadbeef)" ]; then
-      setsid deadbeef "$1" &>/dev/null && return 0 || return 1 &
-    else
-      return 1
-    fi
-    ;;
-  *htm*)
-    setsid "$BROWSER" "$1" &>/dev/null && return 0 || return 1 &
-    ;;
-  *)
-    if [ -f "$1" ]; then
-      setsid "$TERMINAL" -e "$EDITOR $1" &>/dev/null && return 0 || return 1 &
-    elif [ -d "$1" ]; then
-      FILEMANAGER="$(command -v myfilemanager || command -v thunar || command -v vifm || command -v se)"
-      eval "$FILEMANAGER" "$*"
-      exit $?
-    elif [[ "$(check_uri "$1")" = http* ]]; then
-      setsid "$BROWSER" "$1" &>/dev/null && return 0 || return 1 &
-    fi
-    ;;
-  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-main "$@"
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Open URLs and files with appropriate applications
+
+Usage: $PROG [options] <path_or_url>
+
+Options:
+  -v, --version    Show version
+  -h, --help       Show this help
+
+Arguments:
+  path_or_url      Path to file/directory or URL to open
+
+Supported file types:
+  Video:   mkv, webm, mp4, youtube.com, youtu.be, hooktube.com, bitchute.com
+  Images:  png, jpg, jpe, jpeg, gif
+  Audio:   mp3, flac, opus
+  HTML:    htm, html
+
+Environment:
+  BROWSER          Browser to use for web content
+  TERMINAL         Terminal emulator to use
+  EDITOR           Text editor to use
+
+Examples:
+  $PROG https://youtube.com/watch?v=...
+  $PROG ~/Documents/image.png
+  $PROG https://example.com/page.html
+EOF
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Check if input is a URL
+__check_uri() {
+  local input="$1"
+  if [[ "$input" =~ ^https?:// ]]; then
+    echo "$input"
+  elif [[ "$input" =~ ^www\. ]]; then
+    echo "https://$input"
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Get file manager
+__get_file_manager() {
+  local fm
+  for fm in myfilemanager thunar vifm ranger nnn; do
+    if __cmd_exists "$fm"; then
+      echo "$fm"
+      return 0
+    fi
+  done
+  return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+
+  # Parse options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for required command
+  if ! __cmd_exists setsid; then
+    __printf_red "Error: setsid is required but not found"
+    exit 1
+  fi
+
+  # Check for input
+  if [ $# -eq 0 ]; then
+    __printf_red "Error: No input provided"
+    __help >&2
+    exit 1
+  fi
+
+  local input="$1"
+
+  # Handle based on file type or URL
+  case "$input" in
+    *mkv|*webm|*mp4|*youtube.com/watch*|*youtube.com/playlist*|*youtu.be*|*hooktube.com*|*bitchute.com*)
+      if __cmd_exists mpv; then
+        setsid mpv --input-ipc-server=/tmp/mpvsoc"$(date +%s)" -quiet "$input" &>/dev/null &
+        exitCode=$?
+      else
+        __printf_red "Error: mpv is not installed"
+        exitCode=1
+      fi
+      ;;
+    *png|*jpg|*jpe|*jpeg|*gif)
+      if __cmd_exists sxiv; then
+        curl -sL "$input" >"/tmp/$(echo "$input" | sed "s/.*\///")" && setsid sxiv -a "/tmp/$(echo "$input" | sed "s/.*\///")" &>/dev/null &
+        exitCode=$?
+      elif __cmd_exists feh; then
+        curl -sL "$input" >"/tmp/$(echo "$input" | sed "s/.*\///")" && setsid feh "/tmp/$(echo "$input" | sed "s/.*\///")" &>/dev/null &
+        exitCode=$?
+      else
+        __printf_red "Error: No image viewer (sxiv/feh) found"
+        exitCode=1
+      fi
+      ;;
+    *mp3|*flac|*opus|*mp3?source*)
+      if __cmd_exists tsp; then
+        setsid tsp curl -LO "$input" &>/dev/null &
+        exitCode=$?
+      elif __cmd_exists deadbeef; then
+        setsid deadbeef "$input" &>/dev/null &
+        exitCode=$?
+      else
+        __printf_red "Error: No audio handler (tsp/deadbeef) found"
+        exitCode=1
+      fi
+      ;;
+    *htm*)
+      if [ -n "${BROWSER:-}" ]; then
+        setsid "$BROWSER" "$input" &>/dev/null &
+        exitCode=$?
+      else
+        __printf_red "Error: BROWSER environment variable not set"
+        exitCode=1
+      fi
+      ;;
+    *)
+      if [ -f "$input" ]; then
+        if [ -n "${TERMINAL:-}" ] && [ -n "${EDITOR:-}" ]; then
+          setsid "$TERMINAL" -e "$EDITOR $input" &>/dev/null &
+          exitCode=$?
+        elif [ -n "${EDITOR:-}" ]; then
+          "$EDITOR" "$input"
+          exitCode=$?
+        else
+          __printf_red "Error: TERMINAL or EDITOR not set"
+          exitCode=1
+        fi
+      elif [ -d "$input" ]; then
+        local FILEMANAGER
+        FILEMANAGER="$(__get_file_manager)"
+        if [ -n "$FILEMANAGER" ]; then
+          "$FILEMANAGER" "$input"
+          exitCode=$?
+        else
+          __printf_red "Error: No file manager found"
+          exitCode=1
+        fi
+      elif [[ "$(__check_uri "$input")" == http* ]]; then
+        if [ -n "${BROWSER:-}" ]; then
+          setsid "$BROWSER" "$input" &>/dev/null &
+          exitCode=$?
+        else
+          __printf_red "Error: BROWSER environment variable not set"
+          exitCode=1
+        fi
+      else
+        __printf_red "Error: Unknown input type: $input"
+        exitCode=1
+      fi
+      ;;
+  esac
+
+  return "$exitCode"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
+main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

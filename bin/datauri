@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -9,147 +9,203 @@
 # @Created       : Tuesday, Mar 23, 2021 16:33 EDT
 # @File          : datauri
 # @Description   : Create data URI from a file
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="$(basename "$0")"
-VERSION="202103231633-git"
+# Script variables
+PROG="datauri"
+VERSION="202601061012-git"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
+  esac
+}
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-datauri_main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then
-    FUNCTIONS_DIR="$SRC_DIR"
-    . "$FUNCTIONS_DIR/functions.bash"
-  elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-    FUNCTIONS_DIR="$HOME/.local/bin"
-    . "$FUNCTIONS_DIR/functions.bash"
-  else
-    printf "\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # helper functions - See github.com/dfmgr/misc/bin/functions.bash
-  __version() { app_version; }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __help() {
-    app_help "4" "Usage: datauri file" \
-      "-f, --file             -  specify the file" \
-      "-c, --config           -  create config file" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help" \
-      "--options              -  used by completions"
-    return $?
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __gen_config() {
-    printf_green "Generating the config file in"
-    printf_green "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE"
-    [ -d "$DATAURI_CONFIG_DIR" ] || mkdir -p "$DATAURI_CONFIG_DIR"
-    [ -d "$DATAURI_CONFIG_BACKUP_DIR" ] || mkdir -p "$DATAURI_CONFIG_BACKUP_DIR"
-    [ -f "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" ] &&
-      cp -Rf "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" "$DATAURI_CONFIG_BACKUP_DIR/$DATAURI_CONFIG_FILE.$$"
-    cat <<EOF >"$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE"
-# Settings for datauri
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
 
-EOF
-    if [ -f "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" ]; then
-      printf_green "Your config file for datauri has been created"
-      true
-    else
-      printf_red "Failed to create the config file"
-      false
-    fi
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Defaults
-  local exitCode=""
-  local DATAURI_CONFIG_FILE="settings.conf"
-  local DATAURI_CONFIG_DIR="$HOME/.config/misc/settings/datauri"
-  local DATAURI_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/datauri/backups"
-  local DATAURI_OPTIONS_DIR="$HOME/.local/share/misc/datauri/options"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Argument/Option settings
-  local SETARGS="${*}"
-  local SHORTOPTS="c,v,h,f:"
-  local LONGOPTS="options,config,version,help,file:"
-  local ARRAY=""
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Generate Files
-  [ -f "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" ] || __gen_config &>/dev/null
-  [ -f "$DATAURI_OPTIONS_DIR/options" ] || __list_options "$DATAURI_OPTIONS_DIR" &>/dev/null
-  [ -f "$DATAURI_OPTIONS_DIR/array" ] || __list_array "$DATAURI_OPTIONS_DIR" "$ARRAY" &>/dev/null
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Import config
-  [ -f "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE" ] && . "$DATAURI_CONFIG_DIR/$DATAURI_CONFIG_FILE"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # options
-  local setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
-  eval set -- "$setopts" 2>/dev/null
-  while :; do
-    case $1 in
-    --options)
-      __list_options "$DATAURI_OPTIONS_DIR"
-      __list_array "$DATAURI_OPTIONS_DIR" "$ARRAY"
-      exit $?
-      ;;
-    -v | --version)
-      __version
-      exit $?
-      ;;
-    -h | --help)
-      __help
-      exit $?
-      ;;
-    -c | --config)
-      __gen_config
-      exit $?
-      ;;
-    -f | --file)
-      shift 1
-      file="$1"
-      ;;
-    --)
-      shift 1
-      break
-      ;;
-      #*) break ;;
-    esac
-    shift
-  done
-  set -- "$SETARGS"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Check for required applications
-  cmd_exists --error bash || exit 1
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # begin main app
-  typeset mimeType=""
-  local filename="$(realpath "${1:-file}" 2>/dev/null)"
-  if [ -f "$filename" ]; then
-    mimeType=$(file -b --mime-type "$filename")
-    if [[ $mimeType == text/* ]]; then
-      mimeType="$mimeType;charset=utf-8"
-    fi
-    printf "data:%s;base64,%s" "$mimeType" "$(openssl base64 -in "$filename" | tr -d "\n")"
-    printf '\n'
-  else
-    printf_red "%s is not a file.\n" "$filename"
-    return 1
-  fi
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # lets exit with code
-  return "${exitCode:-$?}"
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-datauri_main "$@"
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# End application
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Create data URI from a file
+
+Usage: $PROG [options] <file>
+       $PROG -f <file>
+
+Options:
+  -f, --file FILE    Specify input file
+  -v, --version      Show version
+  -h, --help         Show this help
+
+Arguments:
+  file               Path to file to convert
+
+Description:
+  Converts a file to a base64-encoded data URI suitable for embedding
+  in HTML, CSS, or other documents. Automatically detects MIME type
+  and adds charset for text files.
+
+Examples:
+  $PROG image.png
+  $PROG -f style.css
+  $PROG document.pdf
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+  local filename=""
+
+  # Check for required applications
+  if ! __cmd_exists file; then
+    __printf_red "Error: 'file' command is required"
+    exit 1
+  fi
+
+  if ! __cmd_exists openssl && ! __cmd_exists base64; then
+    __printf_red "Error: 'openssl' or 'base64' command is required"
+    exit 1
+  fi
+
+  # Parse options
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -v|--version) __version; exit 0 ;;
+      -h|--help) __help; exit 0 ;;
+      -f|--file)
+        filename="$2"
+        shift 2
+        ;;
+      --)
+        shift
+        break
+        ;;
+      -*)
+        __printf_red "Unknown option: $1"
+        __help
+        exit 1
+        ;;
+      *)
+        filename="$1"
+        shift
+        ;;
+    esac
+  done
+
+  # Validate file
+  if [ -z "$filename" ]; then
+    __printf_red "Error: No file specified"
+    __help
+    exit 1
+  fi
+
+  # Resolve to absolute path
+  filename="$(realpath "$filename" 2>/dev/null || echo "$filename")"
+
+  if [ ! -f "$filename" ]; then
+    __printf_red "Error: $filename is not a file"
+    exit 1
+  fi
+
+  if [ ! -s "$filename" ]; then
+    __printf_red "Error: $filename is empty"
+    exit 1
+  fi
+
+  # Get MIME type
+  local mimeType
+  mimeType=$(file -b --mime-type "$filename")
+
+  # Add charset for text files
+  if [[ $mimeType == text/* ]]; then
+    mimeType="$mimeType;charset=utf-8"
+  fi
+
+  # Encode to base64
+  local encoded
+  if __cmd_exists openssl; then
+    encoded=$(openssl base64 -in "$filename" | tr -d "\n")
+  else
+    encoded=$(base64 "$filename" | tr -d "\n")
+  fi
+
+  # Output data URI
+  printf "data:%s;base64,%s\n" "$mimeType" "$encoded"
+
+  return "$exitCode"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
+main "$@"
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

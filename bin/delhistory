@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -9,147 +9,198 @@
 # @Created       : Tuesday, Mar 23, 2021 16:33 EDT
 # @File          : delhistory
 # @Description   : remove last n records from history
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="$(basename "$0")"
-VERSION="202103231633-git"
+# Script variables
+PROG="delhistory"
+VERSION="202601061012-git"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function file
-if [ -f "$SRC_DIR/functions.bash" ]; then
-  FUNCTIONS_DIR="$SRC_DIR"
-  . "$FUNCTIONS_DIR/functions.bash"
-elif [ -f "$HOME/.local/bin/functions.bash" ]; then
-  FUNCTIONS_DIR="$HOME/.local/bin"
-  . "$FUNCTIONS_DIR/functions.bash"
-else
-  printf "\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $FUNCTIONS_DIR"
-  return 1
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# helper functions - See github.com/dfmgr/misc/bin/functions.bash
-__version() { app_version; }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__help() {
-  app_help "4" "Usage: delhistory [ids]" \
-    "-c, --config           -  create config file" \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help" \
-    "--options              -  used by completions"
-  exit $?
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__gen_config() {
-  printf_green "Generating the config file in"
-  printf_green "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
-  [ -d "$DELHISTORY_CONFIG_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_DIR"
-  [ -d "$DELHISTORY_CONFIG_BACKUP_DIR" ] || mkdir -p "$DELHISTORY_CONFIG_BACKUP_DIR"
-  [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] &&
-    cp -Rf "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" "$DELHISTORY_CONFIG_BACKUP_DIR/$DELHISTORY_CONFIG_FILE.$$"
-  cat <<EOF >"$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
-# Settings for delhistory
-
-EOF
-  if [ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ]; then
-    printf_green "Your config file for delhistory has been created"
-    true
-  else
-    printf_red "Failed to create the config file"
-    false
-  fi
-}
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Defaults
-exitCode=""
-DELHISTORY_CONFIG_FILE="settings.conf"
-DELHISTORY_CONFIG_DIR="$HOME/.config/misc/settings/delhistory"
-DELHISTORY_CONFIG_BACKUP_DIR="$HOME/.local/share/misc/delhistory/backups"
-DELHISTORY_OPTIONS_DIR="$HOME/.local/share/misc/delhistory/options"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Argument/Option settings
-SETARGS="${*}"
-SHORTOPTS="c,v,h"
-LONGOPTS="options,config,version,help"
-ARRAY=""
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Generate Files
-[ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] || __gen_config &>/dev/null
-[ -f "$DELHISTORY_OPTIONS_DIR/options" ] || __list_options "$DELHISTORY_OPTIONS_DIR" &>/dev/null
-[ -f "$DELHISTORY_OPTIONS_DIR/array" ] || __list_array "$DELHISTORY_OPTIONS_DIR" "$ARRAY" &>/dev/null
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Import config
-[ -f "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE" ] && . "$DELHISTORY_CONFIG_DIR/$DELHISTORY_CONFIG_FILE"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# options
-setopts=$(getopt -o "$SHORTOPTS" --long "$LONGOPTS" -n "$PROG" -- "$@" 2>/dev/null)
-eval set -- "$setopts" 2>/dev/null
-while :; do
-  case $1 in
-  --options)
-    __list_options "$DELHISTORY_OPTIONS_DIR"
-    __list_array "$DELHISTORY_OPTIONS_DIR" "$ARRAY"
-    exit $?
-    ;;
-  -v | --version)
-    __version
-    exit $?
-    ;;
-  -h | --help)
-    __help
-    exit $?
-    ;;
-  -c | --config)
-    __gen_config
-    exit $?
-    ;;
-  --)
-    shift 1
-    break
-    ;;
-    #*) break ;;
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
   esac
-  shift
-done
-set -- "$SETARGS"
+}
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Check for required applications
-cmd_exists --error bash || exit 1
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# begin main app
-if [[ "$1" = "search" ]]; then
-  shift 1
-  for line in "$@"; do
-    history | awk '{first = $1; $1=""; print $0}' | sed 's/^ //g' | awk '{printf("%01d %s\n", NR, $0)}' | grep "$line"
-  done
-elif [[ -n "$HISTFILE" ]] && [[ "$1" = "line" ]]; then
-  shift 1
-  for line in "$@"; do
-    grep --line-number "$line" "$HISTFILE" | awk -F: '{print $2}' >"${HISTFILE}.new"
-    mv -fv "${HISTFILE}.new" "${HISTFILE}"
-    history -r && history -w
-  done
-elif [[ -n "$HISTFILE" ]] && [[ $# -ne 0 ]]; then
-  for line in "$@"; do
-    cat "$HISTFILE" | grep -v "$line" >"${HISTFILE}.new"
-    mv -fv "${HISTFILE}.new" "${HISTFILE}"
-    history -r && history -w
-  done
-elif [[ "$1" = "all" ]]; then
-  history -c && history -w && history -r
-else
-  __help
-fi
-exitCode=$?
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# lets exit with code
-exit "${exitCode:-$?}"
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Remove entries from shell history
+
+Usage: $PROG [command] [pattern...]
+
+Commands:
+  search <pattern>   Search history for pattern
+  line <pattern>     Delete specific lines matching pattern
+  all                Clear entire history
+  <pattern>          Delete entries containing pattern
+
+Options:
+  -v, --version      Show version
+  -h, --help         Show this help
+
+Description:
+  Manages shell history by searching, deleting specific entries,
+  or clearing all history. Works with HISTFILE environment variable.
+
+Examples:
+  $PROG search "git push"    # Search for entries
+  $PROG line "password"      # Delete lines containing "password"
+  $PROG "secret"             # Delete entries with "secret"
+  $PROG all                  # Clear all history
+
+Note:
+  This script should be sourced or the history commands may not
+  take effect in the current shell session.
+EOF
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# End application
+# Main function
+main() {
+  local exitCode=0
+
+  # Parse options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check if HISTFILE is set
+  if [ -z "$HISTFILE" ]; then
+    __printf_yellow "Warning: HISTFILE is not set"
+  fi
+
+  # Handle commands
+  case "${1:-}" in
+    search)
+      shift
+      if [ $# -eq 0 ]; then
+        __printf_red "Error: search requires a pattern"
+        exit 1
+      fi
+      for pattern in "$@"; do
+        history | awk '{first = $1; $1=""; print $0}' | sed 's/^ //g' | \
+          awk '{printf("%01d %s\n", NR, $0)}' | grep "$pattern"
+      done
+      ;;
+
+    line)
+      shift
+      if [ $# -eq 0 ]; then
+        __printf_red "Error: line requires a pattern"
+        exit 1
+      fi
+      if [ -z "$HISTFILE" ]; then
+        __printf_red "Error: HISTFILE not set"
+        exit 1
+      fi
+      for pattern in "$@"; do
+        grep --line-number "$pattern" "$HISTFILE" | awk -F: '{print $2}' >"${HISTFILE}.new"
+        mv -f "${HISTFILE}.new" "${HISTFILE}"
+        history -r 2>/dev/null && history -w 2>/dev/null
+        __printf_green "Deleted lines matching: $pattern"
+      done
+      ;;
+
+    all)
+      history -c 2>/dev/null && history -w 2>/dev/null && history -r 2>/dev/null
+      __printf_green "History cleared"
+      ;;
+
+    "")
+      __help
+      ;;
+
+    *)
+      if [ -z "$HISTFILE" ]; then
+        __printf_red "Error: HISTFILE not set"
+        exit 1
+      fi
+      for pattern in "$@"; do
+        grep -v "$pattern" "$HISTFILE" >"${HISTFILE}.new"
+        mv -f "${HISTFILE}.new" "${HISTFILE}"
+        history -r 2>/dev/null && history -w 2>/dev/null
+        __printf_green "Deleted entries matching: $pattern"
+      done
+      ;;
+  esac
+
+  exitCode=$?
+  return "$exitCode"
+}
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
+main "$@"
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

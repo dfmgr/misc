@@ -1,14 +1,6 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-PROG="qrcode"
-USER="${SUDO_USER:-${USER}}"
-HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-#set opts
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
 # @License       : WTFPL
@@ -16,47 +8,210 @@ SRC_DIR="${BASH_SOURCE%/*}"
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
 # @Created       : Thursday, Mar 11, 2021 15:49 EST
 # @File          : qrcode
-# @Description   : converts text into a qr code
+# @Description   : Converts text into a QR code
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
 # @Resource      :
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Main function
-__version() { app_version; }
-__help() {
-  app_help 'Usage: qrcode "Item to turn into a qrcode"' \
-    "-v, --version          -  display version" \
-    "-h, --help             -  display help"
-}
-main() {
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+# Script variables
+PROG="qrcode"
+VERSION="202601061012-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
   esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  typeset text="$*"
-  if am_i_online; then
-    [[ -e "$text" ]] && text=$(cat "$text")
-    [[ -z "$text" ]] && [[ ! -t 0 ]] && text=$(cat -)
-    [[ -z "$text" ]] && text=$(printclip)
-    echo "$text" | curl -q -F-=\<- qrenco.de || return 1
-  else
-    printf_red "No internet connection detected"
-    return 1
-  fi
+}
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-main "$@"
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Network helper functions
+__am_i_online() {
+  # Try multiple methods to check connectivity
+  if __cmd_exists ping; then
+    ping -c 1 -W 2 1.1.1.1 &>/dev/null && return 0
+    ping -c 1 -W 2 8.8.8.8 &>/dev/null && return 0
+  fi
+  if __cmd_exists curl; then
+    curl -q -LSsf --connect-timeout 2 http://qrenco.de &>/dev/null && return 0
+  fi
+  if __cmd_exists wget; then
+    wget -q --spider --timeout=2 http://qrenco.de &>/dev/null && return 0
+  fi
+  return 1
+}
+
+__printclip() {
+  # Try to get clipboard contents
+  case "$(__get_os)" in
+    mac)
+      __cmd_exists pbpaste && pbpaste
+      ;;
+    linux|bsd)
+      if __cmd_exists xclip; then
+        xclip -o -selection clipboard 2>/dev/null
+      elif __cmd_exists xsel; then
+        xsel --clipboard --output 2>/dev/null
+      elif __cmd_exists wl-paste && [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        wl-paste 2>/dev/null
+      fi
+      ;;
+    windows)
+      __cmd_exists powershell.exe && powershell.exe -Command "Get-Clipboard" 2>/dev/null
+      ;;
+  esac
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Converts text into a QR code
+
+Usage: $PROG [options] [text]
+       command | $PROG
+
+Options:
+  -v, --version    Show version
+  -h, --help       Show this help
+
+Arguments:
+  text             Text to convert to QR code (can also be piped or from file)
+
+Description:
+  Generates a QR code from text using the qrenco.de web service.
+  Text can be provided as an argument, piped from stdin, read from
+  a file, or copied from the clipboard.
+
+Examples:
+  $PROG "Hello World"        Convert text to QR code
+  $PROG https://example.com  Convert URL to QR code
+  echo "test" | $PROG        Convert piped input to QR code
+  $PROG file.txt             Convert file contents to QR code
+  $PROG                      Convert clipboard contents to QR code
+
+Requirements:
+  curl, internet connection
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  # Parse options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for curl
+  if ! __cmd_exists curl; then
+    __printf_red "Error: curl is not installed"
+    exit 1
+  fi
+
+  # Check internet connectivity
+  if ! __am_i_online; then
+    __printf_red "No internet connection detected"
+    return 1
+  fi
+
+  # Get text to convert
+  local text="$*"
+
+  # If argument is a file, read its contents
+  if [[ -e "$text" ]]; then
+    text=$(cat "$text")
+  fi
+
+  # If no argument and stdin is not a terminal, read from stdin
+  if [[ -z "$text" ]] && [[ ! -t 0 ]]; then
+    text=$(cat -)
+  fi
+
+  # If still empty, try clipboard
+  if [[ -z "$text" ]]; then
+    text=$(__printclip)
+  fi
+
+  # Check if we have text to convert
+  if [[ -z "$text" ]]; then
+    __printf_red "Error: No text provided"
+    __help >&2
+    return 1
+  fi
+
+  # Generate QR code
+  echo "$text" | curl -q -F-=\<- qrenco.de || return 1
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
+main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end

@@ -1,29 +1,100 @@
 #!/usr/bin/env bash
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-##@Version       : 202207042253-git
+##@Version       : 202601061012-git
 # @Author        : Jason Hempstead
 # @Contact       : jason@casjaysdev.pro
-# @License       : GPLv2+
+# @License       : WTFPL
 # @ReadME        : pass --help
 # @Copyright     : Copyright: (c) 2021 Jason Hempstead, Casjays Developments
 # @Created       : Tuesday, Nov 30, 2021 22:33 EST
 # @File          : pass
-# @Description   :
+# @Description   : The standard Unix password manager
+# @Changelog     : Refactored for self-contained operation
 # @TODO          :
 # @Other         :
-# @Resource      :
+# @Resource      : http://www.passwordstore.org/
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-APPNAME="$(basename "$0")"
-VERSION="202111302233-git"
+# Script variables
+PROG="pass"
+VERSION="202601061012-git"
 USER="${SUDO_USER:-${USER}}"
 HOME="${USER_HOME:-${HOME}}"
-SRC_DIR="${BASH_SOURCE%/*}"
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Set bash options
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
+  esac
+}
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Debug mode
 if [[ "$1" == "--debug" ]]; then shift 1 && set -xo pipefail && export SCRIPT_OPTS="--debug" && export _DEBUG="on"; fi
 trap 'exitCode=${exitCode:-$?};[ -n "$PASS_TEMP_FILE" ] && [ -f "$PASS_TEMP_FILE" ] && rm -Rf "$PASS_TEMP_FILE" &>/dev/null' EXIT
-
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Password store configuration
 umask "${PASSWORD_STORE_UMASK:-077}"
 set -o pipefail
 
@@ -43,11 +114,8 @@ CHARACTER_SET_NO_SYMBOLS="${PASSWORD_STORE_CHARACTER_SET_NO_SYMBOLS:-[:alnum:]}"
 
 unset GIT_DIR GIT_WORK_TREE GIT_NAMESPACE GIT_INDEX_FILE GIT_INDEX_VERSION GIT_OBJECT_DIRECTORY GIT_COMMON_DIR
 export GIT_CEILING_DIRECTORIES="$PREFIX/.."
-
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # BEGIN helper functions
-#
-
 set_git() {
   INNER_GIT_DIR="${1%/*}"
   while [[ ! -d $INNER_GIT_DIR && ${INNER_GIT_DIR%/*}/ == "${PREFIX%/}/"* ]]; do
@@ -55,28 +123,33 @@ set_git() {
   done
   [[ $(git -C "$INNER_GIT_DIR" rev-parse --is-inside-work-tree 2>/dev/null) == true ]] || INNER_GIT_DIR=""
 }
+
 git_add_file() {
   [[ -n $INNER_GIT_DIR ]] || return
   git -C "$INNER_GIT_DIR" add "$1" || return
   [[ -n $(git -C "$INNER_GIT_DIR" status --porcelain "$1") ]] || return
   git_commit "$2"
 }
+
 git_commit() {
   local sign=""
   [[ -n $INNER_GIT_DIR ]] || return
   [[ $(git -C "$INNER_GIT_DIR" config --bool --get pass.signcommits) == "true" ]] && sign="-S"
   git -C "$INNER_GIT_DIR" commit $sign -m "$1"
 }
+
 yesno() {
   [[ -t 0 ]] || return 0
   local response
   read -r -p "$1 [y/N] " response
   [[ $response == [yY] ]] || exit 1
 }
+
 die() {
   echo "$@" >&2
   exit 1
 }
+
 verify_file() {
   [[ -n $PASSWORD_STORE_SIGNING_KEY ]] || return 0
   [[ -f $1.sig ]] || die "Signature for $1 does not exist."
@@ -91,6 +164,7 @@ verify_file() {
   done
   [[ $found -eq 1 ]] || die "Signature for $1 is invalid."
 }
+
 set_gpg_recipients() {
   GPG_RECIPIENT_ARGS=()
   GPG_RECIPIENTS=()
@@ -124,7 +198,7 @@ set_gpg_recipients() {
   verify_file "$current"
 
   while read -r gpg_id; do
-    gpg_id="${gpg_id%%#*}" # strip comment
+    gpg_id="${gpg_id%%#*}"
     [[ -n $gpg_id ]] || continue
     GPG_RECIPIENT_ARGS+=("-r" "$gpg_id")
     GPG_RECIPIENTS+=("$gpg_id")
@@ -148,7 +222,7 @@ reencrypt_path() {
       for index in "${!GPG_RECIPIENTS[@]}"; do
         local group="$(sed -n "s/^cfg:group:$(sed 's/[\/&]/\\&/g' <<<"${GPG_RECIPIENTS[$index]}"):\\(.*\\)\$/\\1/p" <<<"$groups" | head -n 1)"
         [[ -z $group ]] && continue
-        IFS=";" eval 'GPG_RECIPIENTS+=( $group )' # http://unix.stackexchange.com/a/92190
+        IFS=";" eval 'GPG_RECIPIENTS+=( $group )'
         unset "GPG_RECIPIENTS[$index]"
       done
       gpg_keys="$($GPG $PASSWORD_STORE_GPG_OPTS --list-keys --with-colons "${GPG_RECIPIENTS[@]}" | sed -n 's/^sub:[^idr:]*:[^:]*:[^:]*:\([^:]*\):[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[^:]*:[a-zA-Z]*e[a-zA-Z]*:.*/\1/p' | LC_ALL=C sort -u)"
@@ -163,21 +237,17 @@ reencrypt_path() {
     prev_gpg_recipients="${GPG_RECIPIENTS[*]}"
   done < <(find "$1" -path '*/.git' -prune -o -path '*/.extensions' -prune -o -iname '*.gpg' -print0)
 }
+
 check_sneaky_paths() {
   local path
   for path in "$@"; do
     [[ $path =~ /\.\.$ || $path =~ ^\.\./ || $path =~ /\.\./ || $path =~ ^\.\.$ ]] && die "Error: You've attempted to pass a sneaky path to pass. Go home."
   done
 }
-
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # END helper functions
-#
-
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # BEGIN platform definable
-#
-
 clip() {
   if [[ -n $WAYLAND_DISPLAY ]] && command -v wl-copy &>/dev/null; then
     local copy_cmd=(wl-copy)
@@ -196,9 +266,6 @@ clip() {
   fi
   local sleep_argv0="password store sleep on display $display_name"
 
-  # This base64 business is because bash cannot store binary data in a shell
-  # variable. Specifically, it cannot store nulls nor (non-trivally) store
-  # trailing new lines.
   pkill -f "^$sleep_argv0" 2>/dev/null && sleep 0.5
   local before="$("${paste_cmd[@]}" 2>/dev/null | $BASE64)"
   echo -n "$1" | "${copy_cmd[@]}" || die "Error: Could not copy data to the clipboard"
@@ -206,16 +273,7 @@ clip() {
     (exec -a "$sleep_argv0" bash <<<"trap 'kill %1' TERM; sleep '$CLIP_TIME' & wait")
     local now="$("${paste_cmd[@]}" | $BASE64)"
     [[ $now != $(echo -n "$1" | $BASE64) ]] && before="$now"
-
-    # It might be nice to programatically check to see if klipper exists,
-    # as well as checking for other common clipboard managers. But for now,
-    # this works fine -- if qdbus isn't there or if klipper isn't running,
-    # this essentially becomes a no-op.
-    #
-    # Clipboard managers frequently write their history out in plaintext,
-    # so we axe it here:
     qdbus org.kde.klipper /klipper org.kde.klipper.klipper.clearClipboardHistory &>/dev/null
-
     echo "$before" | $BASE64 -d | "${copy_cmd[@]}"
   ) >/dev/null 2>&1 &
   disown
@@ -266,22 +324,17 @@ tmpdir() {
     }
     trap shred_tmpfile EXIT
   fi
-
 }
+
 GETOPT="getopt"
 SHRED="shred -f -z"
 BASE64="base64"
 
-source "$(dirname "$0")/platform/$(uname | cut -d _ -f 1 | tr '[:upper:]' '[:lower:]').sh" 2>/dev/null # PLATFORM_FUNCTION_FILE
-
-#
+source "$(dirname "$0")/platform/$(uname | cut -d _ -f 1 | tr '[:upper:]' '[:lower:]').sh" 2>/dev/null
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # END platform definable
-#
-
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # BEGIN subcommand functions
-#
-
 cmd_version() {
   cat <<-_EOF
 	============================================
@@ -349,14 +402,8 @@ cmd_init() {
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
-    -p | --path)
-      id_path="$2"
-      shift 2
-      ;;
-    --)
-      shift
-      break
-      ;;
+    -p | --path) id_path="$2"; shift 2 ;;
+    --) shift; break ;;
     esac done
 
   [[ $err -ne 0 || $# -lt 1 ]] && die "Usage: $PROGRAM $COMMAND [--path=subfolder,-p subfolder] gpg-id..."
@@ -402,20 +449,9 @@ cmd_show() {
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
-    -q | --qrcode)
-      qrcode=1
-      selected_line="${2:-1}"
-      shift 2
-      ;;
-    -c | --clip)
-      clip=1
-      selected_line="${2:-1}"
-      shift 2
-      ;;
-    --)
-      shift
-      break
-      ;;
+    -q | --qrcode) qrcode=1; selected_line="${2:-1}"; shift 2 ;;
+    -c | --clip) clip=1; selected_line="${2:-1}"; shift 2 ;;
+    --) shift; break ;;
     esac done
 
   [[ $err -ne 0 || ($qrcode -eq 1 && $clip -eq 1) ]] && die "Usage: $PROGRAM $COMMAND [--clip[=line-number],-c[line-number]] [--qrcode[=line-number],-q[line-number]] [pass-name]"
@@ -444,7 +480,7 @@ cmd_show() {
     else
       echo "${path%\/}"
     fi
-    tree -N -C -l --noreport "$PREFIX/$path" | tail -n +2 | sed -E 's/\.gpg(\x1B\[[0-9]+m)?( ->|$)/\1\2/g' # remove .gpg at end of line, but keep colors
+    tree -N -C -l --noreport "$PREFIX/$path" | tail -n +2 | sed -E 's/\.gpg(\x1B\[[0-9]+m)?( ->|$)/\1\2/g'
   elif [[ -z $path ]]; then
     die "Error: password store is empty. Try \"pass init\"."
   else
@@ -481,22 +517,10 @@ cmd_insert() {
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
-    -m | --multiline)
-      multiline=1
-      shift
-      ;;
-    -e | --echo)
-      noecho=0
-      shift
-      ;;
-    -f | --force)
-      force=1
-      shift
-      ;;
-    --)
-      shift
-      break
-      ;;
+    -m | --multiline) multiline=1; shift ;;
+    -e | --echo) noecho=0; shift ;;
+    -f | --force) force=1; shift ;;
+    --) shift; break ;;
     esac done
 
   [[ $err -ne 0 || ($multiline -eq 1 && $noecho -eq 0) || $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND [--echo,-e | --multiline,-m] [--force,-f] pass-name"
@@ -546,7 +570,7 @@ cmd_edit() {
   local passfile="$PREFIX/$path.gpg"
   set_git "$passfile"
 
-  tmpdir #Defines $SECURE_TMPDIR
+  tmpdir
   local tmp_file="$(mktemp -u "$SECURE_TMPDIR/XXXXXX")-${path//\//-}.txt"
 
   local action="Add"
@@ -569,30 +593,12 @@ cmd_generate() {
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
-    -n | --no-symbols)
-      characters="$CHARACTER_SET_NO_SYMBOLS"
-      shift
-      ;;
-    -q | --qrcode)
-      qrcode=1
-      shift
-      ;;
-    -c | --clip)
-      clip=1
-      shift
-      ;;
-    -f | --force)
-      force=1
-      shift
-      ;;
-    -i | --in-place)
-      inplace=1
-      shift
-      ;;
-    --)
-      shift
-      break
-      ;;
+    -n | --no-symbols) characters="$CHARACTER_SET_NO_SYMBOLS"; shift ;;
+    -q | --qrcode) qrcode=1; shift ;;
+    -c | --clip) clip=1; shift ;;
+    -f | --force) force=1; shift ;;
+    -i | --in-place) inplace=1; shift ;;
+    --) shift; break ;;
     esac done
 
   [[ $err -ne 0 || ($# -ne 2 && $# -ne 1) || ($force -eq 1 && $inplace -eq 1) || ($qrcode -eq 1 && $clip -eq 1) ]] && die "Usage: $PROGRAM $COMMAND [--no-symbols,-n] [--clip,-c] [--qrcode,-q] [--in-place,-i | --force,-f] pass-name [pass-length]"
@@ -643,18 +649,9 @@ cmd_delete() {
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
-    -r | --recursive)
-      recursive="-r"
-      shift
-      ;;
-    -f | --force)
-      force=1
-      shift
-      ;;
-    --)
-      shift
-      break
-      ;;
+    -r | --recursive) recursive="-r"; shift ;;
+    -f | --force) force=1; shift ;;
+    --) shift; break ;;
     esac done
   [[ $# -ne 1 ]] && die "Usage: $PROGRAM $COMMAND [--recursive,-r] [--force,-f] pass-name"
   local path="$1"
@@ -686,14 +683,8 @@ cmd_copy_move() {
   local err=$?
   eval set -- "$opts"
   while true; do case $1 in
-    -f | --force)
-      force=1
-      shift
-      ;;
-    --)
-      shift
-      break
-      ;;
+    -f | --force) force=1; shift ;;
+    --) shift; break ;;
     esac done
   [[ $# -ne 2 ]] && die "Usage: $PROGRAM $COMMAND [--force,-f] old-path new-path"
   check_sneaky_paths "$@"
@@ -751,7 +742,7 @@ cmd_git() {
     git -C "$INNER_GIT_DIR" config --local diff.gpg.binary true
     git -C "$INNER_GIT_DIR" config --local diff.gpg.textconv "$GPG -d ${GPG_OPTS[*]}"
   elif [[ -n $INNER_GIT_DIR ]]; then
-    tmpdir nowarn #Defines $SECURE_TMPDIR. We don't warn, because at most, this only copies encrypted files.
+    tmpdir nowarn
     export TMPDIR="$SECURE_TMPDIR"
     git -C "$INNER_GIT_DIR" "$@"
   else
@@ -784,67 +775,34 @@ cmd_extension() {
   source "$extension" "$@"
   return 0
 }
-
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # END subcommand functions
-#
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  PROGRAM="${0##*/}"
+  COMMAND="$1"
 
-PROGRAM="${0##*/}"
-COMMAND="$1"
-
-case "$1" in
-init)
-  shift
-  cmd_init "$@"
-  ;;
-help | --help)
-  shift
-  cmd_usage "$@"
-  ;;
-version | --version)
-  shift
-  cmd_version "$@"
-  ;;
-show | ls | list)
-  shift
-  cmd_show "$@"
-  ;;
-find | search)
-  shift
-  cmd_find "$@"
-  ;;
-grep)
-  shift
-  cmd_grep "$@"
-  ;;
-insert | add)
-  shift
-  cmd_insert "$@"
-  ;;
-edit)
-  shift
-  cmd_edit "$@"
-  ;;
-generate)
-  shift
-  cmd_generate "$@"
-  ;;
-delete | rm | remove)
-  shift
-  cmd_delete "$@"
-  ;;
-rename | mv)
-  shift
-  cmd_copy_move "move" "$@"
-  ;;
-copy | cp)
-  shift
-  cmd_copy_move "copy" "$@"
-  ;;
-git)
-  shift
-  cmd_git "$@"
-  ;;
-*) cmd_extension_or_show "$@" ;;
-esac
-exit 0
+  case "$1" in
+    init) shift; cmd_init "$@" ;;
+    help|--help|-h) shift; cmd_usage "$@" ;;
+    version|--version|-v) shift; cmd_version "$@" ;;
+    show|ls|list) shift; cmd_show "$@" ;;
+    find|search) shift; cmd_find "$@" ;;
+    grep) shift; cmd_grep "$@" ;;
+    insert|add) shift; cmd_insert "$@" ;;
+    edit) shift; cmd_edit "$@" ;;
+    generate) shift; cmd_generate "$@" ;;
+    delete|rm|remove) shift; cmd_delete "$@" ;;
+    rename|mv) shift; cmd_copy_move "move" "$@" ;;
+    copy|cp) shift; cmd_copy_move "copy" "$@" ;;
+    git) shift; cmd_git "$@" ;;
+    *) cmd_extension_or_show "$@" ;;
+  esac
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
+main "$@"
+exit $?
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# end

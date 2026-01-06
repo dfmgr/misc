@@ -1,112 +1,197 @@
 #!/usr/bin/env bash
-__mkd() {
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  PROG="mkd"
-  USER="${SUDO_USER:-${USER}}"
-  HOME="${USER_HOME:-${HOME}}"
-  SRC_DIR="${BASH_SOURCE%/*}"
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  #set opts
-
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  ##@Version       : 202207042253-git
-  # @Author        : Jason Hempstead
-  # @Contact       : jason@casjaysdev.pro
-  # @License       : WTFPL
-  # @ReadME        : mkd --help
-  # @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
-  # @Created       : Thursday, Mar 11, 2021 11:01 EST
-  # @File          : mkd
-  # @Description   : create directory and cd into it
-  # @TODO          :
-  # @Other         :
-  # @Resource      :
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # Main function
-  if [ -f "$SRC_DIR/functions.bash" ]; then local DIR="$SRC_DIR"; else local DIR="$HOME/.local/bin"; fi
-  if [[ -f "$DIR/functions.bash" ]]; then
-    . "$DIR/functions.bash"
-  else
-    printf "\\033[0;31m%s \033[0m\n" "Couldn't source the functions file from $DIR"
-    return 1
-  fi
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __version() { app_version; }
-  __help() {
-    app_help "Usage:    mkd directorytoCreate" \
-      "-v, --version          -  display version" \
-      "-h, --help             -  display help"
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  # App functions
-  __change_dir() {
-    if [ -d "$1" ]; then
-      printf_green "Creating $DIR_TO_CREATE and entering the directory"
-      printf_cyan "Type exit to return to your previous directory"
-      builtin cd "$1" || return
-      $SHELL
-    else
-      printf_return "Failed to create $1"
-    fi
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __create() {
-    local DIR_TO_CREATE="${1:-$DIR_TO_CREATE}"
-    if [ ! -d "$DIR_TO_CREATE" ]; then
-      if printf_mkdir "$DIR_TO_CREATE" 2>/dev/null; then
-        true
-      else
-        printf_exit "Failed to create $DIR_TO_CREATE"
-        exitCode=1
-      fi
-    fi
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  __cd() {
-    if cmd_exists cdd; then
-      if [[ "$CDD_STATUS" = "running" ]]; then
-        if [[ "$CDD_DIR/$1" = "$CDD_DIR"/** ]] || [[ "$1" = ./** ]] || [[ "$1" != ".." ]] || [ "$1" = "" ]; then
-          __create "${DIR_TO_CREATE//$CDD_DIR\//}" || return 1
-        else
-          printf_red "Creating directories outside of $CDD_DIR is forbidden"
-        fi
-      else
-        __create "$DIR_TO_CREATE" || return 1
-      fi
-    else
-      __create "$DIR_TO_CREATE" || return 1
-    fi
-    __change_dir "$DIR_TO_CREATE"
-  }
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  case $1 in
-  -v | --version) __version ;;
-  -h | --help) __help ;;
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+##@Version       : 202601061012-git
+# @Author        : Jason Hempstead
+# @Contact       : jason@casjaysdev.pro
+# @License       : WTFPL
+# @ReadME        : mkd --help
+# @Copyright     : Copyright: (c) 2021 Jason Hempstead, CasjaysDev
+# @Created       : Thursday, Mar 11, 2021 11:01 EST
+# @File          : mkd
+# @Description   : Create directory and cd into it
+# @Changelog     : Refactored for self-contained operation
+# @TODO          :
+# @Other         :
+# @Resource      :
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Script variables
+PROG="mkd"
+VERSION="202601061012-git"
+USER="${SUDO_USER:-${USER}}"
+HOME="${USER_HOME:-${HOME}}"
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Environment Detection
+__get_os() {
+  case "$(uname -s)" in
+    Linux*) echo "linux" ;;
+    Darwin*) echo "mac" ;;
+    *BSD*) echo "bsd" ;;
+    MINGW*|MSYS*|CYGWIN*) echo "windows" ;;
+    *) echo "unknown" ;;
   esac
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  [ $# = 0 ] && __help
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  local DIR_TO_CREATE="$*"
-  local failed=0
-  # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-  if [ $# -gt 1 ]; then
-    for dir in $DIR_TO_CREATE; do
-      printf_green "Creating the directory: $dir"
-      mkdir -p "$dir" 2>/dev/null || failed+=1
-      [ $failed = 0 ] || printf_red "Failed to create $dir"
-    done
-  elif [ -n "$DIR_TO_CREATE" ]; then
-    __cd "$DIR_TO_CREATE" && exitCode=0 || exitCode=1
-  else
-    __help
-    exitCode=1
-  fi
-  return ${exitCode:-$?}
+}
+
+__is_remote() {
+  [ -n "${SSH_CLIENT:-}" ] || [ -n "${SSH_TTY:-}" ] || [ -n "${SSH_CONNECTION:-}" ]
+}
+
+__has_display() {
+  [ -n "${DISPLAY:-}" ] || [ -n "${WAYLAND_DISPLAY:-}" ]
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# execute function
-__mkd "$@"
+# Core helper functions
+__cmd_exists() { command -v "$1" >/dev/null 2>&1; }
+
+__is_running() {
+  local proc="$1"
+  case "$(__get_os)" in
+    mac) pgrep -x "$proc" >/dev/null 2>&1 ;;
+    windows) tasklist 2>/dev/null | grep -qi "$proc" ;;
+    *) pgrep -x "$proc" >/dev/null 2>&1 || pgrep -f "$proc" >/dev/null 2>&1 ;;
+  esac
+}
+
+__printf_color() {
+  local color="${2:-0}"
+  printf "\033[0;%sm%s\033[0m\n" "$color" "$1"
+}
+__printf_red() { __printf_color "$1" "31"; }
+__printf_green() { __printf_color "$1" "32"; }
+__printf_yellow() { __printf_color "$1" "33"; }
+__printf_cyan() { __printf_color "$1" "36"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Smart notifications
+__notifications() {
+  local title="$1" msg="$2"
+
+  # Remote/no display - just print to stderr
+  if __is_remote || ! __has_display; then
+    printf "[%s] %s\n" "$title" "$msg" >&2
+    return 0
+  fi
+
+  # GUI notifications based on OS
+  case "$(__get_os)" in
+    mac)
+      osascript -e "display notification \"$msg\" with title \"$title\"" 2>/dev/null && return 0
+      ;;
+    linux|bsd)
+      if __cmd_exists notify-send; then
+        notify-send "$title" "$msg" 2>/dev/null && return 0
+      fi
+      ;;
+    windows)
+      if __cmd_exists powershell.exe; then
+        powershell.exe -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show('$msg', '$title')" 2>/dev/null && return 0
+      fi
+      ;;
+  esac
+
+  # Fallback
+  printf "[%s] %s\n" "$title" "$msg" >&2
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Version and help
+__version() { echo "$PROG $VERSION"; }
+
+__help() {
+  cat <<EOF
+$PROG $VERSION - Create directory and enter it
+
+Usage: $PROG [options] <directory> [directory2 ...]
+
+Options:
+  -v, --version    Show version
+  -h, --help       Show this help
+
+Arguments:
+  directory        Directory to create (and enter if single directory)
+
+Description:
+  Creates the specified directory and enters it. If multiple directories
+  are specified, they are all created but no directory change occurs.
+  Supports creating nested directories (like mkdir -p).
+
+Examples:
+  $PROG myproject
+  $PROG ~/projects/newapp
+  $PROG dir1 dir2 dir3
+EOF
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Create directory
+__create_dir() {
+  local dir="$1"
+  if [ ! -d "$dir" ]; then
+    if mkdir -p "$dir" 2>/dev/null; then
+      return 0
+    else
+      __printf_red "Error: Failed to create '$dir'"
+      return 1
+    fi
+  fi
+  return 0
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Change to directory and spawn shell
+__change_dir() {
+  local dir="$1"
+  if [ -d "$dir" ]; then
+    __printf_green "Created '$dir' and entering the directory"
+    __printf_cyan "Type 'exit' to return to your previous directory"
+    builtin cd "$dir" || return 1
+    $SHELL
+  else
+    __printf_red "Error: Failed to enter '$dir'"
+    return 1
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Main function
+main() {
+  local exitCode=0
+
+  # Parse options
+  case "${1:-}" in
+    -v|--version) __version; exit 0 ;;
+    -h|--help) __help; exit 0 ;;
+  esac
+
+  # Check for input
+  if [ $# -eq 0 ]; then
+    __printf_red "Error: No directory specified"
+    __help >&2
+    exit 1
+  fi
+
+  local DIR_TO_CREATE="$*"
+  local failed=0
+
+  # Handle multiple directories
+  if [ $# -gt 1 ]; then
+    for dir in $DIR_TO_CREATE; do
+      __printf_green "Creating directory: $dir"
+      if ! mkdir -p "$dir" 2>/dev/null; then
+        __printf_red "Failed to create '$dir'"
+        failed=$((failed + 1))
+      fi
+    done
+    [ $failed -gt 0 ] && exitCode=1
+  else
+    # Single directory - create and enter
+    if __create_dir "$DIR_TO_CREATE"; then
+      __change_dir "$DIR_TO_CREATE"
+      exitCode=$?
+    else
+      exitCode=1
+    fi
+  fi
+
+  return "$exitCode"
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Execute
+main "$@"
 exit $?
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # end
