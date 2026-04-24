@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(time timeout *)",
+      "Bash(timeout 45 bash -ilxc 'exit')",
+      "Read(//tmp/**)",
+      "Bash(kill 2358415)",
+      "Bash(bash -n /root/Projects/github/dfmgr/bash/etc/completions/completions.load)"
+    ]
+  }
+}
