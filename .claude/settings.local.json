@@ -5,7 +5,11 @@
       "Bash(timeout 45 bash -ilxc 'exit')",
       "Read(//tmp/**)",
       "Bash(kill 2358415)",
-      "Bash(bash -n /root/Projects/github/dfmgr/bash/etc/completions/completions.load)"
+      "Bash(bash -n /root/Projects/github/dfmgr/bash/etc/completions/completions.load)",
+      "Bash(env -i HOME=/root PATH=/usr/local/bin:/usr/bin:/bin TERM=dumb bash -c 'time bash -ilc exit')",
+      "Bash(env -i HOME=/root PATH=/usr/local/bin:/usr/bin:/bin TERM=dumb 'PS4=+ $EPOCHREALTIME ' bash -ilxc exit)",
+      "Bash(:)",
+      "Bash(bash --rcfile /tmp/bashrc_timed -ic 'exit')"
     ]
   }
 }
