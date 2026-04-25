@@ -226,6 +226,15 @@ The four sibling repos share these extension conventions:
 - Config files that have an established, un-extensioned name stay that way:
   `profile`, `shinit`, `bashrc`, `zshrc`, `config.fish`, `Xresources`,
   `curlrc`, `wgetrc`, `inputrc`, `dircolors`, `rpmmacros`, etc.
+- **Exception — user-facing bin scripts.** Files in `bin/` are user-invocable
+  binaries whose `.sh` is part of the canonical command name (e.g.
+  `compton.sh`, `pavolume.sh`, `pub-ip.sh`). The `.sh` here is the user's
+  invocation handle, not a dialect tag. Renaming would break completion
+  files (`completions/_compton.sh_completions`), `.desktop` entries
+  (`startup/resolution.desktop` → `Exec=set-resolution.sh`), man pages, and
+  user habit. Leave the `.sh` filename as-is; the **shebang** is the
+  source-of-truth for dialect (`#!/usr/bin/env bash` for these). Same
+  convention as the top-level `install.sh` across all four sibling repos.
 - OS-specific variants use extensions: `.lin` (Linux), `.mac` (Darwin),
   `.win` (Cygwin/MSYS/MinGW). Example: `etc/shell/exports/00-default.lin`.
 - `.load` files are loader stubs that route to the matching file under

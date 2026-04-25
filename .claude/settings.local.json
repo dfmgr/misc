@@ -9,7 +9,14 @@
       "Bash(env -i HOME=/root PATH=/usr/local/bin:/usr/bin:/bin TERM=dumb bash -c 'time bash -ilc exit')",
       "Bash(env -i HOME=/root PATH=/usr/local/bin:/usr/bin:/bin TERM=dumb 'PS4=+ $EPOCHREALTIME ' bash -ilxc exit)",
       "Bash(:)",
-      "Bash(bash --rcfile /tmp/bashrc_timed -ic 'exit')"
+      "Bash(bash --rcfile /tmp/bashrc_timed -ic 'exit')",
+      "Bash(zsh -n /root/Projects/github/dfmgr/zsh/etc/functions/00-functions.zsh)",
+      "Bash(command -v fish)",
+      "Bash(fish --no-execute /root/Projects/github/dfmgr/fish/etc/alias/00-aliases.fish)",
+      "Read(//root/**)",
+      "Bash(awk ' *)",
+      "Bash(bash -n /root/Projects/github/dfmgr/bash/etc/functions/command-not-found.bash)",
+      "Bash(cp /root/Projects/github/dfmgr/bash/etc/functions/command-not-found.bash /root/.config/bash/functions/command-not-found.bash)"
     ]
   }
 }
