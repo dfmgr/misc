@@ -17,8 +17,8 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Functions
 __ssh() { clear && \ssh "$@" && clear; }
-__claude_root() { \claude -r "$@" . || \claude "$@" .; }
-__claude_user() { \claude --dangerously-skip-permissions -r "$@" . || \claude --dangerously-skip-permissions "$@" .; }
+__claude_root() { \claude --resume "$@" || \claude "$@" .; }
+__claude_user() { \claude --dangerously-skip-permissions --resume "$@" || \claude --dangerously-skip-permissions "$@" .; }
 __openai_codex() { \codex resume --dangerously-bypass-approvals-and-sandbox --search "$@"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
