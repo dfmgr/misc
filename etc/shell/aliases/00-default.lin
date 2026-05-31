@@ -17,8 +17,8 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Functions
 __ssh() { clear && \ssh "$@" && clear; }
-__claude_root() { \claude --resume "$@" || \claude "$@" .; }
-__claude_user() { \claude --dangerously-skip-permissions --resume "$@" || \claude --dangerously-skip-permissions "$@" .; }
+__claude_root() { \claude --resume "$@" || \claude "$@"; }
+__claude_user() { \claude --dangerously-skip-permissions --resume "$@" || \claude --dangerously-skip-permissions "$@"; }
 __openai_codex() { \codex resume --dangerously-bypass-approvals-and-sandbox --search "$@"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -105,18 +105,18 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if command -v claude >/dev/null 2>&1; then
   if [ $(id -u) -ne 0 ]; then
-    alias claude='__claude_user'
+    alias claude='clear;__claude_user'
   else
-    alias claude='__claude_root'
+    alias claude='clear;__claude_root'
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if command -v codex >/dev/null 2>&1; then
-  alias codex='__openai_codex'
+  alias codex='clear;__openai_codex'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell
-alias profilerc='source ~/.profile '
+alias profilerc='clear;source ~/.profile '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # zsh specific
 [ "$(basename "$SHELL" 2>/dev/null)" = "zsh" ] && alias zshrc='clear && source ~/.zshrc '
