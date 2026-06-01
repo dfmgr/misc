@@ -67,7 +67,7 @@ alias flushdns='sudo systemd-resolve --flush-caches '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ssh aliases
 [ -n "$DISPLAY" ] && alias ssh='ssh -X' || alias ssh='ssh '
-[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias ssh='ssh -q '
+[ -n "$DISPLAY" ] && alias sshq='ssh -qX' || alias sshq='ssh -q '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 which gls >/dev/null 2>&1 && alias ll='gls -l --color=auto '
 which gls >/dev/null 2>&1 && alias l.='gls -LA --color=auto '

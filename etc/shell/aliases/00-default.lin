@@ -127,7 +127,7 @@ alias profilerc='clear;source ~/.profile '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # ssh aliases
 [ -n "$DISPLAY" ] && alias ssh='__ssh -Xt' || alias ssh='__ssh -t '
-[ -n "$DISPLAY" ] && alias sshq='__ssh -qXt' || alias ssh='__ssh -qt '
+[ -n "$DISPLAY" ] && alias sshq='__ssh -qXt' || alias sshq='__ssh -qt '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Package management
 command -v apt >/dev/null 2>&1 && alias apt='sudo apt '
@@ -183,7 +183,7 @@ fi
 command -v minikube >/dev/null 2>&1 && alias kubectl='minikube kubectl '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # trash aliases.
-command -v trash >/dev/null 2>&1 && alias empty-trash='trash empty ' || alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && ~/.local/share/Trash/files/info/* '
+command -v trash >/dev/null 2>&1 && alias empty-trash='trash empty ' || alias empty-trash='rm -Rf ~/.local/share/Trash/files/* && rm -Rf ~/.local/share/Trash/info/* '
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Hide/show icons.
 command -v gsettings >/dev/null 2>&1 && alias desktop-icons-hide='gsettings set org.gnome.desktop.background show-desktop-icons false '
