@@ -23,10 +23,10 @@ geany() { command geany --socket-file="/tmp/geany.sock" "$@" >/dev/null 2>&1 & }
 __claude_root() {
   exitCode=0 resume=0
   clear
-  if claude --resume "$@"; then
+  if command claude --resume "$@"; then
     exitCode=$?
     resume=1
-  elif [ "$resume" -ne 1 ] && claude "$@"; then
+  elif [ "$resume" -ne 1 ] && command claude "$@"; then
     exitCode=$?
   fi
   return $exitCode
@@ -35,10 +35,10 @@ __claude_root() {
 __claude_user() {
   exitCode=0 resume=0
   clear
-  if claude --dangerously-skip-permissions --resume "$@"; then
+  if command claude --dangerously-skip-permissions --resume "$@"; then
     exitCode=$?
     resume=1
-  elif [ "$resume" -ne 1 ] && claude --dangerously-skip-permissions "$@"; then
+  elif [ "$resume" -ne 1 ] && command claude --dangerously-skip-permissions "$@"; then
     exitCode=$?
   fi
 }
@@ -49,10 +49,10 @@ __claude_custom_root() {
   export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
   if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
     clear
-    if claude --resume "$@"; then
+    if command claude --resume "$@"; then
       exitCode=$?
       resume=1
-    elif [ "$resume" -ne 1 ] && claude "$@"; then
+    elif [ "$resume" -ne 1 ] && command claude "$@"; then
       exitCode=$?
     fi
   else
@@ -67,10 +67,10 @@ __claude_custom_user() {
   export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
   if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
     clear
-    if claude --dangerously-skip-permissions --resume "$@"; then
+    if command claude --dangerously-skip-permissions --resume "$@"; then
       exitCode=$?
       resume=1
-    elif [ "$resume" -ne 1 ] && claude --dangerously-skip-permissions "$@"; then
+    elif [ "$resume" -ne 1 ] && command claude --dangerously-skip-permissions "$@"; then
       exitCode=$?
     fi
   else
