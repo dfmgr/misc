@@ -21,30 +21,33 @@
 geany() { command geany --socket-file="/tmp/geany.sock" "$@" >/dev/null 2>&1 & }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __claude_root() {
-  exitCode=0 resume=0
+  exitCode=1 resume=0
   clear
   if command claude --resume "$@"; then
     exitCode=$?
     resume=1
-  elif [ "$resume" -ne 1 ] && command claude "$@"; then
+  elif [ "$resume" -ne 0 ] && command claude "$@"; then
     exitCode=$?
   fi
+  exitCode=$?
   return $exitCode
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __claude_user() {
-  exitCode=0 resume=0
+  exitCode=1 resume=0
   clear
   if command claude --dangerously-skip-permissions --resume "$@"; then
     exitCode=$?
     resume=1
-  elif [ "$resume" -ne 1 ] && command claude --dangerously-skip-permissions "$@"; then
+  elif [ "$resume" -ne 0 ] && command claude --dangerously-skip-permissions "$@"; then
     exitCode=$?
   fi
+  exitCode=$?
+  return $exitCode
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __claude_custom_root() {
-  exitCode=0 resume=0
+  exitCode=1 resume=0
   export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
   export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
   if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
@@ -55,6 +58,7 @@ __claude_custom_root() {
     elif [ "$resume" -ne 1 ] && command claude "$@"; then
       exitCode=$?
     fi
+    exitCode=$?
   else
     printf '%s\n' "Please ensure the variables ANTHROPIC_AUTH_TOKEN and ANTHROPIC_BASE_URL are set"
     return 1
@@ -63,6 +67,7 @@ __claude_custom_root() {
 }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __claude_custom_user() {
+  exitCode=1 resume=0
   export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
   export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
   if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
@@ -70,9 +75,10 @@ __claude_custom_user() {
     if command claude --dangerously-skip-permissions --resume "$@"; then
       exitCode=$?
       resume=1
-    elif [ "$resume" -ne 1 ] && command claude --dangerously-skip-permissions "$@"; then
+    elif [ "$resume" -ne 0 ] && command claude --dangerously-skip-permissions "$@"; then
       exitCode=$?
     fi
+    exitCode=$?
   else
     printf '%s\n' "Please ensure the variables ANTHROPIC_AUTH_TOKEN and ANTHROPIC_BASE_URL are set"
     return 1
