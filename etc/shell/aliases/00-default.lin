@@ -18,19 +18,13 @@
 # Functions
 __ssh() { clear && \ssh "$@" && clear; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__claude_root() { clear; \claude --resume "$@" || { clear;\claude "$@"; }; }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__claude_user() { clear; \claude --dangerously-skip-permissions --resume "$@" || { clear;\claude --dangerously-skip-permissions "$@"; }; }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__openai_codex() { \codex resume --dangerously-bypass-approvals-and-sandbox --search "$@"; }
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 # System Aliases
 alias q='exit '
 alias :q='exit '
 alias :q!='exit '
 alias :w='history -a '
-alias c='clear '
+alias c='reset;clear '
 alias ch='history -c &>/dev/null && history -w &>/dev/null '
 alias g='git '
 alias m='man '
@@ -104,18 +98,6 @@ if command -v screen >/dev/null 2>&1; then
   [ -f "$HOME/.config/screen/productivityrc" ] && alias screen-prod='\screen -c $HOME/.config/screen/productivityrc ' || alias screen-single='\screen -t prod '
   [ -f "$HOME/.config/screen/dev/developmentrc" ] && alias screen-dev='\screen -c $HOME/.config/screen/dev/developmentrc ' || alias screen-dev='\screen -t dev '
   [ -f "$HOME/.config/screen/other/socialrc" ] && alias screen-social='\screen -c $HOME/.config/screen/other/socialrc ' || alias screen-social='\screen -t social '
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if command -v claude >/dev/null 2>&1; then
-  if [ $(id -u) -ne 0 ]; then
-    alias claude='clear;__claude_user'
-  else
-    alias claude='clear;__claude_root'
-  fi
-fi
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-if command -v codex >/dev/null 2>&1; then
-  alias codex='clear;__openai_codex'
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # shell

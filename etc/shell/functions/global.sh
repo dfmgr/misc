@@ -20,9 +20,85 @@
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 geany() { command geany --socket-file="/tmp/geany.sock" "$@" >/dev/null 2>&1 & }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__claude_root() {
+  exitCode=0 resume=0
+  clear
+  if claude --resume "$@"; then
+    exitCode=$?
+    resume=1
+  elif [ "$resume" -ne 1 ] && claude "$@"; then
+    exitCode=$?
+  fi
+  return $exitCode
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__claude_user() {
+  exitCode=0 resume=0
+  clear
+  if claude --dangerously-skip-permissions --resume "$@"; then
+    exitCode=$?
+    resume=1
+  elif [ "$resume" -ne 1 ] && claude --dangerously-skip-permissions "$@"; then
+    exitCode=$?
+  fi
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__claude_custom_root() {
+  exitCode=0 resume=0
+  export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
+  export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
+  if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
+    clear
+    if claude --resume "$@"; then
+      exitCode=$?
+      resume=1
+    elif [ "$resume" -ne 1 ] && claude "$@"; then
+      exitCode=$?
+    fi
+  else
+    printf '%s\n' "Please ensure the variables ANTHROPIC_AUTH_TOKEN and ANTHROPIC_BASE_URL are set"
+    return 1
+  fi
+  return $exitCode
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__claude_custom_user() {
+  export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
+  export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
+  if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
+    clear
+    if claude --dangerously-skip-permissions --resume "$@"; then
+      exitCode=$?
+      resume=1
+    elif [ "$resume" -ne 1 ] && claude --dangerously-skip-permissions "$@"; then
+      exitCode=$?
+    fi
+  else
+    printf '%s\n' "Please ensure the variables ANTHROPIC_AUTH_TOKEN and ANTHROPIC_BASE_URL are set"
+    return 1
+  fi
+  return $exitCode
+}
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if command -v claude >/dev/null 2>&1; then
+  if [ $(id -u) -ne 0 ]; then
+    claude() { __claude_user "$@"; }
+    claude_custom() { __claude_custom_user "$@"; }
+  else
+    claude() { __claude_root "$@"; }
+    claude_custom() { __claude_custom_root "$@"; }
+  fi
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+__openai_codex() { \codex resume --dangerously-bypass-approvals-and-sandbox --search "$@"; }
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if command -v claude >/dev/null 2>&1; then
+  codex() { __openai_codex "$@"; }
+fi
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __tar_create() { tar cfvz "$@"; }
 __tar_extract() { tar xfvz "$@"; }
-__count_lines() { wc -l < "$1"; }
+__count_lines() { wc -l <"$1"; }
 __while_loop() { while :; do "${@}" && sleep .3; done; }
 __broken_symlinks() { find -L "$@" -type l -exec rm -f {} \;; }
 __rm_rf() { if [ -e "$1" ]; then rm -Rf "$@" || return 0; fi; }
