@@ -26,7 +26,7 @@ __claude_root() {
   if command claude --resume "$@"; then
     exitCode=$?
     resume=1
-  elif [ "$resume" -ne 0 ] && command claude "$@"; then
+  elif [ "$resume" -eq 0 ] && command claude "$@"; then
     exitCode=$?
   fi
   exitCode=$?
@@ -39,7 +39,7 @@ __claude_user() {
   if command claude --dangerously-skip-permissions --resume "$@"; then
     exitCode=$?
     resume=1
-  elif [ "$resume" -ne 0 ] && command claude --dangerously-skip-permissions "$@"; then
+  elif [ "$resume" -eq 0 ] && command claude --dangerously-skip-permissions "$@"; then
     exitCode=$?
   fi
   exitCode=$?
@@ -55,7 +55,7 @@ __claude_custom_root() {
     if command claude --resume "$@"; then
       exitCode=$?
       resume=1
-    elif [ "$resume" -ne 1 ] && command claude "$@"; then
+    elif [ "$resume" -eq 0 ] && command claude "$@"; then
       exitCode=$?
     fi
     exitCode=$?
@@ -75,7 +75,7 @@ __claude_custom_user() {
     if command claude --dangerously-skip-permissions --resume "$@"; then
       exitCode=$?
       resume=1
-    elif [ "$resume" -ne 0 ] && command claude --dangerously-skip-permissions "$@"; then
+    elif [ "$resume" -eq 0 ] && command claude --dangerously-skip-permissions "$@"; then
       exitCode=$?
     fi
     exitCode=$?
