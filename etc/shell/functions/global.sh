@@ -48,9 +48,9 @@ __claude_user() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __claude_custom_root() {
   exitCode=1 resume=0
-  export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
-  export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
-  if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
+  export ANTHROPIC_BASE_URL="$CUSTOM_AI_BASE_URL"
+  export ANTHROPIC_AUTH_TOKEN="$CUSTOM_AI_AUTH_TOKEN"
+  if [ -n "$CUSTOM_AI_AUTH_TOKEN" ] && [ -n "$CUSTOM_AI_AUTH_TOKEN" ]; then
     clear
     if command claude --resume; then
       exitCode=$?
@@ -60,7 +60,7 @@ __claude_custom_root() {
     fi
     exitCode=$?
   else
-    printf '%s\n' "Please ensure the variables ANTHROPIC_AUTH_TOKEN and ANTHROPIC_BASE_URL are set"
+    printf '%s\n' "Please ensure the variables CUSTOM_AI_AUTH_TOKEN and CUSTOM_AI_BASE_URL are set"
     return 1
   fi
   return $exitCode
@@ -68,9 +68,9 @@ __claude_custom_root() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __claude_custom_user() {
   exitCode=1 resume=0
-  export ANTHROPIC_BASE_URL="$ANTHROPIC_BASE_URL"
-  export ANTHROPIC_AUTH_TOKEN="$ANTHROPIC_AUTH_TOKEN"
-  if [ -n "$ANTHROPIC_AUTH_TOKEN" ] && [ -n "$ANTHROPIC_AUTH_TOKEN" ]; then
+  export ANTHROPIC_BASE_URL="$CUSTOM_AI_BASE_URL"
+  export ANTHROPIC_AUTH_TOKEN="$CUSTOM_AI_AUTH_TOKEN"
+  if [ -n "$CUSTOM_AI_AUTH_TOKEN" ] && [ -n "$CUSTOM_AI_AUTH_TOKEN" ]; then
     clear
     if command claude --dangerously-skip-permissions --resume; then
       exitCode=$?
@@ -80,7 +80,7 @@ __claude_custom_user() {
     fi
     exitCode=$?
   else
-    printf '%s\n' "Please ensure the variables ANTHROPIC_AUTH_TOKEN and ANTHROPIC_BASE_URL are set"
+    printf '%s\n' "Please ensure the variables CUSTOM_AI_AUTH_TOKEN and CUSTOM_AI_BASE_URL are set"
     return 1
   fi
   return $exitCode
