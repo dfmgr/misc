@@ -96,7 +96,7 @@ if command -v claude >/dev/null 2>&1; then
   fi
 fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__openai_codex() { command codex resume --dangerously-bypass-approvals-and-sandbox --search "$@"; }
+__openai_codex() { command codex resume "$@"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if command -v codex >/dev/null 2>&1; then
   codex() { __openai_codex "$@"; }
