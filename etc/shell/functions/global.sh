@@ -127,13 +127,13 @@ __git_clone() {
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_update() {i
   local dir="${CDD_INTO_CUR:-$PWD}"
-  gitDir="$(__git_top_dir "${1:-$dir}")" remote_repo=""
-  gitOldDir="${CDD_OLD_PWD:-$gitDir}"
-  repo_status="${CDD_REPO_UPDATED:-no}"
-  local_remote_repo="local repo"
-  local_remote_icon="🤷"
-  remote_icon="🚀"
-  git_message=""
+  local gitDir="$(__git_top_dir "${1:-$dir}")"
+  local gitOldDir="${CDD_OLD_PWD:-$gitDir}"
+  local repo_status="${CDD_REPO_UPDATED:-no}"
+  local local_remote_repo="local repo"
+  local local_remote_icon="🤷"
+  local remote_icon="🚀"
+  local git_message="" remote_repo=""
   if [ -d "${gitDir}" ]; then
     git status --porcelain -s 2>&1 | grep -q '^' && return 0
     remote_repo="$([ -f "${gitDir}/.git/config" ] && awk -F'= ' '/url = / {print $2; exit}' "${gitDir}/.git/config" || echo '')"
