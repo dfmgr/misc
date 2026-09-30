@@ -125,7 +125,7 @@ __git_clone() {
   local dir="${2:-$(basename -- "$1" 2>/dev/null)}"
   printf '%s' "Cloning repo to $dir: " && git clone "$1" "$dir" -q 2>/dev/null && printf '\n' || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__git_update() {i
+__git_update() {
   local dir="${CDD_INTO_CUR:-$PWD}"
   local gitDir="$(__git_top_dir "${1:-$dir}")"
   local gitOldDir="${CDD_OLD_PWD:-$gitDir}"
