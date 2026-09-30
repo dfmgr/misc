@@ -104,7 +104,7 @@ fi
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __tar_create() { tar cfvz "$@"; }
 __tar_extract() { tar xfvz "$@"; }
-__count_lines() { wc -l <"$1"; }
+__count_lines() { wc -l <"$@"; }
 __while_loop() { while :; do "${@}" && sleep .3; done; }
 __broken_symlinks() { find -L "$@" -type l -exec rm -f {} \;; }
 __rm_rf() { if [ -e "$1" ]; then rm -Rf "$@" || return 0; fi; }
@@ -121,10 +121,13 @@ __count_files() { find -L "${1:-./}" -maxdepth "${2:-1}" -not -path "${1:-./}/.g
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 __git_top_dir() { git -C "${1:-.}" rev-parse --show-toplevel 2>/dev/null || echo "${1:-$PWD}"; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__git_clone() { printf '%s' "Cloning repo to $2: " && git clone "$1" "${2:-$(basename "$1" 2>/dev/null)}" -q 2>/dev/null && printf '\n' || return 1; }
+__git_clone() {
+  local dir="${2:-$(basename -- "$1" 2>/dev/null)}"
+  printf '%s' "Cloning repo to $dir: " && git clone "$1" "$dir" -q 2>/dev/null && printf '\n' || return 1; }
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-__git_update() {
-  gitDir="$(__git_top_dir "${CDD_INTO_CUR:-$PWD}")" remote_repo=""
+__git_update() {i
+  local dir="${CDD_INTO_CUR:-$PWD}"
+  gitDir="$(__git_top_dir "${1:-$dir}")" remote_repo=""
   gitOldDir="${CDD_OLD_PWD:-$gitDir}"
   repo_status="${CDD_REPO_UPDATED:-no}"
   local_remote_repo="local repo"
